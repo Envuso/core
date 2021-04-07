@@ -1,7 +1,6 @@
 {
-  "name": "@tsframework/framework",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@envuso/core",
+  "version": "0.0.1",
   "scripts": {
     "watch": "webpack --watch --progress --mode development",
     "serve": "nodemon dist/main.js",
