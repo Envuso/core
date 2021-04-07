@@ -1,5 +1,5 @@
 {
-  "name": "@envuso/core",
+  "name": "envuso-core",
   "version": "0.0.1",
   "scripts": {
     "watch": "webpack --watch --progress --mode development",
