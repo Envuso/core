@@ -1,7 +1,7 @@
 {
-  "name": "envuso-cli",
+  "name": "@envuso/cli",
   "description": "Envuso CLI, make a project, generate framework files etc",
-  "version": "0.0.1",
+  "version": "0.0.01",
   "author": "Sam Parton @iDevelopThings",
   "bin": {
     "envuso": "./bin/run"
