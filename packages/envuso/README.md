@@ -19,7 +19,7 @@ $ npm install -g @envuso/cli
 $ envuso COMMAND
 running command...
 $ envuso (-v|--version|version)
-@envuso/cli/0.0.01 darwin-arm64 node-v15.8.0
+@envuso/cli/0.0.2 darwin-arm64 node-v15.8.0
 $ envuso --help [COMMAND]
 USAGE
   $ envuso COMMAND
@@ -112,5 +112,5 @@ EXAMPLE
   $ envuso new
 ```
 
-_See code: [src/commands/new.ts](https://github.com/envuso/cli/blob/v0.0.01/src/commands/new.ts)_
+_See code: [src/commands/new.ts](https://github.com/envuso/cli/blob/v0.0.2/src/commands/new.ts)_
 <!-- commandsstop -->

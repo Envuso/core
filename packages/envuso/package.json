@@ -1,10 +1,10 @@
 {
   "name": "@envuso/cli",
   "description": "Envuso CLI, make a project, generate framework files etc",
-  "version": "0.0.01",
+  "version": "0.0.2",
   "author": "Sam Parton @iDevelopThings",
   "bin": {
-    "envuso": "./bin/run"
+    "envuso": "bin/run"
   },
   "bugs": "https://github.com/envuso/cli/issues",
   "dependencies": {
