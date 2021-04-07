@@ -1,0 +1,13 @@
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/
+# Project exclude paths
+/dist/
+/storage/logs/
+/storage/temp/
+.env
+example.env
+

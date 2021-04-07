@@ -1,0 +1,1 @@
+export declare const STUB_CONTROLLER = "import {Controller} from \"@Providers/Http/Controller/Controller\";\nimport {get, post, controller, middleware} from \"@Decorators\";\n\n\n//@middleware()\n@controller('/')\nexport class {{name}} extends Controller {\n\n\t@get('/')\n\tpublic async index() {\n\n\t}\n\n}";
