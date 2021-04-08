@@ -1,8 +1,6 @@
-import 'reflect-metadata';
 import { TypeOptions } from 'class-transformer';
 import { CollationDocument, FilterQuery } from 'mongodb';
 import { ClassType } from './repository';
-export * from './repository';
 export declare type TypeFunction = (type?: TypeOptions) => ClassType<any>;
 /**
  * Options passed to mongodb.createIndexes
@@ -51,5 +49,7 @@ export interface Ref {
     array: boolean;
     modelName: string;
 }
-export * from './ModelEntity';
-export * from './ModelServiceProvider';
+export * from "./ModelEntity";
+export * from "./ModelServiceProvider";
+export * from "./QueryBuilder";
+export * from "./Repository";
