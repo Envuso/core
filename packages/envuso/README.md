@@ -31,7 +31,6 @@ USAGE
 * [`envuso autocomplete [SHELL]`](#envuso-autocomplete-shell)
 * [`envuso commands`](#envuso-commands)
 * [`envuso help [COMMAND]`](#envuso-help-command)
-* [`envuso make`](#envuso-make)
 * [`envuso make:controller NAME`](#envuso-makecontroller-name)
 * [`envuso make:middleware NAME`](#envuso-makemiddleware-name)
 * [`envuso make:model NAME`](#envuso-makemodel-name)
@@ -100,25 +99,6 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
-
-## `envuso make`
-
-Create all types of framework files
-
-```
-USAGE
-  $ envuso make
-
-OPTIONS
-  -h, --help  show CLI help
-
-EXAMPLES
-  $ envuso make:controller -h
-  $ envuso make:middleware -h
-  $ envuso make:model -h
-```
-
-_See code: [src/commands/make/index.ts](https://github.com/envuso/cli/blob/v0.0.3/src/commands/make/index.ts)_
 
 ## `envuso make:controller NAME`
 
