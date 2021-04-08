@@ -1,19 +1,36 @@
-envuso
-======
+<p align="center">
+	<a href="https://envuso.com" target="_blank"><img src="https://envuso.com/assets/mid.png" width="300"></a>
+</p>
+
+<p align="center">
+    <a href="https://oclif.io" target="_blank"><img alt="oclif" src="https://img.shields.io/badge/cli-oclif-brightgreen.svg">    </a>
+    <a href="https://npmjs.org/package/@envuso/cli" target="_blank">
+        <img alt="Version" src="https://img.shields.io/npm/v/@envuso/cli.svg">
+    </a>
+    <a href="https://npmjs.org/package/@envuso/cli" target="_blank">
+        <img alt="Downloads/week" src="https://img.shields.io/npm/dw/@envuso/cli.svg">
+    </a>
+    <a href="https://github.com/@envuso/cli/blob/master/package.json" target="_blank">
+        <img alt="License" src="https://img.shields.io/npm/l/@envuso/cli.svg">
+    </a>
+</p>
+
+
+## Envuso CLI
 
 Envuso CLI, make a project, generate framework files etc
 
-[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/@envuso/cli.svg)](https://npmjs.org/package/@envuso/cli)
-[![Downloads/week](https://img.shields.io/npm/dw/@envuso/cli.svg)](https://npmjs.org/package/@envuso/cli)
-[![License](https://img.shields.io/npm/l/@envuso/cli.svg)](https://github.com/@envuso/cli/cli/blob/master/package.json)
-
 <!-- toc -->
+
 * [Usage](#usage)
 * [Commands](#commands)
+
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @envuso/cli
 $ envuso COMMAND
@@ -25,9 +42,13 @@ USAGE
   $ envuso COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
+
 * [`envuso autocomplete [SHELL]`](#envuso-autocomplete-shell)
 * [`envuso commands`](#envuso-commands)
 * [`envuso help [COMMAND]`](#envuso-help-command)
