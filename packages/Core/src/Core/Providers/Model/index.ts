@@ -1,11 +1,6 @@
-import 'reflect-metadata';
-
 import {Expose, Transform, Type, TypeOptions} from 'class-transformer';
 import {CollationDocument, FilterQuery, IndexSpecification, ObjectId} from 'mongodb';
-
 import {ClassType} from './repository';
-
-export * from './repository';
 
 //(type?: TypeHelpOptions) => Function, options?: TypeOptions
 export type TypeFunction = (type?: TypeOptions) => ClassType<any>;
@@ -63,5 +58,7 @@ export interface Ref {
 	modelName: string;
 }
 
-export * from './ModelEntity';
-export * from './ModelServiceProvider';
+export * from "./ModelEntity";
+export * from "./ModelServiceProvider";
+export * from "./QueryBuilder";
+export * from "./Repository";

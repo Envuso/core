@@ -4,8 +4,7 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
 	cache     : false,
 	entry     : {
-		main : './src/index.ts',
-		cli  : './src/cli.ts',
+		main : './src/index.ts'
 	},
 	devtool   : 'inline-source-map',
 	target    : 'node',
@@ -24,7 +23,7 @@ module.exports = {
 	},
 	resolve   : {
 		modules    : [
-			path.resolve(__dirname, 'src', 'App', 'Http', 'Controller'),
+//			path.resolve(__dirname, 'src', 'App', 'Http', 'Controller'),
 		],
 		alias      : {
 			'@Core'           : path.resolve(__dirname, 'src', 'Core'),
@@ -39,7 +38,7 @@ module.exports = {
 	},
 	externals : [nodeExternals()],
 	output    : {
-		filename : '[id].js',
+		filename : 'main.js',
 		path     : path.resolve(__dirname, 'dist'),
 	},
 	plugins   : [],

@@ -1,31 +1,17 @@
-import "./Core/Bootstrap";
-import {whenBootstrapped} from "@Core/Bootstrap";
-import {App} from "@Core/App";
-import Container from "@Core/Container";
-import {ServerServiceProvider} from "@Core/Providers";
-
-//@ts-ignore
-global.disableConsoleLogs = false;
-
-const app = new App();
-
-/**
- * @category wtf
- */
-export async function bootApp() {
-	app.registerProviders();
-	await app.registerProviderBindings();
-	await app.bootProviders();
-	await app.up();
-}
-
-export function destroyApp() {
-	app.down();
-}
-
-whenBootstrapped().then(async () => {
-	await bootApp();
-
-	await Container.get<ServerServiceProvider>(ServerServiceProvider).run();
-});
-
+export * from './Core/Decorators';
+export * from './Core/Exceptions/Models/InvalidRefSpecified';
+export * from './Core/Providers/Auth';
+export * from './Core/Providers/Cache';
+export * from './Core/Providers/Crypt';
+export * from './Core/Providers/Http/Context/Request';
+export * from './Core/Providers/Http/Context';
+export * from './Core/Providers/Http/Controller/Decorators';
+export * from './Core/Providers/Http/Controller';
+export * from './Core/Providers/Http/Server';
+export * from './Core/Providers/Http';
+export * from './Core/Providers/Log';
+export * from './Core/Providers/Model';
+export * from './Core/Providers/Storage/StorageProviders/SpacesProvider';
+export * from './Core/Providers/Storage';
+export * from './Core/Providers';
+export * from './Core';

@@ -1,4 +1,4 @@
-import { CacheServiceProvider } from "@Providers/Cache/CacheServiceProvider";
+import { AuthServiceProvider } from "@Providers/Auth/AuthServiceProvider";
 import { FastifyPlugin, FastifyPluginOptions } from "fastify";
 /**
  * These are our service providers, they are the
@@ -7,7 +7,7 @@ import { FastifyPlugin, FastifyPluginOptions } from "fastify";
  * You can remove a provider and replace it with your
  * own, or completely disable some functionality.
  */
-export declare const providers: (typeof CacheServiceProvider)[];
+export declare const providers: (typeof AuthServiceProvider)[];
 /**
  * Server providers are Fastify Plugins that you register to the server when it's booted.
  */

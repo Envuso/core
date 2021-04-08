@@ -5,7 +5,6 @@ build/
 tmp/
 temp/
 # Project exclude paths
-/dist/
 /storage/logs/
 /storage/temp/
 .env

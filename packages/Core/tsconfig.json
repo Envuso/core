@@ -13,17 +13,14 @@
     "target": "es6",
     "lib": [
       "es5",
-      "es6",
-      "dom"
+      "es6"
     ],
     "types": [
-      // add node as an option
       "node",
       "reflect-metadata",
       "jest"
     ],
     "typeRoots": [
-      // add path to @types
       "node_modules/@types"
     ],
     "paths": {
