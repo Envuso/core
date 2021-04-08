@@ -3,6 +3,13 @@
   "description": "Envuso CLI, make a project, generate framework files etc",
   "version": "0.0.2",
   "author": "Sam Parton @iDevelopThings",
+  "scripts": {
+    "run" : "bin/run",
+    "postpack": "rm -f oclif.manifest.json",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md"
+  },
   "bin": {
     "envuso": "bin/run"
   },
@@ -17,14 +24,16 @@
     "@types/execa": "^2.0.0",
     "@types/inquirer": "^7.3.1",
     "@types/listr": "^0.14.2",
+    "@types/lodash": "^4.14.168",
+    "boxen": "^5.0.1",
     "execa": "^5.0.0",
     "git-clone": "^0.1.0",
     "inquirer": "^8.0.0",
     "listr": "^0.14.3",
+    "lodash": "^4.17.21",
     "rxjs": "^6.6.7",
     "terminal-link": "^2.1.1",
-    "tslib": "^1",
-    "boxen": "^5.0.1"
+    "tslib": "^1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
@@ -66,11 +75,5 @@
     ]
   },
   "repository": "envuso/cli",
-  "scripts": {
-    "postpack": "rm -f oclif.manifest.json",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif-dev readme && git add README.md"
-  },
   "types": "lib/index.d.ts"
 }
