@@ -1,10 +1,10 @@
 {
   "name": "@envuso/cli",
   "description": "Envuso CLI, make a project, generate framework files etc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Sam Parton @iDevelopThings",
   "scripts": {
-    "run" : "bin/run",
+    "run": "bin/run",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",

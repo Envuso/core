@@ -19,7 +19,7 @@ $ npm install -g @envuso/cli
 $ envuso COMMAND
 running command...
 $ envuso (-v|--version|version)
-@envuso/cli/0.0.2 darwin-arm64 node-v15.8.0
+@envuso/cli/0.0.3 darwin-arm64 node-v15.8.0
 $ envuso --help [COMMAND]
 USAGE
   $ envuso COMMAND
@@ -31,6 +31,10 @@ USAGE
 * [`envuso autocomplete [SHELL]`](#envuso-autocomplete-shell)
 * [`envuso commands`](#envuso-commands)
 * [`envuso help [COMMAND]`](#envuso-help-command)
+* [`envuso make`](#envuso-make)
+* [`envuso make:controller NAME`](#envuso-makecontroller-name)
+* [`envuso make:middleware NAME`](#envuso-makemiddleware-name)
+* [`envuso make:model NAME`](#envuso-makemodel-name)
 * [`envuso new`](#envuso-new)
 
 ## `envuso autocomplete [SHELL]`
@@ -97,6 +101,89 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
 
+## `envuso make`
+
+Create all types of framework files
+
+```
+USAGE
+  $ envuso make
+
+OPTIONS
+  -h, --help  show CLI help
+
+EXAMPLES
+  $ envuso make:controller -h
+  $ envuso make:middleware -h
+  $ envuso make:model -h
+```
+
+_See code: [src/commands/make/index.ts](https://github.com/envuso/cli/blob/v0.0.3/src/commands/make/index.ts)_
+
+## `envuso make:controller NAME`
+
+Create a controller
+
+```
+USAGE
+  $ envuso make:controller NAME
+
+ARGUMENTS
+  NAME  Set a name for your controller(Does not need to contain "Controller" this will be automatically added.)
+
+OPTIONS
+  -h, --help         show CLI help
+  -m, --model=model  Create a resource controller using your model
+  -r, --resource     Create a resource controller(Controller using GET, PUT, POST, PATCH, DELETE)
+
+EXAMPLES
+  $ envuso make:controller User
+  $ envuso make:controller User --resource
+  $ envuso make:controller User --resource --model=User
+```
+
+_See code: [src/commands/make/controller.ts](https://github.com/envuso/cli/blob/v0.0.3/src/commands/make/controller.ts)_
+
+## `envuso make:middleware NAME`
+
+Create a middleware
+
+```
+USAGE
+  $ envuso make:middleware NAME
+
+ARGUMENTS
+  NAME  Set a name for your middleware(Does not need to contain "Middleware" this will be automatically added.)
+
+OPTIONS
+  -h, --help  show CLI help
+
+EXAMPLE
+  $ envuso make:middleware User
+```
+
+_See code: [src/commands/make/middleware.ts](https://github.com/envuso/cli/blob/v0.0.3/src/commands/make/middleware.ts)_
+
+## `envuso make:model NAME`
+
+Create a middleware
+
+```
+USAGE
+  $ envuso make:model NAME
+
+ARGUMENTS
+  NAME  Set a name for your middleware(Does not need to contain "Model" this will be automatically added.)
+
+OPTIONS
+  -h, --help  show CLI help
+
+EXAMPLE
+  $ envuso make:middleware User
+```
+
+_See code: [src/commands/make/model.ts](https://github.com/envuso/cli/blob/v0.0.3/src/commands/make/model.ts)_
+
 ## `envuso new`
 
 Create a new project
@@ -112,5 +199,5 @@ EXAMPLE
   $ envuso new
 ```
 
-_See code: [src/commands/new.ts](https://github.com/envuso/cli/blob/v0.0.2/src/commands/new.ts)_
+_See code: [src/commands/new.ts](https://github.com/envuso/cli/blob/v0.0.3/src/commands/new.ts)_
 <!-- commandsstop -->
