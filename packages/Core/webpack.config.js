@@ -5,7 +5,6 @@ module.exports = {
 	cache     : false,
 	entry     : {
 		main      : './src/index.ts',
-		providers : './src/Core/index.ts',
 	},
 	devtool   : 'inline-source-map',
 	target    : 'node',
@@ -39,7 +38,7 @@ module.exports = {
 	},
 	externals : [nodeExternals()],
 	output    : {
-		filename : '[name].js',
+		filename : 'main.js',
 		path     : path.resolve(__dirname, 'dist'),
 	},
 	plugins   : [],

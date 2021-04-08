@@ -13,9 +13,9 @@ export declare class Route {
      * Returns all the fastify route arguments needed to
      * bind this route to the fastify instance
      */
-    getFastifyRouteOptions(): (string | {
+    getFastifyRouteOptions(): (string | RouteHandlerMethod<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown> | {
         preHandler: (request: FastifyRequest<import("fastify/types/route").RouteGenericInterface, import("http").Server, import("http").IncomingMessage>, response: FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>) => Promise<never>;
-    } | RouteHandlerMethod<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>)[];
+    })[];
     /**
      * Load the middleware for this route and return it as a fastify pre-handler
      *
