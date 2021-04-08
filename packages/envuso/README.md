@@ -4,9 +4,9 @@ envuso
 Envuso CLI, make a project, generate framework files etc
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
-[![Version](https://img.shields.io/npm/v/envuso.svg)](https://npmjs.org/package/envuso)
-[![Downloads/week](https://img.shields.io/npm/dw/envuso.svg)](https://npmjs.org/package/envuso)
-[![License](https://img.shields.io/npm/l/envuso.svg)](https://github.com/envuso/cli/blob/master/package.json)
+[![Version](https://img.shields.io/npm/v/@envuso/cli.svg)](https://npmjs.org/package/@envuso/cli)
+[![Downloads/week](https://img.shields.io/npm/dw/@envuso/cli.svg)](https://npmjs.org/package/@envuso/cli)
+[![License](https://img.shields.io/npm/l/@envuso/cli.svg)](https://github.com/@envuso/cli/cli/blob/master/package.json)
 
 <!-- toc -->
 * [Usage](#usage)
