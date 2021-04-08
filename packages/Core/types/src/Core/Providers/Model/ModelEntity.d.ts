@@ -1,6 +1,6 @@
 import { QueryBuilder } from "@Providers/Model/QueryBuilder";
+import { Repository } from "@Providers/Model/Repository";
 import { ObjectId } from "mongodb";
-import { Repository } from "@Core/Providers";
 export declare class ModelEntity<M> {
     /**
      * We'll store the result of the recent mongo request if there

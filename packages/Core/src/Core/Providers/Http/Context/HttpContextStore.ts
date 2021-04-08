@@ -1,6 +1,6 @@
+import {METADATA} from "@Core/DecoratorData";
 import {AsyncLocalStorage} from "async_hooks";
 import {FastifyRequest, HookHandlerDoneFunction} from "fastify";
-import {METADATA} from "../../../DecoratorData";
 import {HttpContext} from "./HttpContext";
 
 let instance = null;

@@ -1,4 +1,4 @@
-import { ModelEntity } from "@Core/Providers";
+import { ModelEntity } from "@Core/Providers/Model";
 import { Cursor, UpdateManyOptions } from "mongodb";
 export declare class QueryBuilder<T> {
     /**

@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { FileUpload } from "@Providers/Http/Context/Request/FileUpload";
+import { FileUpload } from "@Providers/Http";
 import { FastifyRequest } from "fastify";
 export declare class HttpRequest {
     private readonly _request;

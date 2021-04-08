@@ -1,1 +1,0 @@
-export declare const STUB_MIDDLEWARE = "import {FastifyReply, FastifyRequest} from \"fastify\";\nimport {injectable} from \"inversify\";\nimport {Middleware} from \"@Providers/Http/Controller/Middleware\";\n\n\n@injectable()\nexport class {{name}} extends Middleware {\n\n\tpublic async handler(request: FastifyRequest, response: FastifyReply) {\n\n\t}\n\n}\n";

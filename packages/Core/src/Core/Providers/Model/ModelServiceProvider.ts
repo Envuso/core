@@ -1,6 +1,6 @@
 import {Log} from "@Providers/Log/Log";
 import {ModelEntity} from "@Providers/Model/ModelEntity";
-import {ClassType, Repository} from "@Core/Providers";
+import {ClassType, Repository} from "@Providers/Model/Repository";
 import {ServiceProvider} from "../ServiceProvider";
 import {injectable} from "inversify";
 import path from "path";

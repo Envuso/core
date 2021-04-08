@@ -1,5 +1,7 @@
 import {Exception} from "@App/Exceptions/Exception";
-import {Encryption, HttpRequest, Log} from "@Core/Providers";
+import {Encryption} from "@Providers/Crypt";
+import {HttpRequest} from "@Providers/Http";
+import {Log} from "@Providers/Log";
 import {Storage} from "@Providers/Storage/Storage";
 import {UploadedFileInformation} from "@Providers/Storage/StorageProvider";
 import {Multipart} from "fastify-multipart";

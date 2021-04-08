@@ -1,7 +1,6 @@
+import {ValidationException} from "@App/Exceptions/ValidationException";
 import {FastifyReply} from "fastify";
 import {StatusCodes} from "http-status-codes";
-import {ValidationException} from "@App/Exceptions/ValidationException";
-
 
 export class HttpResponse {
 

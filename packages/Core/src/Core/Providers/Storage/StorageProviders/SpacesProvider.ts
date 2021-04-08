@@ -1,16 +1,13 @@
 import {Config} from "@Config";
-import {Encryption} from "@Core/Providers";
+import {Encryption} from "@Providers/Crypt";
 import {StorageProvider, UploadedFileInformation} from "@Providers/Storage/StorageProvider";
-import {DeleteObjectOutput, Part, PutObjectOutput} from "aws-sdk/clients/s3";
+import {DeleteObjectOutput, PutObjectOutput} from "aws-sdk/clients/s3";
 import {Multipart} from "fastify-multipart";
-import {Endpoint, S3} from "aws-sdk";
+import {S3} from "aws-sdk";
 import * as fs from "fs";
 import {injectable} from "inversify";
-import path from "path";
-import {Readable} from "stream";
 import {pipeline} from "stream";
 import * as util from 'util'
-import * as stream from 'stream';
 
 const pump = util.promisify(pipeline)
 

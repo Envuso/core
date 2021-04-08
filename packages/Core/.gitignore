@@ -1,7 +1,7 @@
 .idea/
 .vscode/
 node_modules/
-build/
+build/k
 tmp/
 temp/
 # Project exclude paths
@@ -9,4 +9,8 @@ temp/
 /storage/temp/
 .env
 example.env
+/types/src/App/
+/types/src/Config/
+/types/src/__tests__/
+
 

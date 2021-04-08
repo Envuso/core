@@ -1,6 +1,6 @@
 import { interfaces } from "inversify";
 import { ServiceProvider } from "@Providers/ServiceProvider";
-import { HttpContext } from "../Context/HttpContext";
+import { HttpContext } from "@Providers/Http";
 import { Controller } from "./Controller";
 export declare class ControllerServiceProvider extends ServiceProvider {
     registerBindings(): void;

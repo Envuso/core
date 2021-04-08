@@ -1,9 +1,6 @@
-import {DecoratorHelpers} from "@Core/Decorators/DecoratorHelpers";
-import {ClassType, IndexOptions, ModelEntity, Nested, Ref, SimpleIndexOptions, TypeFunction} from "@Core/Providers";
-import {classToPlain, plainToClass, Transform, TransformationType, Type} from "class-transformer";
-import {TransformFnParams, TypeHelpOptions} from "class-transformer/types/interfaces";
+import {ClassType, IndexOptions, Nested, Ref, SimpleIndexOptions} from "@Providers/Model";
+import {classToPlain, plainToClass, Transform} from "class-transformer";
 import {IndexSpecification, ObjectId} from "mongodb";
-import {type} from "os";
 import pluralize from 'pluralize';
 
 

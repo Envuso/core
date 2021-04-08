@@ -12,11 +12,9 @@ import {CONTROLLER_METHOD_PARAMS, METADATA} from "@Core/DecoratorData";
 import {ControllerMetadata} from "@Decorators";
 import {DecoratorHelpers} from "@Core/Decorators/DecoratorHelpers";
 import {ControllerMethodMetadata, ControllerMethodParameterMetadata} from "@Decorators";
-import {ModelEntity} from "@Core/Providers";
-import {HttpContext} from "@Core/Providers";
-import {HttpResponse} from "@Core/Providers";
+import {ModelEntity} from "@Core/Providers/Model";
+import {HttpResponse, HttpContext, ControllerRequestParamDecorator} from "@Core/Providers/Http";
 import {Controller} from "./Controller";
-import {ControllerRequestParamDecorator} from "@Core/Providers";
 import {Middleware} from "./Middleware";
 
 @injectable()
@@ -288,7 +286,7 @@ export class Route {
 			).send();
 		}
 
-		const conf = Config.http.responseSerialization;
+		const conf              = Config.http.responseSerialization;
 		controllerResponse.data = serialize(controllerResponse.data, conf);
 
 		return controllerResponse.send();

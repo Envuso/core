@@ -1,10 +1,7 @@
-//import {Config, ConfigInterface} from "@Core/BaseConfig";
+import {HttpContext, HttpRequest, HttpResponse} from "@Providers/Http";
 import {interfaces} from "inversify";
-import _ from "lodash";
 import Container from "./Container";
-import {HttpContext} from "@Core/Providers";
-import {HttpRequest} from "@Core/Providers";
-import {HttpResponse} from "@Core/Providers";
+
 
 // Helper methods to resolve from the container a little easier/cleaner
 export const resolve = <T>(identifier: interfaces.ServiceIdentifier<T>): T => Container.get<T>(identifier)

@@ -1,5 +1,5 @@
+import {Ref} from "@Providers/Model/interfaces";
 import {plainToClass} from 'class-transformer';
-import {injectable} from "inversify";
 import {
 	Collection as MongoCollection,
 	Cursor,
@@ -10,7 +10,6 @@ import {
 	ReplaceOneOptions, WithoutProjection,
 } from 'mongodb';
 
-import {Ref} from '.';
 
 export declare type ClassType<T> = {
 	new(...args: any[]): T;

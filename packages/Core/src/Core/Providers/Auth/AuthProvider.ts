@@ -5,9 +5,9 @@ import {AuthCredentialContract} from "@App/Contracts/AuthContracts";
 import {User} from "@App/Models/User";
 import {Config} from "@Config";
 import {Hash} from "../Crypt/Hash";
-import {HttpContext} from "@Core/Providers";
+import {HttpContext} from "@Core/Providers/Http";
 import {Auth} from "./Auth";
-import {JwtAuthProvider} from "@Core/Providers";
+import {JwtAuthProvider} from "@Core/Providers/Auth";
 
 
 @injectable()
