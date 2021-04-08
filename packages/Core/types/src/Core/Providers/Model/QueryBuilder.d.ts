@@ -1,5 +1,5 @@
-import { ModelEntity } from "@Core/Providers/Model";
 import { Cursor, UpdateManyOptions } from "mongodb";
+import { ModelEntity } from "@Core";
 export declare class QueryBuilder<T> {
     /**
      * When we call any internal mongo methods to query a collection

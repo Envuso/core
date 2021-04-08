@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "rootDir": ".",
     "strict": false,
     "sourceMap": true,
     "moduleResolution": "node",
@@ -24,14 +25,8 @@
       "node_modules/@types"
     ],
     "paths": {
-      "@Core/*": [
-        "src/Core/*"
-      ],
-      "@Providers/*": [
-        "src/Core/Providers/*"
-      ],
-      "@Decorators": [
-        "src/Core/Decorators/index.ts"
+      "@Core": [
+        "src/Core"
       ],
       "@App/*": [
         "src/App/*"
@@ -52,6 +47,7 @@
   },
   "exclude": [
     "types",
+    "src/__tests__",
     "node_modules"
   ]
 }

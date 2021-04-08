@@ -1,4 +1,4 @@
-import { ServiceProvider } from "@Core/Providers/ServiceProvider";
+import { ServiceProvider } from "@Core";
 export declare class StorageServiceProvider extends ServiceProvider {
     registerBindings(): Promise<void>;
     boot(): Promise<void>;

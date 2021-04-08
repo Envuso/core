@@ -1,6 +1,6 @@
-import { StorageProvider, UploadedFileInformation } from "@Providers/Storage/StorageProvider";
 import { DeleteObjectOutput } from "aws-sdk/clients/s3";
 import { Multipart } from "fastify-multipart";
+import { StorageProvider, UploadedFileInformation } from "@Core";
 export declare class SpacesProvider extends StorageProvider {
     private spaces;
     constructor();

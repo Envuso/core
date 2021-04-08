@@ -1,6 +1,8 @@
 export * from './App';
-export * from './Bootstrap';
-export { default as Container } from './Container';
+export {whenBootstrapped} from './Bootstrap';
+export {
+	default as Container, CONTAINER_IDENTIFIER, LOGGER_IDENTIFIER, HTTP_CONTEXT_IDENTIFIER, AUTHED_USER_IDENTIFIER, HTTP_REQUEST_IDENTIFIER
+} from './Container';
 export * from './DecoratorData';
 export * from './Decorators';
 export * from './Exceptions/Models/InvalidRefSpecified';

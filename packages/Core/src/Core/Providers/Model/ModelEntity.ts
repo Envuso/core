@@ -1,11 +1,10 @@
 import {Config} from "@Config";
-import {QueryBuilder} from "@Providers/Model/QueryBuilder";
-import {Repository} from "@Providers/Model/Repository";
 import {classToPlain} from "class-transformer";
 import {injectable} from "inversify";
 import {ObjectId} from "mongodb";
-import Container from "../../Container";
 import pluralize from 'pluralize';
+import {QueryBuilder, Repository} from "@Core";
+import Container from "../../Container";
 
 
 //export function model<T extends ModelEntity<T>>(constructor: T) {

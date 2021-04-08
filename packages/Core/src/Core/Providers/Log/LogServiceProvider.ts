@@ -1,9 +1,7 @@
-import Container, {LOGGER_IDENTIFIER} from "@Core/Container";
-import {Log} from "@Providers/Log/Log";
-import {ServiceProvider} from "@Providers/ServiceProvider";
-import chalk, {Chalk} from "chalk";
+import chalk from "chalk";
 import {injectable} from "inversify";
-import {createLogger, format, Logger, LoggerOptions, transports} from "winston";
+import {Container, Log, LOGGER_IDENTIFIER, ServiceProvider} from "@Core";
+import {createLogger, format, Logger, transports} from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 
 const {combine, timestamp, label, prettyPrint, printf, colorize, cli, ms} = format;

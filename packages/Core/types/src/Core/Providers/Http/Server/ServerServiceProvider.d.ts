@@ -1,5 +1,5 @@
-import { ServiceProvider } from "@Providers/ServiceProvider";
 import { FastifyInstance } from "fastify";
+import { ServiceProvider } from "@Core";
 import { Server } from "./Server";
 export declare class ServerServiceProvider extends ServiceProvider {
     /**

@@ -1,5 +1,5 @@
-import {FileUpload} from "@Providers/Http";
 import {FastifyRequest} from "fastify";
+import {FileUpload} from "@Core";
 
 export class HttpRequest {
 

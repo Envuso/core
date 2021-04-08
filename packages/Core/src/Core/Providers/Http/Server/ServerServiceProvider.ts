@@ -1,8 +1,6 @@
-import Container from "@Core/Container";
-import {Log} from "@Providers/Log/Log";
-import {ServiceProvider} from "@Providers/ServiceProvider";
 import {FastifyInstance} from "fastify";
 import {injectable} from "inversify";
+import {Container, Log, ServiceProvider} from "@Core";
 import {Server} from "./Server";
 
 @injectable()

@@ -1,9 +1,7 @@
 import {Config} from "@Config";
-import Container from "@Core/Container";
-import {resolve} from "@Core/Helpers";
-import {StorageProvider} from "@Providers/Storage/StorageProvider";
 import {Multipart} from "fastify-multipart";
-import {inject, injectable} from "inversify";
+import {injectable} from "inversify";
+import {Container, resolve, StorageProvider} from "@Core";
 
 
 @injectable()

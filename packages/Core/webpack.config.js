@@ -27,8 +27,8 @@ module.exports = {
 		],
 		alias      : {
 			'@Core'           : path.resolve(__dirname, 'src', 'Core'),
-			'@Providers'      : path.resolve(__dirname, 'src', 'Core', 'Providers'),
-			'@Decorators'     : path.resolve(__dirname, 'src', 'Core', 'Decorators', 'index.ts'),
+//			'@Providers'      : path.resolve(__dirname, 'src', 'Core', 'Providers'),
+//			'@Decorators'     : path.resolve(__dirname, 'src', 'Core', 'Decorators', 'index.ts'),
 			'@App'            : path.resolve(__dirname, 'src', 'App'),
 			'@AppControllers' : path.resolve(__dirname, 'src', 'App', 'Http', 'Controller'),
 			'@AppMiddlewares' : path.resolve(__dirname, 'src', 'App', 'Http', 'Middleware'),

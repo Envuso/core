@@ -1,11 +1,10 @@
 import {Config} from "@Config";
-import {Encryption} from "@Providers/Crypt";
-import {StorageProvider, UploadedFileInformation} from "@Providers/Storage/StorageProvider";
+import {S3} from "aws-sdk";
 import {DeleteObjectOutput, PutObjectOutput} from "aws-sdk/clients/s3";
 import {Multipart} from "fastify-multipart";
-import {S3} from "aws-sdk";
 import * as fs from "fs";
 import {injectable} from "inversify";
+import {Encryption, StorageProvider, UploadedFileInformation} from "@Core";
 import {pipeline} from "stream";
 import * as util from 'util'
 

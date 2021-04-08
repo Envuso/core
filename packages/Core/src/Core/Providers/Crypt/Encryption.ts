@@ -1,4 +1,4 @@
-import {resolve} from "@Core/Helpers";
+import {resolve} from "@Core";
 import SimpleCrypto from "simple-crypto-js";
 
 export class Encryption {

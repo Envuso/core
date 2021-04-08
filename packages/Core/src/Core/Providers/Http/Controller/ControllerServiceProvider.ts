@@ -1,22 +1,14 @@
-import {Log} from "@Providers/Log/Log";
-import {injectable, interfaces} from "inversify";
-import Container, {
-	AUTHED_USER_IDENTIFIER,
-	CONTAINER_IDENTIFIER,
-	HTTP_CONTEXT_IDENTIFIER,
-	HTTP_REQUEST_IDENTIFIER
-} from "../../../Container";
-import {AuthorisedUser} from "@Providers/Auth/AuthorisedUser";
-import {ServiceProvider} from "@Providers/ServiceProvider";
-import {HttpContext, HttpRequest} from "@Providers/Http";
-import {Controller} from "./Controller";
 import {glob} from "glob";
+import {injectable, interfaces} from "inversify";
 import path from "path";
+import {AuthorisedUser, HttpContext, HttpRequest, Log, ServiceProvider} from "@Core";
+import Container, {AUTHED_USER_IDENTIFIER, CONTAINER_IDENTIFIER, HTTP_CONTEXT_IDENTIFIER, HTTP_REQUEST_IDENTIFIER} from "../../../Container";
+import {Controller} from "./Controller";
 
 @injectable()
 export class ControllerServiceProvider extends ServiceProvider {
 
-	registerBindings(){
+	registerBindings() {
 
 	}
 
@@ -31,16 +23,16 @@ export class ControllerServiceProvider extends ServiceProvider {
 			.map(file => {
 
 
-					const loc = file
-						.replace('src/App/Http/Controllers/', '')
-						.replace('.ts', '');
+				const loc = file
+					.replace('src/App/Http/Controllers/', '')
+					.replace('.ts', '');
 
-					import(`@App/Http/Controllers/${loc}`)
-						.then(module => this.loadController(module, loc))
-						.catch(error => {
-							Log.warn('[' + this.constructor.name + '] Failed to load controller: ' + file);
-							Log.error(error);
-						})
+				import(`@App/Http/Controllers/${loc}`)
+					.then(module => this.loadController(module, loc))
+					.catch(error => {
+						Log.warn('[' + this.constructor.name + '] Failed to load controller: ' + file);
+						Log.error(error);
+					})
 			});
 	}
 

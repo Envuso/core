@@ -1,6 +1,6 @@
-import {Log} from "@Providers/Log/Log";
-import {validateOrReject, ValidationError} from "class-validator";
 import {ValidationException} from "@App/Exceptions/ValidationException";
+import {validateOrReject, ValidationError} from "class-validator";
+import {Log} from "@Core";
 
 export class DataTransferObject {
 

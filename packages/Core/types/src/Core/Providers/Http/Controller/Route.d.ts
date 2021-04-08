@@ -1,8 +1,7 @@
 /// <reference types="node" />
 import { FastifyReply, FastifyRequest } from "fastify";
 import { RouteHandlerMethod } from "fastify/types/route";
-import { ControllerMetadata } from "@Decorators";
-import { ControllerMethodMetadata } from "@Decorators";
+import { ControllerMetadata, ControllerMethodMetadata } from "@Core";
 export declare class Route {
     private controllerConstructor;
     private controllerMetadata;

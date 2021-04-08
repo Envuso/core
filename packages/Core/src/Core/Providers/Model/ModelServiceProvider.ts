@@ -1,14 +1,12 @@
-import {Log} from "@Providers/Log/Log";
-import {ModelEntity} from "@Providers/Model/ModelEntity";
-import {ClassType, Repository} from "@Providers/Model/Repository";
-import {ServiceProvider} from "../ServiceProvider";
-import {injectable} from "inversify";
-import path from "path";
-import {glob} from "glob";
 import {Config} from "@Config";
+import {glob} from "glob";
+import {injectable} from "inversify";
 import {MongoClient} from "mongodb";
-import Container from "../../Container";
+import path from "path";
 import pluralize from 'pluralize';
+import {ClassType, Log, ModelEntity, Repository} from "@Core";
+import Container from "../../Container";
+import {ServiceProvider} from "../ServiceProvider";
 
 export interface ModelServiceProviderCachedModel {
 	name: string;

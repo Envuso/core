@@ -1,4 +1,4 @@
-import {HttpContext, HttpRequest, HttpResponse} from "@Providers/Http";
+import {HttpContext, HttpRequest, HttpResponse} from "@Core";
 import {interfaces} from "inversify";
 import Container from "./Container";
 

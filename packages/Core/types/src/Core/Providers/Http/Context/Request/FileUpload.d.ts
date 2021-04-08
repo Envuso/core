@@ -1,5 +1,4 @@
-import { HttpRequest } from "@Providers/Http";
-import { UploadedFileInformation } from "@Providers/Storage/StorageProvider";
+import { HttpRequest, UploadedFileInformation } from "@Core";
 export declare class FileUpload {
     private request;
     private field;

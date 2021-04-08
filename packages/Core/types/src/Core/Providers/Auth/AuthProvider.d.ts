@@ -1,7 +1,7 @@
-import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthCredentialContract } from "@App/Contracts/AuthContracts";
 import { User } from "@App/Models/User";
-import { JwtAuthProvider } from "@Core/Providers/Auth";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { JwtAuthProvider } from "@Core";
 export declare class AuthProvider {
     /**
      * Attempt to authorise this request using JWT, there
@@ -10,7 +10,7 @@ export declare class AuthProvider {
      * @param request
      * @param reply
      */
-    authoriseRequest(request: FastifyRequest, reply: FastifyReply): Promise<import("@Core/Providers/Auth").AuthorisedUser>;
+    authoriseRequest(request: FastifyRequest, reply: FastifyReply): Promise<import("@Core").AuthorisedUser>;
     /**
      * Gets the user from the credentials.
      * Primarily uses the {@see Config.auth.primaryLoginCredential} to check if

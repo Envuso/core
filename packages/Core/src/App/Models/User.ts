@@ -1,9 +1,8 @@
-import {Id} from "@Core/Decorators/ModelDecorators";
-import {Exclude, Expose, Type} from "class-transformer";
+import {Exclude, Type} from "class-transformer";
 import {IsEmail, IsNotEmpty} from "class-validator";
-import {ModelEntity} from "@Providers/Model/ModelEntity";
 import {injectable} from "inversify";
 import {ObjectId} from "mongodb";
+import {Id, ModelEntity} from "@Core";
 
 @injectable()
 export class User extends ModelEntity<User> {

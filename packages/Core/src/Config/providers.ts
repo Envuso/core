@@ -1,14 +1,16 @@
-import {EncryptionServiceProvider} from "@Providers/Crypt/EncryptionServiceProvider";
-import {ServerServiceProvider} from "@Providers/Http/Server/ServerServiceProvider";
-import {LogServiceProvider} from "@Providers/Log/LogServiceProvider";
-import {ModelServiceProvider} from "@Providers/Model/ModelServiceProvider";
-import {CacheServiceProvider} from "@Providers/Cache/CacheServiceProvider";
-import {ControllerServiceProvider} from "@Providers/Http/Controller/ControllerServiceProvider";
-import {AuthServiceProvider} from "@Providers/Auth/AuthServiceProvider";
-import {StorageServiceProvider} from "@Providers/Storage/StorageServiceProvider";
-import {FastifyPlugin, FastifyPluginOptions, FastifyRegister} from "fastify";
+import {FastifyPlugin, FastifyPluginOptions} from "fastify";
 
 import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
+import {
+	AuthServiceProvider,
+	CacheServiceProvider,
+	ControllerServiceProvider,
+	EncryptionServiceProvider,
+	LogServiceProvider,
+	ModelServiceProvider,
+	ServerServiceProvider,
+	StorageServiceProvider
+} from "@Core";
 
 /**
  * These are our service providers, they are the

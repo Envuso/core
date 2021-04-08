@@ -1,8 +1,5 @@
-import "@Core/Bootstrap";
-import {App} from "@Core/App";
-import {resolve} from "@Core/Helpers";
-import {SpacesProvider} from "@Providers/Storage/StorageProviders/SpacesProvider";
 import * as fs from "fs";
+import {App, resolve, SpacesProvider} from "./../../";
 
 
 //@ts-ignore
@@ -20,7 +17,7 @@ async function prepare() {
 	fs.writeFileSync('./testwtf.txt', 'wtf', {encoding : 'utf-8'});
 }
 
-async function unPrepare(){
+async function unPrepare() {
 	fs.rmSync('./test.txt');
 	fs.rmSync('./testwtf.txt');
 

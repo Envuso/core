@@ -1,10 +1,7 @@
-import {ServerServiceProvider} from "@Providers/Http/Server/ServerServiceProvider";
-import {Log} from "@Providers/Log/Log";
-import {FastifyInstance} from "fastify";
-import Container, {LOGGER_IDENTIFIER} from "./Container";
-import {Server} from "@Providers/Http/Server/Server";
-import {ServiceProvider} from "@Providers/ServiceProvider";
 import {Config} from "@Config";
+import {FastifyInstance} from "fastify";
+import {Log, Server, ServiceProvider} from "@Core";
+import Container, {LOGGER_IDENTIFIER} from "./Container";
 
 export class App {
 

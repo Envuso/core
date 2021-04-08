@@ -1,4 +1,4 @@
-import {DataTransferObjectParam, RequestBodyParam, RequestHeadersParam, RouteParameterParam, RouteQueryParam} from "@Providers/Http";
+import {DataTransferObjectParam, RequestBodyParam, RequestHeadersParam, RouteParameterParam, RouteQueryParam} from "@Core";
 
 
 export function dto(validateOnRequest?: boolean): ParameterDecorator {

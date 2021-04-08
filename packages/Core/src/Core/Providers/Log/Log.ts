@@ -1,6 +1,5 @@
-import {LOGGER_IDENTIFIER} from "@Core/Container";
-import {resolve} from "@Core/Helpers";
 import {injectable} from "inversify";
+import {LOGGER_IDENTIFIER, resolve} from "@Core";
 import {Logger} from "winston";
 
 @injectable()

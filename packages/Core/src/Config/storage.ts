@@ -1,4 +1,4 @@
-import {SpacesProvider} from "@Providers/Storage/StorageProviders/SpacesProvider";
+import {SpacesProvider} from "@Core";
 
 export const storage = {
 

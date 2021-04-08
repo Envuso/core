@@ -1,6 +1,5 @@
-import {InvalidRefSpecified} from "@Core/Exceptions/Models/InvalidRefSpecified";
-import {ModelEntity, Ref} from "@Core/Providers/Model";
 import {Cursor, FindOneOptions, UpdateManyOptions, WithoutProjection} from "mongodb";
+import {InvalidRefSpecified, ModelEntity, Ref} from "@Core";
 
 
 interface CollectionOrder {

@@ -1,14 +1,16 @@
-import {Ref} from "@Providers/Model/interfaces";
 import {plainToClass} from 'class-transformer';
 import {
 	Collection as MongoCollection,
 	Cursor,
-	FilterQuery, FindOneOptions,
+	FilterQuery,
+	FindOneOptions,
 	IndexSpecification,
 	MongoClient,
 	ObjectId,
-	ReplaceOneOptions, WithoutProjection,
+	ReplaceOneOptions,
+	WithoutProjection,
 } from 'mongodb';
+import {Ref} from "@Core";
 
 
 export declare type ClassType<T> = {
@@ -48,7 +50,7 @@ export function dehydrate<T>(entity: T, /*idField?: string*/): Object {
 
 
 	const nested = Reflect.getMetadata('mongo:nested', entity) || [];
-	for (let { name, array } of nested) {
+	for (let {name, array} of nested) {
 		if (plain[name]) {
 			if (!array) {
 				plain[name] = dehydrate(plain[name]);

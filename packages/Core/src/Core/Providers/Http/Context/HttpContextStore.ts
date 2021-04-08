@@ -1,4 +1,4 @@
-import {METADATA} from "@Core/DecoratorData";
+import {METADATA} from "@Core";
 import {AsyncLocalStorage} from "async_hooks";
 import {FastifyRequest, HookHandlerDoneFunction} from "fastify";
 import {HttpContext} from "./HttpContext";

@@ -1,5 +1,4 @@
-import { ServiceProvider } from "@Providers/ServiceProvider";
-export { ServiceProvider };
+export * as ServiceProvider from "./ServiceProvider";
 export * from './Cache';
 export * from './Log';
 export * from './Auth';

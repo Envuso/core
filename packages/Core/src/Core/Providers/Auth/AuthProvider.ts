@@ -1,13 +1,11 @@
-import {resolve} from "@Core/Helpers";
-import {FastifyReply, FastifyRequest} from "fastify";
-import {inject, injectable} from "inversify";
 import {AuthCredentialContract} from "@App/Contracts/AuthContracts";
 import {User} from "@App/Models/User";
 import {Config} from "@Config";
+import {FastifyReply, FastifyRequest} from "fastify";
+import {injectable} from "inversify";
+import {HttpContext, JwtAuthProvider, resolve} from "@Core";
 import {Hash} from "../Crypt/Hash";
-import {HttpContext} from "@Core/Providers/Http";
 import {Auth} from "./Auth";
-import {JwtAuthProvider} from "@Core/Providers/Auth";
 
 
 @injectable()

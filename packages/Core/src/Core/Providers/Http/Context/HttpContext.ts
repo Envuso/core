@@ -1,12 +1,7 @@
-import {Container, HttpContextStore} from "@Core/index";
-import {AuthorisedUser} from "@Providers/Auth";
-import {HttpRequest} from "@Providers/Http";
-import {HttpResponse} from "@Providers/Http/Context/Response/HttpResponse";
+import {User} from "@App/Models/User";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {interfaces} from "inversify";
-
-import {User} from "@App/Models/User";
-import {METADATA} from "@Core/DecoratorData";
+import {AuthorisedUser, Container, HttpContextStore, HttpRequest, HttpResponse, METADATA} from "@Core";
 
 export class HttpContext {
 

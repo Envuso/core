@@ -1,8 +1,7 @@
 import {Config} from "@Config";
-import Container from "@Core/Container";
-import {ServiceProvider} from "@Providers/ServiceProvider";
 import {injectable} from "inversify";
 import SimpleCrypto from "simple-crypto-js";
+import {Container, ServiceProvider} from "@Core";
 
 @injectable()
 export class EncryptionServiceProvider extends ServiceProvider {

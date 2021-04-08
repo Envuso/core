@@ -1,15 +1,15 @@
 import {Config} from "@Config";
-import {Log} from "@Providers/Log/Log";
+import console from 'chalk-console';
 import fastify, {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import {inject, injectable} from "inversify";
 import middie from "middie";
+import {Log} from "@Core";
 import {METADATA} from "../../../DecoratorData";
 import {ControllerMethodMetadata} from "../../../Decorators/Route";
 import {HttpContext} from "../Context/HttpContext";
 import {Controller} from "../Controller/Controller";
 import {ControllerServiceProvider} from "../Controller/ControllerServiceProvider";
 import {Route} from "../Controller/Route";
-import console from 'chalk-console';
 
 @injectable()
 export class Server {

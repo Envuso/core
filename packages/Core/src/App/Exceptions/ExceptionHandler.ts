@@ -1,6 +1,6 @@
-import {Log} from "@Providers/Log/Log";
 import {FastifyReply} from "fastify";
 import {JsonWebTokenError, TokenExpiredError} from "jsonwebtoken";
+import {Log} from "@Core";
 import {Exception} from "./Exception";
 import {UnauthorisedException} from "./UnauthorisedException";
 import {ValidationException} from "./ValidationException";

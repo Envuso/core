@@ -1,7 +1,7 @@
-import {ClassType, IndexOptions, Nested, Ref, SimpleIndexOptions} from "@Providers/Model";
 import {classToPlain, plainToClass, Transform} from "class-transformer";
 import {IndexSpecification, ObjectId} from "mongodb";
 import pluralize from 'pluralize';
+import {ClassType, IndexOptions, Nested, Ref, SimpleIndexOptions} from "@Core";
 
 
 function addRef(name: string, ref: Ref, target: any) {

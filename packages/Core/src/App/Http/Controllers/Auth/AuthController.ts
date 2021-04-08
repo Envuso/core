@@ -2,11 +2,7 @@ import {AuthCredentialContract} from "@App/Contracts/AuthContracts";
 import {ValidationException} from "@App/Exceptions/ValidationException";
 import {AuthorizationMiddleware} from "@App/Http/Middleware/AuthorizationMiddleware";
 import {User} from "@App/Models/User";
-import {response} from "@Core/Helpers";
-import { Hash } from "@Core/Providers/Crypt";
-import {body, controller, dto, get, headers, middleware, param, post, query} from "@Decorators";
-import {Auth} from "@Providers/Auth";
-import {Controller, DataTransferObject, HttpContext} from "@Providers/Http";
+import {Auth, controller, Controller, DataTransferObject, dto, get, Hash, HttpContext, middleware, post, response} from "@Core";
 import {Transform} from "class-transformer";
 import {IsAlphanumeric, IsEmail, IsNotEmpty, IsString, Length} from "class-validator";
 
