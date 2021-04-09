@@ -14,11 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 require("reflect-metadata");
-const ConfigRepository_1 = require("@src/Config/ConfigRepository");
-const FailedToBindException_1 = require("@src/Exceptions/FailedToBindException");
-const ServiceProvider_1 = require("@src/ServiceProvider");
 const path_1 = __importDefault(require("path"));
 const tsyringe_1 = require("tsyringe");
+const ConfigRepository_1 = require("./Config/ConfigRepository");
+const FailedToBindException_1 = require("./Exceptions/FailedToBindException");
+const ServiceProvider_1 = require("./ServiceProvider");
 let instance = null;
 class App {
     constructor() {

@@ -1,5 +1,6 @@
-import {App} from "@src/App";
-import {ConfigRepository} from "@src/Config/ConfigRepository";
+import {App} from "./App";
+import {ConfigRepository} from "./Config/ConfigRepository";
+
 
 export abstract class ServiceProvider {
 

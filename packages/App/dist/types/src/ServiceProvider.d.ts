@@ -1,5 +1,5 @@
-import { App } from "@src/App";
-import { ConfigRepository } from "@src/Config/ConfigRepository";
+import { App } from "./App";
+import { ConfigRepository } from "./Config/ConfigRepository";
 export declare abstract class ServiceProvider {
     /**
      * Register any services to the container

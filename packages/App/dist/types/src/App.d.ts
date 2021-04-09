@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { ConfigRepository } from "@src/Config/ConfigRepository";
 import constructor from "tsyringe/dist/typings/types/constructor";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import { ConfigRepository } from "./Config/ConfigRepository";
 export declare class App {
     /**
      * The base container instance

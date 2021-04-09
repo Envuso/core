@@ -9,15 +9,9 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "declaration": true,
-    "rootDir": ".",
     "baseUrl": "./src",
     "sourceRoot": "./src",
     "declarationDir": "./dist/types",
-    "paths": {
-      "@src/*": [
-        "*"
-      ]
-    },
     "lib": [
       "es5",
       "es6"
@@ -38,5 +32,4 @@
     "node_modules",
     "dist/types"
   ]
-
 }

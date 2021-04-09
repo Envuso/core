@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const App_1 = require("@src/App");
-const ConfigRepository_1 = require("@src/Config/ConfigRepository");
-const ServiceProvider_1 = require("@src/ServiceProvider");
+const App_1 = require("../src/App");
+const ConfigRepository_1 = require("../src/Config/ConfigRepository");
+const ServiceProvider_1 = require("../src/ServiceProvider");
 beforeAll(() => {
     return App_1.App.bootInstance();
 });

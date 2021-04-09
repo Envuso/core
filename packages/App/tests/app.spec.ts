@@ -1,6 +1,6 @@
-import {App} from "@src/App";
-import {ConfigRepository} from "@src/Config/ConfigRepository";
-import {ServiceProvider} from "@src/ServiceProvider";
+import {App} from "../src/App";
+import {ConfigRepository} from "../src/Config/ConfigRepository";
+import {ServiceProvider} from "../src/ServiceProvider";
 
 beforeAll(() => {
 	return App.bootInstance();

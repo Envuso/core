@@ -1,11 +1,12 @@
 import "reflect-metadata";
-import {ConfigRepository} from "@src/Config/ConfigRepository";
-import {FailedToBindException} from "@src/Exceptions/FailedToBindException";
-import {ServiceProvider} from "@src/ServiceProvider";
+
 import path from 'path';
 import {container} from "tsyringe";
 import constructor from "tsyringe/dist/typings/types/constructor";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import {ConfigRepository} from "./Config/ConfigRepository";
+import {FailedToBindException} from "./Exceptions/FailedToBindException";
+import {ServiceProvider} from "./ServiceProvider";
 
 let instance: App | null = null;
 
