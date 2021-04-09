@@ -81,6 +81,10 @@ export class App {
 			throw new FailedToBindException(result);
 		}
 
+		console.log(result);
+		console.log(result?.constructor?.name);
+		console.log(result instanceof ServiceProvider);
+
 		if (result instanceof ServiceProvider) {
 			this._container.register(
 				'ServiceProvider', {useValue : result}
@@ -107,7 +111,7 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolve<T>(key: constructor<T>|string) {
+	resolve<T>(key: constructor<T> | string) {
 		return this.container().resolve<T>(key);
 	}
 
@@ -143,7 +147,7 @@ export class App {
 
 		const providers = this.resolve(ConfigRepository).get<Array<Provider>>('app.providers');
 
-		if(!providers){
+		if (!providers) {
 			throw new Error('No service providers found.');
 		}
 

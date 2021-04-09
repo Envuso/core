@@ -89,6 +89,31 @@ describe('test app binding', () => {
         yield app.loadServiceProviders();
         expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
     }));
+    test('app can access all service providers with "ServiceProvider" token after register', () => __awaiter(void 0, void 0, void 0, function* () {
+        const app = App_1.App.getInstance();
+        class TestingRegisterBootProviders extends ServiceProvider_1.ServiceProvider {
+            constructor() {
+                super(...arguments);
+                this.value = 1234;
+            }
+            boot(app, config) {
+                return __awaiter(this, void 0, void 0, function* () {
+                });
+            }
+            register(app, config) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    app.bind(() => {
+                        return new TestingRegisterBootProviders();
+                    });
+                });
+            }
+        }
+        app.resolve(ConfigRepository_1.ConfigRepository).put('app.providers', TestingRegisterBootProviders);
+        yield app.loadServiceProviders();
+        const providers = app.container().resolveAll('ServiceProvider');
+        expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
+        expect(providers).toContainEqual(new TestingRegisterBootProviders());
+    }));
     test('can get Config from app', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = yield App_1.App.getInstance();
         const config = app.resolve(ConfigRepository_1.ConfigRepository);

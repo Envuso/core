@@ -72,10 +72,14 @@ class App {
      *               | This does not apply to classes that extend ServiceProvider
      */
     bind(binder, bindAs) {
+        var _a;
         const result = binder(this, this.resolve(ConfigRepository_1.ConfigRepository));
         if (!(result === null || result === void 0 ? void 0 : result.constructor)) {
             throw new FailedToBindException_1.FailedToBindException(result);
         }
+        console.log(result);
+        console.log((_a = result === null || result === void 0 ? void 0 : result.constructor) === null || _a === void 0 ? void 0 : _a.name);
+        console.log(result instanceof ServiceProvider_1.ServiceProvider);
         if (result instanceof ServiceProvider_1.ServiceProvider) {
             this._container.register('ServiceProvider', { useValue: result });
             return;

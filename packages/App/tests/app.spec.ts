@@ -1,3 +1,4 @@
+import {constructor} from "tsyringe/dist/typings/types";
 import {App} from "../src/App";
 import {ConfigRepository} from "../src/Config/ConfigRepository";
 import {ServiceProvider} from "../src/ServiceProvider";
@@ -11,7 +12,7 @@ describe('test app binding', () => {
 	test('app can bind class to container', async () => {
 		const app = App.getInstance();
 
-		class TestingClass{
+		class TestingClass {
 			public value = 1234;
 		}
 
@@ -27,7 +28,7 @@ describe('test app binding', () => {
 	test('app can bind class to container using custom key', async () => {
 		const app = App.getInstance();
 
-		class TestingClass{
+		class TestingClass {
 			public value = 1234;
 		}
 
@@ -87,6 +88,34 @@ describe('test app binding', () => {
 		await app.loadServiceProviders();
 
 		expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
+
+	});
+
+	test('app can access all service providers with "ServiceProvider" token after register', async () => {
+		const app = App.getInstance();
+
+		class TestingRegisterBootProviders extends ServiceProvider {
+			public value = 1234;
+
+			public async boot(app: App, config: ConfigRepository): Promise<void> {
+
+			}
+
+			public async register(app: App, config: ConfigRepository): Promise<void> {
+				app.bind(() => {
+					return new TestingRegisterBootProviders();
+				})
+			}
+		}
+
+		app.resolve(ConfigRepository).put('app.providers', TestingRegisterBootProviders);
+
+		await app.loadServiceProviders();
+
+		const providers = app.container().resolveAll<constructor<ServiceProvider>>('ServiceProvider');
+
+		expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
+		expect(providers).toContainEqual(new TestingRegisterBootProviders());
 
 	});
 
