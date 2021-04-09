@@ -4,7 +4,9 @@
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "build": "tsc -b --clean && tsc -b"
+  },
   "dependencies": {
     "reflect-metadata": "^0.1.10"
   },
