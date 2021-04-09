@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { ConfigRepository } from "@src/Config/ConfigRepository";
 import constructor from "tsyringe/dist/typings/types/constructor";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
 export declare class App {
@@ -33,7 +34,7 @@ export declare class App {
      *
      * @param binder
      */
-    bind(binder: (app: App) => any): void;
+    bind(binder: (app: App, config: ConfigRepository) => any): void;
     /**
      * Get the container instance
      */

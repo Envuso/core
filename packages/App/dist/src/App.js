@@ -48,7 +48,7 @@ export class App {
      * @param binder
      */
     bind(binder) {
-        const result = binder(this);
+        const result = binder(this, this._container.resolve(ConfigRepository));
         if (result?.constructor) {
             this._container.register(result.constructor.name, { useValue: result });
         }
