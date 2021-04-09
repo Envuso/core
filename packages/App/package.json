@@ -23,8 +23,9 @@
     "typescript": "^4.2.4"
   },
   "files": [
-    "dist",
-    "types"
+    "dist/src",
+    "dist/types"
   ],
-  "types": "types"
+  "main": "dist/src/index.js",
+  "types": "dist/types"
 }
