@@ -105,9 +105,10 @@ export class App {
 
 		const cwd   = process.cwd();
 		const paths = {
-			root   : cwd,
-			src    : path.join(cwd, 'src'),
-			config : path.join(cwd, 'Config'),
+			root        : cwd,
+			src         : path.join(cwd, 'src'),
+			config      : path.join(cwd, 'Config'),
+			controllers : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
 		}
 
 		await configRepository.loadConfigFrom(paths.config);

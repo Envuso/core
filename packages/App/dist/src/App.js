@@ -81,6 +81,7 @@ export class App {
             root: cwd,
             src: path.join(cwd, 'src'),
             config: path.join(cwd, 'Config'),
+            controllers: path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
         };
         await configRepository.loadConfigFrom(paths.config);
         configRepository.set('paths', paths);

@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.1-alpha1",
   "name": "@envuso/app",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -16,7 +16,7 @@
     "ts-jest": "^26.5.4",
     "typescript": "^4.2.4"
   },
-  "files" : [
+  "files": [
     "dist"
   ],
   "types": "dist/types"
