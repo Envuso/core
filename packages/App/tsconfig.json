@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "ESNext",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "rootDir": ".",
+    "baseUrl": "./src",
+    "sourceRoot": "./src",
+    "declarationDir": "types",
+    "paths": {
+      "@src/*": [
+        "*"
+      ]
+    },
+    "lib": [
+      "es5",
+      "es6"
+    ],
+    "types": [
+      "node",
+      "reflect-metadata",
+      "jest"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
