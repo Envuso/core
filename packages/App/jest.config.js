@@ -4,7 +4,11 @@ module.exports = {
 	transform            : {'^.+\\.ts?$' : 'ts-jest'},
 	testRegex            : '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
 	moduleFileExtensions : ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-	moduleDirectories    : ['node_modules', 'src'],
+	moduleDirectories    : [
+		'node_modules',
+		'<rootDir>/node_modules',
+		'src'
+	],
 	moduleNameMapper     : {
 		"@src/(.*)" : "<rootDir>/src/$1",
 	},
