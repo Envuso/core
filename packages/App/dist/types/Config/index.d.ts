@@ -1,1 +1,5 @@
-export declare const Config: {};
+export declare const Config: {
+    app: {
+        providers: any[];
+    };
+};

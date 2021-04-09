@@ -32,6 +32,13 @@ export declare class ConfigRepository {
      */
     set(key: string, value: any): void;
     /**
+     * If the target is an array, then we'll push it to the array
+     *
+     * @param key
+     * @param value
+     */
+    put(key: string, value: any): void;
+    /**
      * Does a key exist in the Config?
      *
      * @param key

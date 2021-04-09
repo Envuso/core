@@ -1,4 +1,6 @@
-import {dotnotate} from "@zishone/dotnotate";
+import get from "lodash.get";
+import set from "lodash.set";
+import has from "lodash.has";
 
 export class ConfigRepository {
 
@@ -23,7 +25,7 @@ export class ConfigRepository {
 	async loadConfigFrom(configDirectory: string) {
 		const conf = await import(configDirectory);
 
-		this._config = {...dotnotate(conf.Config), ...conf.Config};
+		this._config = conf.Config;
 	}
 
 	/**
@@ -33,7 +35,8 @@ export class ConfigRepository {
 	 * @param _default
 	 */
 	get<T>(key: string, _default: any = null): T {
-		return this._config[key] as T ?? _default;
+		return get<T>(this._config, key, _default);
+		//return this._config[key] as T ?? _default;
 	}
 
 	/**
@@ -43,13 +46,52 @@ export class ConfigRepository {
 	 * @param value
 	 */
 	set(key: string, value: any) {
+		set(this._config, key, value);
+//		const constructedConfig = {};
+//
+//		if(key.includes('.')){
+//			const keys = key.split('.');
+//
+//			let currentConfig = this._config;
+//			for (let key of keys) {
+//				if(!currentConfig[key]){
+//					constructedConfig[key] = {};
+//					currentConfig[key] = {};
+//				}
+//
+//
+//			}
+//		}
+//
+//		constructedConfig[key] = value;
+//
+//		const configToSet = {...dotnotate(constructedConfig), ...constructedConfig};
+//
+//		this._config = {...this._config, ...configToSet};
+	}
 
-		const constructedConfig = {};
-		constructedConfig[key] = value;
+	/**
+	 * If the target is an array, then we'll push it to the array
+	 *
+	 * @param key
+	 * @param value
+	 */
+	put(key: string, value: any) {
+		const current = this.get(key);
 
-		const configToSet = {...dotnotate(constructedConfig), ...constructedConfig};
+		if (!current) {
+			this.set(key, [value]);
 
-		this._config = {...this._config, ...configToSet};
+			return;
+		}
+
+		if (!(Array.isArray(current))) {
+			throw new Error('ConfigRepository: Target ' + key + ' is not an array');
+		}
+
+		current.push(value);
+
+		this.set(key, current);
 	}
 
 	/**
@@ -58,6 +100,7 @@ export class ConfigRepository {
 	 * @param key
 	 */
 	has(key: string): boolean {
-		return !!this._config[key];
+		return has(this._config, key);
+//		return !!this._config[key];
 	}
 }

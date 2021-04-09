@@ -1,5 +1,7 @@
 import "reflect-metadata";
 import {ConfigRepository} from "@src/Config/ConfigRepository";
+import {FailedToBindException} from "@src/Exceptions/FailedToBindException";
+import {ServiceProvider} from "@src/ServiceProvider";
 import path from 'path';
 import {container} from "tsyringe";
 import constructor from "tsyringe/dist/typings/types/constructor";
@@ -67,13 +69,29 @@ export class App {
 	 * Bind a service to the container
 	 *
 	 * @param binder
+	 * @param bindAs | Allows you to over-ride the key used to identify this instance in the
+	 *               | container, by default it will use constructor.name
+	 *               | This does not apply to classes that extend ServiceProvider
 	 */
-	bind(binder: (app: App, config: ConfigRepository) => any) {
-		const result = binder(this, this._container.resolve(ConfigRepository));
+	bind(binder: (app: App, config: ConfigRepository) => any, bindAs?: string) {
+		const result = binder(this, this.resolve(ConfigRepository));
 
-		if (result?.constructor) {
-			this._container.register(result.constructor.name, {useValue : result});
+		if (!result?.constructor) {
+			throw new FailedToBindException(result);
 		}
+
+		if (result instanceof ServiceProvider) {
+			this._container.register(
+				'ServiceProvider', {useValue : result}
+			);
+
+			return;
+		}
+
+		this._container.register(
+			bindAs ?? result.constructor.name,
+			{useValue : result}
+		);
 	}
 
 	/**
@@ -88,7 +106,7 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolve<T>(key: constructor<T>) {
+	resolve<T>(key: constructor<T>|string) {
 		return this.container().resolve<T>(key);
 	}
 
@@ -114,5 +132,37 @@ export class App {
 		await configRepository.loadConfigFrom(paths.config);
 
 		configRepository.set('paths', paths);
+	}
+
+	/**
+	 * Will load all service providers from the app config
+	 */
+	async loadServiceProviders() {
+		type Provider = (constructor<ServiceProvider>)
+
+		const providers = this.resolve(ConfigRepository).get<Array<Provider>>('app.providers');
+
+		if(!providers){
+			throw new Error('No service providers found.');
+		}
+
+		for (let providerClass of providers) {
+			const provider = new providerClass();
+
+			await provider.register(
+				this, this.resolve(ConfigRepository)
+			);
+			console.log('Service provider registered: ', provider.constructor.name)
+		}
+
+		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
+
+		for (let provider of serviceProviders) {
+			console.log('Service provider booted: ', provider.constructor.name)
+
+			await provider.boot(
+				this, this.resolve(ConfigRepository)
+			);
+		}
 	}
 }

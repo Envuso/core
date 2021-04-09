@@ -33,8 +33,11 @@ export declare class App {
      * Bind a service to the container
      *
      * @param binder
+     * @param bindAs | Allows you to over-ride the key used to identify this instance in the
+     *               | container, by default it will use constructor.name
+     *               | This does not apply to classes that extend ServiceProvider
      */
-    bind(binder: (app: App, config: ConfigRepository) => any): void;
+    bind(binder: (app: App, config: ConfigRepository) => any, bindAs?: string): void;
     /**
      * Get the container instance
      */
@@ -44,7 +47,7 @@ export declare class App {
      *
      * @param key
      */
-    resolve<T>(key: constructor<T>): T;
+    resolve<T>(key: constructor<T> | string): T;
     /**
      * Load any configuration defined in the
      * app and set the paths for our app
@@ -52,4 +55,8 @@ export declare class App {
      * @private
      */
     private prepareConfiguration;
+    /**
+     * Will load all service providers from the app config
+     */
+    loadServiceProviders(): Promise<void>;
 }
