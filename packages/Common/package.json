@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "pub": "npm run build && npm version prerelease --preid=alpha && npm publish"
+    "prep": "npm run build && npm version prerelease --preid=alpha"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.10"
