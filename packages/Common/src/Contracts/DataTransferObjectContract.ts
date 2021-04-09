@@ -1,6 +1,6 @@
-import {validateOrReject, ValidationError} from "class-validator";
+import {ValidationError} from "class-validator";
 
-interface DataTransferObjectContract {
+export interface DataTransferObjectContract {
 	_validationErrors?: ValidationError[];
 
 	/**
