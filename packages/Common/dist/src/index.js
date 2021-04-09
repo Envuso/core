@@ -14,5 +14,5 @@ __exportStar(require("./Decorators/DecoratorHelpers"), exports);
 __exportStar(require("./Decorators/RoutingMetaData"), exports);
 __exportStar(require("./Model/ModelInstance"), exports);
 __exportStar(require("./ModuleLoaderHelpers"), exports);
-__exportStar(require("./Contracts/DataTransferObjectContract"), exports);
+__exportStar(require("./Auth/Authenticatable"), exports);
 //# sourceMappingURL=index.js.map
