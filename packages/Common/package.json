@@ -1,12 +1,12 @@
 {
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.3",
   "name": "@envuso/common",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "pub" : "npm run build && npm version prerelease --preid=alpha && npm publish"
+    "pub": "npm run build && npm version prerelease --preid=alpha && npm publish"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.10"
