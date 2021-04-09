@@ -12,7 +12,7 @@
     "rootDir": ".",
     "baseUrl": "./src",
     "sourceRoot": "./src",
-    "declarationDir": "types",
+    "declarationDir": "dist/types",
     "paths": {
       "@src/*": [
         "*"
@@ -35,6 +35,8 @@
     "resolveJsonModule": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
+
 }
