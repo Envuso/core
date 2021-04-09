@@ -9,9 +9,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "declaration": true,
-    "baseUrl": "./src",
     "sourceRoot": "./src",
-    "declarationDir": "./dist/types",
     "lib": [
       "es5",
       "es6"
