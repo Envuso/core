@@ -27,5 +27,5 @@
     "dist/types"
   ],
   "main": "dist/src/index.js",
-  "types": "types"
+  "types": "dist/types"
 }
