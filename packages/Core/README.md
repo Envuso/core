@@ -8,6 +8,10 @@
 </p>
 
 
+# Warning:
+Envuso is currently a WIP. I'm currently resolving a couple of issues and getting everything read. Docs are incomplete and I'm often pushing updates. Wait a week or so and it should be ready to use.
+
+
 ## Envuso Core
 
 **Note:** This is the core of Envuso Framework, to begin scaffolding your project with Envuso, please [visit the framework repository](https://github.com/Envuso/framework)
