@@ -38,9 +38,9 @@ const path_1 = __importDefault(require("path"));
 class RouteServiceProvider extends app_1.ServiceProvider {
     register(app) {
         return __awaiter(this, void 0, void 0, function* () {
-            app.bind(() => {
-                return new RouteServiceProvider();
-            });
+            //		app.bind(() => {
+            //			return new RouteServiceProvider();
+            //		});
         });
     }
     boot(app, config) {

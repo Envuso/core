@@ -7,9 +7,9 @@ import {Controller} from "./Controller/Controller";
 export class RouteServiceProvider extends ServiceProvider {
 
 	public async register(app: App): Promise<void> {
-		app.bind(() => {
-			return new RouteServiceProvider();
-		});
+//		app.bind(() => {
+//			return new RouteServiceProvider();
+//		});
 	}
 
 	public async boot(app: App, config: ConfigRepository): Promise<void> {
