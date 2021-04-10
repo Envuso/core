@@ -32,15 +32,10 @@ export class Route {
 	) {}
 
 	/**
-	 * Returns all the fastify route arguments needed to
-	 * bind this route to the fastify instance
+	 * Get the HTTP verb used for this fastify route
 	 */
-	getFastifyOptions() {
-		return [
-			this.getRoutePath(),
-			this.getMiddlewareFactory(),
-			this.getHandlerFactory(),
-		]
+	getMethod(): HTTPMethods | HTTPMethods[] {
+		return this.methodMeta.method;
 	}
 
 	/**
@@ -56,7 +51,7 @@ export class Route {
 	/**
 	 * Parse the controller & method route, allows us to define routes without a leading /
 	 */
-	getRoutePath() {
+	getPath() {
 		const pathParts = this.pathParts();
 
 		for (let path in pathParts) {
@@ -82,39 +77,39 @@ export class Route {
 
 //			try {
 
-				const parameters = await RouteManager.parametersForRoute(
-					request, response, this
-				);
+			const parameters = await RouteManager.parametersForRoute(
+				request, response, this
+			);
 
-				let httpContext: RequestContext | null = null;
-				if (request)
-					httpContext = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
+			let httpContext: RequestContext | null = null;
+			if (request)
+				httpContext = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
 
-				const controller = App.getInstance().resolve<Controller>(
-					this.controllerMeta.controller.target
-				);
+			const controller = App.getInstance().resolve<Controller>(
+				this.controllerMeta.controller.target
+			);
 
-				const routeMethod   = controller[this.methodMeta.key];
-				const routeResponse = await routeMethod(...parameters);
+			const routeMethod   = controller[this.methodMeta.key];
+			const routeResponse = await routeMethod(...parameters);
 
-				if (response?.sent) {
-					console.warn('Response is already sent... something is offf.');
-					return;
-				}
+			if (response?.sent) {
+				console.warn('Response is already sent... something is offf.');
+				return;
+			}
 
-				return this.getResponseResult(routeResponse);
+			return Route.getResponseResult(routeResponse);
 
 //			} catch (error) {
-				/*
-				@TODO
-				NOTE FOR SELF...
-				We could just remove the try catch and let the implementing code catch the errors...
-				This means the core or scaffold could try catch the response handling side
-				and then throw the error into the exception handler to output a response...
+			/*
+			 @TODO
+			 NOTE FOR SELF...
+			 We could just remove the try catch and let the implementing code catch the errors...
+			 This means the core or scaffold could try catch the response handling side
+			 and then throw the error into the exception handler to output a response...
 
-				Either this or we create some kind of service provider to handle this logic
-				which can be extended
-				 */
+			 Either this or we create some kind of service provider to handle this logic
+			 which can be extended
+			 */
 
 
 //				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
@@ -144,7 +139,6 @@ export class Route {
 		return paramsTypes;
 	}
 
-
 	/**
 	 * Get the result of the response from the controller action.
 	 *
@@ -156,7 +150,7 @@ export class Route {
 	 * @param controllerResponse
 	 * @private
 	 */
-	private getResponseResult(controllerResponse: Response | any) {
+	static getResponseResult(controllerResponse: Response | any) {
 		const response = RequestContext.response();
 
 		if (controllerResponse === undefined || controllerResponse === null) {
@@ -192,7 +186,7 @@ export class Route {
 	 *
 	 * @private
 	 */
-	private getMiddlewareFactory() {
+	getMiddlewareHandler() {
 
 		const controllerMiddlewareMeta = Middleware.getMetadata(
 			this.controllerMeta.controller.target.constructor
@@ -208,20 +202,26 @@ export class Route {
 		];
 
 		middlewares.forEach(mw => {
-			Log.info(mw.constructor.name + ' was loaded for ' + this.getRoutePath());
+			Log.info(mw.constructor.name + ' was loaded for ' + this.getPath());
 		})
 
-		return {
-			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
-				for (const middleware of middlewares) {
-					try {
-						await middleware.handler(request, response);
-					} catch (exception) {
-//						return ExceptionHandler.transform(exception, response);
-						console.error(exception);
-					}
-				}
+		return async (request: FastifyRequest, response: FastifyReply) => {
+			for (const middleware of middlewares) {
+				await middleware.handler(request, response);
 			}
-		};
+		}
+
+//		return {
+//			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
+//				for (const middleware of middlewares) {
+//					try {
+//						await middleware.handler(request, response);
+//					} catch (exception) {
+////						return ExceptionHandler.transform(exception, response);
+//						console.error(exception);
+//					}
+//				}
+//			}
+//		};
 	}
 }

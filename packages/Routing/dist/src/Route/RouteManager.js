@@ -42,6 +42,8 @@ class RouteManager {
      */
     static parametersForRoute(request, response, route) {
         return __awaiter(this, void 0, void 0, function* () {
+            //TODO: Double check we actually need this, pretty sure that
+            //We figured out last night that, this was basically useless
             const parameters = route.getMethodParameterTypes();
             if (!parameters.length) {
                 return [];

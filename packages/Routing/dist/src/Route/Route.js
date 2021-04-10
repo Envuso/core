@@ -26,15 +26,10 @@ class Route {
         this.methodMeta = methodMeta;
     }
     /**
-     * Returns all the fastify route arguments needed to
-     * bind this route to the fastify instance
+     * Get the HTTP verb used for this fastify route
      */
-    getFastifyOptions() {
-        return [
-            this.getRoutePath(),
-            this.getMiddlewareFactory(),
-            this.getHandlerFactory(),
-        ];
+    getMethod() {
+        return this.methodMeta.method;
     }
     /**
      * Return the controller path & method path so that it can be built up
@@ -48,7 +43,7 @@ class Route {
     /**
      * Parse the controller & method route, allows us to define routes without a leading /
      */
-    getRoutePath() {
+    getPath() {
         const pathParts = this.pathParts();
         for (let path in pathParts) {
             pathParts[path] = pathParts[path].replace('/', '');
@@ -78,17 +73,17 @@ class Route {
                 console.warn('Response is already sent... something is offf.');
                 return;
             }
-            return this.getResponseResult(routeResponse);
+            return Route.getResponseResult(routeResponse);
             //			} catch (error) {
             /*
-            @TODO
-            NOTE FOR SELF...
-            We could just remove the try catch and let the implementing code catch the errors...
-            This means the core or scaffold could try catch the response handling side
-            and then throw the error into the exception handler to output a response...
+             @TODO
+             NOTE FOR SELF...
+             We could just remove the try catch and let the implementing code catch the errors...
+             This means the core or scaffold could try catch the response handling side
+             and then throw the error into the exception handler to output a response...
 
-            Either this or we create some kind of service provider to handle this logic
-            which can be extended
+             Either this or we create some kind of service provider to handle this logic
+             which can be extended
              */
             //				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
             //
@@ -120,7 +115,7 @@ class Route {
      * @param controllerResponse
      * @private
      */
-    getResponseResult(controllerResponse) {
+    static getResponseResult(controllerResponse) {
         const response = RequestContext_1.RequestContext.response();
         if (controllerResponse === undefined || controllerResponse === null) {
             return response.setResponse(null, http_status_codes_1.StatusCodes.NO_CONTENT).send();
@@ -143,7 +138,7 @@ class Route {
      *
      * @private
      */
-    getMiddlewareFactory() {
+    getMiddlewareHandler() {
         const controllerMiddlewareMeta = Middleware_1.Middleware.getMetadata(this.controllerMeta.controller.target.constructor);
         const methodMiddlewareMeta = Middleware_1.Middleware.getMetadata(this.methodMeta.target[this.methodMeta.key]);
         const middlewares = [
@@ -151,21 +146,25 @@ class Route {
             ...((methodMiddlewareMeta === null || methodMiddlewareMeta === void 0 ? void 0 : methodMiddlewareMeta.middlewares) || []),
         ];
         middlewares.forEach(mw => {
-            Log_1.Log.info(mw.constructor.name + ' was loaded for ' + this.getRoutePath());
+            Log_1.Log.info(mw.constructor.name + ' was loaded for ' + this.getPath());
         });
-        return {
-            preHandler: (request, response) => __awaiter(this, void 0, void 0, function* () {
-                for (const middleware of middlewares) {
-                    try {
-                        yield middleware.handler(request, response);
-                    }
-                    catch (exception) {
-                        //						return ExceptionHandler.transform(exception, response);
-                        console.error(exception);
-                    }
-                }
-            })
-        };
+        return (request, response) => __awaiter(this, void 0, void 0, function* () {
+            for (const middleware of middlewares) {
+                yield middleware.handler(request, response);
+            }
+        });
+        //		return {
+        //			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
+        //				for (const middleware of middlewares) {
+        //					try {
+        //						await middleware.handler(request, response);
+        //					} catch (exception) {
+        ////						return ExceptionHandler.transform(exception, response);
+        //						console.error(exception);
+        //					}
+        //				}
+        //			}
+        //		};
     }
 }
 exports.Route = Route;

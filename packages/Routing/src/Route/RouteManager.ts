@@ -34,6 +34,11 @@ export class RouteManager {
 	 * @param route
 	 */
 	public static async parametersForRoute(request: FastifyRequest, response: FastifyReply, route: Route) {
+
+		//TODO: Double check we actually need this, pretty sure that
+		//We figured out last night that, this was basically useless
+
+
 		const parameters = route.getMethodParameterTypes();
 
 		if (!parameters.length) {

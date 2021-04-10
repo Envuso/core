@@ -44,7 +44,7 @@ class Server {
 //				})
 				const method = Array.isArray(route.methodMeta.method) ? route.methodMeta.method[0] : route.methodMeta.method;
 
-				server[method.toLowerCase()](route.getRoutePath(), route.getHandlerFactory());
+				server[method.toLowerCase()](route.getPath(), route.getHandlerFactory());
 			}
 		}
 

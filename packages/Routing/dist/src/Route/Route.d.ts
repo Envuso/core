@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { FastifyReply, FastifyRequest, HTTPMethods } from "fastify";
+import { Response } from "../Context/Response/Response";
 import { AllControllerMeta, ControllerMetadata } from "../Controller/ControllerDecorators";
 export interface ControllerMethodParameterMetadata {
     name: string;
@@ -15,12 +16,9 @@ export declare class Route {
     methodMeta: ControllerMethodMetadata;
     constructor(controllerMeta: AllControllerMeta, methodMeta: ControllerMethodMetadata);
     /**
-     * Returns all the fastify route arguments needed to
-     * bind this route to the fastify instance
+     * Get the HTTP verb used for this fastify route
      */
-    getFastifyOptions(): (string | {
-        preHandler: (request: FastifyRequest<import("fastify/types/route").RouteGenericInterface, import("http").Server, import("http").IncomingMessage>, response: FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>) => Promise<void>;
-    } | ((request?: FastifyRequest<import("fastify/types/route").RouteGenericInterface, import("http").Server, import("http").IncomingMessage>, response?: FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>) => Promise<never>))[];
+    getMethod(): HTTPMethods | HTTPMethods[];
     /**
      * Return the controller path & method path so that it can be built up
      */
@@ -28,7 +26,7 @@ export declare class Route {
     /**
      * Parse the controller & method route, allows us to define routes without a leading /
      */
-    getRoutePath(): string;
+    getPath(): string;
     /**
      * Handle the request to the controller method
      *
@@ -52,11 +50,11 @@ export declare class Route {
      * @param controllerResponse
      * @private
      */
-    private getResponseResult;
+    static getResponseResult(controllerResponse: Response | any): FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>;
     /**
      * Load the middleware for this route and return it as a fastify pre-handler
      *
      * @private
      */
-    private getMiddlewareFactory;
+    getMiddlewareHandler(): (request: FastifyRequest, response: FastifyReply) => Promise<void>;
 }
