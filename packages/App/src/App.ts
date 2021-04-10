@@ -153,6 +153,8 @@ export class App {
 		for (let providerClass of providers) {
 			const provider = new providerClass();
 
+			this.bind(() => provider);
+
 			await provider.register(
 				this, this.resolve(ConfigRepository)
 			);
@@ -168,7 +170,7 @@ export class App {
 				this, this.resolve(ConfigRepository)
 			);
 
-			Log.info('Service provider booted: '+ provider.constructor.name)
+			Log.info('Service provider booted: ' + provider.constructor.name)
 		}
 	}
 }

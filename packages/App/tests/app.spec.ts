@@ -91,6 +91,49 @@ describe('test app binding', () => {
 
 	});
 
+	test('app can register multiple service providers from config', async () => {
+		const app = App.getInstance();
+
+		class TestingRegisterBootProviders extends ServiceProvider {
+			public value = 1234;
+
+			public async boot(app: App, config: ConfigRepository): Promise<void> {
+
+			}
+
+			public async register(app: App, config: ConfigRepository): Promise<void> {
+				app.bind(() => {
+					return new TestingRegisterBootProviders();
+				})
+			}
+		}
+		class TestingRegisterBootNUMBAHTWOProviders extends ServiceProvider {
+			public value = 1234;
+
+			public async boot(app: App, config: ConfigRepository): Promise<void> {
+
+			}
+
+			public async register(app: App, config: ConfigRepository): Promise<void> {
+				app.bind(() => {
+					return new TestingRegisterBootNUMBAHTWOProviders();
+				})
+			}
+		}
+
+		app.resolve(ConfigRepository).put('app.providers', TestingRegisterBootProviders);
+		app.resolve(ConfigRepository).put('app.providers', TestingRegisterBootNUMBAHTWOProviders);
+
+		await app.loadServiceProviders();
+
+		expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
+		expect(app.resolve(TestingRegisterBootNUMBAHTWOProviders)).toBeDefined();
+
+		expect(app.resolve<Array<ServiceProvider>>('ServiceProvider').includes(new TestingRegisterBootProviders())).toBeTruthy();
+		expect(app.resolve<Array<ServiceProvider>>('ServiceProvider').includes(new TestingRegisterBootNUMBAHTWOProviders())).toBeTruthy();
+
+	});
+
 	test('app can access all service providers with "ServiceProvider" token after register', async () => {
 		const app = App.getInstance();
 
