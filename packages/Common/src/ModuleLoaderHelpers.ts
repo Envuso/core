@@ -13,8 +13,8 @@ export const classAndNameFromModule = (module) => {
 		throw new Error('There was an error loading the module from classAndNameFromModule path: ' + module);
 	}
 
-	const controller = module[moduleInstanceKey];
-	const name       = controller.name;
+	const instance = module[moduleInstanceKey];
+	const name       = instance.name;
 
-	return {controller, name}
+	return {instance, name}
 }
