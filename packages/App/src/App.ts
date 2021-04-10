@@ -150,15 +150,21 @@ export class App {
 			throw new Error('No service providers found.');
 		}
 
+		Log.info('Loading providers: ' + providers.map(p => p.constructor.name).join(', '));
+
 		for (let providerClass of providers) {
 			const provider = new providerClass();
 
 			await provider.register(
 				this, this.resolve(ConfigRepository)
 			);
+
+			Log.info('Provider registered: ' + provider.constructor.name);
 		}
 
 		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
+
+		console.log(serviceProviders);
 
 		for (let provider of serviceProviders) {
 
