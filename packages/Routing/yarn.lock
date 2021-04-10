@@ -893,9 +893,9 @@
     kuler "^2.0.0"
 
 "@envuso/app@^0.1.0":
-  version "0.0.1-alpha.1"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.1.tgz#af34300e078758f014f0d6dad4e91b05e1aa572a"
-  integrity sha512-RzX3EHQKUbCKCkyPZ9YDf+83EbNQT2yOlUaifAscRsmoX0jemdMElgXFPBlw3maoR/iH76f4HWwxrTSpOT5E7Q==
+  version "0.0.1-alpha.3"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.3.tgz#95b4f0dc5c2f27a23cd79489b1fe9df2c8e790d4"
+  integrity sha512-vr9nxgtVwh7CMzbj/bjGrL8DcCEC2srv0kIfd/lHJ/7xW6pboGAOflkdyhhbURp4RaTLGAr7JFA0wMCt08nRsQ==
   dependencies:
     "@envuso/common" "^0.0.1-alpha.9"
     "@types/lodash.get" "^4.4.6"
