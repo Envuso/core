@@ -1,3 +1,5 @@
+import { Request } from "./Context/Request/Request";
+import { Response } from "./Context/Response/Response";
 export * from './RouteServiceProvider';
 export * from './Context/Request/Request';
 export * from './Context/Response/Response';
@@ -16,3 +18,5 @@ export * from './Route/RequestInjection';
 export * from './Route/Route';
 export * from './Route/RouteDecorators';
 export * from './Route/RouteManager';
+export declare const request: () => Request;
+export declare const response: () => Response;
