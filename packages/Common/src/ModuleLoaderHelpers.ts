@@ -14,7 +14,7 @@ export const classAndNameFromModule = (module) => {
 	}
 
 	const instance = module[moduleInstanceKey];
-	const name       = instance.name;
+	const name     = instance.name;
 
 	return {instance, name}
 }
