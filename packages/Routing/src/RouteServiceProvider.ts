@@ -1,5 +1,6 @@
 import {App, ConfigRepository, injectable, ServiceProvider} from "@envuso/app";
 import {classAndNameFromModule, loadModulesFromPath} from "@envuso/common";
+import {Log} from "@envuso/common/dist/src/Logger/Log";
 import path from "path";
 import {glob} from "glob";
 import {Controller} from "./Controller/Controller";
@@ -38,7 +39,10 @@ export class RouteServiceProvider extends ServiceProvider {
 		try {
 			const module = await import(controllerPath);
 
+
 			const {instance, name} = classAndNameFromModule(module)
+
+			Log.info('Imported controller: ' + name);
 
 //			const moduleName = Object.keys(module).shift() || null;
 //

@@ -24,6 +24,7 @@ const class_validator_1 = require("class-validator");
 const TestingController_1 = require("../src/App/Http/Controllers/TestingController");
 const Controller_1 = require("../src/Controller/Controller");
 const ControllerDecorators_1 = require("../src/Controller/ControllerDecorators");
+const ControllerManager_1 = require("../src/Controller/ControllerManager");
 const DataTransferObject_1 = require("../src/DataTransferObject/DataTransferObject");
 const DtoValidationException_1 = require("../src/DataTransferObject/DtoValidationException");
 const Middleware_1 = require("../src/Middleware/Middleware");
@@ -67,13 +68,14 @@ describe('test route service provider', () => {
             return new GetController();
         }, 'Controllers');
         const getController = app.resolve(GetController);
+        const controllerss = ControllerManager_1.ControllerManager.initiateControllers();
         expect(getController).toBeDefined();
         const meta = getController.getMeta();
         expect(meta.controller.path).toEqual('/test');
         expect(meta.methods[0].path).toEqual('/get');
         expect(meta.methods[0].method).toEqual('get');
     }));
-    test('controller method has GET method', () => __awaiter(void 0, void 0, void 0, function* () {
+    test('controller method has GET method with middleware', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = app_1.App.getInstance();
         class TestMiddleware extends Middleware_1.Middleware {
             handler(request, response) {

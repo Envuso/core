@@ -5,6 +5,7 @@ import {FastifyReply, FastifyRequest} from "fastify";
 import {TestingController} from "../src/App/Http/Controllers/TestingController";
 import {Controller} from "../src/Controller/Controller";
 import {controller, get} from "../src/Controller/ControllerDecorators";
+import {ControllerManager} from "../src/Controller/ControllerManager";
 import {DataTransferObject} from "../src/DataTransferObject/DataTransferObject";
 import {DtoValidationException} from "../src/DataTransferObject/DtoValidationException";
 import {Middleware} from "../src/Middleware/Middleware";
@@ -57,6 +58,8 @@ describe('test route service provider', () => {
 
 		const getController = app.resolve(GetController);
 
+		const controllerss = ControllerManager.initiateControllers();
+
 		expect(getController).toBeDefined();
 
 		const meta = getController.getMeta();
@@ -67,7 +70,7 @@ describe('test route service provider', () => {
 		expect(meta.methods[0].method).toEqual('get');
 	})
 
-	test('controller method has GET method', async () => {
+	test('controller method has GET method with middleware', async () => {
 		const app = App.getInstance();
 
 		class TestMiddleware extends Middleware {
@@ -105,6 +108,8 @@ describe('test route service provider', () => {
 		expect(middlewareMeta.middlewares).toBeDefined();
 		expect(middlewareMeta.middlewares[0]).toEqual(new TestMiddleware());
 	})
+
+
 
 	test('data transfer object validates', async () => {
 

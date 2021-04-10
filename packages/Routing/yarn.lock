@@ -892,12 +892,11 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@envuso/app@^0.1.0":
-  version "0.0.1-alpha.5"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.5.tgz#a733c4be8ce6d50741fa9c963ff42d6eae72df71"
-  integrity sha512-UKB5pyNBwtxsRqEySn5413Vo33fjxhYA4jeUwjbtwv0WPPnpyyEmp52Fs9FPGCAEjIlBvegJD5dcO3f19SvPRQ==
+"@envuso/app@^0.0.1-alpha.6":
+  version "0.0.1-alpha.6"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.6.tgz#19a0bbeeb86cc321a275757149570443815109e7"
+  integrity sha512-yFV7Yrs6OgEUXOIdjnDyrflQOhJheK1IKjhCQDvuVZV69p+WXcqWxNoo2rw/0REGkZEvRQbyw3oSvAvDTLQElQ==
   dependencies:
-    "@envuso/common" "^0.0.1-alpha.9"
     "@types/lodash.get" "^4.4.6"
     "@types/lodash.has" "^4.5.6"
     "@types/lodash.set" "^4.3.6"
@@ -908,7 +907,7 @@
     reflect-metadata "^0.1.10"
     tsyringe "^4.5.0"
 
-"@envuso/common@^0.0.0", "@envuso/common@^0.0.1-alpha.9":
+"@envuso/common@^0.0.1-alpha.9":
   version "0.0.1-alpha.9"
   resolved "https://registry.yarnpkg.com/@envuso/common/-/common-0.0.1-alpha.9.tgz#50b01179d2738f1549fbbf2a2c01d9e053301176"
   integrity sha512-nMdPV4bDB/m9fqgq/hAvFlSHmVWmUtw41UfqGN7LMiSbdeQHRRDEZOwWWgi2+NLNztAi2ywO2Fgth9TYBr+xTg==

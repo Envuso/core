@@ -34,6 +34,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteServiceProvider = void 0;
 const app_1 = require("@envuso/app");
 const common_1 = require("@envuso/common");
+const Log_1 = require("@envuso/common/dist/src/Logger/Log");
 const path_1 = __importDefault(require("path"));
 class RouteServiceProvider extends app_1.ServiceProvider {
     register(app) {
@@ -67,6 +68,7 @@ class RouteServiceProvider extends app_1.ServiceProvider {
             try {
                 const module = yield Promise.resolve().then(() => __importStar(require(controllerPath)));
                 const { instance, name } = common_1.classAndNameFromModule(module);
+                Log_1.Log.info('Imported controller: ' + name);
                 //			const moduleName = Object.keys(module).shift() || null;
                 //
                 //			if (!moduleName) {
