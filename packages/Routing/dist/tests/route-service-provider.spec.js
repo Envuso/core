@@ -43,6 +43,14 @@ describe('test route service provider', () => {
         const app = app_1.App.getInstance();
         expect(app.resolve(TestingController_1.TestingController)).toBeTruthy();
     }));
+    test('test initiating controllers', () => __awaiter(void 0, void 0, void 0, function* () {
+        const app = app_1.App.getInstance();
+        expect(ControllerManager_1.ControllerManager.getRoutesForController(app.resolve(TestingController_1.TestingController))).toBeDefined();
+    }));
+    test('test initiating controllers with no methods', () => __awaiter(void 0, void 0, void 0, function* () {
+        const app = app_1.App.getInstance();
+        expect(ControllerManager_1.ControllerManager.initiateControllers()).toBeDefined();
+    }));
     test('controller has path metadata defined', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = app_1.App.getInstance();
         const controller = app.resolve(TestingController_1.TestingController);

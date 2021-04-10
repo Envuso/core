@@ -29,6 +29,20 @@ describe('test route service provider', () => {
 		expect(app.resolve(TestingController)).toBeTruthy();
 	});
 
+	test('test initiating controllers', async () => {
+		const app = App.getInstance();
+
+		expect(
+			ControllerManager.getRoutesForController(app.resolve(TestingController))
+		).toBeDefined();
+	});
+
+	test('test initiating controllers with no methods', async () => {
+		const app = App.getInstance();
+
+		expect(ControllerManager.initiateControllers()).toBeDefined()
+	});
+
 	test('controller has path metadata defined', async () => {
 		const app = App.getInstance();
 

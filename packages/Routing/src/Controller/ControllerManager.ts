@@ -75,7 +75,7 @@ export class ControllerManager {
 	static getRoutesForController(controller: Controller) {
 		const meta = controller.getMeta();
 
-		if (!meta?.controller || !meta?.methods) {
+		if (!meta?.controller && !meta?.methods) {
 			throw Error('Controller somehow has no meta defined... ' + controller.constructor.name)
 		}
 
