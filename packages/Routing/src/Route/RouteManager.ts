@@ -1,4 +1,5 @@
 import {METADATA} from "@envuso/common";
+import {Log} from "@envuso/common/dist/src/Logger/Log";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {MethodParameterDecorator} from "./RequestInjection/MethodParameterDecorator";
 import {Route} from "./Route";
@@ -41,8 +42,8 @@ export class RouteManager {
 
 		const parameterArgs = [];
 
-		for (let index in parameters) {
-			const parameter = parameters[index];
+		for (let index in route.methodMeta.parameters) {
+			const parameter = route.methodMeta.parameters[index];
 
 			//@TODO: Add route model binding back here...
 			/*if (parameter.type.prototype instanceof ModelEntity) {
@@ -55,16 +56,14 @@ export class RouteManager {
 			 }*/
 
 			for (let metadataKey of this.methodParamTypesForInjection()) {
-				console.log(route)
-				console.log(metadataKey)
-				console.log(route.methodMeta.target[metadataKey])
+
 				const methodMeta: MethodParameterDecorator = MethodParameterDecorator.getMethodMetadata(
-					route.methodMeta.target[metadataKey],
+					route.methodMeta.target[route.methodMeta.key],
 					metadataKey
 				);
 
 				if (!methodMeta) {
-					console.error('Method meta is not defined....', route);
+					Log.info('Param '+route.methodMeta.key+' doesnt have meta for injector: '+metadataKey);
 
 					continue;
 				}

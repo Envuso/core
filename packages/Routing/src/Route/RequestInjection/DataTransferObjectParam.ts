@@ -8,7 +8,6 @@ import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./Meth
 export class DataTransferObjectParam extends MethodParameterDecorator {
 
 	private dtoParameter: typeof DataTransferObject;
-
 	private validateOnRequest: boolean = true;
 
 	constructor(
@@ -25,7 +24,7 @@ export class DataTransferObjectParam extends MethodParameterDecorator {
 
 		const dtoParameter: typeof DataTransferObject = paramTypes[reflector.parameterIndex];
 
-		if (dtoParameter instanceof DataTransferObject) {
+		if (dtoParameter.prototype instanceof DataTransferObject) {
 			const paramHandler = new DataTransferObjectParam(dtoParameter, validateOnRequest);
 			this.setMetadata(reflector, paramHandler)
 		}
