@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 require("reflect-metadata");
+const common_1 = require("@envuso/common");
 const path_1 = __importDefault(require("path"));
 const tsyringe_1 = require("tsyringe");
 const ConfigRepository_1 = require("./Config/ConfigRepository");
@@ -72,14 +73,10 @@ class App {
      *               | This does not apply to classes that extend ServiceProvider
      */
     bind(binder, bindAs) {
-        var _a;
         const result = binder(this, this.resolve(ConfigRepository_1.ConfigRepository));
         if (!(result === null || result === void 0 ? void 0 : result.constructor)) {
             throw new FailedToBindException_1.FailedToBindException(result);
         }
-        console.log(result);
-        console.log((_a = result === null || result === void 0 ? void 0 : result.constructor) === null || _a === void 0 ? void 0 : _a.name);
-        console.log(result instanceof ServiceProvider_1.ServiceProvider);
         if (result instanceof ServiceProvider_1.ServiceProvider) {
             this._container.register('ServiceProvider', { useValue: result });
             return;
@@ -116,6 +113,8 @@ class App {
                 src: path_1.default.join(cwd, 'src'),
                 config: path_1.default.join(cwd, 'Config'),
                 controllers: path_1.default.join(cwd, 'src', 'App', 'Http', 'Controllers'),
+                providers: path_1.default.join(cwd, 'src', 'App', 'Providers'),
+                models: path_1.default.join(cwd, 'src', 'App', 'Models'),
             };
             yield configRepository.loadConfigFrom(paths.config);
             configRepository.set('paths', paths);
@@ -133,12 +132,11 @@ class App {
             for (let providerClass of providers) {
                 const provider = new providerClass();
                 yield provider.register(this, this.resolve(ConfigRepository_1.ConfigRepository));
-                console.log('Service provider registered: ', provider.constructor.name);
             }
             const serviceProviders = this._container.resolveAll('ServiceProvider');
             for (let provider of serviceProviders) {
-                console.log('Service provider booted: ', provider.constructor.name);
                 yield provider.boot(this, this.resolve(ConfigRepository_1.ConfigRepository));
+                common_1.Log.success('Service provider booted: ', provider.constructor.name);
             }
         });
     }

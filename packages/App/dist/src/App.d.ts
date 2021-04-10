@@ -28,7 +28,7 @@ export declare class App {
     /**
      * Load any base Config/services we need
      */
-    boot(): Promise<void>;
+    private boot;
     /**
      * Bind a service to the container
      *
