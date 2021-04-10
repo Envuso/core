@@ -68,11 +68,13 @@ class Route {
         return (request, response) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const parameters = yield RouteManager_1.RouteManager.parametersForRoute(request, response, this);
-                const httpContext = Reflect.getMetadata(common_1.METADATA.HTTP_CONTEXT, request);
+                let httpContext = null;
+                if (request)
+                    httpContext = Reflect.getMetadata(common_1.METADATA.HTTP_CONTEXT, request);
                 const controller = src_1.App.getInstance().resolve(this.controllerMeta.controller.target);
                 const routeMethod = controller[this.methodMeta.key];
                 const routeResponse = yield routeMethod(...parameters);
-                if (response.sent) {
+                if (response === null || response === void 0 ? void 0 : response.sent) {
                     console.warn('Response is already sent... something is offf.');
                     return;
                 }

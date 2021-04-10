@@ -58,6 +58,9 @@ class RouteManager {
                  continue;
                  }*/
                 for (let metadataKey of this.methodParamTypesForInjection()) {
+                    console.log(route);
+                    console.log(metadataKey);
+                    console.log(route.methodMeta.target[metadataKey]);
                     const methodMeta = MethodParameterDecorator_1.MethodParameterDecorator.getMethodMetadata(route.methodMeta.target[metadataKey], metadataKey);
                     if (!methodMeta) {
                         console.error('Method meta is not defined....', route);

@@ -55,6 +55,9 @@ export class RouteManager {
 			 }*/
 
 			for (let metadataKey of this.methodParamTypesForInjection()) {
+				console.log(route)
+				console.log(metadataKey)
+				console.log(route.methodMeta.target[metadataKey])
 				const methodMeta: MethodParameterDecorator = MethodParameterDecorator.getMethodMetadata(
 					route.methodMeta.target[metadataKey],
 					metadataKey

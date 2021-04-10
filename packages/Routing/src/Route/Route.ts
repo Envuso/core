@@ -86,7 +86,9 @@ export class Route {
 					request, response, this
 				);
 
-				const httpContext: RequestContext = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
+				let httpContext: RequestContext | null = null;
+				if (request)
+					httpContext = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
 
 				const controller = App.getInstance().resolve<Controller>(
 					this.controllerMeta.controller.target
@@ -95,7 +97,7 @@ export class Route {
 				const routeMethod   = controller[this.methodMeta.key];
 				const routeResponse = await routeMethod(...parameters);
 
-				if (response.sent) {
+				if (response?.sent) {
 					console.warn('Response is already sent... something is offf.');
 					return;
 				}
