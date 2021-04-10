@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {Log} from "@envuso/common";
 
 import path from 'path';
 import {container} from "tsyringe";
@@ -58,7 +59,7 @@ export class App {
 	/**
 	 * Load any base Config/services we need
 	 */
-	async boot() {
+	private async boot() {
 		if (this._booted) return;
 
 		await this.prepareConfiguration();
@@ -80,10 +81,6 @@ export class App {
 		if (!result?.constructor) {
 			throw new FailedToBindException(result);
 		}
-
-		console.log(result);
-		console.log(result?.constructor?.name);
-		console.log(result instanceof ServiceProvider);
 
 		if (result instanceof ServiceProvider) {
 			this._container.register(
@@ -132,6 +129,8 @@ export class App {
 			src         : path.join(cwd, 'src'),
 			config      : path.join(cwd, 'Config'),
 			controllers : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
+			providers   : path.join(cwd, 'src', 'App', 'Providers'),
+			models      : path.join(cwd, 'src', 'App', 'Models'),
 		}
 
 		await configRepository.loadConfigFrom(paths.config);
@@ -157,17 +156,17 @@ export class App {
 			await provider.register(
 				this, this.resolve(ConfigRepository)
 			);
-			console.log('Service provider registered: ', provider.constructor.name)
 		}
 
 		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
 
 		for (let provider of serviceProviders) {
-			console.log('Service provider booted: ', provider.constructor.name)
 
 			await provider.boot(
 				this, this.resolve(ConfigRepository)
 			);
+
+			Log.success('Service provider booted: ', provider.constructor.name)
 		}
 	}
 }
