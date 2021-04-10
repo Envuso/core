@@ -36,7 +36,7 @@ export class RouteManager {
 		const parameters = route.getMethodParameterTypes();
 
 		if (!parameters.length) {
-			return null;
+			return [];
 		}
 
 		const parameterArgs = [];

@@ -10,6 +10,7 @@ import {DataTransferObject} from "../src/DataTransferObject/DataTransferObject";
 import {DtoValidationException} from "../src/DataTransferObject/DtoValidationException";
 import {Middleware} from "../src/Middleware/Middleware";
 import {middleware} from "../src/Middleware/MiddlewareDecorators";
+import {RouteManager} from "../src/Route/RouteManager";
 
 
 const bootApp = async function () {
@@ -41,6 +42,19 @@ describe('test route service provider', () => {
 		const app = App.getInstance();
 
 		expect(ControllerManager.initiateControllers()).toBeDefined()
+	});
+	test('getting handler factory for controller method', async () => {
+		const app = App.getInstance();
+
+		const controllers = ControllerManager.initiateControllers();
+
+		const controller = controllers[1];
+
+		const handler = controller.routes[0].getHandlerFactory();
+
+		const res = await handler();
+
+		console.log(res);
 	});
 
 	test('controller has path metadata defined', async () => {

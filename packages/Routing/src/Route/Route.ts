@@ -77,8 +77,8 @@ export class Route {
 	 *
 	 * @private
 	 */
-	getHandlerFactory(): RouteHandlerMethod {
-		return async (request: FastifyRequest, response: FastifyReply) => {
+	getHandlerFactory() {
+		return async (request?: FastifyRequest, response?: FastifyReply) => {
 
 			try {
 
