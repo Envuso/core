@@ -1,4 +1,5 @@
 import {DecoratorHelpers, METADATA} from "@envuso/common";
+import {HTTPMethods} from "fastify";
 import {ControllerMethodMetadata} from "../Route/Route";
 import {ControllerManager} from "./ControllerManager";
 
@@ -29,27 +30,27 @@ export function controller(path: string = '') {
 
 
 export function all(path: string): HandlerDecorator {
-	return httpMethod("all", path);
+	return httpMethod(["GET", "DELETE", "HEAD", "POST", "PATCH", "PUT", "OPTIONS"], path);
 }
 
 export function get(path: string): HandlerDecorator {
-	return httpMethod("get", path);
+	return httpMethod("GET", path);
 }
 
 export function post(path: string): HandlerDecorator {
-	return httpMethod("post", path);
+	return httpMethod("POST", path);
 }
 
 export function put(path: string): HandlerDecorator {
-	return httpMethod("put", path);
+	return httpMethod("PUT", path);
 }
 
 export function patch(path: string): HandlerDecorator {
-	return httpMethod("patch", path);
+	return httpMethod("PATCH", path);
 }
 
 export function head(path: string): HandlerDecorator {
-	return httpMethod("head", path);
+	return httpMethod("HEAD", path);
 }
 
 /**
@@ -59,7 +60,7 @@ export function head(path: string): HandlerDecorator {
  * @param path
  */
 export function destroy(path: string): HandlerDecorator {
-	return httpMethod("delete", path);
+	return httpMethod("DELETE", path);
 }
 
 /**
@@ -69,7 +70,7 @@ export function destroy(path: string): HandlerDecorator {
  * @param path
  */
 export function remove(path: string): HandlerDecorator {
-	return httpMethod("delete", path);
+	return httpMethod("DELETE", path);
 }
 
 /**
@@ -78,11 +79,20 @@ export function remove(path: string): HandlerDecorator {
  * @param path
  */
 export function delete_(path: string): HandlerDecorator {
-	return httpMethod("delete", path);
+	return httpMethod("DELETE", path);
 }
 
+/**
+ * Specify the HTTP methods you want to use explicitly
+ *
+ * @param methods
+ * @param path
+ */
+export function method(methods: HTTPMethods | HTTPMethods[], path: string): HandlerDecorator {
+	return httpMethod(methods, path);
+}
 
-export function httpMethod(method: string, path: string): HandlerDecorator {
+export function httpMethod(method: HTTPMethods | HTTPMethods[], path: string): HandlerDecorator {
 	return function (target: any, key: string, value: any) {
 
 		const controllerMethod = target[key];

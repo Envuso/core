@@ -1,8 +1,9 @@
 import {App} from "@envuso/app";
 import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
-import {FastifyReply, FastifyRequest} from "fastify";
+import {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import {TestingController} from "../src/App/Http/Controllers/TestingController";
+import {RequestContext} from "../src/Context/RequestContext";
 import {Controller} from "../src/Controller/Controller";
 import {controller, get} from "../src/Controller/ControllerDecorators";
 import {ControllerManager} from "../src/Controller/ControllerManager";
@@ -10,12 +11,57 @@ import {DataTransferObject} from "../src/DataTransferObject/DataTransferObject";
 import {DtoValidationException} from "../src/DataTransferObject/DtoValidationException";
 import {Middleware} from "../src/Middleware/Middleware";
 import {middleware} from "../src/Middleware/MiddlewareDecorators";
-import {RouteManager} from "../src/Route/RouteManager";
+import fastify from "fastify";
 
+//const fastify = Fastify.fastify();
+
+//jest.mock('fastify');
+
+class Server {
+	_server: FastifyInstance;
+
+	async boot() {
+		const server = fastify();
+
+		server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
+			(new RequestContext(request, response)).bind(done);
+		});
+
+//		server.get('/testing/get', async (request, reply) => {
+//			return {message : 'yeeeet'};
+//		})
+
+		const controllers = ControllerManager.initiateControllers();
+
+		for (let controller of controllers) {
+			const routes = controller.routes;
+
+			for (let route of routes) {
+//				server.route({
+//					url     : route.getRoutePath(),
+//					method  : route.methodMeta.method,
+//					handler : route.getHandlerFactory()
+//				})
+				const method = Array.isArray(route.methodMeta.method) ? route.methodMeta.method[0] : route.methodMeta.method;
+
+				server[method.toLowerCase()](route.getRoutePath(), route.getHandlerFactory());
+			}
+		}
+
+		this._server = server;
+
+//		await server.listen({port : 9999});
+
+		return this._server;
+	}
+}
 
 const bootApp = async function () {
 	const app = await App.bootInstance();
 	await app.loadServiceProviders();
+
+	app.container().registerSingleton<Server>(Server);
+	await app.container().resolve(Server).boot();
 }
 
 beforeAll(() => {
@@ -43,18 +89,46 @@ describe('test route service provider', () => {
 
 		expect(ControllerManager.initiateControllers()).toBeDefined()
 	});
-	test('getting handler factory for controller method', async () => {
-		const app = App.getInstance();
 
-		const controllers = ControllerManager.initiateControllers();
+	test('making request to endpoint using methods & data transfer object', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
 
-		const controller = controllers[1];
+		try {
+			const res = await server._server.inject({
+				method  : 'POST',
+				url     : '/testing/get',
+				payload : {
+					something : '12345'
+				}
+			})
 
-		const handler = controller.routes[0].getHandlerFactory();
+			expect(res.statusCode).toEqual(204);
+			expect(res.body).toEqual("{}");
 
-		const res = await handler();
+		} catch (error) {
+			console.log(error)
+		}
+	});
 
-		console.log(res);
+	test('data transfer object validation fails', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		try {
+			const res = await server._server.inject({
+				method  : 'POST',
+				url     : '/testing/get',
+				payload : {
+					something : ''
+				}
+			})
+
+			expect(res.statusCode).toEqual(500);
+
+		} catch (error) {
+			console.log(error)
+		}
 	});
 
 	test('controller has path metadata defined', async () => {
@@ -86,8 +160,7 @@ describe('test route service provider', () => {
 
 		const getController = app.resolve(GetController);
 
-		const controllerss = ControllerManager.initiateControllers();
-
+		expect(ControllerManager.initiateControllers()).toBeDefined();
 		expect(getController).toBeDefined();
 
 		const meta = getController.getMeta();
@@ -95,7 +168,7 @@ describe('test route service provider', () => {
 		expect(meta.controller.path).toEqual('/test');
 
 		expect(meta.methods[0].path).toEqual('/get');
-		expect(meta.methods[0].method).toEqual('get');
+		expect(meta.methods[0].method).toEqual('GET');
 	})
 
 	test('controller method has GET method with middleware', async () => {
@@ -128,7 +201,7 @@ describe('test route service provider', () => {
 
 		expect(meta.controller.path).toEqual('/test');
 		expect(meta.methods[0].path).toEqual('/get');
-		expect(meta.methods[0].method).toEqual('get');
+		expect(meta.methods[0].method).toEqual('GET');
 
 		const middlewareMeta = Middleware.getMetadata(meta.controller.target);
 
@@ -136,7 +209,6 @@ describe('test route service provider', () => {
 		expect(middlewareMeta.middlewares).toBeDefined();
 		expect(middlewareMeta.middlewares[0]).toEqual(new TestMiddleware());
 	})
-
 
 
 	test('data transfer object validates', async () => {

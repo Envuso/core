@@ -4,7 +4,7 @@ import {METADATA} from "@envuso/common";
 import {Log} from "@envuso/common/dist/src/Logger/Log";
 import {classToPlain, serialize} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {FastifyReply, FastifyRequest, RouteHandlerMethod} from "fastify";
+import {FastifyReply, FastifyRequest, HTTPMethods, RouteHandlerMethod} from "fastify";
 import {StatusCodes} from "http-status-codes";
 import {RequestContext} from "../Context/RequestContext";
 import {Response} from "../Context/Response/Response";
@@ -19,7 +19,7 @@ export interface ControllerMethodParameterMetadata {
 }
 
 export interface ControllerMethodMetadata extends ControllerMetadata {
-	method: string;
+	method: HTTPMethods | HTTPMethods[];
 	key: string;
 	parameters: ControllerMethodParameterMetadata[];
 }

@@ -1,1 +1,0 @@
-{"version":3,"file":"Request.js","sourceRoot":"./src/","sources":["src/Context/Request/Request.ts"],"names":[],"mappings":";;;AAEA,MAAa,OAAO;IAInB,YAAY,OAAuB;QAClC,IAAI,CAAC,QAAQ,GAAG,OAAO,CAAC;IACzB,CAAC;IAED,IAAI,cAAc;QACjB,OAAO,IAAI,CAAC,QAAQ,CAAC;IACtB,CAAC;CAED;AAZD,0BAYC"}
