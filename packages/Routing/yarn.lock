@@ -892,11 +892,12 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@envuso/app@^0.0.1-alpha.0":
-  version "0.0.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.0.tgz#70fe7912f016fffbad51d28d8a8db73966d47e60"
-  integrity sha512-Im9iD+MP7pjDrOmNgVRKCORQgY068fbt0UuTXC1sht4ggyiJeUXauZYMBG2TKdGTtJmgjxReDeTxKZ7IQw4a6g==
+"@envuso/app@^0.1.0":
+  version "0.0.1-alpha.1"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.1.tgz#af34300e078758f014f0d6dad4e91b05e1aa572a"
+  integrity sha512-RzX3EHQKUbCKCkyPZ9YDf+83EbNQT2yOlUaifAscRsmoX0jemdMElgXFPBlw3maoR/iH76f4HWwxrTSpOT5E7Q==
   dependencies:
+    "@envuso/common" "^0.0.1-alpha.9"
     "@types/lodash.get" "^4.4.6"
     "@types/lodash.has" "^4.5.6"
     "@types/lodash.set" "^4.3.6"
@@ -907,10 +908,10 @@
     reflect-metadata "^0.1.10"
     tsyringe "^4.5.0"
 
-"@envuso/common@^0.0.1-alpha.8":
-  version "0.0.1-alpha.8"
-  resolved "https://registry.yarnpkg.com/@envuso/common/-/common-0.0.1-alpha.8.tgz#9ab60f1306413a188c3d888e269a06b55dabddcc"
-  integrity sha512-GoJO53smGdRBhcEg9v1YIW24HvpVy56aQhBOaV0GY1cIhf+pczlBHxyoUPj0TJuhThHxVRpUCxDmHQJVBZsmXA==
+"@envuso/common@^0.0.0", "@envuso/common@^0.0.1-alpha.9":
+  version "0.0.1-alpha.9"
+  resolved "https://registry.yarnpkg.com/@envuso/common/-/common-0.0.1-alpha.9.tgz#50b01179d2738f1549fbbf2a2c01d9e053301176"
+  integrity sha512-nMdPV4bDB/m9fqgq/hAvFlSHmVWmUtw41UfqGN7LMiSbdeQHRRDEZOwWWgi2+NLNztAi2ywO2Fgth9TYBr+xTg==
   dependencies:
     chalk "^4.1.0"
     class-validator "^0.13.1"
@@ -1201,28 +1202,28 @@
 
 "@types/lodash.get@^4.4.6":
   version "4.4.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.get/-/lodash.get-4.4.6.tgz"
+  resolved "https://registry.yarnpkg.com/@types/lodash.get/-/lodash.get-4.4.6.tgz#0c7ac56243dae0f9f09ab6f75b29471e2e777240"
   integrity sha512-E6zzjR3GtNig8UJG/yodBeJeIOtgPkMgsLjDU3CbgCAPC++vJ0eCMnJhVpRZb/ENqEFlov1+3K9TKtY4UdWKtQ==
   dependencies:
     "@types/lodash" "*"
 
 "@types/lodash.has@^4.5.6":
   version "4.5.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.has/-/lodash.has-4.5.6.tgz"
+  resolved "https://registry.yarnpkg.com/@types/lodash.has/-/lodash.has-4.5.6.tgz#d94d3f0b45ced2ae76d632080daf70e9b76e29eb"
   integrity sha512-SpUCvze0uHilQX/mt4K/cak5OQny1pVfz3pJx6H70dE3Tvw9s7EtlMK+vY6UBS+PQgETDfv6vhwoa3FPS2wrhg==
   dependencies:
     "@types/lodash" "*"
 
 "@types/lodash.set@^4.3.6":
   version "4.3.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.set/-/lodash.set-4.3.6.tgz"
+  resolved "https://registry.yarnpkg.com/@types/lodash.set/-/lodash.set-4.3.6.tgz#33e635c2323f855359225df6a5c8c6f1f1908264"
   integrity sha512-ZeGDDlnRYTvS31Laij0RsSaguIUSBTYIlJFKL3vm3T2OAZAQj2YpSvVWJc0WiG4jqg9fGX6PAPGvDqBcHfSgFg==
   dependencies:
     "@types/lodash" "*"
 
 "@types/lodash@*":
   version "4.14.168"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz#fe24632e79b7ade3f132891afff86caa5e5ce008"
   integrity sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
 
 "@types/node@*":
@@ -3402,17 +3403,17 @@ lodash.debounce@^4.0.8:
 
 lodash.get@^4.4.2:
   version "4.4.2"
-  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
 lodash.has@^4.5.2:
   version "4.5.2"
-  resolved "https://registry.yarnpkg.com/lodash.has/-/lodash.has-4.5.2.tgz"
+  resolved "https://registry.yarnpkg.com/lodash.has/-/lodash.has-4.5.2.tgz#d19f4dc1095058cccbe2b0cdf4ee0fe4aa37c862"
   integrity sha1-0Z9NwQlQWMzL4rDN9O4P5Ko3yGI=
 
 lodash.set@^4.3.2:
   version "4.3.2"
-  resolved "https://registry.yarnpkg.com/lodash.set/-/lodash.set-4.3.2.tgz"
+  resolved "https://registry.yarnpkg.com/lodash.set/-/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
   integrity sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM=
 
 lodash@4.x, lodash@^4.17.19, lodash@^4.7.0:
