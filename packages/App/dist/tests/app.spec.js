@@ -89,6 +89,50 @@ describe('test app binding', () => {
         yield app.loadServiceProviders();
         expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
     }));
+    test('app can register multiple service providers from config', () => __awaiter(void 0, void 0, void 0, function* () {
+        const app = App_1.App.getInstance();
+        class TestingRegisterBootProviders extends ServiceProvider_1.ServiceProvider {
+            constructor() {
+                super(...arguments);
+                this.value = 1234;
+            }
+            boot(app, config) {
+                return __awaiter(this, void 0, void 0, function* () {
+                });
+            }
+            register(app, config) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    app.bind(() => {
+                        return new TestingRegisterBootProviders();
+                    });
+                });
+            }
+        }
+        class TestingRegisterBootNUMBAHTWOProviders extends ServiceProvider_1.ServiceProvider {
+            constructor() {
+                super(...arguments);
+                this.value = 1234;
+            }
+            boot(app, config) {
+                return __awaiter(this, void 0, void 0, function* () {
+                });
+            }
+            register(app, config) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    app.bind(() => {
+                        return new TestingRegisterBootNUMBAHTWOProviders();
+                    });
+                });
+            }
+        }
+        app.resolve(ConfigRepository_1.ConfigRepository).put('app.providers', TestingRegisterBootProviders);
+        app.resolve(ConfigRepository_1.ConfigRepository).put('app.providers', TestingRegisterBootNUMBAHTWOProviders);
+        yield app.loadServiceProviders();
+        expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
+        expect(app.resolve(TestingRegisterBootNUMBAHTWOProviders)).toBeDefined();
+        expect(app.resolve('ServiceProvider').includes(new TestingRegisterBootProviders())).toBeTruthy();
+        expect(app.resolve('ServiceProvider').includes(new TestingRegisterBootNUMBAHTWOProviders())).toBeTruthy();
+    }));
     test('app can access all service providers with "ServiceProvider" token after register', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = App_1.App.getInstance();
         class TestingRegisterBootProviders extends ServiceProvider_1.ServiceProvider {

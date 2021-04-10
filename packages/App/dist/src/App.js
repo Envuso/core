@@ -131,6 +131,7 @@ class App {
             }
             for (let providerClass of providers) {
                 const provider = new providerClass();
+                this.bind(() => provider);
                 yield provider.register(this, this.resolve(ConfigRepository_1.ConfigRepository));
                 common_1.Log.info('Provider registered: ' + provider.constructor.name);
             }
