@@ -24,7 +24,7 @@ class DataTransferObjectParam extends MethodParameterDecorator_1.MethodParameter
     static handleParameter(reflector, validateOnRequest = true) {
         const paramTypes = common_1.DecoratorHelpers.paramTypes(reflector.target, reflector.propertyKey);
         const dtoParameter = paramTypes[reflector.parameterIndex];
-        if (dtoParameter instanceof DataTransferObject_1.DataTransferObject) {
+        if (dtoParameter.prototype instanceof DataTransferObject_1.DataTransferObject) {
             const paramHandler = new DataTransferObjectParam(dtoParameter, validateOnRequest);
             this.setMetadata(reflector, paramHandler);
         }

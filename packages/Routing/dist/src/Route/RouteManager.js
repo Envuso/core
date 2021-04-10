@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteManager = void 0;
 const common_1 = require("@envuso/common");
+const Log_1 = require("@envuso/common/dist/src/Logger/Log");
 const MethodParameterDecorator_1 = require("./RequestInjection/MethodParameterDecorator");
 class RouteManager {
     /**
@@ -46,8 +47,8 @@ class RouteManager {
                 return [];
             }
             const parameterArgs = [];
-            for (let index in parameters) {
-                const parameter = parameters[index];
+            for (let index in route.methodMeta.parameters) {
+                const parameter = route.methodMeta.parameters[index];
                 //@TODO: Add route model binding back here...
                 /*if (parameter.type.prototype instanceof ModelEntity) {
                  const identifier = request.params[parameter.name];
@@ -58,12 +59,9 @@ class RouteManager {
                  continue;
                  }*/
                 for (let metadataKey of this.methodParamTypesForInjection()) {
-                    console.log(route);
-                    console.log(metadataKey);
-                    console.log(route.methodMeta.target[metadataKey]);
-                    const methodMeta = MethodParameterDecorator_1.MethodParameterDecorator.getMethodMetadata(route.methodMeta.target[metadataKey], metadataKey);
+                    const methodMeta = MethodParameterDecorator_1.MethodParameterDecorator.getMethodMetadata(route.methodMeta.target[route.methodMeta.key], metadataKey);
                     if (!methodMeta) {
-                        console.error('Method meta is not defined....', route);
+                        Log_1.Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
                         continue;
                     }
                     const canBind = methodMeta.canBind(route.methodMeta.target[route.methodMeta.key], parameter.type, Number(index));

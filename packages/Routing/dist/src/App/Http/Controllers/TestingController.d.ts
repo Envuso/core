@@ -1,4 +1,8 @@
 import { Controller } from "../../../Controller/Controller";
-export declare class TestingController extends Controller {
-    testGet(): Promise<void>;
+import { DataTransferObject } from "../../../DataTransferObject/DataTransferObject";
+declare class DTO extends DataTransferObject {
 }
+export declare class TestingController extends Controller {
+    testGet(dt: DTO): Promise<void>;
+}
+export {};
