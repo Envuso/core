@@ -150,8 +150,6 @@ export class App {
 			throw new Error('No service providers found.');
 		}
 
-		Log.info('Loading providers: ' + providers.map(p => p.constructor.name).join(', '));
-
 		for (let providerClass of providers) {
 			const provider = new providerClass();
 
@@ -164,15 +162,13 @@ export class App {
 
 		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
 
-		console.log(serviceProviders);
-
 		for (let provider of serviceProviders) {
 
 			await provider.boot(
 				this, this.resolve(ConfigRepository)
 			);
 
-			Log.success('Service provider booted: ', provider.constructor.name)
+			Log.info('Service provider booted: '+ provider.constructor.name)
 		}
 	}
 }
