@@ -49,7 +49,7 @@ export class ControllerManager {
 	 * Pull all controllers from the container
 	 * and setup the route instances for them
 	 */
-	initiateControllers() {
+	static initiateControllers() {
 		const controllers = App.getInstance()
 			.resolve(RouteServiceProvider)
 			.getAllControllers();
@@ -72,7 +72,7 @@ export class ControllerManager {
 	 * @param controller
 	 * @private
 	 */
-	private getRoutesForController(controller: Controller) {
+	static getRoutesForController(controller: Controller) {
 		const meta = controller.getMeta();
 
 		if (!meta?.controller || !meta?.methods) {

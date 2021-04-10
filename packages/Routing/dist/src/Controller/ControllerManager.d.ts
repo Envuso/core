@@ -16,12 +16,12 @@ export declare class ControllerManager {
      * Pull all controllers from the container
      * and setup the route instances for them
      */
-    initiateControllers(): ControllerAndRoutes[];
+    static initiateControllers(): ControllerAndRoutes[];
     /**
      * Return an array of routes for the specified Controller
      *
      * @param controller
      * @private
      */
-    private getRoutesForController;
+    static getRoutesForController(controller: Controller): Route[];
 }

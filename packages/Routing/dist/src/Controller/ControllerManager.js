@@ -30,7 +30,7 @@ class ControllerManager {
      * Pull all controllers from the container
      * and setup the route instances for them
      */
-    initiateControllers() {
+    static initiateControllers() {
         const controllers = src_1.App.getInstance()
             .resolve(RouteServiceProvider_1.RouteServiceProvider)
             .getAllControllers();
@@ -49,7 +49,7 @@ class ControllerManager {
      * @param controller
      * @private
      */
-    getRoutesForController(controller) {
+    static getRoutesForController(controller) {
         const meta = controller.getMeta();
         if (!(meta === null || meta === void 0 ? void 0 : meta.controller) || !(meta === null || meta === void 0 ? void 0 : meta.methods)) {
             throw Error('Controller somehow has no meta defined... ' + controller.constructor.name);
