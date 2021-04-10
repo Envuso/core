@@ -38,8 +38,8 @@ export class Route {
 	getFastifyOptions() {
 		return [
 			this.getRoutePath(),
+			this.getMiddlewareFactory(),
 			this.getHandlerFactory(),
-			this.getMiddlewareFactory()
 		]
 	}
 
