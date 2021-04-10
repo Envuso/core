@@ -66,26 +66,35 @@ class Route {
      */
     getHandlerFactory() {
         return (request, response) => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const parameters = yield RouteManager_1.RouteManager.parametersForRoute(request, response, this);
-                let httpContext = null;
-                if (request)
-                    httpContext = Reflect.getMetadata(common_1.METADATA.HTTP_CONTEXT, request);
-                const controller = src_1.App.getInstance().resolve(this.controllerMeta.controller.target);
-                const routeMethod = controller[this.methodMeta.key];
-                const routeResponse = yield routeMethod(...parameters);
-                if (response === null || response === void 0 ? void 0 : response.sent) {
-                    console.warn('Response is already sent... something is offf.');
-                    return;
-                }
-                return this.getResponseResult(routeResponse);
+            //			try {
+            const parameters = yield RouteManager_1.RouteManager.parametersForRoute(request, response, this);
+            let httpContext = null;
+            if (request)
+                httpContext = Reflect.getMetadata(common_1.METADATA.HTTP_CONTEXT, request);
+            const controller = src_1.App.getInstance().resolve(this.controllerMeta.controller.target);
+            const routeMethod = controller[this.methodMeta.key];
+            const routeResponse = yield routeMethod(...parameters);
+            if (response === null || response === void 0 ? void 0 : response.sent) {
+                console.warn('Response is already sent... something is offf.');
+                return;
             }
-            catch (error) {
-                //				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
-                //
-                //				}
-                console.error(error);
-            }
+            return this.getResponseResult(routeResponse);
+            //			} catch (error) {
+            /*
+            @TODO
+            NOTE FOR SELF...
+            We could just remove the try catch and let the implementing code catch the errors...
+            This means the core or scaffold could try catch the response handling side
+            and then throw the error into the exception handler to output a response...
+
+            Either this or we create some kind of service provider to handle this logic
+            which can be extended
+             */
+            //				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
+            //
+            //				}
+            //				console.error(error);
+            //			}
         });
     }
     /**

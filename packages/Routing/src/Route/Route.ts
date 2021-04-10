@@ -80,7 +80,7 @@ export class Route {
 	getHandlerFactory() {
 		return async (request?: FastifyRequest, response?: FastifyReply) => {
 
-			try {
+//			try {
 
 				const parameters = await RouteManager.parametersForRoute(
 					request, response, this
@@ -104,12 +104,24 @@ export class Route {
 
 				return this.getResponseResult(routeResponse);
 
-			} catch (error) {
+//			} catch (error) {
+				/*
+				@TODO
+				NOTE FOR SELF...
+				We could just remove the try catch and let the implementing code catch the errors...
+				This means the core or scaffold could try catch the response handling side
+				and then throw the error into the exception handler to output a response...
+
+				Either this or we create some kind of service provider to handle this logic
+				which can be extended
+				 */
+
+
 //				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
 //
 //				}
-				console.error(error);
-			}
+//				console.error(error);
+//			}
 		}
 	}
 
