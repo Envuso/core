@@ -129,17 +129,15 @@ class App {
             if (!providers) {
                 throw new Error('No service providers found.');
             }
-            common_1.Log.info('Loading providers: ' + providers.map(p => p.constructor.name).join(', '));
             for (let providerClass of providers) {
                 const provider = new providerClass();
                 yield provider.register(this, this.resolve(ConfigRepository_1.ConfigRepository));
                 common_1.Log.info('Provider registered: ' + provider.constructor.name);
             }
             const serviceProviders = this._container.resolveAll('ServiceProvider');
-            console.log(serviceProviders);
             for (let provider of serviceProviders) {
                 yield provider.boot(this, this.resolve(ConfigRepository_1.ConfigRepository));
-                common_1.Log.success('Service provider booted: ', provider.constructor.name);
+                common_1.Log.info('Service provider booted: ' + provider.constructor.name);
             }
         });
     }
