@@ -11,9 +11,9 @@ const classAndNameFromModule = (module) => {
     if (!moduleInstanceKey) {
         throw new Error('There was an error loading the module from classAndNameFromModule path: ' + module);
     }
-    const controller = module[moduleInstanceKey];
-    const name = controller.name;
-    return { controller, name };
+    const instance = module[moduleInstanceKey];
+    const name = instance.name;
+    return { instance, name };
 };
 exports.classAndNameFromModule = classAndNameFromModule;
 //# sourceMappingURL=ModuleLoaderHelpers.js.map
