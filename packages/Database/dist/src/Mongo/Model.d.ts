@@ -1,4 +1,4 @@
-import { Collection, Cursor, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection } from "mongodb";
+import { Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection } from "mongodb";
 import { QueryBuilder } from "./QueryBuilder";
 export declare class Model<M> {
     /**
@@ -12,7 +12,7 @@ export declare class Model<M> {
     /**
      * Access the underlying mongo collection for this model
      */
-    collection(): Collection<any>;
+    collection(): Collection<M>;
     /**
      * Get the query builder instance
      */
@@ -74,7 +74,7 @@ export declare class Model<M> {
      */
     static get<T extends Model<T>>(query?: FilterQuery<T | {
         _id: any;
-    }>, options?: WithoutProjection<FindOneOptions<T>>): Cursor<T>;
+    }>, options?: WithoutProjection<FindOneOptions<T>>): Promise<T[]>;
     /**
      * Count all the documents in the collection
      */

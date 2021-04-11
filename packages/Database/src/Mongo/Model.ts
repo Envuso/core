@@ -24,8 +24,8 @@ export class Model<M> {
 	/**
 	 * Access the underlying mongo collection for this model
 	 */
-	collection() {
-		return resolve<Collection>(this.constructor as any);
+	collection(): Collection<M> {
+		return resolve<Collection>(this.constructor.name + 'Model');
 	}
 
 	/**
@@ -49,7 +49,7 @@ export class Model<M> {
 	 * Get an instance of the mongo repository
 	 */
 	static getCollection<T extends Model<T>>(): Collection<T> {
-		return resolve<Collection<T>>(this as any);
+		return resolve<Collection<T>>(this.name + 'Model');
 	}
 
 	/**
@@ -66,7 +66,7 @@ export class Model<M> {
 		(entity as any)._id = res.insertedId;
 		(plain as any)._id  = res.insertedId;
 
-		return hydrateModel(plain, entity as unknown as ClassType<typeof entity>);
+		return hydrateModel(plain, entity.constructor as any);
 	}
 
 	/**
@@ -82,7 +82,11 @@ export class Model<M> {
 			_id : (this as any)._id
 		}, plain as any, options);
 
-		await this.refresh();
+		for (let attributesKey in attributes) {
+			(this as any)[attributesKey] = attributes[attributesKey];
+		}
+
+//		await this.refresh();
 	}
 
 	/**
@@ -138,10 +142,11 @@ export class Model<M> {
 	 * calls mongodb.find function and returns its cursor with attached map function that hydrates results
 	 * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
 	 */
-	static get<T extends Model<T>>(query?: FilterQuery<T | { _id: any }>, options?: WithoutProjection<FindOneOptions<T>>): Cursor<T> {
-		return this.getCollection<T>()
-			.find(query as any, options)
-			.map(doc => hydrateModel(doc, this as unknown as ClassType<T>) as T);
+	static async get<T extends Model<T>>(query?: FilterQuery<T | { _id: any }>, options?: WithoutProjection<FindOneOptions<T>>): Promise<T[]> {
+		const cursor  = await this.getCollection<T>().find(query as any, options);
+		const results = await cursor.toArray();
+
+		return results.map(doc => hydrateModel(doc, this as unknown as ClassType<T>));
 	}
 
 	/**

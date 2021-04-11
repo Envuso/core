@@ -39,7 +39,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 				pluralize(name.toLowerCase())
 			);
 
-			app().container().register(instance, {
+			app().container().register(name + 'Model', {
 				useValue : collection
 			});
 		}

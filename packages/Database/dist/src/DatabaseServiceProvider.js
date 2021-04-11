@@ -60,7 +60,7 @@ class DatabaseServiceProvider extends app_1.ServiceProvider {
                 const module = yield Promise.resolve().then(() => __importStar(require(path)));
                 const { instance, name } = common_1.classAndNameFromModule(module);
                 const collection = client.db(dbName).collection(pluralize_1.default(name.toLowerCase()));
-                app_1.app().container().register(instance, {
+                app_1.app().container().register(name + 'Model', {
                     useValue: collection
                 });
             }

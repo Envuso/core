@@ -33,7 +33,7 @@ class Model {
      * Access the underlying mongo collection for this model
      */
     collection() {
-        return app_1.resolve(this.constructor);
+        return app_1.resolve(this.constructor.name + 'Model');
     }
     /**
      * Get the query builder instance
@@ -54,7 +54,7 @@ class Model {
      * Get an instance of the mongo repository
      */
     static getCollection() {
-        return app_1.resolve(this);
+        return app_1.resolve(this.name + 'Model');
     }
     /**
      * Insert a new model into the collection
@@ -68,7 +68,7 @@ class Model {
             const res = yield c.insertOne(plain);
             entity._id = res.insertedId;
             plain._id = res.insertedId;
-            return Serializer_1.hydrateModel(plain, entity);
+            return Serializer_1.hydrateModel(plain, entity.constructor);
         });
     }
     /**
@@ -83,7 +83,10 @@ class Model {
             yield this.collection().replaceOne({
                 _id: this._id
             }, plain, options);
-            yield this.refresh();
+            for (let attributesKey in attributes) {
+                this[attributesKey] = attributes[attributesKey];
+            }
+            //		await this.refresh();
         });
     }
     /**
@@ -141,9 +144,11 @@ class Model {
      * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
      */
     static get(query, options) {
-        return this.getCollection()
-            .find(query, options)
-            .map(doc => Serializer_1.hydrateModel(doc, this));
+        return __awaiter(this, void 0, void 0, function* () {
+            const cursor = yield this.getCollection().find(query, options);
+            const results = yield cursor.toArray();
+            return results.map(doc => Serializer_1.hydrateModel(doc, this));
+        });
     }
     /**
      * Count all the documents in the collection
