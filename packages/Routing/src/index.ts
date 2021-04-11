@@ -4,6 +4,7 @@ import {Response} from "./Context/Response/Response";
 
 export * from './RouteServiceProvider';
 export * from './Context/Request/Request';
+export * from './Context/Request/UploadedFile';
 export * from './Context/Response/Response';
 export * from './Context/RequestContext';
 export * from './Context/RequestContextStore';
@@ -20,6 +21,7 @@ export * from './Route/RequestInjection';
 export * from './Route/Route';
 export * from './Route/RouteDecorators';
 export * from './Route/RouteManager';
+
 
 export const request  = (): Request => RequestContext.request();
 export const response = (): Response => RequestContext.response();
