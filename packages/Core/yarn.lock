@@ -341,10 +341,10 @@
     winston "^3.3.3"
     winston-daily-rotate-file "^4.5.2"
 
-"@envuso/database@^0.0.1-alpha.2":
-  version "0.0.1-alpha.2"
-  resolved "https://registry.npmjs.org/@envuso/database/-/database-0.0.1-alpha.2.tgz"
-  integrity sha512-uUYUhFJ4rMC+1wcOk8XZG0bkjA7sv+apiX578cVmoNYW2pcLaoKoDY0rt68keb6altEZzLfdsTz61lTDb2dZJw==
+"@envuso/database@^0.0.1-alpha.3":
+  version "0.0.1-alpha.3"
+  resolved "https://registry.yarnpkg.com/@envuso/database/-/database-0.0.1-alpha.3.tgz#adc3abb86cdd79ccb150381511d87a8adc22b42f"
+  integrity sha512-QiwmTwFki6irYdmi6BptgbzV+n5rHUBmtRaUxUu/Kyemu+004UHPwA2yJrxaqV0HSJYTmUaajBoQk/vG5oXe1w==
   dependencies:
     class-transformer "^0.4.0"
     mongodb "^3.6.5"

@@ -15,7 +15,7 @@
     "@envuso/app": "^0.0.1-alpha.9",
     "@envuso/authentication": "^0.0.1-alpha.1",
     "@envuso/common": "^0.0.1-alpha.13",
-    "@envuso/database": "^0.0.1-alpha.2",
+    "@envuso/database": "^0.0.1-alpha.3",
     "@envuso/routing": "^0.0.1-alpha.26",
     "@envuso/storage": "^0.0.1-alpha.3",
     "@types/connect": "^3.4.34",
