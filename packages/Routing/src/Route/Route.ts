@@ -205,9 +205,9 @@ export class Route {
 			Log.info(mw.constructor.name + ' was loaded for ' + this.getPath());
 		})
 
-		return async (request: FastifyRequest, response: FastifyReply) => {
+		return async (context: RequestContext) => {
 			for (const middleware of middlewares) {
-				await middleware.handler(request, response);
+				await middleware.handler(context);
 			}
 		}
 
