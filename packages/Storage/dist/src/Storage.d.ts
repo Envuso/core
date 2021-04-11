@@ -89,7 +89,7 @@ export declare class Storage {
      * @param fileName
      * @param stream
      */
-    static saveTemporaryFile(fileName: string, stream: NodeJS.ReadStream): Promise<string>;
+    static saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream): Promise<string>;
     /**
      * Return the adapter set on this instance
      *

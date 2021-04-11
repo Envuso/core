@@ -146,7 +146,7 @@ export class Storage {
 	 * @param fileName
 	 * @param stream
 	 */
-	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadStream) {
+	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream) {
 		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
 		const tempName = Str.random() + '.' + (fileName.split('.').pop())
 
