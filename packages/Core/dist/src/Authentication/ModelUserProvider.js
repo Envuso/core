@@ -13,7 +13,6 @@ exports.ModelUserProvider = void 0;
 const app_1 = require("@envuso/app");
 const authentication_1 = require("@envuso/authentication");
 const common_1 = require("@envuso/common");
-const User_1 = require("../App/Models/User");
 class ModelUserProvider extends authentication_1.UserProvider {
     /**
      * Get a user by id from mongodb
@@ -23,7 +22,8 @@ class ModelUserProvider extends authentication_1.UserProvider {
      */
     getUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield User_1.User.find(id);
+            const userModel = app_1.resolve(app_1.ConfigRepository).get('auth.userModel');
+            const user = yield userModel.find(id);
             if (!(user === null || user === void 0 ? void 0 : user._id)) {
                 return null;
             }
@@ -38,10 +38,12 @@ class ModelUserProvider extends authentication_1.UserProvider {
      */
     userForIdentifier(identifier) {
         return __awaiter(this, void 0, void 0, function* () {
-            const primaryIdentifier = app_1.resolve(app_1.ConfigRepository).get('auth.primaryIdentifier');
+            const userModel = app_1.resolve(app_1.ConfigRepository).get('auth.userModel');
+            const primaryIdentifier = app_1.resolve(app_1.ConfigRepository)
+                .get('auth.primaryIdentifier');
             const filter = {};
             filter[primaryIdentifier] = identifier;
-            const user = yield User_1.User.where(filter).first();
+            const user = yield userModel.where(filter).first();
             if (!(user === null || user === void 0 ? void 0 : user._id)) {
                 return null;
             }

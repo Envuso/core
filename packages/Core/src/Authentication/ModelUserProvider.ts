@@ -1,6 +1,7 @@
 import {ConfigRepository, resolve} from "@envuso/app";
 import {UserProvider} from "@envuso/authentication";
 import {Authenticatable} from "@envuso/common";
+import {Model} from "@envuso/database";
 import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
 import {User} from "../App/Models/User";
 
@@ -13,7 +14,9 @@ export class ModelUserProvider extends UserProvider {
 	 * @param id
 	 */
 	public async getUser(id: string): Promise<Authenticatable> {
-		const user: User = await User.find(id);
+		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
+
+		const user: any = await userModel.find(id);
 
 		if (!user?._id) {
 			return null;
@@ -29,13 +32,17 @@ export class ModelUserProvider extends UserProvider {
 	 * @param identifier
 	 */
 	public async userForIdentifier(identifier: AuthenticationIdentifier): Promise<Authenticatable> {
+		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
 
-		const primaryIdentifier = resolve(ConfigRepository).get<AuthenticationIdentifier>('auth.primaryIdentifier');
+		const primaryIdentifier = resolve(ConfigRepository)
+			.get<AuthenticationIdentifier>(
+				'auth.primaryIdentifier'
+			);
 
 		const filter              = {} as Partial<AuthCredentialContract>;
 		filter[primaryIdentifier] = identifier;
 
-		const user = await User.where<User>(filter as any).first() as User;
+		const user : any = await userModel.where<Model<any>>(filter as any).first();
 
 		if (!user?._id) {
 			return null;

@@ -12,12 +12,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@envuso/app": "^0.0.1-alpha.9",
-    "@envuso/authentication": "^0.0.1-alpha.1",
-    "@envuso/common": "^0.0.1-alpha.13",
-    "@envuso/database": "^0.0.1-alpha.3",
-    "@envuso/routing": "^0.0.1-alpha.26",
-    "@envuso/storage": "^0.0.1-alpha.3",
     "@types/connect": "^3.4.34",
     "class-transformer": "^0.4.0",
     "dotenv": "^8.2.0",
@@ -33,6 +27,12 @@
     "simple-crypto-js": "^3.0.0"
   },
   "devDependencies": {
+    "@envuso/app": "^0.0.1-alpha.9",
+    "@envuso/authentication": "^0.0.1-alpha.1",
+    "@envuso/common": "^0.0.1-alpha.13",
+    "@envuso/database": "^0.0.1-alpha.4",
+    "@envuso/routing": "^0.0.1-alpha.26",
+    "@envuso/storage": "^0.0.1-alpha.3",
     "@types/busboy": "^0.2.3",
     "@types/glob": "^7.1.3",
     "@types/jest": "^26.0.22",
