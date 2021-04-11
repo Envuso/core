@@ -49,7 +49,7 @@ class Server {
 				server[method.toLowerCase()](route.getPath(), {
 					preHandler : async function (req, res) {
 						if(preHandler) {
-							await preHandler(req, res);
+							await preHandler(RequestContext.get());
 						}
 					}
 				}, route.getHandlerFactory());
@@ -183,7 +183,7 @@ describe('test route service provider', () => {
 		const app = App.getInstance();
 
 		class TestMiddleware extends Middleware {
-			public handler(request: FastifyRequest, response: FastifyReply): Promise<any> {
+			public handler(context): Promise<any> {
 				return Promise.resolve(true);
 			}
 		}

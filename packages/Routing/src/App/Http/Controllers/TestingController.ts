@@ -1,5 +1,6 @@
 import {IsString, MinLength} from "class-validator";
 import {FastifyReply, FastifyRequest} from "fastify";
+import {RequestContext} from "../../../Context/RequestContext";
 import {Controller} from "../../../Controller/Controller";
 import {controller, get, method} from "../../../Controller/ControllerDecorators";
 import {DataTransferObject} from "../../../DataTransferObject/DataTransferObject";
@@ -15,7 +16,7 @@ class DTO extends DataTransferObject {
 }
 
 class TestMiddleware extends Middleware {
-	public handler(request: FastifyRequest, response: FastifyReply): Promise<any> {
+	public handler(context : RequestContext): Promise<any> {
 		console.log(this);
 		return Promise.resolve('hello world');
 	}
