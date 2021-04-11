@@ -13,7 +13,7 @@ module.exports = {
 		"^@App/(.*)": "<rootDir>/src/App/$1",
 		"^@AppControllers/(.*)": "<rootDir>/src/App/Http/Controller/$1",
 		"^@AppMiddlewares/(.*)": "<rootDir>/src/App/Http/Middleware/$1",
-		"^@Config": "<rootDir>/src/Config/index.ts",
+		"^@Config": "<rootDir>/src/Config/run-dev.ts",
 		"^Components/(.*)": "<rootDir>/src/components/$1"
 	}
 }

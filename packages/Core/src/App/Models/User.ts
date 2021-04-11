@@ -1,31 +1,8 @@
-import {Exclude, Type} from "class-transformer";
-import {IsEmail, IsNotEmpty} from "class-validator";
-import {injectable} from "inversify";
-import {ObjectId} from "mongodb";
-import {Id, ModelEntity} from "@Core";
+import {id, Model} from "@envuso/database";
 
-@injectable()
-export class User extends ModelEntity<User> {
+export class User extends Model<User> {
 
-	@Id
-	_id: ObjectId;
+	@id
+	_id: string;
 
-	@IsEmail()
-	@IsNotEmpty()
-	email: string;
-
-	name: string;
-
-	displayName: string;
-
-	@Exclude({toPlainOnly : true})
-	password: string;
-
-	createdAt: Date;
-
-	@Type(() => Number)
-	something: number;
 }
-
-
-
