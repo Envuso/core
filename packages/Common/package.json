@@ -9,12 +9,13 @@
     "prep": "npm run build && npm version prerelease --preid=alpha"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "chalk": "^4.1.0",
     "class-validator": "^0.13.1",
+    "http-status-codes": "^2.1.4",
     "reflect-metadata": "^0.1.10",
     "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.2",
-    "bcrypt": "^5.0.1"
+    "winston-daily-rotate-file": "^4.5.2"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
