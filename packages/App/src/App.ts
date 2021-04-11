@@ -131,6 +131,8 @@ export class App {
 			controllers : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
 			providers   : path.join(cwd, 'src', 'App', 'Providers'),
 			models      : path.join(cwd, 'src', 'App', 'Models'),
+			storage     : path.join(cwd, 'storage'),
+			temp        : path.join(cwd, 'storage', 'temp'),
 		}
 
 		await configRepository.loadConfigFrom(paths.config);
@@ -183,10 +185,10 @@ export class App {
 	 * The reason this exists is so that when writing tests, you can start from a clean slate.
 	 */
 	async unload() {
-		this.container().clearInstances();
-
 		this._booted = false;
 		instance     = null;
+
+		this.container().clearInstances();
 
 		Log.warn('The app has been unloaded and is ready to be booted again.');
 	}

@@ -115,6 +115,8 @@ class App {
                 controllers: path_1.default.join(cwd, 'src', 'App', 'Http', 'Controllers'),
                 providers: path_1.default.join(cwd, 'src', 'App', 'Providers'),
                 models: path_1.default.join(cwd, 'src', 'App', 'Models'),
+                storage: path_1.default.join(cwd, 'storage'),
+                temp: path_1.default.join(cwd, 'storage', 'temp'),
             };
             yield configRepository.loadConfigFrom(paths.config);
             configRepository.set('paths', paths);
@@ -152,9 +154,9 @@ class App {
      */
     unload() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.container().clearInstances();
             this._booted = false;
             instance = null;
+            this.container().clearInstances();
             common_1.Log.warn('The app has been unloaded and is ready to be booted again.');
         });
     }
