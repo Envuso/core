@@ -123,7 +123,7 @@ class QueryBuilder {
             const result = yield this._builderResult.limit(1).next();
             if (!result)
                 return null;
-            return Serializer_1.hydrateModel(result, this._model);
+            return Serializer_1.hydrateModel(result, this._model.constructor);
         });
     }
     /**

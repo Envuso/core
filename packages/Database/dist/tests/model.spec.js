@@ -42,5 +42,15 @@ describe('models', () => {
         expect(m._id).toBeDefined();
         expect(model.something).toBe('lel');
     }));
+    test('model where first', () => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield UserModel_1.UserModel
+            .where({ something: 'lel' })
+            .first();
+        expect(user).toBeDefined();
+    }));
+    test('model find', () => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield UserModel_1.UserModel.findOne({ something: 'lel' });
+        expect(user).toBeDefined();
+    }));
 });
 //# sourceMappingURL=model.spec.js.map

@@ -46,5 +46,19 @@ describe('models', () => {
 		expect(model.something).toBe('lel')
 	})
 
+	test('model where first', async () => {
+		const user = await UserModel
+			.where<UserModel>({something : 'lel'})
+			.first();
+
+		expect(user).toBeDefined();
+	})
+
+	test('model find', async () => {
+		const user = await UserModel.findOne<UserModel>({something : 'lel'});
+
+		expect(user).toBeDefined();
+	})
+
 });
 

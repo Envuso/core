@@ -157,7 +157,7 @@ export class QueryBuilder<T> {
 
 		if (!result) return null;
 
-		return hydrateModel(result, this._model as any);
+		return hydrateModel(result, this._model.constructor as any);
 	}
 
 	/**
