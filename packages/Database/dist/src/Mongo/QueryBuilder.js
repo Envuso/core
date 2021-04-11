@@ -123,7 +123,7 @@ class QueryBuilder {
             const result = yield this._builderResult.limit(1).next();
             if (!result)
                 return null;
-            return Serializer_1.hydrateModel(result, this._model.constructor);
+            return Serializer_1.hydrateModel(result, this._model);
         });
     }
     /**
@@ -133,7 +133,7 @@ class QueryBuilder {
         return __awaiter(this, void 0, void 0, function* () {
             const cursor = yield this.resolveFilter();
             const results = yield cursor.toArray();
-            return results.map(result => Serializer_1.hydrateModel(result, this._model.constructor.prototype));
+            return results.map(result => Serializer_1.hydrateModel(result, this._model.constructor));
         });
     }
     /**

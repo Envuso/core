@@ -68,7 +68,7 @@ class Model {
             const res = yield c.insertOne(plain);
             entity._id = res.insertedId;
             plain._id = res.insertedId;
-            return Serializer_1.hydrateModel(plain, this.constructor);
+            return Serializer_1.hydrateModel(plain, entity);
         });
     }
     /**

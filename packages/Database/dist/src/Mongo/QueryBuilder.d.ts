@@ -53,7 +53,7 @@ export declare class QueryBuilder<T> {
     /**
      * Get all items from the collection that match the query
      */
-    get(): Promise<unknown[]>;
+    get(): Promise<T[]>;
     /**
      * Update many items in the collection, will use the filter specified by .where()
      * You can specify {returnMongoResponse : true} in the options to return the mongo result
