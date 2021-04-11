@@ -173,4 +173,21 @@ export class App {
 			Log.info('Service provider booted: ' + provider.constructor.name)
 		}
 	}
+
+	/**
+	 * This will clear the container and allow the app to be booted again
+	 *
+	 * Basically, this shouldn't really need to be used in regular app logic
+	 * You're probably doing something wrong if you find the need to use it there...
+	 *
+	 * The reason this exists is so that when writing tests, you can start from a clean slate.
+	 */
+	async unload() {
+		this.container().clearInstances();
+
+		this._booted = false;
+		instance     = null;
+
+		Log.warn('The app has been unloaded and is ready to be booted again.');
+	}
 }
