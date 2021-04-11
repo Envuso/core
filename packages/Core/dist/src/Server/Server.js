@@ -68,15 +68,16 @@ class Server {
         for (let controller of controllers) {
             const routes = controller.routes;
             for (let route of routes) {
+                const handler = route.getMiddlewareHandler();
                 this._server.route({
                     method: route.getMethod(),
                     handler: route.getHandlerFactory(),
                     url: route.getPath(),
-                    preHandler: function (request, response) {
+                    preHandler: function (req, res) {
                         return __awaiter(this, void 0, void 0, function* () {
-                            const handler = route.getHandlerFactory();
                             if (handler) {
-                                yield handler(request, response);
+                                const context = routing_1.RequestContext.get();
+                                yield handler(context);
                             }
                         });
                     },

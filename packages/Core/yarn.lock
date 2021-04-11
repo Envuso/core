@@ -350,10 +350,10 @@
     mongodb "^3.6.5"
     pluralize "^8.0.0"
 
-"@envuso/routing@^0.0.1-alpha.27":
-  version "0.0.1-alpha.27"
-  resolved "https://registry.yarnpkg.com/@envuso/routing/-/routing-0.0.1-alpha.27.tgz#338fb831ef5f05b302f2d215b0bec7ce02d9eb86"
-  integrity sha512-aEJ5flYojoNjwtK+foUpkQ4g0xBHgOH/6HqR1K7E5JVcv+2TymHiRLx8YtHuOIrF6Jn8J67ye7Fa0USCvtY3rw==
+"@envuso/routing@^0.0.1-alpha.28":
+  version "0.0.1-alpha.28"
+  resolved "https://registry.yarnpkg.com/@envuso/routing/-/routing-0.0.1-alpha.28.tgz#f8f91338d50982e381f21540e9eed55328eab346"
+  integrity sha512-9zxMgPlAppZ+D1kkX8tYmk4ZzpUaSXq/hkD5uFASdo7YvmvE6cArihKkUskK71EAqdb0nNxT+L8g7hHIi52wGg==
   dependencies:
     class-transformer "^0.4.0"
     class-validator "^0.13.1"

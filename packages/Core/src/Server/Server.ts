@@ -78,15 +78,16 @@ export class Server {
 			const routes = controller.routes;
 
 			for (let route of routes) {
-
+				const handler = route.getMiddlewareHandler();
 				this._server.route({
 					method       : route.getMethod(),
 					handler      : route.getHandlerFactory(),
 					url          : route.getPath(),
-					preHandler   : async function (request, response) {
-						const handler = route.getHandlerFactory();
+					preHandler   : async function (req, res) {
 						if (handler) {
-							await handler(request, response)
+							const context = RequestContext.get();
+
+							await handler(context)
 						}
 					},
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {

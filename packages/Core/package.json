@@ -31,7 +31,7 @@
     "@envuso/authentication": "^0.0.1-alpha.2",
     "@envuso/common": "^0.0.1-alpha.13",
     "@envuso/database": "^0.0.1-alpha.5",
-    "@envuso/routing": "^0.0.1-alpha.27",
+    "@envuso/routing": "^0.0.1-alpha.28",
     "@envuso/storage": "^0.0.1-alpha.3",
     "@types/busboy": "^0.2.3",
     "@types/glob": "^7.1.3",
