@@ -66,7 +66,7 @@ export class Model<M> {
 		(entity as any)._id = res.insertedId;
 		(plain as any)._id  = res.insertedId;
 
-		return hydrateModel(plain, this.constructor as any);
+		return hydrateModel(plain, entity as unknown as ClassType<typeof entity>);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 import {Cursor, FindOneOptions, UpdateManyOptions, WithoutProjection} from "mongodb";
 import {InvalidRefSpecified} from "../Exceptions/InvalidRefSpecified";
-import {Ref} from "../index";
+import {ClassType, Ref} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Model} from "./Model";
 
@@ -157,7 +157,7 @@ export class QueryBuilder<T> {
 
 		if (!result) return null;
 
-		return hydrateModel(result, this._model.constructor as any);
+		return hydrateModel(result, this._model as any);
 	}
 
 	/**
@@ -169,7 +169,7 @@ export class QueryBuilder<T> {
 		const results = await cursor.toArray();
 
 		return results.map(
-			result => hydrateModel(result, this._model.constructor.prototype)
+			result => hydrateModel(result, this._model.constructor as unknown as ClassType<T>)
 		);
 	}
 
