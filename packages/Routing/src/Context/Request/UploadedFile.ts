@@ -72,14 +72,14 @@ export class UploadedFile {
 		} catch (error) {
 			Log.error(error);
 
-			this.getTempFilePath();
+			this.deleteTempFile();
 
 			throw new Exception(
 				'Something went wrong uploading the file', StatusCodes.INTERNAL_SERVER_ERROR
 			);
 		}
 
-		this.getTempFilePath();
+		this.deleteTempFile();
 
 		return response;
 	}

@@ -99,10 +99,10 @@ class UploadedFile {
             }
             catch (error) {
                 common_1.Log.error(error);
-                this.getTempFilePath();
+                this.deleteTempFile();
                 throw new common_1.Exception('Something went wrong uploading the file', http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR);
             }
-            this.getTempFilePath();
+            this.deleteTempFile();
             return response;
         });
     }
