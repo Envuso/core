@@ -1,8 +1,22 @@
+import {Storage} from "@envuso/storage";
 import {FastifyRequest, HTTPMethods, RawRequestDefaultExpression} from "fastify";
+import {Multipart} from "fastify-multipart";
+import {UploadedFile} from "./UploadedFile";
 
 export class Request {
 
 	private readonly _request: FastifyRequest;
+
+	/**
+	 * If this request contains files that have been uploaded
+	 *
+	 * Then we will store some information about them here.
+	 * At this stage, they have been semi-processed and are
+	 * ready to be accessed without async code
+	 *
+	 * @private
+	 */
+	private _uploadedFiles: UploadedFile[] = [];
 
 	constructor(request: FastifyRequest) {
 		this._request = request;
@@ -74,5 +88,58 @@ export class Request {
 	id() {
 		return this._request.id;
 	}
+
+	/**
+	 * Get a value from the request body
+	 *
+	 * @param key
+	 * @param _default
+	 */
+	get(key: string, _default: any = null) {
+		return this._request.body[key] ?? _default;
+	}
+
+	/**
+	 * Set file information that has been processed and is
+	 * ready to upload/stream to s3 etc
+	 *
+	 * @param file
+	 */
+	async setUploadedFile(file: Multipart) {
+		const tempFileName = await Storage.saveTemporaryFile(
+			file.filename, file.file
+		);
+
+		this._uploadedFiles.push(new UploadedFile(file, tempFileName));
+	}
+
+	/**
+	 * Does the request contain any files?
+	 */
+	hasFiles() {
+		return !!this._uploadedFiles.length;
+	}
+
+	/**
+	 * Get all files on the request
+	 */
+	files(): UploadedFile[] {
+		return this._uploadedFiles;
+	}
+
+	/**
+	 * Get a singular file on the request
+	 *
+	 * @param key
+	 */
+	file(key: string): UploadedFile | null {
+		if (!this.hasFiles())
+			return null;
+
+		return this._uploadedFiles.find(
+			f => f.getFieldName() === key
+		) ?? null;
+	}
+
 
 }
