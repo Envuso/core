@@ -83,7 +83,12 @@ export class Server {
 					method       : route.getMethod(),
 					handler      : route.getHandlerFactory(),
 					url          : route.getPath(),
-					preHandler   : route.getHandlerFactory(),
+					preHandler   : async function (request, response) {
+						const handler = route.getHandlerFactory();
+						if (handler) {
+							await handler(request, response)
+						}
+					},
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
 						await this.handleException(error, request, reply);
 					}

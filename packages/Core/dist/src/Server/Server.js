@@ -72,7 +72,14 @@ class Server {
                     method: route.getMethod(),
                     handler: route.getHandlerFactory(),
                     url: route.getPath(),
-                    preHandler: route.getHandlerFactory(),
+                    preHandler: function (request, response) {
+                        return __awaiter(this, void 0, void 0, function* () {
+                            const handler = route.getHandlerFactory();
+                            if (handler) {
+                                yield handler(request, response);
+                            }
+                        });
+                    },
                     errorHandler: (error, request, reply) => __awaiter(this, void 0, void 0, function* () {
                         yield this.handleException(error, request, reply);
                     })
