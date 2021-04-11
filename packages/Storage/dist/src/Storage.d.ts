@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { StorageConfig } from "../Config/Storage";
 import { StorageProviderContract, StoragePutOptions } from "./StorageProviderContract";
 export declare class Storage {
@@ -80,6 +81,15 @@ export declare class Storage {
      * @param expiresInSeconds
      */
     static temporaryUrl(location: string, expiresInSeconds: number): any;
+    /**
+     * When we have a file upload, we will pass the original file name
+     * to this method, along with it's stream. This method will store
+     * it in the storage's temp file directory and return it's name.
+     *
+     * @param fileName
+     * @param stream
+     */
+    static saveTemporaryFile(fileName: string, stream: NodeJS.ReadStream): Promise<string>;
     /**
      * Return the adapter set on this instance
      *

@@ -1,9 +1,4 @@
-import fs from "fs";
-import path from "path";
-import {pipeline} from "stream";
-import * as util from 'util'
 
-const pump = util.promisify(pipeline)
 
 export interface UploadedFileInformation {
 	url: string;
@@ -102,9 +97,5 @@ export abstract class StorageProviderContract {
 	 * @param expiresInSeconds
 	 */
 	abstract temporaryUrl(location: string, expiresInSeconds: number);
-
-	async writeStreamToPath(stream: NodeJS.ReadStream, path: string) {
-		await pump(stream, fs.createWriteStream(path))
-	}
 
 }

@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface UploadedFileInformation {
     url: string;
     path: string;
@@ -84,5 +83,4 @@ export declare abstract class StorageProviderContract {
      * @param expiresInSeconds
      */
     abstract temporaryUrl(location: string, expiresInSeconds: number): any;
-    writeStreamToPath(stream: NodeJS.ReadStream, path: string): Promise<void>;
 }

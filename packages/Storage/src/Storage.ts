@@ -1,6 +1,13 @@
 import {ConfigRepository, resolve} from "@envuso/app";
+import {Str} from "@envuso/common/dist/src/Utility/Str";
+import fs from "fs";
 import {StorageConfig} from "../Config/Storage";
 import {StorageProviderContract, StoragePutOptions} from "./StorageProviderContract";
+import path from "path";
+import {pipeline} from "stream";
+import * as util from 'util'
+
+const pump = util.promisify(pipeline)
 
 export class Storage {
 
@@ -129,6 +136,23 @@ export class Storage {
 	 */
 	public static temporaryUrl(location: string, expiresInSeconds: number) {
 		return this.getAdapter().temporaryUrl(location, expiresInSeconds);
+	}
+
+	/**
+	 * When we have a file upload, we will pass the original file name
+	 * to this method, along with it's stream. This method will store
+	 * it in the storage's temp file directory and return it's name.
+	 *
+	 * @param fileName
+	 * @param stream
+	 */
+	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadStream) {
+		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
+		const tempName = Str.random() + '.' + (fileName.split('.').pop())
+
+		await pump(stream, fs.createWriteStream(path.join(tempPath, tempName)))
+
+		return tempName;
 	}
 
 	/**

@@ -892,10 +892,10 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@envuso/app@^0.0.1-alpha.8":
-  version "0.0.1-alpha.8"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.8.tgz#c6e77c029938df35ee9f9de47fc24e84415b7d03"
-  integrity sha512-LStkWDr7vM9R4o8VvNebu/oSlxYvuprSioM9PV2mLXomW5soEuXWEq6p0OC9cOjAyHA3meczgdRHCXgu8rL+zg==
+"@envuso/app@^0.0.1-alpha.9":
+  version "0.0.1-alpha.9"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.9.tgz#6608bdbe337f28f4804d1ec2047a1fe30d30d981"
+  integrity sha512-VDu5yZPklrlFtvnW3TtTvfrBfj3ui3aRxiXc4qQLxmV4tLL3gIm2cYRe4eTCNAPaIHD6Q8fEJECBQIq7qhS2sg==
   dependencies:
     "@types/lodash.get" "^4.4.6"
     "@types/lodash.has" "^4.5.6"
