@@ -135,8 +135,12 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 
 	public async verifyLoginCredentials(credentials: AuthCredentialContract) {
 
+		const primaryIdentifier = resolve(ConfigRepository).get<string>(
+			'auth.primaryIdentifier'
+		);
+
 		const user = await this._userProvider.userForIdentifier(
-			credentials[this._config.primaryIdentifier] as AuthenticationIdentifier
+			credentials[primaryIdentifier] as AuthenticationIdentifier
 		);
 
 		if (!user) {

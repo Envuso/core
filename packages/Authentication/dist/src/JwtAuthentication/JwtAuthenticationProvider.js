@@ -97,7 +97,8 @@ class JwtAuthenticationProvider extends AuthenticationProvider_1.AuthenticationP
     }
     verifyLoginCredentials(credentials) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this._userProvider.userForIdentifier(credentials[this._config.primaryIdentifier]);
+            const primaryIdentifier = app_1.resolve(app_1.ConfigRepository).get('auth.primaryIdentifier');
+            const user = yield this._userProvider.userForIdentifier(credentials[primaryIdentifier]);
             if (!user) {
                 return null;
             }
