@@ -139,7 +139,7 @@ class Route {
      * @private
      */
     getMiddlewareHandler() {
-        const controllerMiddlewareMeta = Middleware_1.Middleware.getMetadata(this.controllerMeta.controller.target.constructor);
+        const controllerMiddlewareMeta = Middleware_1.Middleware.getMetadata(this.controllerMeta.controller.target);
         const methodMiddlewareMeta = Middleware_1.Middleware.getMetadata(this.methodMeta.target[this.methodMeta.key]);
         const middlewares = [
             ...((controllerMiddlewareMeta === null || controllerMiddlewareMeta === void 0 ? void 0 : controllerMiddlewareMeta.middlewares) || []),

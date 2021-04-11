@@ -189,7 +189,7 @@ export class Route {
 	getMiddlewareHandler() {
 
 		const controllerMiddlewareMeta = Middleware.getMetadata(
-			this.controllerMeta.controller.target.constructor
+			this.controllerMeta.controller.target
 		);
 
 		const methodMiddlewareMeta = Middleware.getMetadata(

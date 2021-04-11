@@ -1,8 +1,10 @@
 import {IsString, MinLength} from "class-validator";
-import {FastifyRequest} from "fastify";
+import {FastifyReply, FastifyRequest} from "fastify";
 import {Controller} from "../../../Controller/Controller";
 import {controller, get, method} from "../../../Controller/ControllerDecorators";
 import {DataTransferObject} from "../../../DataTransferObject/DataTransferObject";
+import {Middleware} from "../../../Middleware/Middleware";
+import {middleware} from "../../../Middleware/MiddlewareDecorators";
 import {dto} from "../../../Route/RouteDecorators";
 
 class DTO extends DataTransferObject {
@@ -12,6 +14,15 @@ class DTO extends DataTransferObject {
 	something: string;
 }
 
+class TestMiddleware extends Middleware {
+	public handler(request: FastifyRequest, response: FastifyReply): Promise<any> {
+		console.log(this);
+		return Promise.resolve('hello world');
+	}
+
+}
+
+@middleware(new TestMiddleware())
 @controller('/testing')
 export class TestingController extends Controller {
 

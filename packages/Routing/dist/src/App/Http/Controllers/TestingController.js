@@ -26,6 +26,8 @@ const class_validator_1 = require("class-validator");
 const Controller_1 = require("../../../Controller/Controller");
 const ControllerDecorators_1 = require("../../../Controller/ControllerDecorators");
 const DataTransferObject_1 = require("../../../DataTransferObject/DataTransferObject");
+const Middleware_1 = require("../../../Middleware/Middleware");
+const MiddlewareDecorators_1 = require("../../../Middleware/MiddlewareDecorators");
 const RouteDecorators_1 = require("../../../Route/RouteDecorators");
 class DTO extends DataTransferObject_1.DataTransferObject {
 }
@@ -34,6 +36,12 @@ __decorate([
     class_validator_1.MinLength(1),
     __metadata("design:type", String)
 ], DTO.prototype, "something", void 0);
+class TestMiddleware extends Middleware_1.Middleware {
+    handler(request, response) {
+        console.log(this);
+        return Promise.resolve('hello world');
+    }
+}
 let TestingController = class TestingController extends Controller_1.Controller {
     testGet(dt) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -59,6 +67,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TestingController.prototype, "testMethods", null);
 TestingController = __decorate([
+    MiddlewareDecorators_1.middleware(new TestMiddleware()),
     ControllerDecorators_1.controller('/testing')
 ], TestingController);
 exports.TestingController = TestingController;

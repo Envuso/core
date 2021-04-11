@@ -44,7 +44,15 @@ class Server {
 //				})
 				const method = Array.isArray(route.methodMeta.method) ? route.methodMeta.method[0] : route.methodMeta.method;
 
-				server[method.toLowerCase()](route.getPath(), route.getHandlerFactory());
+				const preHandler = route.getMiddlewareHandler();
+
+				server[method.toLowerCase()](route.getPath(), {
+					preHandler : async function (req, res) {
+						if(preHandler) {
+							await preHandler(req, res);
+						}
+					}
+				}, route.getHandlerFactory());
 			}
 		}
 
@@ -229,6 +237,25 @@ describe('test route service provider', () => {
 			dto.throwIfFailed();
 		}).toThrow(new DtoValidationException(dto._validationErrors));
 
+	})
+	test('test hitting route with global middleware', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		try {
+			const res = await server._server.inject({
+				method  : 'GET',
+				url     : '/testing/get',
+				payload : {
+					something : ''
+				}
+			})
+
+			expect(res.statusCode).toEqual(500);
+
+		} catch (error) {
+			console.log(error)
+		}
 	})
 
 });
