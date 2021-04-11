@@ -18,8 +18,8 @@ export class Request {
 	 * @param header
 	 * @param _default
 	 */
-	header(header: string, _default: any = null) {
-		return this._request.headers[header] ?? null;
+	header(header: string, _default: any = null): string {
+		return this._request.headers[header] ?? _default;
 	}
 
 	/**

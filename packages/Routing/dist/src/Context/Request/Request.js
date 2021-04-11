@@ -16,7 +16,7 @@ class Request {
      */
     header(header, _default = null) {
         var _a;
-        return (_a = this._request.headers[header]) !== null && _a !== void 0 ? _a : null;
+        return (_a = this._request.headers[header]) !== null && _a !== void 0 ? _a : _default;
     }
     /**
      * Get all of the headers from the request

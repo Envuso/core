@@ -10,7 +10,7 @@ export declare class Request {
      * @param header
      * @param _default
      */
-    header(header: string, _default?: any): string | string[];
+    header(header: string, _default?: any): string;
     /**
      * Get all of the headers from the request
      */
