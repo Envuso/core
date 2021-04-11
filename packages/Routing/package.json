@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "class-validator": "^0.13.1",
-    "http-status-codes": "^2.1.4"
+    "http-status-codes": "^2.1.4",
+    "class-transformer": "^0.4.0"
   },
   "devDependencies": {
     "@babel/core": "*",
@@ -19,7 +20,6 @@
     "@types/jest": "*",
     "babel-jest": "*",
     "fastify": "^3.14.2",
-    "class-transformer": "^0.4.0",
     "jest": "^26.6.3",
     "ts-jest": "^26.5.4",
     "typescript": "^4.2.4",
