@@ -1,5 +1,3 @@
-import {Str} from "./Utility/Str";
-
 export * from './Decorators/DecoratorHelpers';
 export * from './Decorators/RoutingMetaData';
 export * from './Model/ModelInstance';
