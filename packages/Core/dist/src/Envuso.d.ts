@@ -6,7 +6,7 @@ export declare class Envuso {
      * Boot the core App instance, bind any service
      * providers to the container and such.
      */
-    prepare(): Promise<void>;
+    prepare(config: object): Promise<void>;
     /**
      * Load a custom exception handler for handling errors from requests
      * and returning a formatted response to your liking.

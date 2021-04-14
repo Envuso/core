@@ -22,9 +22,9 @@ class Envuso {
      * Boot the core App instance, bind any service
      * providers to the container and such.
      */
-    prepare() {
+    prepare(config) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield app_1.App.bootInstance();
+            yield app_1.App.bootInstance({ config });
             yield app_1.App.getInstance().loadServiceProviders();
             this._app = app_1.App.getInstance();
             common_1.Log.success('Envuso is ready to go? PogU');
