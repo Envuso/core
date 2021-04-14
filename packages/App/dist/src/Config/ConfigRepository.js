@@ -1,23 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,18 +20,16 @@ class ConfigRepository {
     /**
      * Load all available Configuration
      *
-     * We'll use dotnotate to allow us to access a value with a string
-     * like "services.app", but then merge it with the original
-     * so we can also access a base object like "services"
+     * We'll pass the config in here via the object that is registered in the apps boot
+     * process. Previously it tried to import the file from the path path specified,
+     * this didn't work when compiled because it was /src/ not /dist/
      *
-     *
-     * @param configDirectory
      * @private
      */
-    loadConfigFrom(configDirectory) {
+    loadConfigFrom(config) {
         return __awaiter(this, void 0, void 0, function* () {
-            const conf = yield Promise.resolve().then(() => __importStar(require(configDirectory)));
-            this._config = conf.Config;
+            //		const conf = await import(configDirectory);
+            this._config = config;
         });
     }
     /**
@@ -119,6 +98,9 @@ class ConfigRepository {
     has(key) {
         return lodash_has_1.default(this._config, key);
         //		return !!this._config[key];
+    }
+    reset() {
+        this._config = {};
     }
 }
 exports.ConfigRepository = ConfigRepository;

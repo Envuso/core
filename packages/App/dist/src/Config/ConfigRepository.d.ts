@@ -8,15 +8,13 @@ export declare class ConfigRepository {
     /**
      * Load all available Configuration
      *
-     * We'll use dotnotate to allow us to access a value with a string
-     * like "services.app", but then merge it with the original
-     * so we can also access a base object like "services"
+     * We'll pass the config in here via the object that is registered in the apps boot
+     * process. Previously it tried to import the file from the path path specified,
+     * this didn't work when compiled because it was /src/ not /dist/
      *
-     *
-     * @param configDirectory
      * @private
      */
-    loadConfigFrom(configDirectory: string): Promise<void>;
+    loadConfigFrom(config: object): Promise<void>;
     /**
      * Get a Config value by key
      *
@@ -44,4 +42,5 @@ export declare class ConfigRepository {
      * @param key
      */
     has(key: string): boolean;
+    reset(): void;
 }

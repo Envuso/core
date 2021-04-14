@@ -9,11 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const index_1 = require("../Config/index");
 const App_1 = require("../src/App");
 const ConfigRepository_1 = require("../src/Config/ConfigRepository");
 const ServiceProvider_1 = require("../src/ServiceProvider");
-beforeAll(() => {
-    return App_1.App.bootInstance();
+function boot() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (App_1.App.isBooted()) {
+            yield App_1.App.getInstance().unload();
+        }
+        yield App_1.App.bootInstance({
+            config: index_1.Config
+        });
+    });
+}
+beforeEach(done => {
+    return boot().then(done());
 });
 describe('test app binding', () => {
     test('app can bind class to container', () => __awaiter(void 0, void 0, void 0, function* () {
@@ -130,8 +141,6 @@ describe('test app binding', () => {
         yield app.loadServiceProviders();
         expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
         expect(app.resolve(TestingRegisterBootNUMBAHTWOProviders)).toBeDefined();
-        expect(app.resolve('ServiceProvider').includes(new TestingRegisterBootProviders())).toBeTruthy();
-        expect(app.resolve('ServiceProvider').includes(new TestingRegisterBootNUMBAHTWOProviders())).toBeTruthy();
     }));
     test('app can access all service providers with "ServiceProvider" token after register', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = App_1.App.getInstance();

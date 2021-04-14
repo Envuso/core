@@ -29,6 +29,16 @@ class App {
          * @private
          */
         this._booted = false;
+        /**
+         * We'll set some base configuration here so that it can be passed through
+         * the boot process without having to constantly pass vars down the calls
+         *
+         * @private
+         */
+        this._baseConfiguration = {
+            config: {},
+            //		paths  : {}
+        };
         this._container = tsyringe_1.container;
     }
     /**
@@ -43,11 +53,12 @@ class App {
      * Boot up the App and bind our Config
      * Once called, we'll be able to access the app instance via {@see getInstance()}
      */
-    static bootInstance() {
+    static bootInstance(config) {
         return __awaiter(this, void 0, void 0, function* () {
             if (instance)
                 return instance;
             const app = new App();
+            app._baseConfiguration = config;
             yield app.boot();
             instance = app;
             return app;
@@ -98,6 +109,14 @@ class App {
         return this.container().resolve(key);
     }
     /**
+     * Get all services from the container by the specified key
+     *
+     * @param key
+     */
+    resolveAll(key) {
+        return this.container().resolveAll(key);
+    }
+    /**
      * Load any configuration defined in the
      * app and set the paths for our app
      *
@@ -111,14 +130,14 @@ class App {
             const paths = {
                 root: cwd,
                 src: path_1.default.join(cwd, 'src'),
-                config: path_1.default.join(cwd, 'Config'),
+                config: path_1.default.join(cwd, 'Config', 'index.js'),
                 controllers: path_1.default.join(cwd, 'src', 'App', 'Http', 'Controllers'),
                 providers: path_1.default.join(cwd, 'src', 'App', 'Providers'),
                 models: path_1.default.join(cwd, 'src', 'App', 'Models'),
                 storage: path_1.default.join(cwd, 'storage'),
                 temp: path_1.default.join(cwd, 'storage', 'temp'),
             };
-            yield configRepository.loadConfigFrom(paths.config);
+            yield configRepository.loadConfigFrom(this._baseConfiguration.config);
             configRepository.set('paths', paths);
         });
     }
@@ -145,6 +164,19 @@ class App {
         });
     }
     /**
+     * Get the app config repository a little easier
+     */
+    config() {
+        return this.container().resolve(ConfigRepository_1.ConfigRepository);
+    }
+    /**
+     * Is the app instance booted?
+     */
+    static isBooted() {
+        const booted = instance === null || instance === void 0 ? void 0 : instance._booted;
+        return booted === true;
+    }
+    /**
      * This will clear the container and allow the app to be booted again
      *
      * Basically, this shouldn't really need to be used in regular app logic
@@ -156,7 +188,9 @@ class App {
         return __awaiter(this, void 0, void 0, function* () {
             this._booted = false;
             instance = null;
+            this.config().reset();
             this.container().clearInstances();
+            this.container().reset();
             common_1.Log.warn('The app has been unloaded and is ready to be booted again.');
         });
     }

@@ -10,7 +10,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.resolve = exports.inject = exports.injectable = void 0;
+exports.config = exports.app = exports.resolve = exports.inject = exports.injectable = void 0;
 const App_1 = require("./App");
 __exportStar(require("./App"), exports);
 __exportStar(require("./ServiceProvider"), exports);
@@ -24,4 +24,10 @@ const resolve = (identifier) => App_1.App.getInstance().resolve(identifier);
 exports.resolve = resolve;
 const app = () => App_1.App.getInstance();
 exports.app = app;
+const config = (key, _default = null) => {
+    if (key)
+        return App_1.App.getInstance().config().get(key, _default);
+    return App_1.App.getInstance().config();
+};
+exports.config = config;
 //# sourceMappingURL=index.js.map

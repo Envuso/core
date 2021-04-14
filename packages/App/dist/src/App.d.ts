@@ -1,7 +1,12 @@
 import "reflect-metadata";
-import constructor from "tsyringe/dist/typings/types/constructor";
+import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
 import { ConfigRepository } from "./Config/ConfigRepository";
+interface BaseConfiguration {
+    config: {
+        [key: string]: any;
+    };
+}
 export declare class App {
     /**
      * The base container instance
@@ -15,6 +20,13 @@ export declare class App {
      * @private
      */
     private _booted;
+    /**
+     * We'll set some base configuration here so that it can be passed through
+     * the boot process without having to constantly pass vars down the calls
+     *
+     * @private
+     */
+    private _baseConfiguration;
     constructor();
     /**
      * Get an instance of the app
@@ -24,7 +36,7 @@ export declare class App {
      * Boot up the App and bind our Config
      * Once called, we'll be able to access the app instance via {@see getInstance()}
      */
-    static bootInstance(): Promise<App>;
+    static bootInstance(config: BaseConfiguration): Promise<App>;
     /**
      * Load any base Config/services we need
      */
@@ -47,7 +59,13 @@ export declare class App {
      *
      * @param key
      */
-    resolve<T>(key: constructor<T> | string): T;
+    resolve<T>(key: InjectionToken<T>): T;
+    /**
+     * Get all services from the container by the specified key
+     *
+     * @param key
+     */
+    resolveAll<T>(key: InjectionToken<T>): T[];
     /**
      * Load any configuration defined in the
      * app and set the paths for our app
@@ -60,6 +78,14 @@ export declare class App {
      */
     loadServiceProviders(): Promise<void>;
     /**
+     * Get the app config repository a little easier
+     */
+    config(): ConfigRepository;
+    /**
+     * Is the app instance booted?
+     */
+    static isBooted(): boolean;
+    /**
      * This will clear the container and allow the app to be booted again
      *
      * Basically, this shouldn't really need to be used in regular app logic
@@ -69,3 +95,4 @@ export declare class App {
      */
     unload(): Promise<void>;
 }
+export {};
