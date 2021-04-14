@@ -3,6 +3,7 @@ import {Log} from "@envuso/common";
 
 import path from 'path';
 import {container} from "tsyringe";
+import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import constructor from "tsyringe/dist/typings/types/constructor";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
 import {ConfigRepository} from "./Config/ConfigRepository";
@@ -10,6 +11,11 @@ import {FailedToBindException} from "./Exceptions/FailedToBindException";
 import {ServiceProvider} from "./ServiceProvider";
 
 let instance: App | null = null;
+
+interface BaseConfiguration {
+	config: { [key: string]: any };
+//	paths: { [key: string]: string };
+}
 
 export class App {
 
@@ -26,6 +32,17 @@ export class App {
 	 * @private
 	 */
 	private _booted: boolean = false;
+
+	/**
+	 * We'll set some base configuration here so that it can be passed through
+	 * the boot process without having to constantly pass vars down the calls
+	 *
+	 * @private
+	 */
+	private _baseConfiguration: BaseConfiguration = {
+		config : {},
+//		paths  : {}
+	}
 
 	constructor() {
 		this._container = container;
@@ -45,10 +62,14 @@ export class App {
 	 * Boot up the App and bind our Config
 	 * Once called, we'll be able to access the app instance via {@see getInstance()}
 	 */
-	static async bootInstance(): Promise<App> {
-		if (instance) return instance;
+	static async bootInstance(config: BaseConfiguration): Promise<App> {
+		if (instance)
+			return instance;
 
 		const app = new App();
+
+		app._baseConfiguration = config;
+
 		await app.boot();
 
 		instance = app;
@@ -108,8 +129,17 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolve<T>(key: constructor<T> | string) {
+	resolve<T>(key: InjectionToken<T>) {
 		return this.container().resolve<T>(key);
+	}
+
+	/**
+	 * Get all services from the container by the specified key
+	 *
+	 * @param key
+	 */
+	resolveAll<T>(key: InjectionToken<T>) {
+		return this.container().resolveAll<T>(key);
 	}
 
 	/**
@@ -127,7 +157,7 @@ export class App {
 		const paths = {
 			root        : cwd,
 			src         : path.join(cwd, 'src'),
-			config      : path.join(cwd, 'Config'),
+			config      : path.join(cwd, 'Config', 'index.js'),
 			controllers : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
 			providers   : path.join(cwd, 'src', 'App', 'Providers'),
 			models      : path.join(cwd, 'src', 'App', 'Models'),
@@ -135,7 +165,7 @@ export class App {
 			temp        : path.join(cwd, 'storage', 'temp'),
 		}
 
-		await configRepository.loadConfigFrom(paths.config);
+		await configRepository.loadConfigFrom(this._baseConfiguration.config);
 
 		configRepository.set('paths', paths);
 	}
@@ -177,6 +207,22 @@ export class App {
 	}
 
 	/**
+	 * Get the app config repository a little easier
+	 */
+	config(): ConfigRepository {
+		return this.container().resolve<ConfigRepository>(ConfigRepository);
+	}
+
+	/**
+	 * Is the app instance booted?
+	 */
+	static isBooted(): boolean {
+		const booted = instance?._booted;
+
+		return booted === true;
+	}
+
+	/**
 	 * This will clear the container and allow the app to be booted again
 	 *
 	 * Basically, this shouldn't really need to be used in regular app logic
@@ -188,7 +234,9 @@ export class App {
 		this._booted = false;
 		instance     = null;
 
+		this.config().reset();
 		this.container().clearInstances();
+		this.container().reset();
 
 		Log.warn('The app has been unloaded and is ready to be booted again.');
 	}

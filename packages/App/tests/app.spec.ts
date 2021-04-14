@@ -1,11 +1,24 @@
 import {constructor} from "tsyringe/dist/typings/types";
+import {Config} from "../Config/index";
 import {App} from "../src/App";
 import {ConfigRepository} from "../src/Config/ConfigRepository";
 import {ServiceProvider} from "../src/ServiceProvider";
 
-beforeAll(() => {
-	return App.bootInstance();
-})
+async function boot() {
+	if(App.isBooted()){
+		await App.getInstance().unload();
+	}
+
+	await App.bootInstance({
+		config : Config
+	});
+}
+
+
+beforeEach(done => {
+	return boot().then(done());
+});
+
 
 describe('test app binding', () => {
 
@@ -107,6 +120,7 @@ describe('test app binding', () => {
 				})
 			}
 		}
+
 		class TestingRegisterBootNUMBAHTWOProviders extends ServiceProvider {
 			public value = 1234;
 
@@ -128,9 +142,6 @@ describe('test app binding', () => {
 
 		expect(app.resolve(TestingRegisterBootProviders)).toBeDefined();
 		expect(app.resolve(TestingRegisterBootNUMBAHTWOProviders)).toBeDefined();
-
-		expect(app.resolve<Array<ServiceProvider>>('ServiceProvider').includes(new TestingRegisterBootProviders())).toBeTruthy();
-		expect(app.resolve<Array<ServiceProvider>>('ServiceProvider').includes(new TestingRegisterBootNUMBAHTWOProviders())).toBeTruthy();
 
 	});
 

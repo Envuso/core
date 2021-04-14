@@ -14,18 +14,16 @@ export class ConfigRepository {
 	/**
 	 * Load all available Configuration
 	 *
-	 * We'll use dotnotate to allow us to access a value with a string
-	 * like "services.app", but then merge it with the original
-	 * so we can also access a base object like "services"
+	 * We'll pass the config in here via the object that is registered in the apps boot
+	 * process. Previously it tried to import the file from the path path specified,
+	 * this didn't work when compiled because it was /src/ not /dist/
 	 *
-	 *
-	 * @param configDirectory
 	 * @private
 	 */
-	async loadConfigFrom(configDirectory: string) {
-		const conf = await import(configDirectory);
+	async loadConfigFrom(config: object) {
+//		const conf = await import(configDirectory);
 
-		this._config = conf.Config;
+		this._config = config;
 	}
 
 	/**
@@ -102,5 +100,9 @@ export class ConfigRepository {
 	has(key: string): boolean {
 		return has(this._config, key);
 //		return !!this._config[key];
+	}
+
+	reset() {
+		this._config = {};
 	}
 }
