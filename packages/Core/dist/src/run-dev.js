@@ -10,7 +10,7 @@ const common_1 = require("@envuso/common");
 const index_1 = require("../Config/index");
 const Envuso_1 = require("./Envuso");
 const envuso = new Envuso_1.Envuso();
-envuso.prepare({ config: index_1.Config }).catch(error => {
+envuso.prepare(index_1.Config).catch(error => {
     common_1.Log.error(error);
     console.trace(error);
 });
