@@ -305,10 +305,10 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@envuso/app@^0.0.1-alpha.9":
-  version "0.0.1-alpha.9"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.9.tgz"
-  integrity sha512-VDu5yZPklrlFtvnW3TtTvfrBfj3ui3aRxiXc4qQLxmV4tLL3gIm2cYRe4eTCNAPaIHD6Q8fEJECBQIq7qhS2sg==
+"@envuso/app@^0.0.1-alpha.10":
+  version "0.0.1-alpha.10"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.10.tgz#5d4ca6a8d7456f1132a8cfce783639ae0a56298b"
+  integrity sha512-bL7Yoj5qrnJZ7m+sdlTgHN5MRLFT+x9Zw/aIlUCCdNrJU6Sd+rf7/CfK1Now8Cr6nlhlMbwBgRm9EskEI94PoQ==
   dependencies:
     "@types/lodash.get" "^4.4.6"
     "@types/lodash.has" "^4.5.6"

@@ -12,8 +12,8 @@ export class Envuso {
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	async prepare() {
-		await App.bootInstance();
+	async prepare(config: object) {
+		await App.bootInstance({config});
 
 		await App.getInstance().loadServiceProviders();
 

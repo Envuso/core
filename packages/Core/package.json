@@ -27,7 +27,7 @@
     "simple-crypto-js": "^3.0.0"
   },
   "devDependencies": {
-    "@envuso/app": "^0.0.1-alpha.9",
+    "@envuso/app": "^0.0.1-alpha.10",
     "@envuso/authentication": "^0.0.1-alpha.2",
     "@envuso/common": "^0.0.1-alpha.13",
     "@envuso/database": "^0.0.1-alpha.5",
