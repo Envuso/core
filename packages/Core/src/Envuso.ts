@@ -13,7 +13,7 @@ export class Envuso {
 	 * providers to the container and such.
 	 */
 	async prepare(config: object) {
-		await App.bootInstance({config});
+		await App.bootInstance({config:config});
 
 		await App.getInstance().loadServiceProviders();
 

@@ -328,10 +328,10 @@
     "@types/jsonwebtoken" "^8.5.1"
     jsonwebtoken "^8.5.1"
 
-"@envuso/common@^0.0.1-alpha.13":
-  version "0.0.1-alpha.13"
-  resolved "https://registry.npmjs.org/@envuso/common/-/common-0.0.1-alpha.13.tgz"
-  integrity sha512-qbWiqBIcrj/tTepl4ym2g1y/1SiFMgZ0N6yFNxGJWXelD4gTONWwaXD0bXhf7hdkrnKPpsX/9zmI4qyLeQ0d0Q==
+"@envuso/common@^0.0.1-alpha.14":
+  version "0.0.1-alpha.14"
+  resolved "https://registry.yarnpkg.com/@envuso/common/-/common-0.0.1-alpha.14.tgz#e8c225f7c398a1381bad069dde0bd60ad4ee6743"
+  integrity sha512-6SHtZdDhzWHPss82WXaptMWZ4BHtYEs562s90XvFnBhuDGD/eP7djOlpWWe5+g2C2b3WeK6Wh5VnvCf45NGBTQ==
   dependencies:
     bcrypt "^5.0.1"
     chalk "^4.1.0"

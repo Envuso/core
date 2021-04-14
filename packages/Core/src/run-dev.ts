@@ -8,7 +8,7 @@ import {Envuso} from "./Envuso";
 
 const envuso = new Envuso();
 
-envuso.prepare({config : Config}).catch(error => {
+envuso.prepare(Config).catch(error => {
 	Log.error(error)
 	console.trace(error);
 });
