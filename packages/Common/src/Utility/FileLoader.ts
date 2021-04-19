@@ -42,7 +42,9 @@ export class FileLoader {
 			 * Are we running in typescript at the moment?
 			 * see https://github.com/TypeStrong/ts-node/pull/858 for more details
 			 */
-			return process[Symbol.for("ts-node.register.instance")];
+			const isTsNode = process[Symbol.for("ts-node.register.instance")];
+
+			return isTsNode?.ts !== undefined;
 		} catch (error) {
 			console.error(error);
 			return false;
@@ -75,7 +77,7 @@ export class FileLoader {
 		const instance = module[moduleInstanceKey];
 		const name     = instance.name;
 
-		return {instance, name}
+		return {instance, name};
 	}
 
 	/**
@@ -110,7 +112,7 @@ export class FileLoader {
 		pathInformation.ext = isTS ? extensions.forTsNode : extensions.forNode;
 
 		if (!isTS && pathInformation.dir.includes('/src/')) {
-			pathInformation.dir = pathInformation.dir.replace('/src/', '/dist/')
+			pathInformation.dir = pathInformation.dir.replace('/src/', '/dist/');
 		}
 
 		return path.format(pathInformation);
@@ -137,7 +139,7 @@ export class FileLoader {
 					name              : name,
 					originalPath      : path,
 					forRunEnvironment : pathForEnv
-				})
+				});
 			} catch (error) {
 				Log.error(error.toString(), {error : error});
 			}
