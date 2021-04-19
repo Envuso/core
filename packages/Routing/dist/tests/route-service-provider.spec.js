@@ -24,6 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = require("@envuso/app");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+const index_1 = require("../Config/index");
 const TestingController_1 = require("../src/App/Http/Controllers/TestingController");
 const RequestContext_1 = require("../src/Context/RequestContext");
 const Controller_1 = require("../src/Controller/Controller");
@@ -76,7 +77,7 @@ class Server {
 }
 const bootApp = function () {
     return __awaiter(this, void 0, void 0, function* () {
-        const app = yield app_1.App.bootInstance();
+        const app = yield app_1.App.bootInstance({ config: index_1.Config });
         yield app.loadServiceProviders();
         app.container().registerSingleton(Server);
         yield app.container().resolve(Server).boot();

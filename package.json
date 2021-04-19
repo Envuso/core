@@ -1,6 +1,9 @@
 {
   "name": "root",
   "private": true,
+  "scripts" : {
+    "build" : "lerna exec -- yarn build"
+  },
   "devDependencies": {
     "lerna": "^4.0.0"
   },

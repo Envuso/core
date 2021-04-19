@@ -8,9 +8,10 @@ import {App, resolve} from "@envuso/app";
 import fs from "fs";
 import {S3Provider} from "../src/Providers/S3Provider";
 import {Storage} from '../src/Storage';
+import {Config} from '../Config';
 
 const bootApp = async function () {
-	const app = await App.bootInstance();
+	const app = await App.bootInstance({config : Config});
 	await app.loadServiceProviders();
 
 	fs.writeFileSync('./testfile.txt', '12345', {encoding : 'utf-8'});

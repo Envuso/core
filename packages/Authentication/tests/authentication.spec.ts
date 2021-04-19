@@ -2,6 +2,7 @@ import {App, ConfigRepository} from "@envuso/app";
 import {Authenticatable} from "@envuso/common/dist";
 import {Request, RequestContext} from "@envuso/routing/dist";
 import {FastifyRequest} from "fastify";
+import {Config} from "../Config/index";
 import {Authentication} from "../src/Authentication";
 import {JwtAuthenticationProvider} from "../src/JwtAuthentication/JwtAuthenticationProvider";
 import {BaseUserProvider} from "../src/UserProvider/BaseUserProvider";
@@ -9,7 +10,7 @@ import {UserProvider} from "../src/UserProvider/UserProvider";
 
 
 const bootApp = async function () {
-	const app = await App.bootInstance();
+	const app = await App.bootInstance({config : Config});
 	await app.loadServiceProviders();
 }
 

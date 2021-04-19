@@ -2,6 +2,7 @@ import {App} from "@envuso/app";
 import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
 import {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
+import {Config} from "../Config/index";
 import {TestingController} from "../src/App/Http/Controllers/TestingController";
 import {RequestContext} from "../src/Context/RequestContext";
 import {Controller} from "../src/Controller/Controller";
@@ -65,7 +66,7 @@ class Server {
 }
 
 const bootApp = async function () {
-	const app = await App.bootInstance();
+	const app = await App.bootInstance({config : Config});
 	await app.loadServiceProviders();
 
 	app.container().registerSingleton<Server>(Server);

@@ -20,9 +20,10 @@ const app_1 = require("@envuso/app");
 const fs_1 = __importDefault(require("fs"));
 const S3Provider_1 = require("../src/Providers/S3Provider");
 const Storage_1 = require("../src/Storage");
+const Config_1 = require("../Config");
 const bootApp = function () {
     return __awaiter(this, void 0, void 0, function* () {
-        const app = yield app_1.App.bootInstance();
+        const app = yield app_1.App.bootInstance({ config: Config_1.Config });
         yield app.loadServiceProviders();
         fs_1.default.writeFileSync('./testfile.txt', '12345', { encoding: 'utf-8' });
         fs_1.default.writeFileSync('./testfiletwo.txt', 'abc', { encoding: 'utf-8' });

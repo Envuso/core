@@ -5,6 +5,7 @@
   "author": "Sam Parton @iDevelopThings",
   "scripts": {
     "run": "bin/run",
+    "build" : "yarn prepack",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",

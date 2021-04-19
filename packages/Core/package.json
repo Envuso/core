@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2-alpha.0",
+  "version": "0.1.2-alpha.0+fdd69ad",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -27,12 +27,12 @@
     "simple-crypto-js": "^3.0.0"
   },
   "devDependencies": {
-    "@envuso/app": "^0.1.2-alpha.0",
-    "@envuso/authentication": "^0.1.2-alpha.0",
+    "@envuso/app": "^0.1.2-alpha.0+fdd69ad",
+    "@envuso/authentication": "^0.1.2-alpha.0+fdd69ad",
     "@envuso/common": "^0.0.1-alpha.14",
-    "@envuso/database": "^0.1.2-alpha.0",
-    "@envuso/routing": "^0.1.2-alpha.0",
-    "@envuso/storage": "^0.1.2-alpha.0",
+    "@envuso/database": "^0.1.2-alpha.0+fdd69ad",
+    "@envuso/routing": "^0.1.2-alpha.0+fdd69ad",
+    "@envuso/storage": "^0.1.2-alpha.0+fdd69ad",
     "@types/busboy": "^0.2.3",
     "@types/glob": "^7.1.3",
     "@types/jest": "^26.0.22",
@@ -47,5 +47,5 @@
   ],
   "main": "dist/index.js",
   "types": "dist",
-  "gitHead": "f673ddc307e0ab43f870280b38ee6e47588e7b2f"
+  "gitHead": "fdd69adbfd4e2e7ba98c74330a6dd6a50417bfe2"
 }
