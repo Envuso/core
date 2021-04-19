@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "prep": "npm run build && npm version prerelease --preid=alpha"
+    "prepublishOnly": "npm run build && npm version prerelease --preid=alpha"
   },
   "dependencies": {
     "class-transformer": "^0.4.0",

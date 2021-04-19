@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Str = void 0;
+const Obj_1 = __importDefault(require("./Obj"));
 class Str {
     /**
      * Uses math.random() to get a quick and dirty random string
@@ -32,6 +36,13 @@ class Str {
         return require('crypto').randomBytes(Math.ceil(length / 2))
             .toString('hex')
             .substr(0, length);
+    }
+    /**
+     * Contributed by https://github.com/73cn0109y
+     * Commit was lost during mono-repo merge :(
+     */
+    static isEmpty(value) {
+        return (Obj_1.default.isNullOrUndefined(value) || String(value).trim().length === 0);
     }
 }
 exports.Str = Str;

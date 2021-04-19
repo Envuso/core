@@ -16,4 +16,9 @@ export declare class Str {
      * @param length
      */
     static uniqueRandom(length?: number): any;
+    /**
+     * Contributed by https://github.com/73cn0109y
+     * Commit was lost during mono-repo merge :(
+     */
+    static isEmpty(value: any): boolean;
 }

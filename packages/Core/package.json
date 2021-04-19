@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "prep": "npm run build && npm version prerelease --preid=alpha",
+    "prepublishOnly": "npm run build && npm version prerelease --preid=alpha",
     "serve": "nodemon dist/main.js",
     "dev": "ts-node ./src/run-dev.ts",
     "test": "jest"

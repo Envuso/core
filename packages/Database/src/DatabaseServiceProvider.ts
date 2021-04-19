@@ -1,5 +1,5 @@
 import {app, App, ConfigRepository, resolve, ServiceProvider} from "@envuso/app";
-import {classAndNameFromModule, loadModulesFromPath} from "@envuso/common";
+import {FileLoader} from "@envuso/common";
 import {MongoClient} from "mongodb";
 import pluralize from "pluralize";
 import {MongoConnectionConfiguration} from "../Config/Database";
@@ -23,23 +23,18 @@ export class DatabaseServiceProvider extends ServiceProvider {
 	}
 
 	async loadModels(modulePath: string) {
-		const paths = loadModulesFromPath(
+		const modules = await FileLoader.importModulesFrom(
 			path.join(modulePath, '**', '*.ts')
 		);
-
 		const client = resolve(MongoClient);
 		const dbName = resolve(ConfigRepository).get<string>('database.mongo.name');
 
-		for (let path of paths) {
-			const module = await import(path);
-
-			const {instance, name} = classAndNameFromModule(module);
-
-			const collection = client.db(dbName).collection<typeof instance>(
-				pluralize(name.toLowerCase())
+		for (let module of modules) {
+			const collection = client.db(dbName).collection<typeof module.instance>(
+				pluralize(module.name.toLowerCase())
 			);
 
-			app().container().register(name + 'Model', {
+			app().container().register(module.name + 'Model', {
 				useValue : collection
 			});
 		}

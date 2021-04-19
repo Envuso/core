@@ -892,10 +892,10 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@envuso/app@^0.0.1-alpha.8":
-  version "0.0.1-alpha.10"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.10.tgz#5d4ca6a8d7456f1132a8cfce783639ae0a56298b"
-  integrity sha512-bL7Yoj5qrnJZ7m+sdlTgHN5MRLFT+x9Zw/aIlUCCdNrJU6Sd+rf7/CfK1Now8Cr6nlhlMbwBgRm9EskEI94PoQ==
+"@envuso/app@^0.1.1-alpha.0":
+  version "0.1.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.1.1-alpha.0.tgz#0f1e3a28cb6c68a0c2547d2034267619ad9d9f23"
+  integrity sha512-vuznRzKoRSHbYCipsbfQXaB6GSAdXcG7gTgInugcl8YQ/g1H8sHcgL9BvqNOfD8nw7hsvq/tUWjsGA3eoaDJbA==
   dependencies:
     "@types/lodash.get" "^4.4.6"
     "@types/lodash.has" "^4.5.6"
@@ -907,10 +907,10 @@
     reflect-metadata "^0.1.10"
     tsyringe "^4.5.0"
 
-"@envuso/common@^0.0.1-alpha.12":
-  version "0.0.1-alpha.12"
-  resolved "https://registry.npmjs.org/@envuso/common/-/common-0.0.1-alpha.12.tgz"
-  integrity sha512-yywYy5BqPBDYT4etRrHrT2AHlSL+8Wynsnstomc0tY4E40BxEs+gICavEcZBJ0oG8k6HtzhX+rVVZXDO9D4pxg==
+"@envuso/common@^0.1.1-alpha.0":
+  version "0.1.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@envuso/common/-/common-0.1.1-alpha.0.tgz#c979db06892758d28b3317e890d4da737cb187d4"
+  integrity sha512-P6n2iRe7MGqmB/TAIByZB6wxFgcZqXj9Bfd86x9XKz6L68CJ45l8RQaZa22k++8sr5KBomduYOfi0l4nfugypw==
   dependencies:
     bcrypt "^5.0.1"
     chalk "^4.1.0"

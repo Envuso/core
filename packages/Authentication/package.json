@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "prep": "npm run build && npm version prerelease --preid=alpha"
+    "prepublishOnly": "npm run build && npm version prerelease --preid=alpha"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.1",
@@ -17,7 +17,7 @@
     "@babel/preset-env": "*",
     "@babel/preset-typescript": "*",
     "@envuso/app": "^0.1.1-alpha.0",
-    "@envuso/common": "^0.0.1-alpha.10",
+    "@envuso/common": "^0.1.1-alpha.0",
     "@envuso/routing": "^0.1.1-alpha.0",
     "@types/jest": "*",
     "babel-jest": "*",
