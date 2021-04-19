@@ -2,7 +2,7 @@
 export declare const Config: {
     app: {
         appKey: string;
-        providers: typeof import("@envuso/authentication/dist").AuthenticationServiceProvider[];
+        providers: (typeof import("@envuso/authentication/dist").AuthenticationServiceProvider | typeof import("@envuso/routing/dist").RouteServiceProvider)[];
     };
     auth: {
         userModel: typeof import("../src/App/Models/User").User;
