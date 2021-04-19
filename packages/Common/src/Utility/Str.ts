@@ -1,3 +1,5 @@
+import Obj from "./Obj";
+
 export class Str {
 
 	/**
@@ -35,6 +37,14 @@ export class Str {
 		return require('crypto').randomBytes(Math.ceil(length / 2))
 			.toString('hex')
 			.substr(0, length);
+	}
+
+	/**
+	 * Contributed by https://github.com/73cn0109y
+	 * Commit was lost during mono-repo merge :(
+	 */
+	static isEmpty(value: any): boolean {
+		return (Obj.isNullOrUndefined(value) || String(value).trim().length === 0);
 	}
 
 }
