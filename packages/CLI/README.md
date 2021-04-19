@@ -21,34 +21,29 @@
 Envuso CLI, make a project, generate framework files etc
 
 <!-- toc -->
-
 * [Usage](#usage)
 * [Commands](#commands)
-
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g @envuso/cli
 $ envuso COMMAND
 running command...
 $ envuso (-v|--version|version)
-@envuso/cli/0.0.41 darwin-arm64 node-v15.8.0
+@envuso/cli/0.1.0-alpha.0 darwin-arm64 node-v15.8.0
 $ envuso --help [COMMAND]
 USAGE
   $ envuso COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
 * [`envuso autocomplete [SHELL]`](#envuso-autocomplete-shell)
 * [`envuso commands`](#envuso-commands)
 * [`envuso help [COMMAND]`](#envuso-help-command)
@@ -143,7 +138,7 @@ EXAMPLES
   $ envuso make:controller User --resource --model=User
 ```
 
-_See code: [src/commands/make/controller.ts](https://github.com/envuso/cli/blob/v0.0.41/src/commands/make/controller.ts)_
+_See code: [src/commands/make/controller.ts](https://github.com/envuso/cli/blob/v0.1.0-alpha.0/src/commands/make/controller.ts)_
 
 ## `envuso make:middleware NAME`
 
@@ -163,7 +158,7 @@ EXAMPLE
   $ envuso make:middleware User
 ```
 
-_See code: [src/commands/make/middleware.ts](https://github.com/envuso/cli/blob/v0.0.41/src/commands/make/middleware.ts)_
+_See code: [src/commands/make/middleware.ts](https://github.com/envuso/cli/blob/v0.1.0-alpha.0/src/commands/make/middleware.ts)_
 
 ## `envuso make:model NAME`
 
@@ -183,7 +178,7 @@ EXAMPLE
   $ envuso make:middleware User
 ```
 
-_See code: [src/commands/make/model.ts](https://github.com/envuso/cli/blob/v0.0.41/src/commands/make/model.ts)_
+_See code: [src/commands/make/model.ts](https://github.com/envuso/cli/blob/v0.1.0-alpha.0/src/commands/make/model.ts)_
 
 ## `envuso new`
 
@@ -200,5 +195,5 @@ EXAMPLE
   $ envuso new
 ```
 
-_See code: [src/commands/new.ts](https://github.com/envuso/cli/blob/v0.0.41/src/commands/new.ts)_
+_See code: [src/commands/new.ts](https://github.com/envuso/cli/blob/v0.1.0-alpha.0/src/commands/new.ts)_
 <!-- commandsstop -->

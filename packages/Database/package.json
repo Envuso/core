@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1-alpha.5",
+  "version": "0.1.0-alpha.0",
   "name": "@envuso/database",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -17,7 +17,7 @@
     "@babel/core": "*",
     "@babel/preset-env": "*",
     "@babel/preset-typescript": "*",
-    "@envuso/app": "^0.0.1-alpha.8",
+    "@envuso/app": "^0.1.0-alpha.0",
     "@envuso/common": "^0.0.1-alpha.12",
     "@types/jest": "*",
     "@types/mongodb": "^3.6.12",
