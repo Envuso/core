@@ -7,6 +7,8 @@
   "packages": [
     "packages/*"
   ],
-  "ignoreChanges": ["Framework/**/*"],
-  "version": "0.1.1-alpha.0"
+  "ignoreChanges": [
+    "Framework/**/*"
+  ],
+  "version": "0.1.2-alpha.0"
 }
