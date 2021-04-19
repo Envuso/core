@@ -1,9 +1,9 @@
-import {App} from "@envuso/app";
+import {App, config} from "@envuso/app";
 import {UserModel} from "../src/App/Models/UserModel";
 
 
 const bootApp = async function () {
-	const app = await App.bootInstance();
+	const app = await App.bootInstance({config});
 	await app.loadServiceProviders();
 }
 

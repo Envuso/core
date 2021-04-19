@@ -25,5 +25,6 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "types": "dist"
+  "types": "dist",
+  "gitHead": "f673ddc307e0ab43f870280b38ee6e47588e7b2f"
 }
