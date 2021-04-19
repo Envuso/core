@@ -892,10 +892,10 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@envuso/app@^0.0.1-alpha.9":
-  version "0.0.1-alpha.10"
-  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.0.1-alpha.10.tgz#5d4ca6a8d7456f1132a8cfce783639ae0a56298b"
-  integrity sha512-bL7Yoj5qrnJZ7m+sdlTgHN5MRLFT+x9Zw/aIlUCCdNrJU6Sd+rf7/CfK1Now8Cr6nlhlMbwBgRm9EskEI94PoQ==
+"@envuso/app@^0.1.2-alpha.0+fdd69ad":
+  version "0.1.2-alpha.2"
+  resolved "https://registry.yarnpkg.com/@envuso/app/-/app-0.1.2-alpha.2.tgz#0fa2834baa069bf881bde94b391adff8eaa19900"
+  integrity sha512-xgab37FcW6laDm+Qt5nrsORGyjHf7uvmAS7G2ptUEYBpx2Bjovg64CKRcp8NE96lnsvZxmbbug81b5rTpAa3Mg==
   dependencies:
     "@types/lodash.get" "^4.4.6"
     "@types/lodash.has" "^4.5.6"
@@ -907,10 +907,10 @@
     reflect-metadata "^0.1.10"
     tsyringe "^4.5.0"
 
-"@envuso/common@^0.0.1-alpha.13":
-  version "0.0.1-alpha.13"
-  resolved "https://registry.npmjs.org/@envuso/common/-/common-0.0.1-alpha.13.tgz"
-  integrity sha512-qbWiqBIcrj/tTepl4ym2g1y/1SiFMgZ0N6yFNxGJWXelD4gTONWwaXD0bXhf7hdkrnKPpsX/9zmI4qyLeQ0d0Q==
+"@envuso/common@^0.1.2-alpha.4":
+  version "0.1.2-alpha.4"
+  resolved "https://registry.yarnpkg.com/@envuso/common/-/common-0.1.2-alpha.4.tgz#36455e3b7115d5558074cd362086132bffc0cb65"
+  integrity sha512-lA+hTbXyjlP9+3oZWOP0fmuEAV9aStnaOv7CPp825jjZk7G7ikQnVTo3c2bIVVVHjiO3g3P78Vuzt22cFiM4LA==
   dependencies:
     bcrypt "^5.0.1"
     chalk "^4.1.0"
@@ -920,10 +920,10 @@
     winston "^3.3.3"
     winston-daily-rotate-file "^4.5.2"
 
-"@envuso/storage@^0.0.1-alpha.3":
-  version "0.0.1-alpha.3"
-  resolved "https://registry.yarnpkg.com/@envuso/storage/-/storage-0.0.1-alpha.3.tgz#1fe909808d1a416e46ef74d35f03bdcb5d0ca492"
-  integrity sha512-X3jC0OscnBNjfuDhiwkXuwyTu1d4u1OwBGrK3jz1Vko5j/Zij8rIaLlPo09oFTqgBBim5r5kKG2VMTA03jmapw==
+"@envuso/storage@^0.1.2-alpha.0+fdd69ad":
+  version "0.1.2-alpha.4"
+  resolved "https://registry.yarnpkg.com/@envuso/storage/-/storage-0.1.2-alpha.4.tgz#c945848586a278d50340e22a1c11766bae16a081"
+  integrity sha512-/mgue2qDGkqCnqlYmCm6DRXZx9Bv5PhJ2q+PQqJ7EGq/X1q4162N8AOg9VndKhA0mp/dfsEN64tJWcMRTT8M4A==
   dependencies:
     "@types/dotenv" "^8.2.0"
     aws-sdk "^2.884.0"

@@ -57,7 +57,8 @@ class FileLoader {
              * Are we running in typescript at the moment?
              * see https://github.com/TypeStrong/ts-node/pull/858 for more details
              */
-            return process[Symbol.for("ts-node.register.instance")];
+            const isTsNode = process[Symbol.for("ts-node.register.instance")];
+            return (isTsNode === null || isTsNode === void 0 ? void 0 : isTsNode.ts) !== undefined;
         }
         catch (error) {
             console.error(error);

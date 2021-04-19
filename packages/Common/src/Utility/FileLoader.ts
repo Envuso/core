@@ -111,6 +111,12 @@ export class FileLoader {
 
 		pathInformation.ext = isTS ? extensions.forTsNode : extensions.forNode;
 
+		if (!isTS)
+			pathInformation.base.replace(
+				`${pathInformation.name}.${extensions.forTsNode}`,
+				`${pathInformation.name}.${extensions.forNode}`
+			);
+
 		if (!isTS && pathInformation.dir.includes('/src/')) {
 			pathInformation.dir = pathInformation.dir.replace('/src/', '/dist/');
 		}
