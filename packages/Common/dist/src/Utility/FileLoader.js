@@ -113,7 +113,7 @@ class FileLoader {
         const pathInformation = path_1.default.parse(pathToFormat);
         pathInformation.ext = isTS ? extensions.forTsNode : extensions.forNode;
         if (!isTS)
-            pathInformation.base.replace(`${pathInformation.name}.${extensions.forTsNode}`, `${pathInformation.name}.${extensions.forNode}`);
+            pathInformation.base = pathInformation.base.replace(`${pathInformation.name}.${extensions.forTsNode}`, `${pathInformation.name}.${extensions.forNode}`);
         if (!isTS && pathInformation.dir.includes('/src/')) {
             pathInformation.dir = pathInformation.dir.replace('/src/', '/dist/');
         }

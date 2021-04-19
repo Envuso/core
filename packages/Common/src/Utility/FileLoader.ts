@@ -112,7 +112,7 @@ export class FileLoader {
 		pathInformation.ext = isTS ? extensions.forTsNode : extensions.forNode;
 
 		if (!isTS)
-			pathInformation.base.replace(
+			pathInformation.base = pathInformation.base.replace(
 				`${pathInformation.name}.${extensions.forTsNode}`,
 				`${pathInformation.name}.${extensions.forNode}`
 			);
