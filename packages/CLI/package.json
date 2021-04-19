@@ -1,7 +1,7 @@
 {
   "name": "@envuso/cli",
   "description": "Envuso CLI, make a project, generate framework files etc",
-  "version": "0.0.41",
+  "version": "0.1.0-alpha.0",
   "author": "Sam Parton @iDevelopThings",
   "scripts": {
     "run": "bin/run",
@@ -27,6 +27,7 @@
     "@types/listr": "^0.14.2",
     "@types/lodash": "^4.14.168",
     "boxen": "^5.0.1",
+    "chalk": "^2.4.2",
     "execa": "^5.0.0",
     "git-clone": "^0.1.0",
     "inquirer": "^8.0.0",
@@ -34,8 +35,7 @@
     "lodash": "^4.17.21",
     "rxjs": "^6.6.7",
     "terminal-link": "^2.1.1",
-    "tslib": "^1",
-    "chalk": "^2.4.2"
+    "tslib": "^1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
