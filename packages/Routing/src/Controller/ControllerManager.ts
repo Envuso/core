@@ -1,4 +1,4 @@
-import {autoInjectable, App} from "@envuso/app";
+import {autoInjectable, App, injectable} from "@envuso/app";
 import {METADATA} from "@envuso/common";
 import {Route} from "../Route/Route";
 import {RouteServiceProvider} from "../RouteServiceProvider";
@@ -25,8 +25,10 @@ export class ControllerManager {
 				target : target
 			};
 
+//			autoInjectable()(target);
+			injectable()(target);
 			Reflect.defineMetadata(METADATA.CONTROLLER, currentMetadata, target);
-			autoInjectable()(target);
+
 
 			const previousMetadata: ControllerMetadata[] = Reflect.getMetadata(
 				METADATA.CONTROLLER,

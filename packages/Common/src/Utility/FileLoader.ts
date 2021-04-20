@@ -31,6 +31,10 @@ export class FileLoader {
 			return true;
 		}
 
+		if(process.env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID){
+			return true;
+		}
+
 		// are we running via a ts-node/ts-node-dev shim?
 		const lastArg = process.execArgv[process.execArgv.length - 1];
 		if (lastArg && path.parse(lastArg).name.indexOf("ts-node") >= 0) {

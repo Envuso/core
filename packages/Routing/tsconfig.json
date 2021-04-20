@@ -9,8 +9,8 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "declaration": true,
-    "baseUrl": "./src",
-    "sourceRoot": "./src",
+    "rootDir": "./src/",
+    "baseUrl": "./src/",
     "lib": [
       "es5",
       "es6"

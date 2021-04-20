@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Config = void 0;
-const RouteServiceProvider_1 = require("../src/RouteServiceProvider");
+const RouteServiceProvider_1 = require("../RouteServiceProvider");
 exports.Config = {
     app: {
         providers: [

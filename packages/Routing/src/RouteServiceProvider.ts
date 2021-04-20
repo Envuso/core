@@ -25,6 +25,7 @@ export class RouteServiceProvider extends ServiceProvider {
 				return new controller.instance();
 			}, 'Controllers')
 
+			app.container().register(controller.instance.prototype, {useValue : controller.instance});
 			Log.info('Imported controller: ' + controller.name);
 
 		}

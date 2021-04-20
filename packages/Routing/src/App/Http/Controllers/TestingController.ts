@@ -1,3 +1,4 @@
+import {inject, injectable} from "@envuso/app";
 import {IsString, MinLength} from "class-validator";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {RequestContext} from "../../../Context/RequestContext";
@@ -7,6 +8,7 @@ import {DataTransferObject} from "../../../DataTransferObject/DataTransferObject
 import {Middleware} from "../../../Middleware/Middleware";
 import {middleware} from "../../../Middleware/MiddlewareDecorators";
 import {dto} from "../../../Route/RouteDecorators";
+import {AnotherTestingController} from "./AnotherTestingController";
 
 class DTO extends DataTransferObject {
 
@@ -16,16 +18,23 @@ class DTO extends DataTransferObject {
 }
 
 class TestMiddleware extends Middleware {
-	public handler(context : RequestContext): Promise<any> {
+	public handler(context: RequestContext): Promise<any> {
 		console.log(this);
 		return Promise.resolve('hello world');
 	}
 
 }
 
+
 @middleware(new TestMiddleware())
 @controller('/testing')
 export class TestingController extends Controller {
+
+	constructor(
+		public someController?: AnotherTestingController
+	) {
+		super()
+	}
 
 	@method(['POST', 'GET'], '/get')
 	async testGet(@dto() dt: DTO) {

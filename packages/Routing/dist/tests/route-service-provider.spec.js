@@ -25,15 +25,15 @@ const app_1 = require("@envuso/app");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const index_1 = require("../Config/index");
-const TestingController_1 = require("../src/App/Http/Controllers/TestingController");
-const RequestContext_1 = require("../src/Context/RequestContext");
-const Controller_1 = require("../src/Controller/Controller");
-const ControllerDecorators_1 = require("../src/Controller/ControllerDecorators");
-const ControllerManager_1 = require("../src/Controller/ControllerManager");
-const DataTransferObject_1 = require("../src/DataTransferObject/DataTransferObject");
-const DtoValidationException_1 = require("../src/DataTransferObject/DtoValidationException");
-const Middleware_1 = require("../src/Middleware/Middleware");
-const MiddlewareDecorators_1 = require("../src/Middleware/MiddlewareDecorators");
+const TestingController_1 = require("../App/Http/Controllers/TestingController");
+const RequestContext_1 = require("../Context/RequestContext");
+const Controller_1 = require("../Controller/Controller");
+const ControllerDecorators_1 = require("../Controller/ControllerDecorators");
+const ControllerManager_1 = require("../Controller/ControllerManager");
+const DataTransferObject_1 = require("../DataTransferObject/DataTransferObject");
+const DtoValidationException_1 = require("../DataTransferObject/DtoValidationException");
+const Middleware_1 = require("../Middleware/Middleware");
+const MiddlewareDecorators_1 = require("../Middleware/MiddlewareDecorators");
 const fastify_1 = __importDefault(require("fastify"));
 //const fastify = Fastify.fastify();
 //jest.mock('fastify');
@@ -89,7 +89,9 @@ beforeAll(() => {
 describe('test route service provider', () => {
     test('route service provider loads controllers', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = app_1.App.getInstance();
-        expect(app.resolve(TestingController_1.TestingController)).toBeTruthy();
+        const controllerInst = app.resolve(TestingController_1.TestingController);
+        expect(controllerInst.someController.someAids()).toBeTruthy();
+        expect(controllerInst).toBeTruthy();
     }));
     test('test initiating controllers', () => __awaiter(void 0, void 0, void 0, function* () {
         const app = app_1.App.getInstance();

@@ -1,4 +1,4 @@
-import {ConfigRepository, resolve} from "@envuso/app";
+import {ConfigRepository, injectable, resolve} from "@envuso/app";
 import {Authenticatable, Log} from "@envuso/common/dist";
 import {RequestContext} from "@envuso/routing/dist";
 import Auth, {AuthCredentialContract} from "../Config/Auth";
@@ -7,6 +7,7 @@ import {JwtAuthenticationProvider} from "./JwtAuthentication/JwtAuthenticationPr
 import {BaseUserProvider} from "./UserProvider/BaseUserProvider";
 import {UserProvider} from "./UserProvider/UserProvider";
 
+@injectable()
 export class Authentication {
 
 	private _provider: AuthenticationProvider = null;

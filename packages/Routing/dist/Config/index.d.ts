@@ -1,4 +1,4 @@
-import { RouteServiceProvider } from "../src/RouteServiceProvider";
+import { RouteServiceProvider } from "../RouteServiceProvider";
 export declare const Config: {
     app: {
         providers: (typeof RouteServiceProvider)[];
