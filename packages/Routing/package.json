@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2-alpha.14+034f93c",
+  "version": "0.1.2-alpha.15+77fcb66",
   "name": "@envuso/routing",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -21,7 +21,7 @@
     "@babel/preset-typescript": "*",
     "@envuso/app": "^0.1.2-alpha.9",
     "@envuso/common": "^0.1.2-alpha.7",
-    "@envuso/storage": "^0.1.2-alpha.14+034f93c",
+    "@envuso/storage": "^0.1.2-alpha.15+77fcb66",
     "@types/jest": "*",
     "babel-jest": "*",
     "fastify": "^3.14.2",
@@ -34,5 +34,5 @@
   ],
   "main": "dist/index.js",
   "types": "dist",
-  "gitHead": "034f93c5ba10c6f4f387609e3011abe5baf0256c"
+  "gitHead": "77fcb660286bd4ed139f3a530701a95631d71e2a"
 }
