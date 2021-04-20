@@ -7,6 +7,7 @@ export interface AllControllerMeta {
 export interface ControllerMetadata {
     path: string;
     target: any;
+    injectionParams?: any[];
 }
 export interface HandlerDecorator {
     (target: any, key: string, value: any): void;

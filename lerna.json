@@ -5,10 +5,9 @@
     "--no-optional"
   ],
   "packages": [
-    "packages/*"
+    "packages/*",
+    "Framework"
   ],
-  "ignoreChanges": [
-    "Framework/**/*"
-  ],
+
   "version": "0.1.2-alpha.0"
 }

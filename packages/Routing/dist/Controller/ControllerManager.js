@@ -14,12 +14,15 @@ class ControllerManager {
      */
     static bindControllerMeta(path) {
         return function (target) {
+            var _a;
             const currentMetadata = {
                 path: path,
-                target: target
+                target: target,
+                injectionParams: (_a = common_1.DecoratorHelpers.paramTypes(target)) !== null && _a !== void 0 ? _a : []
             };
             //			autoInjectable()(target);
-            app_1.injectable()(target);
+            //			injectable()(target);
+            //const params = DecoratorHelpers.paramTypes(target);
             Reflect.defineMetadata(common_1.METADATA.CONTROLLER, currentMetadata, target);
             const previousMetadata = Reflect.getMetadata(common_1.METADATA.CONTROLLER, Reflect) || [];
             const newMetadata = [currentMetadata, ...previousMetadata];

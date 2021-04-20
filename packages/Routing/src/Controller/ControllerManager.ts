@@ -1,5 +1,5 @@
 import {autoInjectable, App, injectable} from "@envuso/app";
-import {METADATA} from "@envuso/common";
+import {DecoratorHelpers, METADATA} from "@envuso/common";
 import {Route} from "../Route/Route";
 import {RouteServiceProvider} from "../RouteServiceProvider";
 import {Controller} from "./Controller";
@@ -21,12 +21,15 @@ export class ControllerManager {
 	public static bindControllerMeta(path) {
 		return function (target: any) {
 			const currentMetadata: ControllerMetadata = {
-				path   : path,
-				target : target
+				path            : path,
+				target          : target,
+				injectionParams : DecoratorHelpers.paramTypes(target) ?? []
 			};
 
-//			autoInjectable()(target);
-			injectable()(target);
+			//			autoInjectable()(target);
+			//			injectable()(target);
+
+			//const params = DecoratorHelpers.paramTypes(target);
 			Reflect.defineMetadata(METADATA.CONTROLLER, currentMetadata, target);
 
 
@@ -42,7 +45,7 @@ export class ControllerManager {
 				newMetadata,
 				Reflect
 			);
-		}
+		};
 	}
 
 	/**
@@ -60,7 +63,7 @@ export class ControllerManager {
 			routes.push({
 				controller : controller,
 				routes     : this.getRoutesForController(controller)
-			})
+			});
 		}
 
 		return routes;
@@ -76,7 +79,7 @@ export class ControllerManager {
 		const meta = controller.getMeta();
 
 		if (!meta?.controller && !meta?.methods) {
-			throw Error('Controller somehow has no meta defined... ' + controller.constructor.name)
+			throw Error('Controller somehow has no meta defined... ' + controller.constructor.name);
 		}
 
 		const routes: Route[] = [];

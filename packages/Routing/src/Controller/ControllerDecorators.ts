@@ -11,6 +11,7 @@ export interface AllControllerMeta {
 export interface ControllerMetadata {
 	path: string;
 	target: any;
+	injectionParams?: any[];
 }
 
 export interface HandlerDecorator {
@@ -102,7 +103,7 @@ export function httpMethod(method: HTTPMethods | HTTPMethods[], path: string): H
 		const parameters = parameterNames.map((name, index) => ({
 			name : name,
 			type : parameterTypes[index] ?? null
-		}))
+		}));
 
 		const metadata: ControllerMethodMetadata = {
 			key,

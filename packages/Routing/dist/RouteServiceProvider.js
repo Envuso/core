@@ -32,7 +32,7 @@ class RouteServiceProvider extends app_1.ServiceProvider {
                 app.bind(() => {
                     return new controller.instance();
                 }, 'Controllers');
-                app.container().register(controller.instance.prototype, { useValue: controller.instance });
+                //			app.container().register(controller.instance.prototype, {useValue : controller.instance});
                 Log_1.Log.info('Imported controller: ' + controller.name);
             }
         });
