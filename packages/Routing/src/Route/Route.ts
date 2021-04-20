@@ -1,5 +1,4 @@
-import {ConfigRepository} from "@envuso/app";
-import {App} from "@envuso/app/dist/src";
+import {ConfigRepository, App} from "@envuso/app";
 import {METADATA} from "@envuso/common";
 import {Log} from "@envuso/common/dist/src/Logger/Log";
 import {classToPlain, serialize} from "class-transformer";
@@ -45,7 +44,7 @@ export class Route {
 		return [
 			this.controllerMeta.controller.path,
 			this.methodMeta.path
-		]
+		];
 	}
 
 	/**
@@ -61,7 +60,7 @@ export class Route {
 		let path = pathParts.join('/');
 
 		if (!path.startsWith('/')) {
-			path = '/' + path
+			path = '/' + path;
 		}
 
 		return path;
@@ -75,7 +74,7 @@ export class Route {
 	getHandlerFactory() {
 		return async (request?: FastifyRequest, response?: FastifyReply) => {
 
-//			try {
+			//			try {
 
 			const parameters = await RouteManager.parametersForRoute(
 				request, response, this
@@ -99,7 +98,7 @@ export class Route {
 
 			return Route.getResponseResult(routeResponse);
 
-//			} catch (error) {
+			//			} catch (error) {
 			/*
 			 @TODO
 			 NOTE FOR SELF...
@@ -112,12 +111,12 @@ export class Route {
 			 */
 
 
-//				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
-//
-//				}
-//				console.error(error);
-//			}
-		}
+			//				if (App.getInstance().container().isRegistered('ExceptionHandler')) {
+			//
+			//				}
+			//				console.error(error);
+			//			}
+		};
 	}
 
 	/**
@@ -130,7 +129,7 @@ export class Route {
 			'design:paramtypes',
 			this.methodMeta.target,
 			this.methodMeta.key
-		)
+		);
 
 		if (!paramsTypes) {
 			return [];
@@ -165,7 +164,7 @@ export class Route {
 					excludePrefixes     : ['_'],
 					strategy            : 'exposeAll'
 				} as ClassTransformOptions
-			)
+			);
 
 		if (!(controllerResponse instanceof Response)) {
 			return response.setResponse(
@@ -203,25 +202,25 @@ export class Route {
 
 		middlewares.forEach(mw => {
 			Log.info(mw.constructor.name + ' was loaded for ' + this.getPath());
-		})
+		});
 
 		return async (context: RequestContext) => {
 			for (const middleware of middlewares) {
 				await middleware.handler(context);
 			}
-		}
+		};
 
-//		return {
-//			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
-//				for (const middleware of middlewares) {
-//					try {
-//						await middleware.handler(request, response);
-//					} catch (exception) {
-////						return ExceptionHandler.transform(exception, response);
-//						console.error(exception);
-//					}
-//				}
-//			}
-//		};
+		//		return {
+		//			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
+		//				for (const middleware of middlewares) {
+		//					try {
+		//						await middleware.handler(request, response);
+		//					} catch (exception) {
+		////						return ExceptionHandler.transform(exception, response);
+		//						console.error(exception);
+		//					}
+		//				}
+		//			}
+		//		};
 	}
 }

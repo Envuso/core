@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Route = void 0;
 const app_1 = require("@envuso/app");
-const src_1 = require("@envuso/app/dist/src");
 const common_1 = require("@envuso/common");
 const Log_1 = require("@envuso/common/dist/src/Logger/Log");
 const class_transformer_1 = require("class-transformer");
@@ -66,7 +65,7 @@ class Route {
             let httpContext = null;
             if (request)
                 httpContext = Reflect.getMetadata(common_1.METADATA.HTTP_CONTEXT, request);
-            const controller = src_1.App.getInstance().resolve(this.controllerMeta.controller.target);
+            const controller = app_1.App.getInstance().resolve(this.controllerMeta.controller.target);
             const routeMethod = controller[this.methodMeta.key];
             const routeResponse = yield routeMethod(...parameters);
             if (response === null || response === void 0 ? void 0 : response.sent) {
@@ -120,7 +119,7 @@ class Route {
         if (controllerResponse === undefined || controllerResponse === null) {
             return response.setResponse(null, http_status_codes_1.StatusCodes.NO_CONTENT).send();
         }
-        const responseSerializationConfig = src_1.App.getInstance()
+        const responseSerializationConfig = app_1.App.getInstance()
             .resolve(app_1.ConfigRepository)
             .get('http.responseSerialization', {
             enableCircularCheck: true,

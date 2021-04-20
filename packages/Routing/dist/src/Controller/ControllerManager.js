@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ControllerManager = void 0;
 const app_1 = require("@envuso/app");
-const src_1 = require("@envuso/app/dist/src");
 const common_1 = require("@envuso/common");
 const Route_1 = require("../Route/Route");
 const RouteServiceProvider_1 = require("../RouteServiceProvider");
@@ -19,8 +18,8 @@ class ControllerManager {
                 path: path,
                 target: target
             };
-            app_1.injectable()(target);
             Reflect.defineMetadata(common_1.METADATA.CONTROLLER, currentMetadata, target);
+            app_1.autoInjectable()(target);
             const previousMetadata = Reflect.getMetadata(common_1.METADATA.CONTROLLER, Reflect) || [];
             const newMetadata = [currentMetadata, ...previousMetadata];
             Reflect.defineMetadata(common_1.METADATA.CONTROLLER, newMetadata, Reflect);
@@ -31,7 +30,7 @@ class ControllerManager {
      * and setup the route instances for them
      */
     static initiateControllers() {
-        const controllers = src_1.App.getInstance()
+        const controllers = app_1.App.getInstance()
             .resolve(RouteServiceProvider_1.RouteServiceProvider)
             .getAllControllers();
         const routes = [];
