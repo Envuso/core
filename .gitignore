@@ -1,4 +1,9 @@
 lerna-debug.log
-.idea/
-node_modules/
-Framework/
+/.idea/
+/node_modules/
+/Framework/
+/packages/
+/storage/
+/.env
+/lerna.json
+/yarn-error.log
