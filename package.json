@@ -1,13 +1,13 @@
 {
-  "version": "0.1.2-alpha.1",
+  "version": "0.1.2-alpha.2",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "prep" : "yarn build && cp package.json dist && cp readme.md dist && cd dist",
-    "link" : "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn link",
+    "prep": "yarn build && cp package.json dist && cp readme.md dist && cd dist",
+    "link": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn link",
     "dist": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn publish",
     "prepublishOnly": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
@@ -80,6 +80,5 @@
     "Routing/**/*",
     "Storage/**/*"
   ],
-
   "types": "./"
 }
