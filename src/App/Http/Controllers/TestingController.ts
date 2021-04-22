@@ -1,6 +1,8 @@
 import {IsString, MinLength} from "class-validator";
 import {injectable} from "tsyringe";
+import {Authentication} from "../../../Authentication";
 import {Controller, controller, DataTransferObject, dto, method, middleware, Middleware, RequestContext} from "../../../Routing";
+import {TestMiddleware} from "../Middleware/TestMiddleware";
 import {TestController} from "./TestController";
 
 class DTO extends DataTransferObject {
@@ -10,21 +12,16 @@ class DTO extends DataTransferObject {
 	something: string;
 }
 
-class TestMiddleware extends Middleware {
-	public async handler(context: RequestContext) {
-		return true;
-	}
-
-}
 
 
-//@middleware(new TestMiddleware())
+
+@middleware(new TestMiddleware())
 @controller('/testing')
 export class TestingController extends Controller {
 
 	private someValue = false;
 
-	constructor(public testController? : TestController) {
+	constructor(public testController?: TestController) {
 		super();
 	}
 

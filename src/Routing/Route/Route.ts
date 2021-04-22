@@ -3,7 +3,7 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
 import {StatusCodes} from "http-status-codes";
 import {App, ConfigRepository} from "../../AppContainer";
-import {Log, METADATA} from "../../Common";
+import {DecoratorHelpers, Log, METADATA} from "../../Common";
 import {RequestContext} from "../Context/RequestContext";
 import {Response} from "../Context/Response/Response";
 import {Controller} from "../Controller/Controller";
@@ -193,17 +193,5 @@ export class Route {
 			}
 		};
 
-		//		return {
-		//			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
-		//				for (const middleware of middlewares) {
-		//					try {
-		//						await middleware.handler(request, response);
-		//					} catch (exception) {
-		////						return ExceptionHandler.transform(exception, response);
-		//						console.error(exception);
-		//					}
-		//				}
-		//			}
-		//		};
 	}
 }

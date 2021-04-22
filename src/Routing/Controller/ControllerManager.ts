@@ -91,7 +91,6 @@ export class ControllerManager {
 		const meta = this.getMeta(controller);
 
 		if (!meta?.controller && !meta?.methods) {
-			debugger
 			throw Error('Controller somehow has no meta defined... ' + controller.constructor.name);
 		}
 
