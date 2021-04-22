@@ -132,18 +132,6 @@ class Route {
                 yield middleware.handler(context);
             }
         });
-        //		return {
-        //			preHandler : async (request: FastifyRequest, response: FastifyReply) => {
-        //				for (const middleware of middlewares) {
-        //					try {
-        //						await middleware.handler(request, response);
-        //					} catch (exception) {
-        ////						return ExceptionHandler.transform(exception, response);
-        //						console.error(exception);
-        //					}
-        //				}
-        //			}
-        //		};
     }
 }
 exports.Route = Route;
