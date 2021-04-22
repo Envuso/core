@@ -1,7 +1,6 @@
 import {IsString, MinLength} from "class-validator";
-import {injectable} from "tsyringe";
-import {Authentication} from "../../../Authentication";
-import {Controller, controller, DataTransferObject, dto, method, middleware, Middleware, RequestContext} from "../../../Routing";
+import {Controller, controller, DataTransferObject, dto, get, method, middleware, Middleware, RequestContext, response} from "../../../Routing";
+import {User} from "../../Models/User";
 import {TestMiddleware} from "../Middleware/TestMiddleware";
 import {TestController} from "./TestController";
 
@@ -11,8 +10,6 @@ class DTO extends DataTransferObject {
 	@MinLength(1)
 	something: string;
 }
-
-
 
 
 @middleware(new TestMiddleware())
@@ -35,6 +32,26 @@ export class TestingController extends Controller {
 	@method(['GET', 'PUT'], '/testget')
 	async testMethods(@dto() dt: DTO) {
 
+	}
+
+	@get('/rmb/userobject/:user')
+	async testRouteModelBinding(user: User) {
+		return response().json(user);
+	}
+
+	@get('/rmb/userobject/obj/:user')
+	async testRouteModelBindingObj(user: User) {
+		return user;
+	}
+
+	@get('/rmb/uservalsobj/:user')
+	async testRouteModelBindingObjValues(user: User) {
+		return {_id : user._id};
+	}
+
+	@get('/rmb/uservals/:user')
+	async testRouteModelBindingValues(user: User) {
+		return response().json({_id : user._id});
 	}
 
 }

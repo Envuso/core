@@ -1,3 +1,4 @@
+import {Exclude} from "class-transformer";
 import {id, Model} from "../../Database";
 
 
@@ -7,4 +8,5 @@ export class User extends Model<User> {
 	_id: string;
 
 	something: string = 'hello';
+
 }

@@ -134,7 +134,7 @@ export class Response {
 	 * @param code
 	 */
 	json(data?: any, code?: StatusCodes) {
-		return this.setResponse(data || {}, code || StatusCodes.OK)
+		return this.setResponse(data || {}, code || StatusCodes.ACCEPTED)
 	}
 
 

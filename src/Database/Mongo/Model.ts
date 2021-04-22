@@ -1,8 +1,9 @@
-import {classToPlain} from "class-transformer";
+import {classToPlain, Exclude} from "class-transformer";
+import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, Cursor, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
 import {Container} from "winston";
-import {resolve} from "../../AppContainer";
+import {config, resolve} from "../../AppContainer";
 import {ClassType} from "../index";
 import {dehydrateModel, hydrateModel} from "../Serialization/Serializer";
 import {QueryBuilder} from "./QueryBuilder";
@@ -15,8 +16,11 @@ export class Model<M> {
 	 * is one. This way we always have access to it, and can return
 	 * generic true/false types of responses for some operations.
 	 */
+	@Exclude()
 	private _recentMongoResponse: any = null;
-	private _queryBuilder: QueryBuilder<M>;
+
+	@Exclude()
+	private readonly _queryBuilder: QueryBuilder<M>;
 
 	constructor() {
 		this._queryBuilder = new QueryBuilder<M>(this);
@@ -87,7 +91,7 @@ export class Model<M> {
 			(this as any)[attributesKey] = attributes[attributesKey];
 		}
 
-//		await this.refresh();
+		//		await this.refresh();
 	}
 
 	/**
@@ -128,7 +132,7 @@ export class Model<M> {
 			.where({_id : (this as any)._id})
 			.first();
 
-//		Object.keys(newVersion).forEach(key => this[key] = newVersion[key]);
+		//		Object.keys(newVersion).forEach(key => this[key] = newVersion[key]);
 		Object.assign(this, newVersion);
 	}
 
@@ -219,7 +223,7 @@ export class Model<M> {
 	 * @param {Partial<M>} attributes
 	 */
 	static async create<T extends Model<T>>(attributes: Partial<T>): Promise<T> {
-		const model = new Model<T>();
+		const model = new this<T>();
 		Object.assign(model, attributes);
 
 		await this.insert(model);
@@ -251,7 +255,7 @@ export class Model<M> {
 	}
 
 	static formatNameForCollection(str: string, many: boolean = false) {
-		return String(pluralize(str, many ? 2 : 1)).toLowerCase()
+		return String(pluralize(str, many ? 2 : 1)).toLowerCase();
 	}
 
 	/**
@@ -260,7 +264,10 @@ export class Model<M> {
 	 * that any @Exclude() properties etc are taken care of.
 	 */
 	toJSON() {
-		return classToPlain<M>(this.modelInstance()/*, Config.http.responseSerialization*/);
+		return classToPlain<M>(
+			this.modelInstance(),
+			config('server.responseSerialization') as ClassTransformOptions
+		);
 	}
 
 }

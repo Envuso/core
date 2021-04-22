@@ -1,3 +1,4 @@
+import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyPlugin, FastifyPluginOptions, FastifyServerOptions} from "fastify";
 import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
 
@@ -22,5 +23,19 @@ export default {
 	 * Any options to pass to fastify when it boots
 	 *
 	 */
-	fastifyOptions : {} as FastifyServerOptions
-}
+	fastifyOptions : {} as FastifyServerOptions,
+	/**
+	 * Before we return a response we serialize the result, mainly
+	 * so that class transformer can do it's work, but also to help
+	 * with random errors that occur from circular references.
+	 *
+	 * excludeExtraneousValues can induce results that you might not
+	 * expect but helps prevent internal references used in your code
+	 * and the framework from being returned in a response.
+	 */
+	responseSerialization : {
+		enableCircularCheck     : true,
+		strategy                : "exposeAll",
+//		excludeExtraneousValues : true,
+	} as ClassTransformOptions
+};

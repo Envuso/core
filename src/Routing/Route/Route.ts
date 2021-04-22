@@ -2,6 +2,7 @@ import {classToPlain, serialize} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
 import {StatusCodes} from "http-status-codes";
+import {ObjectId} from "mongodb";
 import {App, ConfigRepository} from "../../AppContainer";
 import {DecoratorHelpers, Log, METADATA} from "../../Common";
 import {RequestContext} from "../Context/RequestContext";
@@ -81,14 +82,10 @@ export class Route {
 			if (request)
 				httpContext = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
 
-			let controller;
-			try {
-				controller = App.getInstance().resolve<Controller>(
-					this.controllerMeta.controller.target
-				);
-			} catch (error) {
-				console.error(error);
-			}
+
+			const controller = App.getInstance().resolve<Controller>(
+				this.controllerMeta.controller.target
+			);
 
 			const routeMethod   = controller[this.methodMeta.key].bind(controller);
 			const routeResponse = await routeMethod(...parameters);
@@ -142,23 +139,24 @@ export class Route {
 		const responseSerializationConfig = App.getInstance()
 			.resolve(ConfigRepository)
 			.get<ClassTransformOptions>(
-				'http.responseSerialization', {
+				'server.responseSerialization', {
 					enableCircularCheck : true,
-					excludePrefixes     : ['_'],
 					strategy            : 'exposeAll'
 				} as ClassTransformOptions
 			);
 
 		if (!(controllerResponse instanceof Response)) {
 			return response.setResponse(
-				classToPlain(controllerResponse, responseSerializationConfig),
+				controllerResponse,//classToPlain(controllerResponse, responseSerializationConfig),
 				StatusCodes.ACCEPTED
 			).send();
 		}
 
-		controllerResponse.data = serialize(
-			controllerResponse.data, responseSerializationConfig
-		);
+
+
+//		controllerResponse.data = serialize(
+//			controllerResponse.data, responseSerializationConfig
+//		);
 
 		return controllerResponse.send();
 	}

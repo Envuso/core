@@ -1,7 +1,9 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {Log, METADATA} from "../../Common";
+import {Model} from "../../Database";
 import {MethodParameterDecorator} from "./RequestInjection";
 import {Route} from "./Route";
+import {param} from "./RouteDecorators";
 
 export class RouteManager {
 
@@ -36,13 +38,11 @@ export class RouteManager {
 
 		//TODO: Double check we actually need this, pretty sure that
 		//We figured out last night that, this was basically useless
-
-
-		const parameters = route.getMethodParameterTypes();
-
-		if (!parameters.length) {
-			return [];
-		}
+		// const parameters = route.getMethodParameterTypes();
+		//
+		// if (!parameters.length) {
+		// 	return [];
+		// }
 
 		const parameterArgs = [];
 
@@ -50,14 +50,16 @@ export class RouteManager {
 			const parameter = route.methodMeta.parameters[index];
 
 			//@TODO: Add route model binding back here...
-			/*if (parameter.type.prototype instanceof ModelEntity) {
-			 const identifier = request.params[parameter.name];
-			 const model      = await parameter.type.query().findById(new ObjectId(identifier)) ?? null;
+			if (parameter.type.prototype instanceof Model) {
+				const modelInstance: typeof Model = parameter.type;
 
-			 paramArgs.push(model);
+				const identifier = request.params[parameter.name];
+				const model      = await modelInstance.find(identifier) ?? null;
 
-			 continue;
-			 }*/
+				parameterArgs.push(model);
+
+				continue;
+			}
 
 			for (let metadataKey of this.methodParamTypesForInjection()) {
 
@@ -67,7 +69,7 @@ export class RouteManager {
 				);
 
 				if (!methodMeta) {
-					Log.info('Param '+route.methodMeta.key+' doesnt have meta for injector: '+metadataKey);
+					Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
 
 					continue;
 				}

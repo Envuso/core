@@ -3,6 +3,7 @@ import "reflect-metadata";
 import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
 import {TestingController} from "../App/Http/Controllers/TestingController";
+import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
 import {Config} from "../Config";
 import {Server} from "../Core";
@@ -15,50 +16,50 @@ const bootApp = async function () {
 	await app.loadServiceProviders();
 
 	await app.container().resolve(Server).initialise();
-}
+};
 
 beforeAll(() => {
 	return bootApp();
-})
+});
 
 describe('test route service provider', () => {
 
-//	test('route service provider loads controllers', async () => {
-//		const app = App.getInstance();
-//
-//		const controllerInst = app.resolve(TestingController);
-//
-//		expect(controllerInst).toBeTruthy();
-//	});
+	//	test('route service provider loads controllers', async () => {
+	//		const app = App.getInstance();
+	//
+	//		const controllerInst = app.resolve(TestingController);
+	//
+	//		expect(controllerInst).toBeTruthy();
+	//	});
 
-//	test('test initiating controllers', async () => {
-//		const app = App.getInstance();
-//
-//		expect(
-//			ControllerManager.getRoutesForController(app.resolve(TestingController))
-//		).toBeDefined();
-//	});
+	//	test('initiating controllers', async () => {
+	//		const app = App.getInstance();
+	//
+	//		expect(
+	//			ControllerManager.getRoutesForController(app.resolve(TestingController))
+	//		).toBeDefined();
+	//	});
 
 	test('test initiating controllers with no methods', async () => {
 		const app = App.getInstance();
 
-		expect(ControllerManager.initiateControllers()).toBeDefined()
+		expect(ControllerManager.initiateControllers()).toBeDefined();
 	});
 
 	test('making request to endpoint using methods & data transfer object', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
 
-			const res = await server._server.inject({
-				method  : 'POST',
-				url     : '/testing/get',
-				payload : {
-					something : '12345'
-				}
-			})
+		const res = await server._server.inject({
+			method  : 'POST',
+			url     : '/testing/get',
+			payload : {
+				something : '12345'
+			}
+		});
 
-			expect(res.statusCode).toEqual(202);
-			expect(res.body).toEqual("some newds");
+		expect(res.statusCode).toEqual(202);
+		expect(res.body).toEqual("some newds");
 
 	});
 
@@ -66,15 +67,15 @@ describe('test route service provider', () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
 
-			const res = await server._server.inject({
-				method  : 'POST',
-				url     : '/testing/get',
-				payload : {
-					something : ''
-				}
-			})
+		const res = await server._server.inject({
+			method  : 'POST',
+			url     : '/testing/get',
+			payload : {
+				something : ''
+			}
+		});
 
-			expect(res.statusCode).toEqual(500);
+		expect(res.statusCode).toEqual(500);
 
 	});
 
@@ -86,10 +87,10 @@ describe('test route service provider', () => {
 		expect(controller).toBeDefined();
 
 		const meta = ControllerManager.getMeta(controller.constructor);
-//		const meta = controller.getMeta();
+		//		const meta = controller.getMeta();
 
 		expect(meta.controller.path).toEqual('/testing');
-	})
+	});
 
 	test('controller method has GET method', async () => {
 		const app = App.getInstance();
@@ -117,7 +118,7 @@ describe('test route service provider', () => {
 
 		expect(meta.methods[0].path).toEqual('/get');
 		expect(meta.methods[0].method).toEqual('GET');
-	})
+	});
 
 	test('controller method has GET method with middleware', async () => {
 		const app = App.getInstance();
@@ -146,7 +147,7 @@ describe('test route service provider', () => {
 		expect(getController).toBeDefined();
 
 		const meta = ControllerManager.getMeta(getController.constructor);
-//		const meta = getController.getMeta();
+		//		const meta = getController.getMeta();
 
 		expect(meta.controller.path).toEqual('/test');
 		expect(meta.methods[0].path).toEqual('/get');
@@ -157,8 +158,7 @@ describe('test route service provider', () => {
 		expect(middlewareMeta).toBeDefined();
 		expect(middlewareMeta.middlewares).toBeDefined();
 		expect(middlewareMeta.middlewares[0]).toEqual(new TestMiddleware());
-	})
-
+	});
 
 	test('data transfer object validates', async () => {
 
@@ -178,39 +178,129 @@ describe('test route service provider', () => {
 			dto.throwIfFailed();
 		}).toThrow(new DtoValidationException(dto._validationErrors));
 
-	})
-	test('test hitting route with global middleware', async () => {
+	});
+	test('hitting route with global middleware', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
 
-			const res = await server._server.inject({
-				method  : 'GET',
-				url     : '/testing/get',
-				payload : {
-					something : ''
-				}
-			})
+		const res = await server._server.inject({
+			method  : 'GET',
+			url     : '/testing/get',
+			payload : {
+				something : ''
+			}
+		});
 
-			expect(res.statusCode).toEqual(500);
+		expect(res.statusCode).toEqual(500);
 
-	})
+	});
 
-	test('test using regular controller from container', async () => {
+	test('using regular controller from container', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
 
 
-			const res = await server._server.inject({
-				method  : 'post',
-				url     : '/testing/get',
-				payload : {
-					something : 'yeet'
-				}
-			})
+		const res = await server._server.inject({
+			method  : 'post',
+			url     : '/testing/get',
+			payload : {
+				something : 'yeet'
+			}
+		});
 
-			expect(res.statusCode).toEqual(202);
+		expect(res.statusCode).toEqual(202);
 
-	})
+	});
+
+	test('route model binding returning user object', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const user = await User.create<User>({something : 'woop'});
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/rmb/userobject/' + user._id,
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const body: any = JSON.parse(res.body);
+
+		expect(body._id).toEqual(user._id.toString());
+		expect(body.something).toEqual(user.something);
+		expect(res.statusCode).toEqual(202);
+
+	});
+
+	test('route model binding returning user object without response() helper', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const user = await User.create<User>({something : 'woop'});
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/rmb/userobject/obj/' + user._id,
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const body: any = JSON.parse(res.body);
+
+		expect(body._id).toEqual(user._id.toString());
+		expect(body.something).toEqual(user.something);
+		expect(res.statusCode).toEqual(202);
+
+	});
+
+	test('route model binding returning object user values', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const user = await User.create<User>({something : 'woop'});
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/rmb/uservalsobj/' + user._id,
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const body: any = JSON.parse(res.body);
+
+		expect(body._id).toEqual(user._id.toString());
+		expect(res.statusCode).toEqual(202);
+
+	});
+
+	test('route model binding returning user values', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const user = await User.create<User>({something : 'woop'});
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/rmb/uservals/' + user._id,
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const body: any = JSON.parse(res.body);
+
+		expect(body._id).toEqual(user._id.toString());
+		expect(res.statusCode).toEqual(202);
+
+	});
 
 });
 
