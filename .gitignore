@@ -2,7 +2,7 @@ lerna-debug.log
 /.idea/
 /node_modules/
 /Framework/
-/packages/
+/packages
 /storage/
 /.env
 /lerna.json
