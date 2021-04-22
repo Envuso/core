@@ -9,7 +9,7 @@
     "prep": "yarn build && cp package.json dist && cp readme.md dist && cd dist",
     "link": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn link",
     "dist": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn publish",
-    "prepublishOnly": "npm run build && npm version prerelease --preid=alpha",
+    "prepare": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
     "serve": "nodemon dist/main.js",
     "dev": "ts-node ./src/run-dev.ts"
