@@ -15,6 +15,6 @@ export declare class JwtAuthenticationProvider extends AuthenticationProvider {
     constructor(userProvider: UserProvider);
     getAuthenticationInformation(request: Request): string;
     validateAuthenticationInformation(credential: string): VerifiedTokenInterface | null;
-    authoriseRequest(request: Request): Promise<Authenticatable>;
+    authoriseRequest<T>(request: Request): Promise<Authenticatable<T>>;
     issueToken(id: string): string;
 }

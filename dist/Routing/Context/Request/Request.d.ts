@@ -90,5 +90,5 @@ export declare class Request {
      *
      * @returns {Authenticatable | null}
      */
-    user(): Authenticatable | null;
+    user<T>(): Authenticatable<T> | null;
 }

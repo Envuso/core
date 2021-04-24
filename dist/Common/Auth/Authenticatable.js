@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Authenticatable = void 0;
 const class_transformer_1 = require("class-transformer");
-const mongodb_1 = require("mongodb");
 const AppContainer_1 = require("../../AppContainer");
 const Authentication_1 = require("../../Authentication");
 const Database_1 = require("../../Database");
@@ -38,9 +37,5 @@ __decorate([
     class_transformer_1.Exclude(),
     __metadata("design:type", Object)
 ], Authenticatable.prototype, "_user", void 0);
-__decorate([
-    Database_1.id,
-    __metadata("design:type", mongodb_1.ObjectId)
-], Authenticatable.prototype, "_id", void 0);
 exports.Authenticatable = Authenticatable;
 //# sourceMappingURL=Authenticatable.js.map

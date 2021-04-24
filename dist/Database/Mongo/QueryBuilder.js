@@ -147,9 +147,7 @@ class QueryBuilder {
     update(attributes, options) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this._model.collection().updateMany(this._collectionFilter, {
-                $set: attributes
-            }, options);
+            const response = yield this._model.collection().updateMany(this._collectionFilter, attributes, options);
             if (options === null || options === void 0 ? void 0 : options.returnMongoResponse) {
                 return response;
             }
@@ -163,6 +161,19 @@ class QueryBuilder {
     cursor() {
         return __awaiter(this, void 0, void 0, function* () {
             return this._builderResult;
+        });
+    }
+    /**
+     * Delete any items from the collection specified in the where() clause
+     *
+     * @returns {Promise<boolean>}
+     */
+    delete() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deleteOperation = yield this._model
+                .collection()
+                .deleteMany(this._collectionFilter);
+            return !!deleteOperation.result.ok;
         });
     }
     /**

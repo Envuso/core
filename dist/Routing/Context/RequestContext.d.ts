@@ -8,7 +8,7 @@ export declare class RequestContext {
     request: Request;
     response: Response;
     container: DependencyContainer;
-    user: Authenticatable;
+    user: Authenticatable<any>;
     session: Session;
     constructor(request: FastifyRequest, response: FastifyReply);
     /**
@@ -55,5 +55,5 @@ export declare class RequestContext {
      * Set the currently authed user on the context(this will essentially authorise this user)
      * @param user
      */
-    setUser(user: Authenticatable): void;
+    setUser<T>(user: Authenticatable<T>): void;
 }

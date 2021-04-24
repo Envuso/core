@@ -1,4 +1,4 @@
-import { Cursor, UpdateManyOptions } from "mongodb";
+import { Cursor, FilterQuery, UpdateManyOptions, UpdateQuery } from "mongodb";
 import { Model } from "./Model";
 export declare class QueryBuilder<T> {
     /**
@@ -18,7 +18,7 @@ export declare class QueryBuilder<T> {
      *
      * @param attributes
      */
-    where<M>(attributes: Partial<M>): QueryBuilder<T>;
+    where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilder<T>;
     /**
      * Allows us to specify any model refs to load in this query
      *
@@ -63,13 +63,19 @@ export declare class QueryBuilder<T> {
      * @param options
      * @return boolean | UpdateWriteOpResult
      */
-    update(attributes: Partial<T>, options?: UpdateManyOptions & {
+    update(attributes: UpdateQuery<T> | Partial<T>, options?: UpdateManyOptions & {
         returnMongoResponse: boolean;
     }): Promise<boolean | import("mongodb").UpdateWriteOpResult>;
     /**
      * Get an instance of the underlying mongo cursor
      */
     cursor(): Promise<Cursor<T>>;
+    /**
+     * Delete any items from the collection specified in the where() clause
+     *
+     * @returns {Promise<boolean>}
+     */
+    delete(): Promise<boolean>;
     /**
      * Returns the count of items, filters if one was specified with .where()
      * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#estimatedDocumentCount

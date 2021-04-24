@@ -192,10 +192,13 @@ class Model {
     /**
      * Find an item using it's id and return it as a model.
      *
-     * @param id
+     * @param key
+     * @param field
      */
-    static find(id) {
-        return this.findOne({ _id: new mongodb_1.ObjectId(id) });
+    static find(key, field = '_id') {
+        return this.findOne({
+            [field]: field === '_id' ? new mongodb_1.ObjectId(key) : key
+        });
     }
     /**
      * Basically an alias of the {@see QueryBuilder.orderByDesc()}

@@ -86,7 +86,7 @@ export declare class Model<M> {
      *
      * @param attributes
      */
-    static where<T extends Model<T>>(attributes: Partial<T>): QueryBuilder<T>;
+    static where<T extends Model<T>>(attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T>;
     /**
      * Allows us to efficiently load relationships
      * Many to many or one to many
@@ -97,9 +97,10 @@ export declare class Model<M> {
     /**
      * Find an item using it's id and return it as a model.
      *
-     * @param id
+     * @param key
+     * @param field
      */
-    static find<T extends Model<T>>(id: string | ObjectId): Promise<T>;
+    static find<T extends Model<T>>(key: string | ObjectId, field?: keyof T | '_id'): Promise<T>;
     /**
      * Basically an alias of the {@see QueryBuilder.orderByDesc()}
      * that allows us to order and call get() or first()

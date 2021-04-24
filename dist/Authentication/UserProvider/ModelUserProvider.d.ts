@@ -8,13 +8,13 @@ export declare class ModelUserProvider extends UserProvider {
      *
      * @param id
      */
-    getUser(id: string): Promise<Authenticatable>;
+    getUser<T>(id: string): Promise<Authenticatable<T>>;
     /**
      * Get a user by it's primary auth identifier(for example, email)
      * Uses the model provided in Auth.ts config file(userModel)
      *
      * @param identifier
      */
-    userForIdentifier(identifier: AuthenticationIdentifier): Promise<Authenticatable>;
-    verifyLoginCredentials(credentials: AuthCredentialContract): Promise<Authenticatable>;
+    userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>>;
+    verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<Authenticatable<T>>;
 }
