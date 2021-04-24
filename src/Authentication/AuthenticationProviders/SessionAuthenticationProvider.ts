@@ -4,14 +4,14 @@ import {AuthenticationProvider} from "../AuthenticationProvider";
 
 export class SessionAuthenticationProvider extends AuthenticationProvider {
 
-	public async authoriseRequest(request: Request): Promise<Authenticatable> {
+	public async authoriseRequest<T>(request: Request): Promise<Authenticatable<T>> {
 		return Promise.resolve(undefined);
 	}
 
-	public getAuthenticationInformation(request: Request) {
+	public getAuthenticationInformation<T>(request: Request) {
 	}
 
-	public validateAuthenticationInformation(credential: any) {
+	public validateAuthenticationInformation<T>(credential: any) {
 	}
 
 }

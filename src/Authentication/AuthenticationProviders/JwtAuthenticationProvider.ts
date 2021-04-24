@@ -104,7 +104,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		);
 	}
 
-	public async authoriseRequest(request: Request): Promise<Authenticatable> {
+	public async authoriseRequest<T>(request: Request): Promise<Authenticatable<T>> {
 		const token = this.getAuthenticationInformation(request);
 
 		if (!token) {
@@ -123,13 +123,13 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 			return null;
 		}
 
-		const user = await this._userProvider.getUser(userId);
+		const user = await this._userProvider.getUser<T>(userId);
 
 		if (!user) {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user);
+		return new Authenticatable().setUser(user) as Authenticatable<T>;
 	}
 
 	public issueToken(id: string): string {

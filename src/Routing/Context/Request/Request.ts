@@ -157,7 +157,7 @@ export class Request {
 	 *
 	 * @returns {Authenticatable | null}
 	 */
-	user(): Authenticatable | null {
+	user<T>(): Authenticatable<T> | null {
 		return RequestContext.get().user ?? null;
 	}
 

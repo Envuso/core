@@ -1,22 +1,18 @@
 import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {ObjectId} from "mongodb";
 import {config, resolve} from "../../AppContainer";
 import {Authentication, JwtAuthenticationProvider} from "../../Authentication";
-import {id, Model} from "../../Database";
+import {Model} from "../../Database";
 
-export class Authenticatable extends Model<Authenticatable> {
+export class Authenticatable<T> extends Model<T> {
 
 	@Exclude()
 	private _user: any;
 
-	@id
-	_id: ObjectId;
-
 	generateToken() {
 		return resolve(Authentication)
 			.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider)
-			.issueToken(this._id as unknown as string);
+			.issueToken((this as any)._id as unknown as string);
 	}
 
 	setUser(user: any) {

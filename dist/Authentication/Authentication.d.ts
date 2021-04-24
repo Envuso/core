@@ -24,11 +24,11 @@ export declare class Authentication {
      *
      * @param user
      */
-    authoriseAs(user: Authenticatable): void;
+    authoriseAs(user: Authenticatable<any>): void;
     /**
      * Get the authenticated user
      */
-    user(): Authenticatable | null;
+    user<T>(): Authenticatable<T> | null;
     getAuthProvider<T extends AuthenticationProvider>(providerType: AuthenticationProviderParameter): T;
     isUsingProvider(providerType: AuthenticationProviderParameter): boolean;
     getUserProvider(): UserProvider;

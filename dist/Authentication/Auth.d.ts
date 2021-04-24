@@ -10,8 +10,8 @@ import { UserProvider } from "./UserProvider/UserProvider";
 export declare class Auth {
     static check(): boolean;
     static attempt(credentials: AuthCredentialContract): Promise<boolean>;
-    static authoriseAs(user: Authenticatable): void;
-    static user(): Authenticatable | null;
+    static authoriseAs<T>(user: Authenticatable<T>): void;
+    static user<T>(): Authenticatable<T> | null;
     static getAuthProvider<T extends AuthenticationProvider>(providerType: new (userProvider: UserProvider) => AuthenticationProvider): T;
     static getUserProvider(): UserProvider;
 }

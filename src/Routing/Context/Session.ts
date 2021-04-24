@@ -133,6 +133,6 @@ export class Session {
 	 * @returns {string}
 	 */
 	static getCookieName(): string {
-		return config('session.cookieName', 'sessionId') as string;
+		return config<string>('session.cookieName', 'sessionId');
 	}
 }

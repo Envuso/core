@@ -12,7 +12,7 @@ export class ModelUserProvider extends UserProvider {
 	 *
 	 * @param id
 	 */
-	public async getUser(id: string): Promise<Authenticatable> {
+	public async getUser<T>(id: string): Promise<Authenticatable<T>> {
 		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
 
 		const user: any = await userModel.find(id);
@@ -21,7 +21,7 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user);
+		return new Authenticatable().setUser(user) as Authenticatable<T>;
 	}
 
 	/**
@@ -30,7 +30,7 @@ export class ModelUserProvider extends UserProvider {
 	 *
 	 * @param identifier
 	 */
-	public async userForIdentifier(identifier: AuthenticationIdentifier): Promise<Authenticatable> {
+	public async userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>> {
 		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
 
 		const primaryIdentifier = resolve(ConfigRepository)
@@ -47,11 +47,11 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user);
+		return new Authenticatable().setUser(user) as Authenticatable<T>;
 
 	}
 
-	public async verifyLoginCredentials(credentials: AuthCredentialContract): Promise<Authenticatable> {
+	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<Authenticatable<T>> {
 		const primaryIdentifier = resolve(ConfigRepository).get<string>(
 			'auth.primaryIdentifier'
 		);
@@ -71,7 +71,7 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-		return user;
+		return user as Authenticatable<T>;
 	}
 
 }

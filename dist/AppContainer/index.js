@@ -27,10 +27,11 @@ const resolve = (identifier) => App_1.App.getInstance().resolve(identifier);
 exports.resolve = resolve;
 const app = () => App_1.App.getInstance();
 exports.app = app;
-const config = (key, _default = null) => {
-    if (key)
-        return App_1.App.getInstance().config().get(key, _default);
+function config(key, _default) {
+    if (key) {
+        return App_1.App.getInstance().config().get(key, _default !== null && _default !== void 0 ? _default : null);
+    }
     return App_1.App.getInstance().config();
-};
+}
 exports.config = config;
 //# sourceMappingURL=index.js.map

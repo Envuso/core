@@ -4,16 +4,16 @@ import {UserProvider} from "./UserProvider";
 
 export class BaseUserProvider extends UserProvider {
 
-	async getUser(id: string): Promise<Authenticatable> {
-		return new Authenticatable().setUser({id});
+	async getUser<T>(id: string): Promise<Authenticatable<T>> {
+		return new Authenticatable().setUser({id}) as Authenticatable<T>;
 	}
 
-	async userForIdentifier(identifier: AuthenticationIdentifier): Promise<Authenticatable> {
-		return new Authenticatable().setUser(identifier);
+	async userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>> {
+		return new Authenticatable().setUser(identifier) as Authenticatable<T>;
 	}
 
-	public async verifyLoginCredentials(credentials: AuthCredentialContract): Promise<Authenticatable> {
-		return new Authenticatable().setUser(credentials);
+	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<Authenticatable<T>> {
+		return new Authenticatable().setUser(credentials) as Authenticatable<T>;
 	}
 
 

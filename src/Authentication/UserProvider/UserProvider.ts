@@ -3,9 +3,9 @@ import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Aut
 
 export abstract class UserProvider {
 
-	abstract getUser(id: string): Promise<Authenticatable>
+	abstract getUser<T>(id: string): Promise<Authenticatable<T>>;
 
-	abstract userForIdentifier(identifier: AuthenticationIdentifier): Promise<Authenticatable>
+	abstract userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>>
 
-	abstract verifyLoginCredentials(credentials: AuthCredentialContract) : Promise<Authenticatable>;
+	abstract verifyLoginCredentials<T>(credentials: AuthCredentialContract) : Promise<Authenticatable<T>>;
 }

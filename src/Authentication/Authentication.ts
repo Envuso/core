@@ -85,7 +85,7 @@ export class Authentication {
 	 * Login with the provided credentials
 	 */
 	async attempt(credentials: AuthCredentialContract) {
-		const user: Authenticatable = await this._userProvider.verifyLoginCredentials(credentials);
+		const user: Authenticatable<any> = await this._userProvider.verifyLoginCredentials(credentials);
 
 		if (!user) {
 			return false;
@@ -101,7 +101,7 @@ export class Authentication {
 	 *
 	 * @param user
 	 */
-	public authoriseAs(user: Authenticatable) {
+	public authoriseAs(user: Authenticatable<any>) {
 		this.checkContextIsBound();
 
 		RequestContext.get().setUser(user);
@@ -110,7 +110,7 @@ export class Authentication {
 	/**
 	 * Get the authenticated user
 	 */
-	user(): Authenticatable | null {
+	user<T>(): Authenticatable<T> | null {
 		this.checkContextIsBound();
 
 		if (!this.check())

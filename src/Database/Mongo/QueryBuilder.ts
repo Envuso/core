@@ -1,4 +1,4 @@
-import {Cursor, FindOneOptions, UpdateManyOptions, WithoutProjection} from "mongodb";
+import {Cursor, FilterQuery, FindOneOptions, UpdateManyOptions, UpdateQuery, WithoutProjection} from "mongodb";
 //import {InvalidRefSpecified} from "../Exceptions/InvalidRefSpecified";
 import {ClassType, Ref} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
@@ -36,7 +36,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @param attributes
 	 */
-	public where<M>(attributes: Partial<M>): QueryBuilder<T> {
+	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilder<T> {
 		this._collectionFilter = attributes;
 
 		return this;
@@ -55,9 +55,9 @@ export class QueryBuilder<T> {
 
 			const refInfo: Ref = refs[ref];
 
-//			if (!refInfo) {
-//				throw new InvalidRefSpecified(this._model.constructor.name, String(ref));
-//			}
+			//			if (!refInfo) {
+			//				throw new InvalidRefSpecified(this._model.constructor.name, String(ref));
+			//			}
 
 			this._collectionAggregation.push({
 				$lookup : {
@@ -92,7 +92,7 @@ export class QueryBuilder<T> {
 		this._collectionOrder = {
 			key       : String(key),
 			direction : -1
-		}
+		};
 
 		return this;
 	}
@@ -131,7 +131,7 @@ export class QueryBuilder<T> {
 			const aggregation = [
 				{$match : this._collectionFilter},
 				...this._collectionAggregation
-			]
+			];
 
 			this._builderResult = this._model
 				.collection()
@@ -182,12 +182,10 @@ export class QueryBuilder<T> {
 	 * @param options
 	 * @return boolean | UpdateWriteOpResult
 	 */
-	public async update(attributes: Partial<T>, options?: UpdateManyOptions & { returnMongoResponse: boolean }) {
+	public async update(attributes: UpdateQuery<T> | Partial<T>, options?: UpdateManyOptions & { returnMongoResponse: boolean }) {
 		const response = await this._model.collection().updateMany(
 			this._collectionFilter,
-			{
-				$set : attributes
-			},
+			attributes,
 			options
 		);
 
@@ -205,6 +203,19 @@ export class QueryBuilder<T> {
 	 */
 	async cursor(): Promise<Cursor<T>> {
 		return this._builderResult;
+	}
+
+	/**
+	 * Delete any items from the collection specified in the where() clause
+	 *
+	 * @returns {Promise<boolean>}
+	 */
+	async delete() {
+		const deleteOperation = await this._model
+			.collection()
+			.deleteMany(this._collectionFilter);
+
+		return !!deleteOperation.result.ok;
 	}
 
 	/**

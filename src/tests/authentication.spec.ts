@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {FastifyRequest} from "fastify";
 import {App, ConfigRepository} from "../AppContainer";
-import {Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider} from "../Authentication";
+import {Auth, Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider} from "../Authentication";
 import {Authenticatable} from "../Common";
 import {Config} from "../Config";
 import {request, Request, RequestContext} from "../Routing";

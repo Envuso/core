@@ -20,11 +20,11 @@ export class Auth {
 		return resolve(Authentication).attempt(credentials);
 	}
 
-	public static authoriseAs(user: Authenticatable) {
+	public static authoriseAs<T>(user: Authenticatable<T>) {
 		return resolve(Authentication).authoriseAs(user);
 	}
 
-	public static user(): Authenticatable | null {
+	public static user<T>(): Authenticatable<T> | null {
 		return resolve(Authentication).user();
 	}
 

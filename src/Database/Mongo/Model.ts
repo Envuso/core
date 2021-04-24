@@ -30,7 +30,7 @@ export class Model<M> {
 	 * Access the underlying mongo collection for this model
 	 */
 	collection(): Collection<M> {
-		return resolve<Collection>(this.constructor.name + 'Model');
+		return resolve<Collection<M>>(this.constructor.name + 'Model');
 	}
 
 	/**
@@ -168,10 +168,10 @@ export class Model<M> {
 	 *
 	 * @param attributes
 	 */
-	static where<T extends Model<T>>(attributes: Partial<T>): QueryBuilder<T> {
+	static where<T extends Model<T>>(attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T> {
 		const model = (new this() as unknown as T);
 
-		return model.queryBuilder().where(attributes);
+		return model.queryBuilder().where<T>(attributes);
 	}
 
 	/**
@@ -189,10 +189,13 @@ export class Model<M> {
 	/**
 	 * Find an item using it's id and return it as a model.
 	 *
-	 * @param id
+	 * @param key
+	 * @param field
 	 */
-	static find<T extends Model<T>>(id: string | ObjectId): Promise<T> {
-		return this.findOne<T>({_id : new ObjectId(id)});
+	static find<T extends Model<T>>(key: string | ObjectId, field: keyof T | '_id' = '_id'): Promise<T> {
+		return this.findOne<T>({
+			[field] : field === '_id' ? new ObjectId(key) : key
+		});
 	}
 
 	/**

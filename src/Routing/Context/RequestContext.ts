@@ -13,7 +13,7 @@ export class RequestContext {
 	request: Request;
 	response: Response;
 	container: DependencyContainer;
-	user: Authenticatable;
+	user: Authenticatable<any>;
 	session: Session = null;
 
 	constructor(
@@ -102,10 +102,10 @@ export class RequestContext {
 	 * Set the currently authed user on the context(this will essentially authorise this user)
 	 * @param user
 	 */
-	public setUser(user: Authenticatable) {
-		const authedUser = new Authenticatable().setUser(user);
+	public setUser<T>(user: Authenticatable<T>) {
+		const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
 
-		this.container.register<Authenticatable>(
+		this.container.register<Authenticatable<T>>(
 			Authenticatable, {useValue : authedUser}
 		);
 

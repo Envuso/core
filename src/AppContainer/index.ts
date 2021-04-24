@@ -11,9 +11,15 @@ export {injectable, autoInjectable, singleton, scoped, inject, DependencyContain
 // Helper methods to resolve from the container a little easier/cleaner
 export const resolve = <T>(identifier: constructor<T> | string): T => App.getInstance().resolve<T>(identifier);
 export const app     = (): App => App.getInstance();
-export const config  = <T>(key?: string, _default: any = null): ConfigRepository | T => {
-	if (key)
-		return App.getInstance().config().get<T>(key, _default);
+
+function config(): ConfigRepository;
+function config<T>(key: string, _default?: any): T;
+function config<T>(key?: string, _default?: any): T | ConfigRepository {
+	if (key) {
+		return App.getInstance().config().get<T>(key, _default ?? null);
+	}
 
 	return App.getInstance().config();
-};
+}
+
+export {config};

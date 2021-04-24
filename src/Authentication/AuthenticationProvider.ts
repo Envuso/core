@@ -7,7 +7,7 @@ export abstract class AuthenticationProvider {
 
 	public abstract validateAuthenticationInformation(credential: any);
 
-	public abstract authoriseRequest(request: Request): Promise<Authenticatable>
+	public abstract authoriseRequest<T>(request: Request): Promise<Authenticatable<T>>
 
 	//	public abstract verifyLoginCredentials(credentials: AuthCredentialContract): Promise<Authenticatable>
 
