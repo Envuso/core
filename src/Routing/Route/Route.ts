@@ -1,10 +1,8 @@
-import {classToPlain, serialize} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
 import {StatusCodes} from "http-status-codes";
-import {ObjectId} from "mongodb";
 import {App, ConfigRepository} from "../../AppContainer";
-import {DecoratorHelpers, Log, METADATA} from "../../Common";
+import {Log, METADATA} from "../../Common";
 import {RequestContext} from "../Context/RequestContext";
 import {Response} from "../Context/Response/Response";
 import {Controller} from "../Controller/Controller";
@@ -147,7 +145,8 @@ export class Route {
 
 		if (!(controllerResponse instanceof Response)) {
 			return response.setResponse(
-				controllerResponse,//classToPlain(controllerResponse, responseSerializationConfig),
+				controllerResponse,
+				//classToPlain(controllerResponse, responseSerializationConfig),
 				StatusCodes.ACCEPTED
 			).send();
 		}

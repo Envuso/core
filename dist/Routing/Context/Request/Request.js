@@ -1,8 +1,17 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Request = void 0;
-const tslib_1 = require("tslib");
 const Storage_1 = require("../../../Storage");
+const RequestContext_1 = require("../RequestContext");
 const UploadedFile_1 = require("./UploadedFile");
 class Request {
     constructor(request) {
@@ -84,8 +93,13 @@ class Request {
      * @param _default
      */
     get(key, _default = null) {
-        var _a;
-        return (_a = this._request.body[key]) !== null && _a !== void 0 ? _a : _default;
+        if (this._request.body && this._request.body[key]) {
+            return this._request.body[key];
+        }
+        if (this._request.query && this._request.query[key]) {
+            return this._request.query[key];
+        }
+        return _default;
     }
     /**
      * Set file information that has been processed and is
@@ -94,7 +108,7 @@ class Request {
      * @param file
      */
     setUploadedFile(file) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const tempFileName = yield Storage_1.Storage.saveTemporaryFile(file.filename, file.file);
             this._uploadedFiles.push(new UploadedFile_1.UploadedFile(file, tempFileName));
         });
@@ -121,6 +135,16 @@ class Request {
         if (!this.hasFiles())
             return null;
         return (_a = this._uploadedFiles.find(f => f.getFieldName() === key)) !== null && _a !== void 0 ? _a : null;
+    }
+    /**
+     * Get the currently authenticated user.
+     * Returns null if user is not authenticated.
+     *
+     * @returns {Authenticatable | null}
+     */
+    user() {
+        var _a;
+        return (_a = RequestContext_1.RequestContext.get().user) !== null && _a !== void 0 ? _a : null;
     }
 }
 exports.Request = Request;

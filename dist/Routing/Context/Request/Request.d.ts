@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { FastifyRequest, HTTPMethods } from "fastify";
 import { Multipart } from "fastify-multipart";
+import { Authenticatable } from "../../../Common";
 import { UploadedFile } from "./UploadedFile";
 export declare class Request {
     private readonly _request;
@@ -61,7 +62,7 @@ export declare class Request {
      * @param key
      * @param _default
      */
-    get(key: string, _default?: any): any;
+    get<T>(key: string, _default?: any): T;
     /**
      * Set file information that has been processed and is
      * ready to upload/stream to s3 etc
@@ -83,4 +84,11 @@ export declare class Request {
      * @param key
      */
     file(key: string): UploadedFile | null;
+    /**
+     * Get the currently authenticated user.
+     * Returns null if user is not authenticated.
+     *
+     * @returns {Authenticatable | null}
+     */
+    user(): Authenticatable | null;
 }

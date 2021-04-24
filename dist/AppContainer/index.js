@@ -1,12 +1,21 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = exports.app = exports.resolve = exports.inject = exports.scoped = exports.singleton = exports.autoInjectable = exports.injectable = void 0;
-const tslib_1 = require("tslib");
 const App_1 = require("./App");
-tslib_1.__exportStar(require("./App"), exports);
-tslib_1.__exportStar(require("./ServiceProvider"), exports);
-tslib_1.__exportStar(require("./Config/ConfigRepository"), exports);
-tslib_1.__exportStar(require("./Exceptions/FailedToBindException"), exports);
+__exportStar(require("./ServiceProvider"), exports);
+__exportStar(require("./App"), exports);
+__exportStar(require("./Config/ConfigRepository"), exports);
+__exportStar(require("./Exceptions/FailedToBindException"), exports);
 var tsyringe_1 = require("tsyringe");
 Object.defineProperty(exports, "injectable", { enumerable: true, get: function () { return tsyringe_1.injectable; } });
 Object.defineProperty(exports, "autoInjectable", { enumerable: true, get: function () { return tsyringe_1.autoInjectable; } });

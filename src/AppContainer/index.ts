@@ -2,8 +2,8 @@ import {constructor} from "tsyringe/dist/typings/types";
 import {App} from "./App";
 import {ConfigRepository} from "./Config/ConfigRepository";
 
-export * from './App';
 export * from './ServiceProvider';
+export * from './App';
 export * from './Config/ConfigRepository';
 export * from './Exceptions/FailedToBindException';
 export {injectable, autoInjectable, singleton, scoped, inject, DependencyContainer} from 'tsyringe';

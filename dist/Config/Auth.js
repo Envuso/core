@@ -1,19 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const JwtAuthenticationProvider_1 = require("../Authentication/JwtAuthentication/JwtAuthenticationProvider");
-const BaseUserProvider_1 = require("../Authentication/UserProvider/BaseUserProvider");
+const Authentication_1 = require("../Authentication");
 exports.default = {
     /**
      * This will allow you to swap out authentication handling
      * and build your own custom providers for different things
      */
-    authenticationProvider: JwtAuthenticationProvider_1.JwtAuthenticationProvider,
+    authenticationProviders: [Authentication_1.JwtAuthenticationProvider, Authentication_1.SessionAuthenticationProvider],
     /**
      * This will allow you to change how the user is acquired
      * For example, you could write a provider to get user
      * information from an api endpoint, database etc
      */
-    userProvider: BaseUserProvider_1.BaseUserProvider,
+    userProvider: Authentication_1.BaseUserProvider,
     /**
      * This will allow users authentication to use email for primary login.
      * For example, you could change this to "username" instead if

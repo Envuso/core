@@ -1,4 +1,5 @@
-import { App, ConfigRepository, ServiceProvider } from "../AppContainer";
+import { ServiceProvider } from "../AppContainer/ServiceProvider";
+import { App, ConfigRepository } from "../AppContainer";
 import { Controller } from "./Controller/Controller";
 export declare class RouteServiceProvider extends ServiceProvider {
     register(app: App): Promise<void>;

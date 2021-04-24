@@ -67,7 +67,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		}
 	}
 
-	public getAuthenticationCredential(request: Request) {
+	public getAuthenticationInformation(request: Request) {
 		const authHeader = request.header('authorization');
 
 		if (!authHeader) {
@@ -92,7 +92,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		return null;
 	}
 
-	public verifyAuthenticationCredential(credential: string): VerifiedTokenInterface | null {
+	public validateAuthenticationInformation(credential: string): VerifiedTokenInterface | null {
 		if (!credential) {
 			return null;
 		}
@@ -105,13 +105,13 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 	}
 
 	public async authoriseRequest(request: Request): Promise<Authenticatable> {
-		const token = this.getAuthenticationCredential(request);
+		const token = this.getAuthenticationInformation(request);
 
 		if (!token) {
 			return null;
 		}
 
-		const verifiedToken = this.verifyAuthenticationCredential(token);
+		const verifiedToken = this.validateAuthenticationInformation(token);
 
 		if (!verifiedToken) {
 			return null;
@@ -129,32 +129,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 			return null;
 		}
 
-		return new Authenticatable(user);
-	}
-
-	public async verifyLoginCredentials(credentials: AuthCredentialContract) {
-
-		const primaryIdentifier = resolve(ConfigRepository).get<string>(
-			'auth.primaryIdentifier'
-		);
-
-		const user = await this._userProvider.userForIdentifier(
-			credentials[primaryIdentifier] as AuthenticationIdentifier
-		);
-
-		if (!user) {
-			return null;
-		}
-
-		// Ts ignore until we find a nicer solution for shared structure
-		//@ts-ignore
-		const password = user.password;
-
-		if (!Hash.check(credentials.password, password)) {
-			return null;
-		}
-
-		return user;
+		return new Authenticatable().setUser(user);
 	}
 
 	public issueToken(id: string): string {

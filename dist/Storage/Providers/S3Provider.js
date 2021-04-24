@@ -1,9 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.S3Provider = void 0;
-const tslib_1 = require("tslib");
 const aws_sdk_1 = require("aws-sdk");
-const fs_1 = tslib_1.__importDefault(require("fs"));
+const fs_1 = __importDefault(require("fs"));
 const Common_1 = require("../../Common");
 const StorageProviderContract_1 = require("../StorageProviderContract");
 class S3Provider extends StorageProviderContract_1.StorageProviderContract {

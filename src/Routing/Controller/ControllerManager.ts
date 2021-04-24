@@ -1,7 +1,6 @@
 import {injectable} from "tsyringe";
 import {App} from "../../AppContainer";
-import {DecoratorHelpers} from "../../Common/Decorators/DecoratorHelpers";
-import {METADATA} from "../../Common/Decorators/RoutingMetaData";
+import {DecoratorHelpers, METADATA} from "../../Common";
 import {Route} from "../Route/Route";
 import {RouteServiceProvider} from "../RouteServiceProvider";
 import {Controller} from "./Controller";

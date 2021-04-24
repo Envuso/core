@@ -1,10 +1,30 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Model = void 0;
-const tslib_1 = require("tslib");
 const class_transformer_1 = require("class-transformer");
 const mongodb_1 = require("mongodb");
-const pluralize_1 = tslib_1.__importDefault(require("pluralize"));
+const pluralize_1 = __importDefault(require("pluralize"));
 const winston_1 = require("winston");
 const AppContainer_1 = require("../../AppContainer");
 const Serializer_1 = require("../Serialization/Serializer");
@@ -52,7 +72,7 @@ class Model {
      * @param entity
      */
     static insert(entity) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const c = entity.collection();
             const plain = Serializer_1.dehydrateModel(entity);
             const res = yield c.insertOne(plain);
@@ -68,7 +88,7 @@ class Model {
      * @param options
      */
     update(attributes, options = {}) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const plain = Serializer_1.dehydrateModel(Object.assign(Object.assign({}, this), attributes));
             yield this.collection().replaceOne({
                 _id: this._id
@@ -85,7 +105,7 @@ class Model {
      * @param query
      */
     static findOne(query = {}) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const model = yield this.getCollection().findOne(query);
             return Serializer_1.hydrateModel(model, this);
         });
@@ -101,7 +121,7 @@ class Model {
      * @return this
      */
     save() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             if (!this._id)
                 yield Model.insert(this);
             else
@@ -113,7 +133,7 @@ class Model {
      * Get all the properties from the database for this model
      */
     refresh() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const newVersion = yield this.queryBuilder()
                 .where({ _id: this._id })
                 .first();
@@ -125,7 +145,7 @@ class Model {
      * Delete the current model instance from the collection
      */
     delete() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             yield this.collection().deleteOne({ _id: this._id });
         });
     }
@@ -134,7 +154,7 @@ class Model {
      * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
      */
     static get(query, options) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const cursor = yield this.getCollection().find(query, options);
             const results = yield cursor.toArray();
             return results.map(doc => Serializer_1.hydrateModel(doc, this));
@@ -144,7 +164,7 @@ class Model {
      * Count all the documents in the collection
      */
     static count() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             return this.where({}).count();
         });
     }
@@ -203,8 +223,8 @@ class Model {
      * @param {Partial<M>} attributes
      */
     static create(attributes) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const model = new Model();
+        return __awaiter(this, void 0, void 0, function* () {
+            const model = new this();
             Object.assign(model, attributes);
             yield this.insert(model);
             return yield this.find(model['_id']);
@@ -238,8 +258,17 @@ class Model {
      * that any @Exclude() properties etc are taken care of.
      */
     toJSON() {
-        return class_transformer_1.classToPlain(this.modelInstance() /*, Config.http.responseSerialization*/);
+        const options = AppContainer_1.config('server.responseSerialization');
+        return class_transformer_1.classToPlainFromExist(this, {}, options);
     }
 }
+__decorate([
+    class_transformer_1.Exclude(),
+    __metadata("design:type", Object)
+], Model.prototype, "_recentMongoResponse", void 0);
+__decorate([
+    class_transformer_1.Exclude(),
+    __metadata("design:type", QueryBuilder_1.QueryBuilder)
+], Model.prototype, "_queryBuilder", void 0);
 exports.Model = Model;
 //# sourceMappingURL=Model.js.map

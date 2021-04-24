@@ -1,7 +1,15 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteQueryParam = void 0;
-const tslib_1 = require("tslib");
 const Common_1 = require("../../../Common");
 const MethodParameterDecorator_1 = require("./MethodParameterDecorator");
 class RouteQueryParam extends MethodParameterDecorator_1.MethodParameterDecorator {
@@ -32,7 +40,7 @@ class RouteQueryParam extends MethodParameterDecorator_1.MethodParameterDecorato
         //		return this instanceof RouteQueryParam;
     }
     bind(request, response) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const paramValue = request.query[this.parameterName];
             const param = this.expectedParamType(paramValue);
             if (!param) {

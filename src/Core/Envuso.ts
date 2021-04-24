@@ -43,13 +43,6 @@ export class Envuso {
 	async serve() {
 		await this._server.initialise();
 
-//		this.addExceptionHandler(async (exception, request, reply) => {
-//			return response().setResponse({
-//				message : 'Something broken af yo',
-//				err     : exception.message
-//			}, StatusCodes.BAD_REQUEST);
-//		});
-
 		await this._server.listen();
 	}
 }

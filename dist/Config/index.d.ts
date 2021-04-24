@@ -1,12 +1,12 @@
 /// <reference types="node" />
-import { StorageServiceProvider } from "../Storage";
+import { StorageServiceProvider } from '../';
 export declare const Config: {
     app: {
         appKey: string;
         providers: (typeof StorageServiceProvider)[];
     };
     auth: {
-        authenticationProvider: typeof import("../Authentication").JwtAuthenticationProvider;
+        authenticationProviders: (typeof import("../Authentication").JwtAuthenticationProvider | typeof import("../Authentication").SessionAuthenticationProvider)[];
         userProvider: typeof import("../Authentication").BaseUserProvider;
         primaryIdentifier: keyof import("./Auth").AuthCredentialContract;
         jwt: {
@@ -17,7 +17,7 @@ export declare const Config: {
     };
     database: {
         mongo: import("./Database").MongoConnectionConfiguration;
-        redis: import("./Database").RedisDatabaseConfiguration;
+        redis: import("redis").ClientOpts;
     };
     storage: {
         defaultProvider: typeof import("../Storage").S3Provider;
@@ -27,5 +27,11 @@ export declare const Config: {
         port: number;
         fastifyPlugins: [import("fastify").FastifyPlugin<Record<never, never>>, import("fastify").FastifyPluginOptions][];
         fastifyOptions: import("fastify").FastifyServerOptions<import("http").Server, import("fastify").FastifyLoggerInstance>;
+        responseSerialization: import("class-transformer").ClassTransformOptions;
+    };
+    session: {
+        cookie: import("../Routing").CookieConfiguration;
+        cookieName: string;
+        encryptCookies: boolean;
     };
 };

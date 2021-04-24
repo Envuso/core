@@ -3,10 +3,13 @@ import { Authenticatable } from "../Common";
 import { AuthCredentialContract } from "../Config/Auth";
 import { AuthenticationProvider } from "./AuthenticationProvider";
 import { UserProvider } from "./UserProvider/UserProvider";
+declare type AuthenticationProviderParameter = new (userProvider: UserProvider) => AuthenticationProvider;
 export declare class Authentication {
-    private _provider;
+    private _providers;
     private _userProvider;
     constructor(config: ConfigRepository);
+    private setAuthenticationProviders;
+    private setUserProvider;
     private checkContextIsBound;
     /**
      * Is the user authenticated?
@@ -21,11 +24,13 @@ export declare class Authentication {
      *
      * @param user
      */
-    authoriseAs(user: typeof Authenticatable): void;
+    authoriseAs(user: Authenticatable): void;
     /**
      * Get the authenticated user
      */
     user(): Authenticatable | null;
-    getAuthProvider<T extends AuthenticationProvider>(): T;
+    getAuthProvider<T extends AuthenticationProvider>(providerType: AuthenticationProviderParameter): T;
+    isUsingProvider(providerType: AuthenticationProviderParameter): boolean;
     getUserProvider(): UserProvider;
 }
+export {};

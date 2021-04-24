@@ -1,11 +1,24 @@
 "use strict";
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LogService = void 0;
-const tslib_1 = require("tslib");
-const chalk_1 = tslib_1.__importDefault(require("chalk"));
+const chalk_1 = __importDefault(require("chalk"));
 const winston_1 = require("winston");
-const winston_daily_rotate_file_1 = tslib_1.__importDefault(require("winston-daily-rotate-file"));
-const { combine, timestamp, label, prettyPrint, printf, colorize, cli, ms } = winston_1.format;
+const winston_daily_rotate_file_1 = __importDefault(require("winston-daily-rotate-file"));
+const { combine, timestamp, label, prettyPrint, printf, colorize, cli, ms, errors } = winston_1.format;
 let instance = null;
 class LogService {
     constructor() {
@@ -16,7 +29,7 @@ class LogService {
             dirname: "./storage/logs",
             filename: "%DATE%-app.log",
             format: combine(winston_1.format.timestamp({ format: 'M/D HH:mm:ss.SSS' }), winston_1.format.ms(), printf((_a) => {
-                var { level, message, label, ms, timestamp } = _a, metadata = tslib_1.__rest(_a, ["level", "message", "label", "ms", "timestamp"]);
+                var { level, message, label, ms, timestamp } = _a, metadata = __rest(_a, ["level", "message", "label", "ms", "timestamp"]);
                 if (ms) {
                     if (ms.replace("ms", "").replace("+", "").replace("s", "") > 100) {
                         ms = `${ms}`;
@@ -41,7 +54,7 @@ class LogService {
             maxFiles: "14d"
         });
         const myFormat = printf((_a) => {
-            var { level, message, label, ms, timestamp } = _a, metadata = tslib_1.__rest(_a, ["level", "message", "label", "ms", "timestamp"]);
+            var { level, message, label, ms, timestamp, stack } = _a, metadata = __rest(_a, ["level", "message", "label", "ms", "timestamp", "stack"]);
             if (ms) {
                 if (ms.replace("ms", "").replace("+", "").replace("s", "") > 100) {
                     ms = chalk_1.default.redBright `${ms}`;
@@ -99,11 +112,15 @@ class LogService {
                 catch (error) {
                 }
             }
+            if (stack) {
+                message += `\n`;
+                message += stack;
+            }
             return msg;
         });
         const cliTransport = new winston_1.transports.Console({
             handleExceptions: true,
-            format: combine(winston_1.format.timestamp({ format: 'HH:mm:ss' }), ms(), myFormat),
+            format: combine(errors({ stack: true }), winston_1.format.timestamp({ format: 'HH:mm:ss' }), ms(), myFormat),
         });
         this.loggerInstance = winston_1.createLogger({
             levels: {

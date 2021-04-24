@@ -1,5 +1,5 @@
 import {Authenticatable} from "../../Common";
-import {AuthenticationIdentifier} from "../../Config/Auth";
+import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
 
 export abstract class UserProvider {
 
@@ -7,4 +7,5 @@ export abstract class UserProvider {
 
 	abstract userForIdentifier(identifier: AuthenticationIdentifier): Promise<Authenticatable>
 
+	abstract verifyLoginCredentials(credentials: AuthCredentialContract) : Promise<Authenticatable>;
 }

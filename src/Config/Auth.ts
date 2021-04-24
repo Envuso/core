@@ -1,6 +1,5 @@
 import {SignOptions, VerifyOptions} from "jsonwebtoken";
-import {JwtAuthenticationProvider} from "../Authentication/JwtAuthentication/JwtAuthenticationProvider";
-import {BaseUserProvider} from "../Authentication/UserProvider/BaseUserProvider";
+import {JwtAuthenticationProvider, BaseUserProvider, SessionAuthenticationProvider} from "../Authentication";
 
 export type AuthenticationIdentifier = keyof AuthCredentialContract;
 
@@ -15,7 +14,7 @@ export default {
 	 * This will allow you to swap out authentication handling
 	 * and build your own custom providers for different things
 	 */
-	authenticationProvider : JwtAuthenticationProvider,
+	authenticationProviders : [JwtAuthenticationProvider, SessionAuthenticationProvider],
 
 	/**
 	 * This will allow you to change how the user is acquired
@@ -55,4 +54,4 @@ export default {
 	}
 
 
-}
+};

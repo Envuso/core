@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ControllerManager = void 0;
 const tsyringe_1 = require("tsyringe");
 const AppContainer_1 = require("../../AppContainer");
-const DecoratorHelpers_1 = require("../../Common/Decorators/DecoratorHelpers");
-const RoutingMetaData_1 = require("../../Common/Decorators/RoutingMetaData");
+const Common_1 = require("../../Common");
 const Route_1 = require("../Route/Route");
 const RouteServiceProvider_1 = require("../RouteServiceProvider");
 class ControllerManager {
@@ -20,15 +19,15 @@ class ControllerManager {
             const currentMetadata = {
                 path: path,
                 target: target,
-                injectionParams: (_a = DecoratorHelpers_1.DecoratorHelpers.paramTypes(target)) !== null && _a !== void 0 ? _a : []
+                injectionParams: (_a = Common_1.DecoratorHelpers.paramTypes(target)) !== null && _a !== void 0 ? _a : []
             };
             //			autoInjectable()(target);
             tsyringe_1.injectable()(target);
             //const params = DecoratorHelpers.paramTypes(target);
-            Reflect.defineMetadata(RoutingMetaData_1.METADATA.CONTROLLER, currentMetadata, target);
-            const previousMetadata = Reflect.getMetadata(RoutingMetaData_1.METADATA.CONTROLLER, Reflect) || [];
+            Reflect.defineMetadata(Common_1.METADATA.CONTROLLER, currentMetadata, target);
+            const previousMetadata = Reflect.getMetadata(Common_1.METADATA.CONTROLLER, Reflect) || [];
             const newMetadata = [currentMetadata, ...previousMetadata];
-            Reflect.defineMetadata(RoutingMetaData_1.METADATA.CONTROLLER, newMetadata, Reflect);
+            Reflect.defineMetadata(Common_1.METADATA.CONTROLLER, newMetadata, Reflect);
         };
     }
     /**
@@ -54,8 +53,8 @@ class ControllerManager {
      */
     static getMeta(controller) {
         return {
-            controller: Reflect.getMetadata(RoutingMetaData_1.METADATA.CONTROLLER, controller),
-            methods: Reflect.getMetadata(RoutingMetaData_1.METADATA.CONTROLLER_METHODS, controller)
+            controller: Reflect.getMetadata(Common_1.METADATA.CONTROLLER, controller),
+            methods: Reflect.getMetadata(Common_1.METADATA.CONTROLLER_METHODS, controller)
         };
     }
     /**

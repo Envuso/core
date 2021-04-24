@@ -1,8 +1,15 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueryBuilder = void 0;
-const tslib_1 = require("tslib");
-const InvalidRefSpecified_1 = require("../Exceptions/InvalidRefSpecified");
 const Serializer_1 = require("../Serialization/Serializer");
 const Model_1 = require("./Model");
 class QueryBuilder {
@@ -30,9 +37,9 @@ class QueryBuilder {
         const refs = Reflect.getMetadata('mongo:refs', this._model) || {};
         for (let ref of refsToLoad) {
             const refInfo = refs[ref];
-            if (!refInfo) {
-                throw new InvalidRefSpecified_1.InvalidRefSpecified(this._model.constructor.name, String(ref));
-            }
+            //			if (!refInfo) {
+            //				throw new InvalidRefSpecified(this._model.constructor.name, String(ref));
+            //			}
             this._collectionAggregation.push({
                 $lookup: {
                     from: Model_1.Model.formatNameForCollection(refInfo.modelName, true),
@@ -110,7 +117,7 @@ class QueryBuilder {
      * Get the first result in the mongo Cursor
      */
     first() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             yield this.resolveFilter();
             const result = yield this._builderResult.limit(1).next();
             if (!result)
@@ -122,7 +129,7 @@ class QueryBuilder {
      * Get all items from the collection that match the query
      */
     get() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const cursor = yield this.resolveFilter();
             const results = yield cursor.toArray();
             return results.map(result => Serializer_1.hydrateModel(result, this._model.constructor));
@@ -139,7 +146,7 @@ class QueryBuilder {
      */
     update(attributes, options) {
         var _a;
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const response = yield this._model.collection().updateMany(this._collectionFilter, {
                 $set: attributes
             }, options);
@@ -154,7 +161,7 @@ class QueryBuilder {
      * Get an instance of the underlying mongo cursor
      */
     cursor() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             return this._builderResult;
         });
     }

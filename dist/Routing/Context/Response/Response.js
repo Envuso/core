@@ -2,12 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Response = void 0;
 const http_status_codes_1 = require("http-status-codes");
+const CookieJar_1 = require("../CookieJar");
 class Response {
     constructor(response) {
         this._response = response;
+        this._cookieJar = new CookieJar_1.CookieJar();
     }
     get fastifyReply() {
         return this._response;
+    }
+    cookieJar() {
+        return this._cookieJar;
     }
     set code(code) {
         this._code = code;
@@ -22,6 +27,24 @@ class Response {
     get data() {
         var _a;
         return (_a = this._data) !== null && _a !== void 0 ? _a : {};
+    }
+    /**
+     * Do we have x header set on the response?
+     *
+     * @param {string} header
+     * @returns {boolean}
+     */
+    hasHeader(header) {
+        return this.fastifyReply.hasHeader(header);
+    }
+    /**
+     * Get x header from the response
+     *
+     * @param {string} header
+     * @returns {string}
+     */
+    getHeader(header) {
+        return this.fastifyReply.getHeader(header);
     }
     /**
      * Apply a header to the response, this applies directly to the fastify response
@@ -103,7 +126,7 @@ class Response {
      * @param code
      */
     json(data, code) {
-        return this.setResponse(data || {}, code || http_status_codes_1.StatusCodes.OK);
+        return this.setResponse(data || {}, code || http_status_codes_1.StatusCodes.ACCEPTED);
     }
 }
 exports.Response = Response;

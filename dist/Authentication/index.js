@@ -1,10 +1,22 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
-tslib_1.__exportStar(require("./AuthenticationServiceProvider"), exports);
-tslib_1.__exportStar(require("./JwtAuthentication/JwtAuthenticationProvider"), exports);
-tslib_1.__exportStar(require("./UserProvider/BaseUserProvider"), exports);
-tslib_1.__exportStar(require("./UserProvider/UserProvider"), exports);
-tslib_1.__exportStar(require("./Authentication"), exports);
-tslib_1.__exportStar(require("./AuthenticationProvider"), exports);
+__exportStar(require("./AuthenticationServiceProvider"), exports);
+__exportStar(require("./UserProvider/BaseUserProvider"), exports);
+__exportStar(require("./UserProvider/ModelUserProvider"), exports);
+__exportStar(require("./UserProvider/UserProvider"), exports);
+__exportStar(require("./AuthenticationProviders/JwtAuthenticationProvider"), exports);
+__exportStar(require("./AuthenticationProviders/SessionAuthenticationProvider"), exports);
+__exportStar(require("./Authentication"), exports);
+__exportStar(require("./AuthenticationProvider"), exports);
+__exportStar(require("./Auth"), exports);
 //# sourceMappingURL=index.js.map

@@ -1,12 +1,13 @@
 import {TypeOptions} from "class-transformer";
 import {CollationDocument, FilterQuery} from "mongodb";
 
+export * from './DatabaseServiceProvider';
 export * from './Mongo/Model';
 export * from './Mongo/QueryBuilder';
 export * from './ModelDecorators';
-export * from './Exceptions/InvalidRefSpecified';
+//export * from './Exceptions/InvalidRefSpecified';
 export * from './Serialization/Serializer';
-export * from './DatabaseServiceProvider';
+export * from './Redis/Redis';
 
 export declare type ClassType<T> = {
 	new(...args: any[]): T;

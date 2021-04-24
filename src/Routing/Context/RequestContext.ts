@@ -1,10 +1,12 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DependencyContainer} from "tsyringe";
-import {App} from "../../AppContainer";
+import {App, resolve} from "../../AppContainer";
+import {Authentication, SessionAuthenticationProvider} from "../../Authentication";
 import {Authenticatable, METADATA} from "../../Common";
 import {Request} from "./Request/Request";
 import {RequestContextStore} from "./RequestContextStore";
 import {Response} from "./Response/Response";
+import {Session} from "./Session";
 
 export class RequestContext {
 
@@ -12,6 +14,7 @@ export class RequestContext {
 	response: Response;
 	container: DependencyContainer;
 	user: Authenticatable;
+	session: Session = null;
 
 	constructor(
 		request: FastifyRequest,
@@ -19,6 +22,18 @@ export class RequestContext {
 	) {
 		this.request  = new Request(request);
 		this.response = new Response(response);
+	}
+
+	/**
+	 * Set any cookies from the request into the cookie jar
+	 * If we're using cookie based sessions, prepare our session
+	 */
+	async initiateForRequest() {
+		this.response.cookieJar().setCookies(this.request.fastifyRequest);
+
+		if (resolve(Authentication).isUsingProvider(SessionAuthenticationProvider)) {
+			this.session = await Session.prepare(this.response.cookieJar());
+		}
 	}
 
 	/**
@@ -64,11 +79,31 @@ export class RequestContext {
 	}
 
 	/**
+	 * The developer may have disabled the session authentication provider
+	 * In which case, session will be null. We need to make sure we can
+	 * easily check this before interacting with any session logic
+	 *
+	 * @returns {boolean}
+	 */
+	static isUsingSession(): boolean {
+		return this.get().session !== null;
+	}
+
+	/**
+	 * Return the session instance
+	 *
+	 * @returns {Session}
+	 */
+	static session(): Session {
+		return this.get().session;
+	}
+
+	/**
 	 * Set the currently authed user on the context(this will essentially authorise this user)
 	 * @param user
 	 */
-	public setUser(user: typeof Authenticatable) {
-		const authedUser = new Authenticatable(user);
+	public setUser(user: Authenticatable) {
+		const authedUser = new Authenticatable().setUser(user);
 
 		this.container.register<Authenticatable>(
 			Authenticatable, {useValue : authedUser}

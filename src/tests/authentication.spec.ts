@@ -4,40 +4,26 @@ import {App, ConfigRepository} from "../AppContainer";
 import {Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider} from "../Authentication";
 import {Authenticatable} from "../Common";
 import {Config} from "../Config";
-import {Request, RequestContext} from "../Routing";
-
+import {request, Request, RequestContext} from "../Routing";
 
 
 const bootApp = async function () {
 	const app = await App.bootInstance({config : Config});
 	await app.loadServiceProviders();
-}
+};
 
 const unloadApp = async function () {
 	App.getInstance().container().reset();
 	await App.getInstance().unload();
-}
+};
 
 beforeEach(() => {
 	return bootApp();
-})
+});
 afterEach(() => {
 	return unloadApp();
-})
-
-
-describe('authentication package', () => {
-
-	test('can create authentication', async () => {
-		const app = App.getInstance();
-
-		const auth = app.resolve(Authentication);
-
-		expect(auth.getUserProvider()).toBeDefined();
-		expect(auth.getAuthProvider()).toBeDefined();
-	})
-
 });
+
 
 describe('jwt authentication', () => {
 
@@ -45,7 +31,7 @@ describe('jwt authentication', () => {
 		const app = App.getInstance();
 
 		app.resolve(ConfigRepository).set(
-			'auth.authenticationProvider', UserProvider
+			'auth.authenticationProviders', [UserProvider]
 		);
 
 		expect(() => {
@@ -68,12 +54,12 @@ describe('jwt authentication', () => {
 	test('can bind jwt authentication adapter', async () => {
 		const app = App.getInstance();
 
-		app.resolve(ConfigRepository).set('auth.authenticationProvider', JwtAuthenticationProvider);
+		app.resolve(ConfigRepository).set('auth.authenticationProviders', [JwtAuthenticationProvider]);
 		app.resolve(ConfigRepository).set('auth.userProvider', BaseUserProvider);
 
 		const auth = app.resolve(Authentication);
 
-		expect(auth.getAuthProvider()).toBeInstanceOf(JwtAuthenticationProvider);
+		expect(auth.getAuthProvider(JwtAuthenticationProvider)).toBeInstanceOf(JwtAuthenticationProvider);
 	});
 
 	test('can obtain jwt from header', async () => {
@@ -86,16 +72,20 @@ describe('jwt authentication', () => {
 			}
 		} as FastifyRequest);
 
-		const tokenRes = auth.getAuthProvider().getAuthenticationCredential(req);
+		const tokenRes = auth
+			.getAuthProvider(JwtAuthenticationProvider)
+			.getAuthenticationInformation(req);
 
 		expect(tokenRes).toEqual('12345');
-	})
+	});
 
 	test('can generate jwt', async () => {
 		const app  = App.getInstance();
 		const auth = app.resolve(Authentication);
 
-		const token = auth.getAuthProvider<JwtAuthenticationProvider>().issueToken('1234');
+		const token = auth
+			.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider)
+			.issueToken('1234');
 
 		expect(token).toBeDefined();
 	});
@@ -103,11 +93,11 @@ describe('jwt authentication', () => {
 	test('can verify jwt', async () => {
 		const app          = App.getInstance();
 		const auth         = app.resolve(Authentication);
-		const authProvider = auth.getAuthProvider<JwtAuthenticationProvider>();
+		const authProvider = auth.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider);
 
 		const token = authProvider.issueToken('1234');
 
-		const verified = authProvider.verifyAuthenticationCredential(token);
+		const verified = authProvider.validateAuthenticationInformation(token);
 
 		expect(verified).toBeDefined();
 		expect(verified.id).toEqual('1234');
@@ -118,7 +108,7 @@ describe('jwt authentication', () => {
 		const auth = app.resolve(Authentication);
 
 		RequestContext.bind(async () => {
-			const authProvider = auth.getAuthProvider<JwtAuthenticationProvider>();
+			const authProvider = auth.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider);
 
 			const jwt = authProvider.issueToken('12345');
 
@@ -132,13 +122,43 @@ describe('jwt authentication', () => {
 
 			expect(authed).toBeInstanceOf(Authenticatable);
 
-			auth.authoriseAs(<typeof Authenticatable>authed);
+			auth.authoriseAs(authed);
 
 			expect(auth.check()).toBeTruthy();
 			expect(auth.user()).toBeInstanceOf(Authenticatable);
 		});
 
 
-	})
+	});
+
+	test('can use request().user()', async () => {
+		const app  = App.getInstance();
+		const auth = app.resolve(Authentication);
+
+		RequestContext.bind(async () => {
+			const authProvider = auth.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider);
+
+			const jwt = authProvider.issueToken('12345');
+
+			const req = new Request({
+				headers : {
+					'authorization' : 'Bearer ' + jwt
+				}
+			} as FastifyRequest);
+
+			const authed = await authProvider.authoriseRequest(req);
+
+			expect(authed).toBeInstanceOf(Authenticatable);
+
+			auth.authoriseAs(authed);
+
+			expect(auth.check()).toBeTruthy();
+			expect(auth.user()).toBeInstanceOf(Authenticatable);
+			expect(request().user()).toBeInstanceOf(Authenticatable);
+			expect(request().user()).toBeDefined();
+		});
+
+
+	});
 
 });

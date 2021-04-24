@@ -1,8 +1,8 @@
 import {ConfigRepository, resolve} from "../../AppContainer";
-import {UserProvider} from "../../Authentication";
-import {Authenticatable} from "../../Common";
+import {Authenticatable, Hash} from "../../Common";
 import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
 import {Model} from "../../Database";
+import {UserProvider} from "./UserProvider";
 
 export class ModelUserProvider extends UserProvider {
 
@@ -21,7 +21,7 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-		return new Authenticatable(user);
+		return new Authenticatable().setUser(user);
 	}
 
 	/**
@@ -41,14 +41,37 @@ export class ModelUserProvider extends UserProvider {
 		const filter              = {} as Partial<AuthCredentialContract>;
 		filter[primaryIdentifier] = identifier;
 
-		const user : any = await userModel.where<Model<any>>(filter as any).first();
+		const user: any = await userModel.where<Model<any>>(filter as any).first();
 
 		if (!user?._id) {
 			return null;
 		}
 
-		return new Authenticatable(user);
+		return new Authenticatable().setUser(user);
 
+	}
+
+	public async verifyLoginCredentials(credentials: AuthCredentialContract): Promise<Authenticatable> {
+		const primaryIdentifier = resolve(ConfigRepository).get<string>(
+			'auth.primaryIdentifier'
+		);
+
+		const user = await this.userForIdentifier(
+			credentials[primaryIdentifier] as AuthenticationIdentifier
+		);
+
+		if (!user) {
+			return null;
+		}
+
+		// Ts ignore until we find a nicer solution for shared structure
+		//@ts-ignore
+		const password = user.password;
+		if (!Hash.check(credentials.password, password)) {
+			return null;
+		}
+
+		return user;
 	}
 
 }

@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { ClassTransformOptions } from "class-transformer/types/interfaces";
 import { FastifyPlugin, FastifyPluginOptions, FastifyServerOptions } from "fastify";
 declare const _default: {
     /**
@@ -14,5 +15,15 @@ declare const _default: {
      *
      */
     fastifyOptions: FastifyServerOptions<import("http").Server, import("fastify").FastifyLoggerInstance>;
+    /**
+     * Before we return a response we serialize the result, mainly
+     * so that class transformer can do it's work, but also to help
+     * with random errors that occur from circular references.
+     *
+     * excludeExtraneousValues can induce results that you might not
+     * expect but helps prevent internal references used in your code
+     * and the framework from being returned in a response.
+     */
+    responseSerialization: ClassTransformOptions;
 };
 export default _default;

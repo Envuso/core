@@ -1,11 +1,18 @@
-import {CacheServiceProvider, EncryptionServiceProvider, ServerServiceProvider} from "../Core";
-import {DatabaseServiceProvider} from "../Database";
-import {RouteServiceProvider} from "../Routing";
-import {AuthenticationServiceProvider} from "../Authentication";
-import {StorageServiceProvider} from "../Storage";
+import {
+	EncryptionServiceProvider,
+	AuthenticationServiceProvider,
+	RouteServiceProvider,
+	StorageServiceProvider,
+	CacheServiceProvider,
+	DatabaseServiceProvider,
+	ServerServiceProvider,
+
+} from '../';
+
 import Auth from "./Auth";
 import Database from "./Database";
 import Server from "./Server";
+import Session from "./Session";
 import Storage from "./Storage";
 
 export const Config = {
@@ -14,18 +21,19 @@ export const Config = {
 		appKey : '1234',
 
 		providers : [
+			DatabaseServiceProvider,
 			CacheServiceProvider,
 			EncryptionServiceProvider,
-			DatabaseServiceProvider,
-			StorageServiceProvider,
-			RouteServiceProvider,
 			AuthenticationServiceProvider,
-			ServerServiceProvider
+			RouteServiceProvider,
+			StorageServiceProvider,
+			ServerServiceProvider,
 		]
 	},
 
 	auth     : Auth,
 	database : Database,
 	storage  : Storage,
-	server   : Server
+	server   : Server,
+	session  : Session
 };

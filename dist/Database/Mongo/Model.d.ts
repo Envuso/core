@@ -7,7 +7,7 @@ export declare class Model<M> {
      * generic true/false types of responses for some operations.
      */
     private _recentMongoResponse;
-    private _queryBuilder;
+    private readonly _queryBuilder;
     constructor();
     /**
      * Access the underlying mongo collection for this model

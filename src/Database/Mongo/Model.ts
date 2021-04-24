@@ -1,6 +1,6 @@
-import {classToPlain, Exclude} from "class-transformer";
+import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {Collection, Cursor, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection} from "mongodb";
+import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
 import {Container} from "winston";
 import {config, resolve} from "../../AppContainer";
@@ -264,9 +264,12 @@ export class Model<M> {
 	 * that any @Exclude() properties etc are taken care of.
 	 */
 	toJSON() {
-		return classToPlain<M>(
-			this.modelInstance(),
-			config('server.responseSerialization') as ClassTransformOptions
+		const options = config('server.responseSerialization') as ClassTransformOptions;
+
+		return classToPlainFromExist(
+			this,
+			{},
+			options
 		);
 	}
 

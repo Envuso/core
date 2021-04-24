@@ -12,7 +12,8 @@
     "preparereeee": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
     "serve": "nodemon dist/main.js",
-    "dev": "ts-node ./src/run-dev.ts"
+    "dev": "ts-node ./src/Core/run-dev.ts",
+    "push": "yarn build && cp package.json dist/package.json && cd dist && yalc push"
   },
   "dependencies": {
     "@babel/core": "^7.13.14",
@@ -30,6 +31,8 @@
     "chalk": "^4.1.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "cookies": "^0.8.0",
+    "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "fastify": "^3.14.1",
     "fastify-multipart": "^4.0.3",
@@ -44,7 +47,7 @@
     "node-cache-redis": "^6.3.1",
     "node-fetch": "^2.6.1",
     "pluralize": "^8.0.0",
-    "redis": "^3.0.2",
+    "redis": "^3.1.2",
     "reflect-metadata": "^0.1.10",
     "simple-crypto-js": "^3.0.0",
     "tsyringe": "^4.5.0",
@@ -78,7 +81,10 @@
     "Core/**/*",
     "Database/**/*",
     "Routing/**/*",
-    "Storage/**/*"
+    "Storage/**/*",
+    "Cache/**/*",
+    "Crypt/**/*",
+    "index.*"
   ],
   "types": "./"
 }

@@ -1,5 +1,5 @@
 import SimpleCrypto from "simple-crypto-js";
-import {resolve} from "../../AppContainer";
+import {resolve} from "../AppContainer";
 
 export class Encryption {
 

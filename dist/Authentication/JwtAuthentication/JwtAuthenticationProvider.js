@@ -1,7 +1,15 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtAuthenticationProvider = void 0;
-const tslib_1 = require("tslib");
 const AppContainer_1 = require("../../AppContainer");
 const Common_1 = require("../../Common");
 const AuthenticationProvider_1 = require("../AuthenticationProvider");
@@ -66,7 +74,7 @@ class JwtAuthenticationProvider extends AuthenticationProvider_1.AuthenticationP
         return jsonwebtoken_1.verify(credential, this._appKey, this._config.jwtVerifyOptions);
     }
     authoriseRequest(request) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const token = this.getAuthenticationCredential(request);
             if (!token) {
                 return null;
@@ -83,11 +91,11 @@ class JwtAuthenticationProvider extends AuthenticationProvider_1.AuthenticationP
             if (!user) {
                 return null;
             }
-            return new Common_1.Authenticatable(user);
+            return new Common_1.Authenticatable().setUser(user);
         });
     }
     verifyLoginCredentials(credentials) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const primaryIdentifier = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('auth.primaryIdentifier');
             const user = yield this._userProvider.userForIdentifier(credentials[primaryIdentifier]);
             if (!user) {

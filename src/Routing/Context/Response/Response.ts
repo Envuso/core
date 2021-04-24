@@ -1,5 +1,6 @@
-import {FastifyReply} from "fastify";
+import {FastifyReply, FastifyRequest} from "fastify";
 import {StatusCodes} from "http-status-codes";
+import {CookieJar} from "../CookieJar";
 
 export class Response {
 
@@ -19,12 +20,25 @@ export class Response {
 	 */
 	private _code?: number | StatusCodes;
 
+	/**
+	 * Handles all cookies that will be sent on the request
+	 *
+	 * @type {CookieJar}
+	 * @private
+	 */
+	private _cookieJar: CookieJar;
+
 	constructor(response: FastifyReply) {
-		this._response = response;
+		this._response  = response;
+		this._cookieJar = new CookieJar();
 	}
 
 	get fastifyReply() {
 		return this._response;
+	}
+
+	cookieJar(): CookieJar {
+		return this._cookieJar;
 	}
 
 	set code(code: StatusCodes) {
@@ -41,6 +55,26 @@ export class Response {
 
 	get data() {
 		return this._data ?? {};
+	}
+
+	/**
+	 * Do we have x header set on the response?
+	 *
+	 * @param {string} header
+	 * @returns {boolean}
+	 */
+	hasHeader(header: string) {
+		return this.fastifyReply.hasHeader(header);
+	}
+
+	/**
+	 * Get x header from the response
+	 *
+	 * @param {string} header
+	 * @returns {string}
+	 */
+	getHeader(header: string) {
+		return this.fastifyReply.getHeader(header);
 	}
 
 	/**
@@ -117,15 +151,15 @@ export class Response {
 		return this.setResponse(data, StatusCodes.BAD_REQUEST);
 	}
 
-//	/**
-//	 * Send a validation failure response
-//	 * NOTE: This will throw a {@see ValidationException}, just to keep things structured.
-//	 * @param data
-//	 */
-//	validationFailure(data?: any) {
-//		throw new ValidationException(data);
-////		return this.setResponse(data, StatusCodes.UNPROCESSABLE_ENTITY);
-//	}
+	//	/**
+	//	 * Send a validation failure response
+	//	 * NOTE: This will throw a {@see ValidationException}, just to keep things structured.
+	//	 * @param data
+	//	 */
+	//	validationFailure(data?: any) {
+	//		throw new ValidationException(data);
+	////		return this.setResponse(data, StatusCodes.UNPROCESSABLE_ENTITY);
+	//	}
 
 	/**
 	 * Return json data
@@ -134,7 +168,7 @@ export class Response {
 	 * @param code
 	 */
 	json(data?: any, code?: StatusCodes) {
-		return this.setResponse(data || {}, code || StatusCodes.ACCEPTED)
+		return this.setResponse(data || {}, code || StatusCodes.ACCEPTED);
 	}
 
 

@@ -1,6 +1,8 @@
 import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
+import {Authenticatable} from "../../../Common";
 import {Storage} from "../../../Storage";
+import {RequestContext} from "../RequestContext";
 import {UploadedFile} from "./UploadedFile";
 
 export class Request {
@@ -95,8 +97,16 @@ export class Request {
 	 * @param key
 	 * @param _default
 	 */
-	get(key: string, _default: any = null) {
-		return this._request.body[key] ?? _default;
+	get<T>(key: string, _default: any = null): T {
+		if (this._request.body && this._request.body[key]) {
+			return this._request.body[key] as T;
+		}
+
+		if (this._request.query && this._request.query[key]) {
+			return this._request.query[key] as T;
+		}
+
+		return _default as T;
 	}
 
 	/**
@@ -141,5 +151,14 @@ export class Request {
 		) ?? null;
 	}
 
+	/**
+	 * Get the currently authenticated user.
+	 * Returns null if user is not authenticated.
+	 *
+	 * @returns {Authenticatable | null}
+	 */
+	user(): Authenticatable | null {
+		return RequestContext.get().user ?? null;
+	}
 
 }

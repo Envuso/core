@@ -1,10 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.id = exports.ids = exports.ref = exports.ignore = exports.nested = void 0;
-const tslib_1 = require("tslib");
 const class_transformer_1 = require("class-transformer");
 const mongodb_1 = require("mongodb");
-const pluralize_1 = tslib_1.__importDefault(require("pluralize"));
+const pluralize_1 = __importDefault(require("pluralize"));
 function addRef(name, ref, target) {
     const refs = Reflect.getMetadata('mongo:refs', target) || {};
     refs[name] = ref;

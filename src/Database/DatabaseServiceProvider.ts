@@ -1,9 +1,11 @@
 import {MongoClient} from "mongodb";
 import pluralize from "pluralize";
-import {App, app, ConfigRepository, resolve, ServiceProvider} from "../AppContainer";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
+import {App, app, ConfigRepository, resolve} from "../AppContainer";
 import {FileLoader} from "../Common";
 import {MongoConnectionConfiguration} from "../Config/Database";
 import path from 'path';
+import {RedisClientInstance} from "./Redis/RedisClientInstance";
 
 export class DatabaseServiceProvider extends ServiceProvider {
 
@@ -19,6 +21,8 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 	public async boot(app: App, config: ConfigRepository) {
 
+		// Initiate the connection to redis and prep the client for usage
+		RedisClientInstance.get();
 
 	}
 
@@ -26,8 +30,8 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		const modules = await FileLoader.importModulesFrom(
 			path.join(modulePath, '**', '*.ts')
 		);
-		const client = resolve(MongoClient);
-		const dbName = resolve(ConfigRepository).get<string>('database.mongo.name');
+		const client  = resolve(MongoClient);
+		const dbName  = resolve(ConfigRepository).get<string>('database.mongo.name');
 
 		for (let module of modules) {
 			const collection = client.db(dbName).collection<typeof module.instance>(

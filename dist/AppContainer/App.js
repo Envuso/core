@@ -1,10 +1,21 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
-const tslib_1 = require("tslib");
 //import "reflect-metadata";
 const Common_1 = require("../Common");
-const path_1 = tslib_1.__importDefault(require("path"));
+const path_1 = __importDefault(require("path"));
 const tsyringe_1 = require("tsyringe");
 const ConfigRepository_1 = require("./Config/ConfigRepository");
 const FailedToBindException_1 = require("./Exceptions/FailedToBindException");
@@ -43,7 +54,7 @@ class App {
      * Once called, we'll be able to access the app instance via {@see getInstance()}
      */
     static bootInstance(config) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             if (instance)
                 return instance;
             const app = new App();
@@ -57,7 +68,7 @@ class App {
      * Load any base Config/services we need
      */
     boot() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             if (this._booted)
                 return;
             yield this.prepareConfiguration();
@@ -112,7 +123,7 @@ class App {
      * @private
      */
     prepareConfiguration() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             this._container.registerSingleton(ConfigRepository_1.ConfigRepository);
             const configRepository = this._container.resolve(ConfigRepository_1.ConfigRepository);
             const cwd = process.cwd();
@@ -134,7 +145,7 @@ class App {
      * Will load all service providers from the app config
      */
     loadServiceProviders() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const providers = this.resolve(ConfigRepository_1.ConfigRepository).get('app.providers');
             if (!providers) {
                 throw new Error('No service providers found.');
@@ -174,7 +185,7 @@ class App {
      * The reason this exists is so that when writing tests, you can start from a clean slate.
      */
     unload() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             this._booted = false;
             instance = null;
             this.config().reset();

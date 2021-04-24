@@ -2,7 +2,7 @@ import chalk from "chalk";
 import {createLogger, format, Logger, transports} from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 
-const {combine, timestamp, label, prettyPrint, printf, colorize, cli, ms} = format;
+const {combine, timestamp, label, prettyPrint, printf, colorize, cli, ms, errors} = format;
 
 
 let instance = null;
@@ -45,7 +45,7 @@ export class LogService {
 			maxFiles      : "14d"
 		});
 
-		const myFormat = printf(({level, message, label, ms, timestamp, ...metadata}) => {
+		const myFormat = printf(({level, message, label, ms, timestamp, stack, ...metadata}) => {
 			if (ms) {
 				if (ms.replace("ms", "").replace("+", "").replace("s", "") > 100) {
 					ms = chalk.redBright`${ms}`;
@@ -109,12 +109,18 @@ export class LogService {
 				}
 			}
 
+			if (stack) {
+				message += `\n`;
+				message += stack;
+			}
+
 			return msg;
 		});
 
 		const cliTransport = new transports.Console({
 			handleExceptions : true,
 			format           : combine(
+				errors({stack : true}),
 				format.timestamp({format : 'HH:mm:ss'}),
 				ms(),
 				myFormat,

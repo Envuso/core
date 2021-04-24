@@ -1,7 +1,8 @@
 import SimpleCrypto from "simple-crypto-js";
 import {DependencyContainer} from "tsyringe";
-import {App, ServiceProvider} from "../../AppContainer";
-import {Log} from "../../Common";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
+import {App} from "../AppContainer";
+import {Log} from "../Common";
 
 export class EncryptionServiceProvider extends ServiceProvider {
 
@@ -13,10 +14,9 @@ export class EncryptionServiceProvider extends ServiceProvider {
 
 		app.container().register<SimpleCrypto>(SimpleCrypto, {
 			useFactory : (dependencyContainer: DependencyContainer) => {
-				return new SimpleCrypto(config.get('app.appKey'))
+				return new SimpleCrypto(config.get('app.appKey'));
 			}
 		});
-
 	}
 
 	public async boot() {

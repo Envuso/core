@@ -1,5 +1,6 @@
 import path from "path";
-import {App, ConfigRepository, ServiceProvider} from "../AppContainer";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
+import {App, ConfigRepository} from "../AppContainer";
 import {FileLoader, Log} from "../Common";
 import {Controller} from "./Controller/Controller";
 

@@ -1,8 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Str = void 0;
-const tslib_1 = require("tslib");
-const Obj_1 = tslib_1.__importDefault(require("./Obj"));
+const Obj_1 = __importDefault(require("./Obj"));
 class Str {
     /**
      * Uses math.random() to get a quick and dirty random string

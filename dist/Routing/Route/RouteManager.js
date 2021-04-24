@@ -1,8 +1,17 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteManager = void 0;
-const tslib_1 = require("tslib");
 const Common_1 = require("../../Common");
+const Database_1 = require("../../Database");
 const RequestInjection_1 = require("./RequestInjection");
 class RouteManager {
     /**
@@ -32,25 +41,26 @@ class RouteManager {
      * @param route
      */
     static parametersForRoute(request, response, route) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
             //TODO: Double check we actually need this, pretty sure that
             //We figured out last night that, this was basically useless
-            const parameters = route.getMethodParameterTypes();
-            if (!parameters.length) {
-                return [];
-            }
+            // const parameters = route.getMethodParameterTypes();
+            //
+            // if (!parameters.length) {
+            // 	return [];
+            // }
             const parameterArgs = [];
             for (let index in route.methodMeta.parameters) {
                 const parameter = route.methodMeta.parameters[index];
                 //@TODO: Add route model binding back here...
-                /*if (parameter.type.prototype instanceof ModelEntity) {
-                 const identifier = request.params[parameter.name];
-                 const model      = await parameter.type.query().findById(new ObjectId(identifier)) ?? null;
-    
-                 paramArgs.push(model);
-    
-                 continue;
-                 }*/
+                if (parameter.type.prototype instanceof Database_1.Model) {
+                    const modelInstance = parameter.type;
+                    const identifier = request.params[parameter.name];
+                    const model = (_a = yield modelInstance.find(identifier)) !== null && _a !== void 0 ? _a : null;
+                    parameterArgs.push(model);
+                    continue;
+                }
                 for (let metadataKey of this.methodParamTypesForInjection()) {
                     const methodMeta = RequestInjection_1.MethodParameterDecorator.getMethodMetadata(route.methodMeta.target[route.methodMeta.key], metadataKey);
                     if (!methodMeta) {

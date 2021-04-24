@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { FastifyReply } from "fastify";
 import { StatusCodes } from "http-status-codes";
+import { CookieJar } from "../CookieJar";
 export declare class Response {
     /**
      * Hold the original fastify reply so we can access/use it when needed
@@ -17,12 +18,34 @@ export declare class Response {
      * @private
      */
     private _code?;
+    /**
+     * Handles all cookies that will be sent on the request
+     *
+     * @type {CookieJar}
+     * @private
+     */
+    private _cookieJar;
     constructor(response: FastifyReply);
     get fastifyReply(): FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>;
+    cookieJar(): CookieJar;
     set code(code: StatusCodes);
     set data(data: any);
     get code(): StatusCodes;
     get data(): any;
+    /**
+     * Do we have x header set on the response?
+     *
+     * @param {string} header
+     * @returns {boolean}
+     */
+    hasHeader(header: string): boolean;
+    /**
+     * Get x header from the response
+     *
+     * @param {string} header
+     * @returns {string}
+     */
+    getHeader(header: string): string;
     /**
      * Apply a header to the response, this applies directly to the fastify response
      *

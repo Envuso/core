@@ -3,12 +3,19 @@ import { DependencyContainer } from "tsyringe";
 import { Authenticatable } from "../../Common";
 import { Request } from "./Request/Request";
 import { Response } from "./Response/Response";
+import { Session } from "./Session";
 export declare class RequestContext {
     request: Request;
     response: Response;
     container: DependencyContainer;
     user: Authenticatable;
+    session: Session;
     constructor(request: FastifyRequest, response: FastifyReply);
+    /**
+     * Set any cookies from the request into the cookie jar
+     * If we're using cookie based sessions, prepare our session
+     */
+    initiateForRequest(): Promise<void>;
     /**
      * We use async localstorage to help have context around the app without direct
      * access to our fastify request. We also bind this context class to the fastify request
@@ -31,8 +38,22 @@ export declare class RequestContext {
      */
     static response(): Response;
     /**
+     * The developer may have disabled the session authentication provider
+     * In which case, session will be null. We need to make sure we can
+     * easily check this before interacting with any session logic
+     *
+     * @returns {boolean}
+     */
+    static isUsingSession(): boolean;
+    /**
+     * Return the session instance
+     *
+     * @returns {Session}
+     */
+    static session(): Session;
+    /**
      * Set the currently authed user on the context(this will essentially authorise this user)
      * @param user
      */
-    setUser(user: typeof Authenticatable): void;
+    setUser(user: Authenticatable): void;
 }

@@ -41,14 +41,30 @@ export class Server {
 
 		await this._server.register(middie);
 
+		// Handled just before our controllers receive/process the request
+		// This handler needs to work by it-self to provide the context
 		this._server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
 			(new RequestContext(request, response)).bind(done);
 		});
 
+		// Handled just before our controllers receive/process the request
 		this._server.addHook('preHandler', async (request: FastifyRequest, response: FastifyReply) => {
+			await RequestContext.get().initiateForRequest();
+
 			if (request.isMultipart())
 				await UploadedFile.addToRequest(request);
-		})
+		});
+
+		// Handled before the response is sent to the client
+		this._server.addHook('onSend', async (request: FastifyRequest, response: FastifyReply) => {
+			RequestContext.response().cookieJar().setCookiesOnResponse();
+		});
+
+		// Handled after the response has been sent to the client
+		this._server.addHook('onResponse', async (request: FastifyRequest, response: FastifyReply) => {
+			if (RequestContext.isUsingSession())
+				await RequestContext.session().save();
+		});
 
 		this._server.addHook('onError', (request, reply, error, done) => {
 			Log.error(error.message);
@@ -70,7 +86,7 @@ export class Server {
 	 */
 	private registerControllers() {
 
-//		this._server.register((instance, opts, done) => {
+		//		this._server.register((instance, opts, done) => {
 
 		const controllers = ControllerManager.initiateControllers();
 
@@ -87,20 +103,20 @@ export class Server {
 						if (handler) {
 							const context = RequestContext.get();
 
-							await handler(context)
+							await handler(context);
 						}
 					},
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
 						await this.handleException(error, request, reply);
 					}
-				})
+				});
 
 				Log.info(`Route Loaded: ${controller.controller.constructor.name}(${route.getMethod()} ${route.getPath()})`);
 			}
 		}
 
-//			done();
-//		})
+		//			done();
+		//		})
 
 	}
 
@@ -117,7 +133,7 @@ export class Server {
 
 		plugins.forEach(plugin => {
 			this._server.register(plugin[0], plugin[1]);
-		})
+		});
 	}
 
 	/**

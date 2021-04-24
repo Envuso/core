@@ -1,5 +1,5 @@
 import {Cursor, FindOneOptions, UpdateManyOptions, WithoutProjection} from "mongodb";
-import {InvalidRefSpecified} from "../Exceptions/InvalidRefSpecified";
+//import {InvalidRefSpecified} from "../Exceptions/InvalidRefSpecified";
 import {ClassType, Ref} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Model} from "./Model";
@@ -55,9 +55,9 @@ export class QueryBuilder<T> {
 
 			const refInfo: Ref = refs[ref];
 
-			if (!refInfo) {
-				throw new InvalidRefSpecified(this._model.constructor.name, String(ref));
-			}
+//			if (!refInfo) {
+//				throw new InvalidRefSpecified(this._model.constructor.name, String(ref));
+//			}
 
 			this._collectionAggregation.push({
 				$lookup : {
