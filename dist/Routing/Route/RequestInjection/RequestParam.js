@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RequestParam = void 0;
 const Common_1 = require("../../../Common");
+const RequestContext_1 = require("../../Context/RequestContext");
 const MethodParameterDecorator_1 = require("./MethodParameterDecorator");
 class RequestParam extends MethodParameterDecorator_1.MethodParameterDecorator {
     constructor() {
@@ -32,7 +33,7 @@ class RequestParam extends MethodParameterDecorator_1.MethodParameterDecorator {
     }
     bind(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            return request;
+            return RequestContext_1.RequestContext.get().request;
         });
     }
 }
