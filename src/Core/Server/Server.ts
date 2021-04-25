@@ -1,3 +1,4 @@
+import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import fastify, {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
@@ -6,6 +7,13 @@ import {Log} from "../../Common";
 import {ControllerManager, RequestContext, Response, UploadedFile} from "../../Routing";
 
 export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
+
+interface ServerConfiguration {
+	port: number;
+	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
+	fastifyOptions: FastifyServerOptions;
+	responseSerialization: ClassTransformOptions;
+}
 
 export class Server {
 
@@ -29,15 +37,23 @@ export class Server {
 	private _customErrorHandler: ErrorHandlerFn | null = null;
 
 	/**
+	 * Configuration from the Server.ts config file
+	 *
+	 * @type {ServerConfiguration}
+	 * @private
+	 */
+	private _config: ServerConfiguration;
+
+	/**
 	 * Initialise fastify, add all routes to the application and apply any middlewares
 	 */
 	public async initialise() {
 		if (this._server)
 			throw new Error('Server has already been built');
 
-		this._server = fastify(
-			resolve(ConfigRepository).get<FastifyServerOptions>('server.fastifyOptions')
-		);
+		this._config = resolve(ConfigRepository).get<ServerConfiguration>('server');
+
+		this._server = fastify(this._config.fastifyOptions);
 
 		await this._server.register(middie);
 
@@ -126,12 +142,7 @@ export class Server {
 	 * @private
 	 */
 	private registerPlugins() {
-		const plugins = resolve(ConfigRepository)
-			.get<Array<[FastifyPlugin, FastifyPluginOptions]>>(
-				'server.fastifyPlugins'
-			);
-
-		plugins.forEach(plugin => {
+		this._config.fastifyPlugins.forEach(plugin => {
 			this._server.register(plugin[0], plugin[1]);
 		});
 	}
@@ -140,9 +151,9 @@ export class Server {
 	 * Begin listening for connections
 	 */
 	async listen() {
-		await this._server.listen(3000);
+		await this._server.listen(this._config.port);
 
-		Log.success('Server is running at http://127.0.0.1:3000');
+		Log.success('Server is running at http://127.0.0.1:' + this._config.port);
 	}
 
 	public setErrorHandling(handler: ErrorHandlerFn) {

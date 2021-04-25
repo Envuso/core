@@ -2,6 +2,7 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyPlugin, FastifyPluginOptions, FastifyServerOptions} from "fastify";
 import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
 
+
 export default {
 
 	/**
