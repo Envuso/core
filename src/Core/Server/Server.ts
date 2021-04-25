@@ -1,5 +1,7 @@
+import {Cors} from "aws-sdk/clients/apigatewayv2";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import fastify, {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
+import {FastifyCorsOptions} from "fastify-cors";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
 import {ConfigRepository, resolve} from "../../AppContainer";
@@ -8,8 +10,15 @@ import {ControllerManager, RequestContext, Response, UploadedFile} from "../../R
 
 export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
 
+interface CorsConfiguration {
+	enabled: boolean;
+	options: FastifyCorsOptions;
+}
+
+
 interface ServerConfiguration {
 	port: number;
+	cors: CorsConfiguration;
 	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
 	fastifyOptions: FastifyServerOptions;
 	responseSerialization: ClassTransformOptions;
@@ -57,14 +66,27 @@ export class Server {
 
 		await this._server.register(middie);
 
+		this.registerPlugins();
+
 		// Handled just before our controllers receive/process the request
 		// This handler needs to work by it-self to provide the context
 		this._server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
+			//If this request is a cors preflight request... we don't want to handle our internal logic.
+			if ((request as any).corsPreflightEnabled) {
+				done();
+				return;
+			}
+
 			(new RequestContext(request, response)).bind(done);
 		});
 
 		// Handled just before our controllers receive/process the request
 		this._server.addHook('preHandler', async (request: FastifyRequest, response: FastifyReply) => {
+			//If this request is a cors preflight request... we don't want to handle our internal logic.
+			if ((request as any).corsPreflightEnabled) {
+				return;
+			}
+
 			await RequestContext.get().initiateForRequest();
 
 			if (request.isMultipart())
@@ -73,11 +95,21 @@ export class Server {
 
 		// Handled before the response is sent to the client
 		this._server.addHook('onSend', async (request: FastifyRequest, response: FastifyReply) => {
+			//If this request is a cors preflight request... we don't want to handle our internal logic.
+			if ((request as any).corsPreflightEnabled) {
+				return;
+			}
+
 			RequestContext.response().cookieJar().setCookiesOnResponse();
 		});
 
 		// Handled after the response has been sent to the client
 		this._server.addHook('onResponse', async (request: FastifyRequest, response: FastifyReply) => {
+			//If this request is a cors preflight request... we don't want to handle our internal logic.
+			if ((request as any).corsPreflightEnabled) {
+				return;
+			}
+
 			if (RequestContext.isUsingSession())
 				await RequestContext.session().save();
 		});
@@ -89,7 +121,6 @@ export class Server {
 			done();
 		});
 
-		this.registerPlugins();
 		this.registerControllers();
 
 		return this._server;
@@ -142,6 +173,21 @@ export class Server {
 	 * @private
 	 */
 	private registerPlugins() {
+
+		// We have to make sure the cors configuration aligns with the framework configuration.
+		if (this._config.cors.enabled) {
+			this._config.fastifyPlugins.push([
+				require('fastify-cors'),
+				{
+					...this._config.cors.options,
+					...{
+						optionsSuccessStatus : 202,
+						preflightContinue    : true
+					}
+				}
+			]);
+		}
+
 		this._config.fastifyPlugins.forEach(plugin => {
 			this._server.register(plugin[0], plugin[1]);
 		});

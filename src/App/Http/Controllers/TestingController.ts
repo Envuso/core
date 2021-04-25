@@ -1,6 +1,7 @@
 import {IsString, MinLength} from "class-validator";
 import {Auth} from "../../../Authentication";
 import {
+	body,
 	context,
 	Controller,
 	controller,
@@ -9,7 +10,7 @@ import {
 	get,
 	method,
 	middleware,
-	Middleware, param, query, request,
+	Middleware, param, post, query, request,
 	RequestContext,
 	response,
 	session
@@ -30,14 +31,12 @@ class DTO extends DataTransferObject {
 @controller('/testing')
 export class TestingController extends Controller {
 
-	private someValue = false;
-
 	constructor(public testController?: TestController) {
 		super();
 	}
 
 	@get('/decorator/param')
-	async testQueryParamDecorator(@query message : string) {
+	async testQueryParamDecorator(@query message: string) {
 		return message;
 	}
 
@@ -64,9 +63,7 @@ export class TestingController extends Controller {
 
 	@method(['POST', 'GET'], '/get')
 	async testGet(@dto() dt: DTO) {
-		this.someValue = true;
-
-		return this.testController.gimmeInfo();
+		return "some info";
 	}
 
 	@method(['GET', 'PUT'], '/testget')
@@ -92,6 +89,16 @@ export class TestingController extends Controller {
 	@get('/rmb/uservals/:user')
 	async testRouteModelBindingValues(user: User) {
 		return response().json({_id : user._id});
+	}
+
+	@get('something')
+	async something() {
+		return {msg : 'hello'};
+	}
+
+	@post('/body')
+	async testBody(@body body : any) {
+		return body.value;
 	}
 
 }

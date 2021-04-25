@@ -1,9 +1,9 @@
-import {IsString} from "class-validator";
-import {injectable} from "tsyringe";
-import {Controller, controller, DataTransferObject, dto, post, request} from "../../../Routing";
+import {IsString, Length} from "class-validator";
+import {Controller, controller, DataTransferObject, dto, post, request, } from "../../../Routing";
 
 class dtoshit extends DataTransferObject {
 	@IsString()
+	@Length(3, 20)
 	something: string;
 }
 
@@ -19,6 +19,7 @@ export class TestController extends Controller {
 
 	@post('/test')
 	async testMethod(@dto() dto: dtoshit) {
+		dto.validate()
 
 		return {id : request().fastifyRequest.id, dto}
 	}
@@ -29,10 +30,6 @@ export class TestController extends Controller {
 		const upload = await file.store('testing')
 
 		return {message : 'woot'};
-	}
-
-	gimmeInfo() {
-		return 'some newds';
 	}
 
 }

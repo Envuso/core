@@ -59,7 +59,7 @@ describe('test route service provider', () => {
 		});
 
 		expect(res.statusCode).toEqual(202);
-		expect(res.body).toEqual("some newds");
+		expect(res.body).toEqual("some info");
 
 	});
 
@@ -315,6 +315,27 @@ describe('test route service provider', () => {
 		const body: any = JSON.parse(res.body);
 
 		expect(body._id).toEqual(user._id.toString());
+		expect(res.statusCode).toEqual(202);
+
+	});
+
+	test('body decorator returning value', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method  : 'post',
+			url     : '/testing/body',
+			payload : {
+				value : 'testing'
+			},
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		expect(res.body).toEqual('testing');
 		expect(res.statusCode).toEqual(202);
 
 	});
