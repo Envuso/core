@@ -30,7 +30,7 @@ class Auth {
         return AppContainer_1.resolve(Authentication_1.Authentication).authoriseAs(user);
     }
     static user() {
-        return AppContainer_1.resolve(Authentication_1.Authentication).user();
+        return AppContainer_1.resolve(Authentication_1.Authentication).user().getUser();
     }
     static getAuthProvider(providerType) {
         return AppContainer_1.resolve(Authentication_1.Authentication).getAuthProvider(providerType);

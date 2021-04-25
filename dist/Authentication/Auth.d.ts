@@ -11,7 +11,7 @@ export declare class Auth {
     static check(): boolean;
     static attempt(credentials: AuthCredentialContract): Promise<boolean>;
     static authoriseAs<T>(user: Authenticatable<T>): void;
-    static user<T>(): Authenticatable<T> | null;
+    static user<T>(): T;
     static getAuthProvider<T extends AuthenticationProvider>(providerType: new (userProvider: UserProvider) => AuthenticationProvider): T;
     static getUserProvider(): UserProvider;
 }

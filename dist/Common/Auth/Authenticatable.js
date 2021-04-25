@@ -25,6 +25,9 @@ class Authenticatable extends Database_1.Model {
         this._user = user;
         return this;
     }
+    getUser() {
+        return this._user;
+    }
     toJSON() {
         const options = AppContainer_1.config('server.responseSerialization');
         const obj = class_transformer_1.classToPlainFromExist(this._user ? this._user : this, {}, options);
