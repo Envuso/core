@@ -10,6 +10,21 @@ exports.default = {
      */
     port: 3000,
     /**
+     * Cors is automatically configured internally due to some framework
+     * configuration that needs to align. But you can also adjust the
+     * configuration you wish to use here.
+     */
+    cors: {
+        enabled: true,
+        options: {
+            origin: [
+                "https://chatreward.test",
+                "https://app.chatreward.test",
+            ],
+            credentials: true,
+        }
+    },
+    /**
      * Server providers are Fastify Plugins that you register to the server when it's booted.
      */
     fastifyPlugins: [
@@ -17,7 +32,6 @@ exports.default = {
             fastify_multipart_1.default,
             {}
         ],
-        [require('fastify-cors')],
         [require('fastify-helmet'), { contentSecurityPolicy: false }]
     ],
     /**

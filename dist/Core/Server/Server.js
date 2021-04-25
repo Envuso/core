@@ -41,23 +41,41 @@ class Server {
             this._config = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('server');
             this._server = fastify_1.default(this._config.fastifyOptions);
             yield this._server.register(middie_1.default);
+            this.registerPlugins();
             // Handled just before our controllers receive/process the request
             // This handler needs to work by it-self to provide the context
             this._server.addHook('preHandler', (request, response, done) => {
+                //If this request is a cors preflight request... we don't want to handle our internal logic.
+                if (request.corsPreflightEnabled) {
+                    done();
+                    return;
+                }
                 (new Routing_1.RequestContext(request, response)).bind(done);
             });
             // Handled just before our controllers receive/process the request
             this._server.addHook('preHandler', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                //If this request is a cors preflight request... we don't want to handle our internal logic.
+                if (request.corsPreflightEnabled) {
+                    return;
+                }
                 yield Routing_1.RequestContext.get().initiateForRequest();
                 if (request.isMultipart())
                     yield Routing_1.UploadedFile.addToRequest(request);
             }));
             // Handled before the response is sent to the client
             this._server.addHook('onSend', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                //If this request is a cors preflight request... we don't want to handle our internal logic.
+                if (request.corsPreflightEnabled) {
+                    return;
+                }
                 Routing_1.RequestContext.response().cookieJar().setCookiesOnResponse();
             }));
             // Handled after the response has been sent to the client
             this._server.addHook('onResponse', (request, response) => __awaiter(this, void 0, void 0, function* () {
+                //If this request is a cors preflight request... we don't want to handle our internal logic.
+                if (request.corsPreflightEnabled) {
+                    return;
+                }
                 if (Routing_1.RequestContext.isUsingSession())
                     yield Routing_1.RequestContext.session().save();
             }));
@@ -66,7 +84,6 @@ class Server {
                 console.error(error);
                 done();
             });
-            this.registerPlugins();
             this.registerControllers();
             return this._server;
         });
@@ -111,6 +128,16 @@ class Server {
      * @private
      */
     registerPlugins() {
+        // We have to make sure the cors configuration aligns with the framework configuration.
+        if (this._config.cors.enabled) {
+            this._config.fastifyPlugins.push([
+                require('fastify-cors'),
+                Object.assign(Object.assign({}, this._config.cors.options), {
+                    optionsSuccessStatus: 202,
+                    preflightContinue: true
+                })
+            ]);
+        }
         this._config.fastifyPlugins.forEach(plugin => {
             this._server.register(plugin[0], plugin[1]);
         });

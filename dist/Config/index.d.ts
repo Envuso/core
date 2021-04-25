@@ -25,6 +25,10 @@ export declare const Config: {
     };
     server: {
         port: number;
+        cors: {
+            enabled: boolean;
+            options: import("fastify-cors").FastifyCorsOptions;
+        };
         fastifyPlugins: [import("fastify").FastifyPlugin<Record<never, never>>, import("fastify").FastifyPluginOptions][];
         fastifyOptions: import("fastify").FastifyServerOptions<import("http").Server, import("fastify").FastifyLoggerInstance>;
         responseSerialization: import("class-transformer").ClassTransformOptions;

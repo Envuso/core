@@ -1,11 +1,21 @@
 /// <reference types="node" />
 import { ClassTransformOptions } from "class-transformer/types/interfaces";
 import { FastifyPlugin, FastifyPluginOptions, FastifyServerOptions } from "fastify";
+import { FastifyCorsOptions } from "fastify-cors";
 declare const _default: {
     /**
      * The port that fastify will listen on
      */
     port: number;
+    /**
+     * Cors is automatically configured internally due to some framework
+     * configuration that needs to align. But you can also adjust the
+     * configuration you wish to use here.
+     */
+    cors: {
+        enabled: boolean;
+        options: FastifyCorsOptions;
+    };
     /**
      * Server providers are Fastify Plugins that you register to the server when it's booted.
      */
