@@ -16,7 +16,9 @@ exports.default = {
         [
             fastify_multipart_1.default,
             {}
-        ]
+        ],
+        [require('fastify-cors')],
+        [require('fastify-helmet'), { contentSecurityPolicy: false }]
     ],
     /**
      * Any options to pass to fastify when it boots

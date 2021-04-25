@@ -16,7 +16,9 @@ export default {
 		[
 			FastifyMultipart,
 			{} as FastifyMultipartOptions
-		]
+		],
+		[require('fastify-cors')],
+		[require('fastify-helmet'), {contentSecurityPolicy : false}]
 	] as Array<[FastifyPlugin, FastifyPluginOptions]>,
 
 	/**
@@ -24,6 +26,7 @@ export default {
 	 *
 	 */
 	fastifyOptions : {} as FastifyServerOptions,
+
 	/**
 	 * Before we return a response we serialize the result, mainly
 	 * so that class transformer can do it's work, but also to help
@@ -34,8 +37,8 @@ export default {
 	 * and the framework from being returned in a response.
 	 */
 	responseSerialization : {
-		enableCircularCheck     : true,
-		strategy                : "exposeAll",
-//		excludeExtraneousValues : true,
+		enableCircularCheck : true,
+		strategy            : "exposeAll",
+		//		excludeExtraneousValues : true,
 	} as ClassTransformOptions
 };

@@ -9,7 +9,7 @@ import {
 	get,
 	method,
 	middleware,
-	Middleware, request,
+	Middleware, param, query, request,
 	RequestContext,
 	response,
 	session
@@ -34,6 +34,11 @@ export class TestingController extends Controller {
 
 	constructor(public testController?: TestController) {
 		super();
+	}
+
+	@get('/decorator/param')
+	async testQueryParamDecorator(@query message : string) {
+		return message;
 	}
 
 	@get('/cookie/is-set')

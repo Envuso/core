@@ -1,5 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
+import {param} from "../RouteDecorators";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteParameterParam extends MethodParameterDecorator {
@@ -13,8 +14,8 @@ export class RouteParameterParam extends MethodParameterDecorator {
 	}
 
 	static handleParameter(reflector: ReflectControllerMethodParamData) {
-		const types          = DecoratorHelpers.paramTypes(reflector.target, reflector.propertyKey)
-		const parameterNames = DecoratorHelpers.getParameterNames(reflector.target[reflector.propertyKey])
+		const types          = DecoratorHelpers.paramTypes(reflector.target, reflector.propertyKey);
+		const parameterNames = DecoratorHelpers.getParameterNames(reflector.target[reflector.propertyKey]);
 
 		const routeParameterParam = new RouteParameterParam(
 			parameterNames[reflector.parameterIndex],
@@ -22,13 +23,13 @@ export class RouteParameterParam extends MethodParameterDecorator {
 			reflector.parameterIndex
 		);
 
-		this.setMetadata(reflector, routeParameterParam)
+		this.setMetadata(reflector, routeParameterParam);
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, param: RouteParameterParam) {
 		const target = reflector.target[reflector.propertyKey];
 
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_ROUTE_PARAMETER, param, target)
+		Reflect.defineMetadata(METADATA.REQUEST_METHOD_ROUTE_PARAMETER, param, target);
 	}
 
 	static getMetadata(target: Function): RouteParameterParam | undefined {

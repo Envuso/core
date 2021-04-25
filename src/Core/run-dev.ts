@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {FastifyReply, FastifyRequest} from "fastify";
 import path from "path";
 import {config} from 'dotenv';
 
@@ -10,7 +11,16 @@ import {Log} from "../Common";
 
 const envuso = new Envuso();
 
-envuso.prepare(Config).catch(error => {
-	Log.error(error)
-	console.trace(error);
-});
+
+envuso.prepare(Config)
+	.then(() => {
+		envuso.addExceptionHandler(async (exception: Error, request: FastifyRequest, reply: FastifyReply) => {
+			Log.exception('Server error: ', exception);
+
+			return reply;
+		});
+	})
+	.catch(error => {
+		Log.error(error);
+		console.trace(error);
+	});

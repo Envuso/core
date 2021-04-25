@@ -212,6 +212,23 @@ describe('test route service provider', () => {
 
 	});
 
+	test('using @query decorator on controller method', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method : 'get',
+			url    : '/testing/decorator/param',
+			query  : {
+				message : 'hello world'
+			}
+		});
+
+		expect(res.statusCode).toEqual(202);
+		expect(res.body).toEqual('hello world');
+
+	});
+
 	test('route model binding returning user object', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
