@@ -1,13 +1,13 @@
 {
-  "version": "0.1.5-alpha.2",
+  "version": "0.1.5-alpha.3",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
   "license": "MIT",
   "scripts": {
     "build": "tsc -b --clean && tsc -b",
-    "build-commit-version" : "yarn build && git add . && git commit -m \":package: Build before versioning\" && npm version prerelease --preid=alpha",
-    "commit-files-for-publish" : "cp package.json dist && cp readme.md dist && git add . && git commit -m \":package: Build and Increased version\"",
+    "build-commit-version": "yarn build && git add . && git commit -m \":package: Build before versioning\" && npm version prerelease --preid=alpha",
+    "commit-files-for-publish": "cp package.json dist && cp readme.md dist && git add . && git commit -m \":package: Build and Increased version\"",
     "prep": "yarn build-commit-version && yarn commit-files-for-publish",
     "link": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn link",
     "dist": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn publish",
