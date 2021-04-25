@@ -24,8 +24,8 @@ export class Auth {
 		return resolve(Authentication).authoriseAs(user);
 	}
 
-	public static user<T>(): Authenticatable<T> | null {
-		return resolve(Authentication).user();
+	public static user<T>(): T {
+		return resolve(Authentication).user().getUser<T>();
 	}
 
 	public static getAuthProvider<T extends AuthenticationProvider>(

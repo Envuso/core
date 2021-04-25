@@ -22,6 +22,10 @@ export class Authenticatable<T> extends Model<T> {
 		return this;
 	}
 
+	getUser<T>(): T {
+		return this._user as T;
+	}
+
 	toJSON() {
 		const options = config('server.responseSerialization') as ClassTransformOptions;
 
@@ -31,7 +35,7 @@ export class Authenticatable<T> extends Model<T> {
 			options
 		);
 
-		if(this._user)
+		if (this._user)
 			Object.keys(obj).forEach(key => obj[key] = this[key]);
 
 		return obj;
