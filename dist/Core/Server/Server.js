@@ -38,7 +38,8 @@ class Server {
         return __awaiter(this, void 0, void 0, function* () {
             if (this._server)
                 throw new Error('Server has already been built');
-            this._server = fastify_1.default(AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('server.fastifyOptions'));
+            this._config = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('server');
+            this._server = fastify_1.default(this._config.fastifyOptions);
             yield this._server.register(middie_1.default);
             // Handled just before our controllers receive/process the request
             // This handler needs to work by it-self to provide the context
@@ -110,9 +111,7 @@ class Server {
      * @private
      */
     registerPlugins() {
-        const plugins = AppContainer_1.resolve(AppContainer_1.ConfigRepository)
-            .get('server.fastifyPlugins');
-        plugins.forEach(plugin => {
+        this._config.fastifyPlugins.forEach(plugin => {
             this._server.register(plugin[0], plugin[1]);
         });
     }
@@ -121,8 +120,8 @@ class Server {
      */
     listen() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this._server.listen(3000);
-            Common_1.Log.success('Server is running at http://127.0.0.1:3000');
+            yield this._server.listen(this._config.port);
+            Common_1.Log.success('Server is running at http://127.0.0.1:' + this._config.port);
         });
     }
     setErrorHandling(handler) {

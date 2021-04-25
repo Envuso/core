@@ -20,6 +20,13 @@ export declare class Server {
      */
     private _customErrorHandler;
     /**
+     * Configuration from the Server.ts config file
+     *
+     * @type {ServerConfiguration}
+     * @private
+     */
+    private _config;
+    /**
      * Initialise fastify, add all routes to the application and apply any middlewares
      */
     initialise(): Promise<FastifyInstance<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify").FastifyLoggerInstance>>;
