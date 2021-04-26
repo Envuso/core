@@ -9,9 +9,14 @@ export class DtoValidationException extends Exception {
 
 		this._validationErrors = validationErrors;
 
+		const validationErrorsFormatted = {};
+		for (let validationError of this._validationErrors) {
+			validationErrorsFormatted[validationError.property] = Object.values(validationError.constraints)[0] || null;
+		}
+
 		this.response = {
 			message : this.message,
-			errors  : this._validationErrors
+			errors  : validationErrorsFormatted
 		};
 	}
 

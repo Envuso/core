@@ -5,7 +5,7 @@ import {FastifyCorsOptions} from "fastify-cors";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
 import {ConfigRepository, resolve} from "../../AppContainer";
-import {Log} from "../../Common";
+import {Exception, Log} from "../../Common";
 import {ControllerManager, RequestContext, Response, UploadedFile} from "../../Routing";
 
 export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
@@ -206,12 +206,16 @@ export class Server {
 		this._customErrorHandler = handler;
 	}
 
-	private async handleException(error: Error, request: FastifyRequest, reply: FastifyReply) {
+	private async handleException(error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+
 		if (!this._customErrorHandler) {
-			return reply.status(500).send({
+			const response = (error instanceof Exception) ? error.response : {
 				message : error.message,
 				code    : 500,
-			});
+			};
+			const code     = (error instanceof Exception) ? error.code : 500;
+
+			return reply.status(code).send(response);
 		}
 
 		const response: Response = await this._customErrorHandler(error, request, reply);

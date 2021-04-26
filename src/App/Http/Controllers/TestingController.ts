@@ -97,13 +97,18 @@ export class TestingController extends Controller {
 	}
 
 	@post('/body')
-	async testBody(@body body : any) {
+	async testBody(@body body: any) {
 		return body.value;
 	}
 
 	@post('/')
 	async testRegularSlash() {
 
+	}
+
+	@post('/failed/dto')
+	async testFailingDto(@dto() dto: DTO) {
+		return dto;
 	}
 
 }
