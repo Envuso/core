@@ -35,6 +35,7 @@ exports.Storage = void 0;
 const fs_1 = __importDefault(require("fs"));
 const AppContainer_1 = require("../AppContainer");
 const Common_1 = require("../Common");
+const LocalFileProvider_1 = require("./Providers/LocalFileProvider");
 const StorageProviderContract_1 = require("./StorageProviderContract");
 const path_1 = __importDefault(require("path"));
 const stream_1 = require("stream");
@@ -160,6 +161,7 @@ class Storage {
     static saveTemporaryFile(fileName, stream) {
         return __awaiter(this, void 0, void 0, function* () {
             const tempPath = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('paths.temp');
+            yield Storage.provider(LocalFileProvider_1.LocalFileProvider).makeDirectory(path_1.default.join('storage', 'temp'));
             const tempName = Common_1.Str.random() + '.' + (fileName.split('.').pop());
             yield pump(stream, fs_1.default.createWriteStream(path_1.default.join(tempPath, tempName)));
             return tempName;

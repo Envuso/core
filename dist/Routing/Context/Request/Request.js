@@ -110,7 +110,9 @@ class Request {
     setUploadedFile(file) {
         return __awaiter(this, void 0, void 0, function* () {
             const tempFileName = yield Storage_1.Storage.saveTemporaryFile(file.filename, file.file);
-            this._uploadedFiles.push(new UploadedFile_1.UploadedFile(file, tempFileName));
+            const fileInstance = new UploadedFile_1.UploadedFile(file, tempFileName);
+            yield fileInstance.setAdditionalInformation();
+            this._uploadedFiles.push(fileInstance);
         });
     }
     /**

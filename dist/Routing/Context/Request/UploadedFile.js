@@ -39,10 +39,79 @@ const AppContainer_1 = require("../../../AppContainer");
 const Common_1 = require("../../../Common");
 const Storage_1 = require("../../../Storage");
 const RequestContext_1 = require("../RequestContext");
+const file_type_1 = __importDefault(require("file-type"));
+const readChunk = __importStar(require("read-chunk"));
 class UploadedFile {
     constructor(file, tempFileName) {
         this.file = file;
         this.tempFileName = tempFileName;
+        this._extension = null;
+        this._mimeType = null;
+    }
+    /**
+     * Get the mimetype of the uploaded file
+     *
+     * @returns {MimeType|null}
+     */
+    getMimeType() {
+        return this._mimeType;
+    }
+    /**
+     * This should only be used as a fallback if {@see getMimeType()} returns null
+     *
+     * It might not be a supported file type in this case.
+     * @see https://github.com/sindresorhus/file-type#supported-file-types
+     *
+     * @returns {FileExtension}
+     */
+    getOriginalMimeType() {
+        return this.file.mimetype;
+    }
+    /**
+     * Get the encoder type for the file upload
+     *
+     * @returns {string}
+     */
+    getEncoding() {
+        return this.file.encoding;
+    }
+    /**
+     * Get the extension of the file, this is theoretically
+     * safe and taken from the file contents directly.
+     *
+     * @returns {FileExtension | null}
+     */
+    getExtension() {
+        return this._extension;
+    }
+    /**
+     * Get the fs stat values
+     *
+     * @returns {Stats}
+     */
+    getFileStat() {
+        return fs.statSync(this.getTempFilePath());
+    }
+    /**
+     * Get the size of the file in bytes
+     *
+     * @returns {number}
+     */
+    getSize() {
+        var _a;
+        const stat = this.getFileStat();
+        return (_a = stat === null || stat === void 0 ? void 0 : stat.size) !== null && _a !== void 0 ? _a : null;
+    }
+    /**
+     * This should only be used as a fallback if {@see getExtension()} returns null
+     *
+     * It might not be a supported file type in this case.
+     * @see https://github.com/sindresorhus/file-type#supported-file-types
+     *
+     * @returns {FileExtension}
+     */
+    getOriginalExtension() {
+        return this.file.filename.split(".").pop();
     }
     /**
      * Get the name of the field that this file was submitted via
@@ -51,11 +120,36 @@ class UploadedFile {
         return this.file.fieldname;
     }
     /**
+     * Get the temp file name assigned after uploading the file
+     *
+     * @returns {string}
+     */
+    getTempFileName() {
+        return this.tempFileName;
+    }
+    /**
      * Get the absolute path of the temporary file
      */
     getTempFilePath() {
         const tempPath = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('paths.temp');
         return path_1.default.join(tempPath, this.tempFileName);
+    }
+    /**
+     * Get the file name stored in temp storage
+     *
+     * @returns {string}
+     */
+    getOriginalFileName() {
+        return this.file.filename;
+    }
+    /**
+     * Get the file name without the extension
+     *
+     * @returns {string}
+     */
+    getFileNameWithoutExtension() {
+        var _a;
+        return (_a = this.getOriginalFileName().split('.').shift()) !== null && _a !== void 0 ? _a : null;
     }
     /**
      * Store the uploaded file in the specified directory.
@@ -129,6 +223,36 @@ class UploadedFile {
             if (!context)
                 return;
             yield context.request.setUploadedFile(yield request.file());
+        });
+    }
+    /**
+     * Should not be used, this is internal framework logic
+     *
+     * @returns {Promise<void>}
+     * @private
+     */
+    setAdditionalInformation() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const filePath = path_1.default.join('storage', 'temp', this.tempFileName);
+                const buffer = readChunk.sync(filePath, 0, 4100);
+                const fileInformation = yield file_type_1.default.fromBuffer(buffer);
+                this._extension = fileInformation === null || fileInformation === void 0 ? void 0 : fileInformation.ext;
+                this._mimeType = fileInformation === null || fileInformation === void 0 ? void 0 : fileInformation.mime;
+                // There's a chance the uploaded file isn't supported
+                // https://github.com/sindresorhus/file-type#supported-file-types
+                // In this case, we'll read the data from the upload
+                // and probably make a bad decision to trust it...
+                if (!this._extension) {
+                    this._extension = this.getOriginalExtension();
+                }
+                if (!this._mimeType) {
+                    this._mimeType = this.getOriginalMimeType();
+                }
+            }
+            catch (error) {
+                throw new Common_1.Exception('Something went wrong when trying to get mimetype/extension of uploaded file.');
+            }
         });
     }
 }
