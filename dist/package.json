@@ -1,5 +1,5 @@
 {
-  "version": "0.1.5-alpha.7",
+  "version": "0.1.5-alpha.8",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
