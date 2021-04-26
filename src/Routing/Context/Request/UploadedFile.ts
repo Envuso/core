@@ -15,6 +15,7 @@ export class UploadedFile {
 
 	private _extension: FileExtension = null;
 	private _mimeType: MimeType       = null;
+	private _fileStat: Stats          = null;
 
 	constructor(
 		private file: Multipart,
@@ -67,7 +68,7 @@ export class UploadedFile {
 	 * @returns {Stats}
 	 */
 	getFileStat(): Stats {
-		return fs.statSync(this.getTempFilePath());
+		return this._fileStat;
 	}
 
 	/**
@@ -249,6 +250,8 @@ export class UploadedFile {
 			if (!this._mimeType) {
 				this._mimeType = this.getOriginalMimeType();
 			}
+
+			this._fileStat = fs.statSync(this.getTempFilePath());
 
 		} catch (error) {
 			throw new Exception('Something went wrong when trying to get mimetype/extension of uploaded file.');
