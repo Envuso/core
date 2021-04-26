@@ -101,4 +101,9 @@ export class TestingController extends Controller {
 		return body.value;
 	}
 
+	@post('/')
+	async testRegularSlash() {
+
+	}
+
 }

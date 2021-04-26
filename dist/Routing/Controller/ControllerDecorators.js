@@ -13,27 +13,27 @@ function controller(path = '') {
     return ControllerManager_1.ControllerManager.bindControllerMeta(path);
 }
 exports.controller = controller;
-function all(path) {
+function all(path = '') {
     return httpMethod(["GET", "DELETE", "HEAD", "POST", "PATCH", "PUT", "OPTIONS"], path);
 }
 exports.all = all;
-function get(path) {
+function get(path = '') {
     return httpMethod("GET", path);
 }
 exports.get = get;
-function post(path) {
+function post(path = '') {
     return httpMethod("POST", path);
 }
 exports.post = post;
-function put(path) {
+function put(path = '') {
     return httpMethod("PUT", path);
 }
 exports.put = put;
-function patch(path) {
+function patch(path = '') {
     return httpMethod("PATCH", path);
 }
 exports.patch = patch;
-function head(path) {
+function head(path = '') {
     return httpMethod("HEAD", path);
 }
 exports.head = head;
@@ -43,7 +43,7 @@ exports.head = head;
  * We can't use the name delete in JS/TS.
  * @param path
  */
-function destroy(path) {
+function destroy(path = '') {
     return httpMethod("DELETE", path);
 }
 exports.destroy = destroy;
@@ -53,7 +53,7 @@ exports.destroy = destroy;
  * We can't use the name delete in JS/TS.
  * @param path
  */
-function remove(path) {
+function remove(path = '') {
     return httpMethod("DELETE", path);
 }
 exports.remove = remove;
@@ -62,7 +62,7 @@ exports.remove = remove;
  * If you don't like to use "destroy"/"remove"
  * @param path
  */
-function delete_(path) {
+function delete_(path = '') {
     return httpMethod("DELETE", path);
 }
 exports.delete_ = delete_;
@@ -72,7 +72,7 @@ exports.delete_ = delete_;
  * @param methods
  * @param path
  */
-function method(methods, path) {
+function method(methods, path = '') {
     return httpMethod(methods, path);
 }
 exports.method = method;

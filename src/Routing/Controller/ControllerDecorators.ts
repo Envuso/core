@@ -30,27 +30,27 @@ export function controller(path: string = '') {
 }
 
 
-export function all(path: string): HandlerDecorator {
+export function all(path: string = ''): HandlerDecorator {
 	return httpMethod(["GET", "DELETE", "HEAD", "POST", "PATCH", "PUT", "OPTIONS"], path);
 }
 
-export function get(path: string): HandlerDecorator {
+export function get(path: string = ''): HandlerDecorator {
 	return httpMethod("GET", path);
 }
 
-export function post(path: string): HandlerDecorator {
+export function post(path: string = ''): HandlerDecorator {
 	return httpMethod("POST", path);
 }
 
-export function put(path: string): HandlerDecorator {
+export function put(path: string = ''): HandlerDecorator {
 	return httpMethod("PUT", path);
 }
 
-export function patch(path: string): HandlerDecorator {
+export function patch(path: string = ''): HandlerDecorator {
 	return httpMethod("PATCH", path);
 }
 
-export function head(path: string): HandlerDecorator {
+export function head(path: string = ''): HandlerDecorator {
 	return httpMethod("HEAD", path);
 }
 
@@ -60,7 +60,7 @@ export function head(path: string): HandlerDecorator {
  * We can't use the name delete in JS/TS.
  * @param path
  */
-export function destroy(path: string): HandlerDecorator {
+export function destroy(path: string = ''): HandlerDecorator {
 	return httpMethod("DELETE", path);
 }
 
@@ -70,7 +70,7 @@ export function destroy(path: string): HandlerDecorator {
  * We can't use the name delete in JS/TS.
  * @param path
  */
-export function remove(path: string): HandlerDecorator {
+export function remove(path: string = ''): HandlerDecorator {
 	return httpMethod("DELETE", path);
 }
 
@@ -79,7 +79,7 @@ export function remove(path: string): HandlerDecorator {
  * If you don't like to use "destroy"/"remove"
  * @param path
  */
-export function delete_(path: string): HandlerDecorator {
+export function delete_(path: string = ''): HandlerDecorator {
 	return httpMethod("DELETE", path);
 }
 
@@ -89,7 +89,7 @@ export function delete_(path: string): HandlerDecorator {
  * @param methods
  * @param path
  */
-export function method(methods: HTTPMethods | HTTPMethods[], path: string): HandlerDecorator {
+export function method(methods: HTTPMethods | HTTPMethods[], path: string = ''): HandlerDecorator {
 	return httpMethod(methods, path);
 }
 

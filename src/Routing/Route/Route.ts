@@ -61,6 +61,10 @@ export class Route {
 			path = '/' + path;
 		}
 
+		if(path.endsWith('/')){
+			path = path.slice(0, -1)
+		}
+
 		return path;
 	}
 
