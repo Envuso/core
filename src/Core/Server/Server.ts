@@ -158,7 +158,9 @@ export class Server {
 					}
 				});
 
-				Log.info(`Route Loaded: ${controller.controller.constructor.name}(${route.getMethod()} ${route.getPath()})`);
+				const controllerName = ((controller?.controller as any)?.name ?? controller.controller.constructor.name);
+
+				Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
 			}
 		}
 
