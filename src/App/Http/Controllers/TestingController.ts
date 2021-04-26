@@ -1,4 +1,5 @@
 import {IsString, MinLength} from "class-validator";
+import {ObjectId} from "mongodb";
 import {Auth} from "../../../Authentication";
 import {
 	body,
@@ -124,6 +125,44 @@ export class TestingController extends Controller {
 			without_extension : file.getFileNameWithoutExtension(),
 			size              : file.getSize(),
 		};
+	}
+
+	@get()
+	async testQueryBuilderMethod() {
+		User.where({
+			something : 'el'
+		});
+
+		User.findOne({
+			something : 'lel'
+		});
+
+		User.get({
+			something : 'lel'
+		}, {
+			sort : {
+				something : 1
+			}
+		});
+
+		User.count();
+
+		User.with('something').where({something : 'lel'});
+
+		User.find('lele', 'something');
+
+		User.orderByDesc('something');
+
+		User.where({_id : new ObjectId('lel')}).orderByDesc('something');
+
+		User.orderByDesc('something');
+
+		User.create({});
+
+		const users = await User.where({}).orderByAsc('something').get()
+
+		const user = await User.where({}).first()
+
 	}
 
 }

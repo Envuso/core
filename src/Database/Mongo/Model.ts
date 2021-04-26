@@ -2,9 +2,7 @@ import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
-import {Container} from "winston";
 import {config, resolve} from "../../AppContainer";
-import {ClassType} from "../index";
 import {dehydrateModel, hydrateModel} from "../Serialization/Serializer";
 import {QueryBuilder} from "./QueryBuilder";
 
@@ -41,37 +39,140 @@ export class Model<M> {
 	}
 
 	/**
-	 * A helper method used to return a correct type...
-	 * We're still getting used to generics.
+	 * Get an instance of query builder, similar to using collection.find()
+	 * But... our query builder returns a couple of helper methods, first(), get()
+	 * {@see QueryBuilder}
 	 *
-	 * @private
+	 * @param attributes
 	 */
-	private modelInstance(): M {
-		return this as unknown as M;
+	static where<T extends Model<any>>(
+		this: new() => T,
+		attributes: FilterQuery<T> | Partial<T>
+	): QueryBuilder<T> {
+		return new this().queryBuilder().where<T>(attributes);
 	}
 
 	/**
 	 * Get an instance of the mongo repository
 	 */
-	static getCollection<T extends Model<T>>(): Collection<T> {
+	static getCollection<T extends Model<any>>(this: new() => T): Collection<T> {
 		return resolve<Collection<T>>(this.name + 'Model');
 	}
 
 	/**
-	 * Insert a new model into the collection
+	 * Query for a single model instance
 	 *
-	 * @param entity
+	 * @param query
 	 */
-	static async insert(entity: Model<any>): Promise<Model<any>> {
-		const c     = entity.collection();
-		const plain = dehydrateModel(entity);
+	static async findOne<T extends Model<any>>(
+		this: new() => T,
+		query: FilterQuery<T | { _id: any }> = {}
+	): Promise<T | null> {
+		const model = await new this().collection().findOne<Object>(query as any);
 
-		const res = await c.insertOne(plain as any);
+		return hydrateModel(model, this);
+	}
 
-		(entity as any)._id = res.insertedId;
-		(plain as any)._id  = res.insertedId;
+	/**
+	 * calls mongodb.find function and returns its cursor with attached map function that hydrates results
+	 * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
+	 */
+	static async get<T extends Model<any>>(
+		this: new() => T,
+		query?: FilterQuery<T | { _id: any }>,
+		options?: WithoutProjection<FindOneOptions<T>>
+	): Promise<T[]> {
+		const cursor  = await new this().collection().find(query as any, options);
+		const results = await cursor.toArray();
 
-		return hydrateModel(plain, entity.constructor as any);
+		return results.map(doc => hydrateModel(doc, this));
+	}
+
+	/**
+	 * Count all the documents in the collection
+	 */
+	public static async count(): Promise<number> {
+		return this.where({}).count();
+	}
+
+	/**
+	 * Allows us to efficiently load relationships
+	 * one to many
+	 *
+	 * @param refs
+	 */
+	static with<T extends Model<any>>(
+		this: new() => T,
+		...refs: (keyof T)[]
+	): QueryBuilder<T> {
+		return new this().queryBuilder().with(...refs);
+	}
+
+	/**
+	 * Find an item using it's id and return it as a model.
+	 *
+	 * @param key
+	 * @param field
+	 */
+	static find<T extends Model<any>>(
+		this: new() => T,
+		key: string | ObjectId,
+		field: keyof T | '_id' = '_id'
+	): Promise<T> {
+		return new this().queryBuilder()
+			.where<T>({
+				[field] : field === '_id' ? new ObjectId(key) : key
+			})
+			.first();
+		//		return this.findOne({
+		//			[field] : field === '_id' ? new ObjectId(key) : key
+		//		});
+	}
+
+	/**
+	 * Basically an alias of the {@see QueryBuilder.orderByDesc()}
+	 * that allows us to order and call get() or first()
+	 *
+	 * @param key
+	 */
+	static orderByDesc<T extends Model<any>>(
+		this: new() => T,
+		key: keyof T
+	): QueryBuilder<T> {
+		return new QueryBuilder<T>(new this()).orderByDesc(key);
+	}
+
+	/**
+	 * Basically an alias of the {@see QueryBuilder.orderByAsc()}
+	 * that allows us to order and call get() or first()
+	 *
+	 * @param key
+	 */
+	static orderByAsc<T extends Model<any>>(
+		this: new() => T,
+		key: keyof T
+	): QueryBuilder<T> {
+		return new QueryBuilder<T>(new this()).orderByAsc(key);
+	}
+
+	/**
+	 * Create a new instance of this model and store it in the collection
+	 *
+	 * @param {Partial<M>} attributes
+	 */
+	static async create<T extends Model<any>>(
+		this: new() => T,
+		attributes: Partial<T>
+	): Promise<T> {
+		const collection = new this().collection();
+
+		const createdEntIty = await collection.insertOne(attributes);
+
+		const newEntity = await collection.findOne({
+			_id : createdEntIty.insertedId
+		});
+
+		return hydrateModel(newEntity, this);
 	}
 
 	/**
@@ -80,7 +181,10 @@ export class Model<M> {
 	 * @param attributes
 	 * @param options
 	 */
-	async update(attributes: Partial<M>, options: ReplaceOneOptions = {}) {
+	async update(
+		attributes: Partial<M>,
+		options: ReplaceOneOptions = {}
+	): Promise<this> {
 		const plain = dehydrateModel({...this, ...attributes});
 
 		await this.collection().replaceOne({
@@ -92,18 +196,10 @@ export class Model<M> {
 		}
 
 		//		await this.refresh();
+
+		return this;
 	}
 
-	/**
-	 * Query for a single model instance
-	 *
-	 * @param query
-	 */
-	static async findOne<T extends Model<T>>(query: FilterQuery<T | { _id: any }> = {}): Promise<T | null> {
-		const model = await this.getCollection<T>().findOne<Object>(query as any);
-
-		return hydrateModel(model, this as unknown as ClassType<T>);
-	}
 
 	/**
 	 * Save any changes made to the model
@@ -115,25 +211,45 @@ export class Model<M> {
 	 *
 	 * @return this
 	 */
-	async save() {
-		if (!(this as any)._id)
-			await Model.insert(this);
-		else
-			await this.update({...(this as any)});
+	async save(): Promise<this> {
+		//If the model hasn't been persisted to the db yet... we'll
+		//dehydrate it, insert it to the db, then add the id to the model
+		if (this.isFresh()) {
+			const plain = dehydrateModel(this);
+
+			const res = await this.collection().insertOne(plain as any);
+
+			(this as any)._id  = res.insertedId;
+			(plain as any)._id = res.insertedId;
+
+			return;
+		}
+
+		await this.update(this as any);
 
 		return this;
 	}
 
 	/**
+	 * Has this model been persisted to the database yet?
+	 * @returns {boolean}
+	 */
+	isFresh(): boolean {
+		return !!(this as any)?._id;
+	}
+
+	/**
 	 * Get all the properties from the database for this model
 	 */
-	async refresh() {
+	async refresh(): Promise<this> {
 		const newVersion = await this.queryBuilder()
 			.where({_id : (this as any)._id})
 			.first();
 
 		//		Object.keys(newVersion).forEach(key => this[key] = newVersion[key]);
 		Object.assign(this, newVersion);
+
+		return this;
 	}
 
 	/**
@@ -141,105 +257,6 @@ export class Model<M> {
 	 */
 	async delete() {
 		await this.collection().deleteOne({_id : (this as any)._id});
-	}
-
-	/**
-	 * calls mongodb.find function and returns its cursor with attached map function that hydrates results
-	 * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
-	 */
-	static async get<T extends Model<T>>(query?: FilterQuery<T | { _id: any }>, options?: WithoutProjection<FindOneOptions<T>>): Promise<T[]> {
-		const cursor  = await this.getCollection<T>().find(query as any, options);
-		const results = await cursor.toArray();
-
-		return results.map(doc => hydrateModel(doc, this as unknown as ClassType<T>));
-	}
-
-	/**
-	 * Count all the documents in the collection
-	 */
-	public static async count() {
-		return this.where({}).count();
-	}
-
-	/**
-	 * Get an instance of query builder, similar to using collection.find()
-	 * But... our query builder returns a couple of helper methods, first(), get()
-	 * {@see QueryBuilder}
-	 *
-	 * @param attributes
-	 */
-	static where<T extends Model<T>>(attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T> {
-		const model = (new this() as unknown as T);
-
-		return model.queryBuilder().where<T>(attributes);
-	}
-
-	/**
-	 * Allows us to efficiently load relationships
-	 * Many to many or one to many
-	 *
-	 * @param refs
-	 */
-	static with<T>(...refs: (keyof T)[]) {
-		const model: Model<T> = (new this() as Model<T>);
-
-		return model.queryBuilder().with(...refs);
-	}
-
-	/**
-	 * Find an item using it's id and return it as a model.
-	 *
-	 * @param key
-	 * @param field
-	 */
-	static find<T extends Model<T>>(key: string | ObjectId, field: keyof T | '_id' = '_id'): Promise<T> {
-		return this.findOne<T>({
-			[field] : field === '_id' ? new ObjectId(key) : key
-		});
-	}
-
-	/**
-	 * Basically an alias of the {@see QueryBuilder.orderByDesc()}
-	 * that allows us to order and call get() or first()
-	 *
-	 * @param key
-	 */
-	static orderByDesc<T>(key: keyof T): QueryBuilder<T> {
-		return new QueryBuilder<T>(new this()).orderByDesc(key);
-	}
-
-	/**
-	 * Basically an alias of the {@see QueryBuilder.orderByAsc()}
-	 * that allows us to order and call get() or first()
-	 *
-	 * @param key
-	 */
-	static orderByAsc<T>(key: keyof T): QueryBuilder<T> {
-		return new QueryBuilder<T>(new this()).orderByAsc(key);
-	}
-
-	/**
-	 * Create a new instance of this model and store it in the collection
-	 *
-	 * @TODO: Need to figure a solution for using generics with static methods.
-	 *
-	 * @param {Partial<M>} attributes
-	 */
-	static async create<T extends Model<T>>(attributes: Partial<T>): Promise<T> {
-		const model = new this<T>();
-		Object.assign(model, attributes);
-
-		await this.insert(model);
-
-		return await this.find(model['_id']);
-	}
-
-	/**
-	 * Get an instance of the underlying mongo repository for this model
-	 */
-	static query<T extends Model<T>>() {
-		//@ts-ignore
-		return Container.get<Repository<M>>(this);
 	}
 
 	public mongoResponse(): any {

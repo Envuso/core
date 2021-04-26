@@ -1,5 +1,4 @@
-import {Cursor, FilterQuery, FindOneOptions, UpdateManyOptions, UpdateQuery, WithoutProjection} from "mongodb";
-//import {InvalidRefSpecified} from "../Exceptions/InvalidRefSpecified";
+import {Cursor, FilterQuery, FindOneOptions, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult, WithoutProjection} from "mongodb";
 import {ClassType, Ref} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Model} from "./Model";
@@ -88,7 +87,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @param key
 	 */
-	orderByDesc(key: keyof T | string) {
+	orderByDesc(key: keyof T | string): this {
 		this._collectionOrder = {
 			key       : String(key),
 			direction : -1
@@ -102,7 +101,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @param key
 	 */
-	orderByAsc(key: keyof T | string) {
+	orderByAsc(key: keyof T | string): this {
 		this._collectionOrder = {
 			key       : String(key),
 			direction : 1
@@ -150,7 +149,7 @@ export class QueryBuilder<T> {
 	/**
 	 * Get the first result in the mongo Cursor
 	 */
-	async first() {
+	async first(): Promise<T> {
 		await this.resolveFilter();
 
 		const result = await this._builderResult.limit(1).next();
@@ -163,7 +162,7 @@ export class QueryBuilder<T> {
 	/**
 	 * Get all items from the collection that match the query
 	 */
-	async get() {
+	async get(): Promise<T[]> {
 		const cursor = await this.resolveFilter();
 
 		const results = await cursor.toArray();
@@ -182,7 +181,10 @@ export class QueryBuilder<T> {
 	 * @param options
 	 * @return boolean | UpdateWriteOpResult
 	 */
-	public async update(attributes: UpdateQuery<T> | Partial<T>, options?: UpdateManyOptions & { returnMongoResponse: boolean }) {
+	public async update(
+		attributes: UpdateQuery<T> | Partial<T>,
+		options?: UpdateManyOptions & { returnMongoResponse: boolean }
+	): Promise<boolean | UpdateWriteOpResult> {
 		const response = await this._model.collection().updateMany(
 			this._collectionFilter,
 			attributes,
@@ -210,7 +212,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @returns {Promise<boolean>}
 	 */
-	async delete() {
+	async delete(): Promise<boolean> {
 		const deleteOperation = await this._model
 			.collection()
 			.deleteMany(this._collectionFilter);
@@ -224,7 +226,7 @@ export class QueryBuilder<T> {
 	 * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#countDocuments
 	 * @returns integer
 	 */
-	public count() {
+	public count(): Promise<number> {
 		return this._model.collection().countDocuments(this._collectionFilter);
 	}
 
