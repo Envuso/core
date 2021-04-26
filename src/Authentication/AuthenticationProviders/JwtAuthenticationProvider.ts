@@ -129,7 +129,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user) as Authenticatable<T>;
+		return new Authenticatable().setUser(user.getUser()) as Authenticatable<T>;
 	}
 
 	public issueToken(id: string): string {

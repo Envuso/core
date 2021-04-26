@@ -13,7 +13,7 @@
     "dist": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn publish",
     "preparereeee": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
-    "serve": "nodemon dist/main.js",
+    "serve": "nodemon",
     "dev": "ts-node ./src/Core/run-dev.ts",
     "push": "yarn build && cp package.json dist/package.json && cd dist && yalc push"
   },

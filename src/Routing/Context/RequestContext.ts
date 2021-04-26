@@ -103,12 +103,12 @@ export class RequestContext {
 	 * @param user
 	 */
 	public setUser<T>(user: Authenticatable<T>) {
-		const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
+	//	const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
 
 		this.container.register<Authenticatable<T>>(
-			Authenticatable, {useValue : authedUser}
+			Authenticatable, {useValue : user}
 		);
 
-		this.user = authedUser;
+		this.user = user;
 	}
 }

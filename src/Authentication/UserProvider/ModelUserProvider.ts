@@ -56,13 +56,15 @@ export class ModelUserProvider extends UserProvider {
 			'auth.primaryIdentifier'
 		);
 
-		const user = await this.userForIdentifier(
+		let user = await this.userForIdentifier(
 			credentials[primaryIdentifier] as AuthenticationIdentifier
 		);
 
 		if (!user) {
 			return null;
 		}
+
+//		user = user.getUser();
 
 		// Ts ignore until we find a nicer solution for shared structure
 		//@ts-ignore
