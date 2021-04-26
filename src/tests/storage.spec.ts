@@ -11,6 +11,7 @@ import {App} from "../AppContainer";
 import {S3Provider} from "../Storage";
 import {Storage} from '../Storage';
 import {Config} from '../Config';
+import {LocalFileProvider} from "../Storage/Providers/LocalFileProvider";
 
 const bootApp = async function () {
 	const app = await App.bootInstance({config : Config});
@@ -18,11 +19,11 @@ const bootApp = async function () {
 
 	fs.writeFileSync('./testfile.txt', '12345', {encoding : 'utf-8'});
 	fs.writeFileSync('./testfiletwo.txt', 'abc', {encoding : 'utf-8'});
-}
+};
 
 beforeAll(() => {
 	return bootApp();
-})
+});
 
 describe('s3 storage', () => {
 
@@ -45,14 +46,14 @@ describe('s3 storage', () => {
 
 		const createdDirectory = await Storage.provider(S3Provider).makeDirectory(directoryName);
 
-		expect(createdDirectory).toBeTruthy()
+		expect(createdDirectory).toBeTruthy();
 
-		const dir = await Storage.provider(S3Provider).directories(directoryName)
+		const dir = await Storage.provider(S3Provider).directories(directoryName);
 
-		expect(dir).toStrictEqual([directoryName + '/'])
+		expect(dir).toStrictEqual([directoryName + '/']);
 
 
-		const make = await Storage.provider(S3Provider).makeDirectory(directoryName)
+		const make = await Storage.provider(S3Provider).makeDirectory(directoryName);
 		expect(make).toBeTruthy();
 
 	});
@@ -60,7 +61,7 @@ describe('s3 storage', () => {
 	test('deletes a directory', async () => {
 		const directoryName = 'ts-test/deleting-directory';
 
-		const make = await Storage.provider(S3Provider).makeDirectory(directoryName)
+		const make = await Storage.provider(S3Provider).makeDirectory(directoryName);
 
 		expect(make).toBeTruthy();
 
@@ -68,9 +69,9 @@ describe('s3 storage', () => {
 
 		expect(deletedDirectory).toEqual({});
 
-		const dir = await Storage.provider(S3Provider).directories(directoryName)
+		const dir = await Storage.provider(S3Provider).directories(directoryName);
 
-		expect(dir.length).toBeFalsy()
+		expect(dir.length).toBeFalsy();
 	});
 
 	test('file exists', async () => {
@@ -80,7 +81,7 @@ describe('s3 storage', () => {
 			filename     : 'testfile.txt',
 			tempFilePath : './testfile.txt',
 			storeAs      : 'testfile.txt'
-		})
+		});
 
 		expect(response.url).toContain(directoryName);
 
@@ -88,7 +89,7 @@ describe('s3 storage', () => {
 		expect(exists).toBeTruthy();
 
 		const deleted = await Storage.provider(S3Provider).remove(directoryName);
-		expect(deleted).toBeTruthy()
+		expect(deleted).toBeTruthy();
 
 	});
 
@@ -99,7 +100,7 @@ describe('s3 storage', () => {
 			filename     : 'testfiletwo.txt',
 			tempFilePath : './testfiletwo.txt',
 			storeAs      : 'testfiletwo.txt'
-		})
+		});
 
 		expect(response.url).toContain(directoryName);
 
@@ -111,7 +112,7 @@ describe('s3 storage', () => {
 		expect(contents).toEqual('abc');
 
 		const deleted = await Storage.provider(S3Provider).remove(directoryName);
-		expect(deleted).toBeTruthy()
+		expect(deleted).toBeTruthy();
 
 	});
 
@@ -122,12 +123,12 @@ describe('s3 storage', () => {
 			filename     : 'testfiletwo.txt',
 			tempFilePath : './testfiletwo.txt',
 			storeAs      : 'testfiletwo.txt'
-		})
+		});
 
 		expect(response.url).toContain(directoryName);
 
 		const deleted = await Storage.provider(S3Provider).remove(directoryName);
-		expect(deleted).toBeTruthy()
+		expect(deleted).toBeTruthy();
 
 	});
 
@@ -138,7 +139,7 @@ describe('s3 storage', () => {
 			filename     : 'testfiletwo.txt',
 			tempFilePath : './testfiletwo.txt',
 			storeAs      : 'testfiletwo.txt'
-		})
+		});
 
 		expect(response.url).toContain(directoryName);
 
@@ -146,8 +147,47 @@ describe('s3 storage', () => {
 		expect(url).toEqual(response.url);
 
 		const deleted = await Storage.provider(S3Provider).remove(directoryName);
-		expect(deleted).toBeTruthy()
+		expect(deleted).toBeTruthy();
 
+	});
+
+});
+
+
+describe('local storage', () => {
+
+	test('list directories', async () => {
+		const directories = await Storage.provider(LocalFileProvider).directories(
+			path.join(process.cwd(), 'storage')
+		);
+
+		expect(directories.includes('logs')).toBeTruthy();
+		expect(directories.length).toBeGreaterThan(0);
+	});
+
+	test('ensure unknown directory is not listed', async () => {
+		const directories = await Storage.provider(LocalFileProvider)
+			.directories(path.join(process.cwd(), 'storage'));
+
+		expect(directories.includes('sdkjflksdj')).toBe(false);
+	});
+
+	test('creates a directory', async () => {
+		const directoryName = 'ts-test/create-directory';
+
+		const createdDirectory = await Storage.provider(LocalFileProvider).makeDirectory(
+			path.join('storage', 'testing', 'testingagain')
+		);
+
+		expect(createdDirectory).toBeTruthy();
+	});
+
+	test('deletes a directory', async () => {
+		const deleteDir = await Storage.provider(LocalFileProvider).deleteDirectory(
+			path.join('storage', 'testing', 'testingagain')
+		);
+
+		expect(deleteDir).toBeTruthy();
 	});
 
 });

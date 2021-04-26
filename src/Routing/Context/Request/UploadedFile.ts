@@ -1,5 +1,6 @@
 import {FastifyRequest} from "fastify";
 import {Multipart} from "fastify-multipart";
+import {Stats} from "fs";
 import * as fs from "fs";
 import {StatusCodes} from "http-status-codes";
 import path from "path";
@@ -7,13 +8,90 @@ import {ConfigRepository, resolve} from "../../../AppContainer";
 import {Exception, Log} from "../../../Common";
 import {Storage, UploadedFileInformation} from "../../../Storage";
 import {RequestContext} from "../RequestContext";
+import {default as FileType, FileExtension, MimeType} from 'file-type';
+import * as readChunk from "read-chunk";
 
 export class UploadedFile {
+
+	private _extension: FileExtension = null;
+	private _mimeType: MimeType       = null;
 
 	constructor(
 		private file: Multipart,
 		private tempFileName: string
 	) { }
+
+	/**
+	 * Get the mimetype of the uploaded file
+	 *
+	 * @returns {MimeType|null}
+	 */
+	getMimeType(): MimeType {
+		return this._mimeType;
+	}
+
+	/**
+	 * This should only be used as a fallback if {@see getMimeType()} returns null
+	 *
+	 * It might not be a supported file type in this case.
+	 * @see https://github.com/sindresorhus/file-type#supported-file-types
+	 *
+	 * @returns {FileExtension}
+	 */
+	getOriginalMimeType(): MimeType {
+		return this.file.mimetype as MimeType;
+	}
+
+	/**
+	 * Get the encoder type for the file upload
+	 *
+	 * @returns {string}
+	 */
+	getEncoding(): string {
+		return this.file.encoding;
+	}
+
+	/**
+	 * Get the extension of the file, this is theoretically
+	 * safe and taken from the file contents directly.
+	 *
+	 * @returns {FileExtension | null}
+	 */
+	getExtension(): FileExtension {
+		return this._extension;
+	}
+
+	/**
+	 * Get the fs stat values
+	 *
+	 * @returns {Stats}
+	 */
+	getFileStat(): Stats {
+		return fs.statSync(this.getTempFilePath());
+	}
+
+	/**
+	 * Get the size of the file in bytes
+	 *
+	 * @returns {number}
+	 */
+	getSize(): number {
+		const stat = this.getFileStat();
+
+		return stat?.size ?? null;
+	}
+
+	/**
+	 * This should only be used as a fallback if {@see getExtension()} returns null
+	 *
+	 * It might not be a supported file type in this case.
+	 * @see https://github.com/sindresorhus/file-type#supported-file-types
+	 *
+	 * @returns {FileExtension}
+	 */
+	getOriginalExtension(): FileExtension {
+		return this.file.filename.split(".").pop() as FileExtension;
+	}
 
 	/**
 	 * Get the name of the field that this file was submitted via
@@ -23,12 +101,39 @@ export class UploadedFile {
 	}
 
 	/**
+	 * Get the temp file name assigned after uploading the file
+	 *
+	 * @returns {string}
+	 */
+	getTempFileName(): string {
+		return this.tempFileName;
+	}
+
+	/**
 	 * Get the absolute path of the temporary file
 	 */
 	getTempFilePath(): string {
 		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
 
 		return path.join(tempPath, this.tempFileName);
+	}
+
+	/**
+	 * Get the file name stored in temp storage
+	 *
+	 * @returns {string}
+	 */
+	getOriginalFileName(): string {
+		return this.file.filename;
+	}
+
+	/**
+	 * Get the file name without the extension
+	 *
+	 * @returns {string}
+	 */
+	getFileNameWithoutExtension(): string {
+		return this.getOriginalFileName().split('.').shift() ?? null;
 	}
 
 	/**
@@ -115,5 +220,38 @@ export class UploadedFile {
 			await request.file()
 		);
 
+	}
+
+	/**
+	 * Should not be used, this is internal framework logic
+	 *
+	 * @returns {Promise<void>}
+	 * @private
+	 */
+	public async setAdditionalInformation() {
+		try {
+
+			const filePath        = path.join('storage', 'temp', this.tempFileName);
+			const buffer          = readChunk.sync(filePath, 0, 4100);
+			const fileInformation = await FileType.fromBuffer(buffer);
+
+			this._extension = fileInformation?.ext;
+			this._mimeType  = fileInformation?.mime;
+
+			// There's a chance the uploaded file isn't supported
+			// https://github.com/sindresorhus/file-type#supported-file-types
+			// In this case, we'll read the data from the upload
+			// and probably make a bad decision to trust it...
+
+			if (!this._extension) {
+				this._extension = this.getOriginalExtension();
+			}
+			if (!this._mimeType) {
+				this._mimeType = this.getOriginalMimeType();
+			}
+
+		} catch (error) {
+			throw new Exception('Something went wrong when trying to get mimetype/extension of uploaded file.');
+		}
 	}
 }

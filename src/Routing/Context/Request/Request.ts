@@ -120,7 +120,10 @@ export class Request {
 			file.filename, file.file
 		);
 
-		this._uploadedFiles.push(new UploadedFile(file, tempFileName));
+		const fileInstance = new UploadedFile(file, tempFileName);
+		await fileInstance.setAdditionalInformation();
+
+		this._uploadedFiles.push(fileInstance);
 	}
 
 	/**

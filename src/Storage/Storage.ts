@@ -2,12 +2,13 @@ import fs from "fs";
 import {ConfigRepository, resolve} from "../AppContainer";
 import {Str} from "../Common";
 import {StorageConfig} from "../Config/Storage";
+import {LocalFileProvider} from "./Providers/LocalFileProvider";
 import {StorageProviderContract, StoragePutOptions} from "./StorageProviderContract";
 import path from "path";
 import {pipeline} from "stream";
-import * as util from 'util'
+import * as util from 'util';
 
-const pump = util.promisify(pipeline)
+const pump = util.promisify(pipeline);
 
 export class Storage {
 
@@ -148,9 +149,12 @@ export class Storage {
 	 */
 	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream) {
 		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
-		const tempName = Str.random() + '.' + (fileName.split('.').pop())
 
-		await pump(stream, fs.createWriteStream(path.join(tempPath, tempName)))
+		await Storage.provider(LocalFileProvider).makeDirectory(path.join('storage', 'temp'));
+
+		const tempName = Str.random() + '.' + (fileName.split('.').pop());
+
+		await pump(stream, fs.createWriteStream(path.join(tempPath, tempName)));
 
 		return tempName;
 	}

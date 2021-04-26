@@ -2,6 +2,8 @@ import "reflect-metadata";
 
 import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
+import * as fs from "fs";
+import * as path from "path";
 import {TestingController} from "../App/Http/Controllers/TestingController";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
@@ -360,6 +362,28 @@ describe('test route service provider', () => {
 		expect(body.errors.something).toEqual('something must be longer than or equal to 1 characters');
 		expect(res.statusCode).toEqual(500);
 
+	});
+
+	test('uploading a file', async () => {
+
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const FormData = require('form-data');
+		const form     = new FormData();
+		form.append('file', await fs.createReadStream(path.join(process.cwd(), 'logo.svg')));
+
+		const res = await server._server.inject({
+			method  : 'post',
+			url     : '/testing/file/upload',
+			payload : form,
+			headers : form.getHeaders()
+		});
+
+		const body = JSON.parse(res.body);
+
+		expect(body.extension).toEqual('svg');
+		expect(body.mimetype).toEqual('image/svg+xml');
 	});
 
 });

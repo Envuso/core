@@ -111,4 +111,19 @@ export class TestingController extends Controller {
 		return dto;
 	}
 
+	@post('/file/upload')
+	async testUploadFile() {
+		const file = request().file('file');
+
+		return {
+			extension         : file.getExtension(),
+			encoding          : file.getEncoding(),
+			mimetype          : file.getMimeType(),
+			original_filename : file.getOriginalFileName(),
+			temp_filename     : file.getTempFileName(),
+			without_extension : file.getFileNameWithoutExtension(),
+			size              : file.getSize(),
+		};
+	}
+
 }
