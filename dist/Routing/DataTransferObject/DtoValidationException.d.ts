@@ -1,5 +1,6 @@
 import { ValidationError } from "class-validator";
-export declare class DtoValidationException extends Error {
+import { Exception } from "../../Common";
+export declare class DtoValidationException extends Exception {
     private _validationErrors;
     constructor(validationErrors: ValidationError[]);
 }

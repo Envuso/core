@@ -157,10 +157,12 @@ class Server {
     handleException(error, request, reply) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this._customErrorHandler) {
-                return reply.status(500).send({
+                const response = (error instanceof Common_1.Exception) ? error.response : {
                     message: error.message,
                     code: 500,
-                });
+                };
+                const code = (error instanceof Common_1.Exception) ? error.code : 500;
+                return reply.status(code).send(response);
             }
             const response = yield this._customErrorHandler(error, request, reply);
             response.send();
