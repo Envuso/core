@@ -95,6 +95,7 @@ class Server {
      */
     registerControllers() {
         //		this._server.register((instance, opts, done) => {
+        var _a, _b;
         const controllers = Routing_1.ControllerManager.initiateControllers();
         for (let controller of controllers) {
             const routes = controller.routes;
@@ -116,7 +117,8 @@ class Server {
                         yield this.handleException(error, request, reply);
                     })
                 });
-                Common_1.Log.info(`Route Loaded: ${controller.controller.constructor.name}(${route.getMethod()} ${route.getPath()})`);
+                const controllerName = ((_b = (_a = controller === null || controller === void 0 ? void 0 : controller.controller) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : controller.controller.constructor.name);
+                Common_1.Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
             }
         }
         //			done();
