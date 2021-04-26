@@ -47,6 +47,7 @@ class UploadedFile {
         this.tempFileName = tempFileName;
         this._extension = null;
         this._mimeType = null;
+        this._fileStat = null;
     }
     /**
      * Get the mimetype of the uploaded file
@@ -90,7 +91,7 @@ class UploadedFile {
      * @returns {Stats}
      */
     getFileStat() {
-        return fs.statSync(this.getTempFilePath());
+        return this._fileStat;
     }
     /**
      * Get the size of the file in bytes
@@ -249,6 +250,7 @@ class UploadedFile {
                 if (!this._mimeType) {
                     this._mimeType = this.getOriginalMimeType();
                 }
+                this._fileStat = fs.statSync(this.getTempFilePath());
             }
             catch (error) {
                 throw new Common_1.Exception('Something went wrong when trying to get mimetype/extension of uploaded file.');

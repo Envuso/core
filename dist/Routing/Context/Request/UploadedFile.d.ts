@@ -9,6 +9,7 @@ export declare class UploadedFile {
     private tempFileName;
     private _extension;
     private _mimeType;
+    private _fileStat;
     constructor(file: Multipart, tempFileName: string);
     /**
      * Get the mimetype of the uploaded file
