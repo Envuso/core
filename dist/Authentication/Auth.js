@@ -18,19 +18,50 @@ const Authentication_1 = require("./Authentication");
  * for some easy access to the authentication logic/handling.
  */
 class Auth {
+    /**
+     * Check if the user is authenticated
+     *
+     * @returns {boolean}
+     */
     static check() {
         return AppContainer_1.resolve(Authentication_1.Authentication).check();
     }
+    /**
+     * Attempt to login with the credentials of x user
+     *
+     * @param {AuthCredentialContract} credentials
+     * @returns {Promise<boolean>}
+     */
     static attempt(credentials) {
         return __awaiter(this, void 0, void 0, function* () {
             return AppContainer_1.resolve(Authentication_1.Authentication).attempt(credentials);
         });
     }
+    /**
+     * Authenticate as x user
+     *
+     * @param {Authenticatable<T>} user
+     */
     static authoriseAs(user) {
         return AppContainer_1.resolve(Authentication_1.Authentication).authoriseAs(user);
     }
+    /**
+     * Get the authenticated user
+     *
+     * @returns {T}
+     */
     static user() {
         return AppContainer_1.resolve(Authentication_1.Authentication).user().getUser();
+    }
+    /**
+     * Get the id of the authenticated user
+     *
+     * @returns {string|null}
+     */
+    static id() {
+        var _a;
+        const user = AppContainer_1.resolve(Authentication_1.Authentication).user().getUser();
+        return (_a = user === null || user === void 0 ? void 0 : user._id.toHexString()) !== null && _a !== void 0 ? _a : null;
     }
     static getAuthProvider(providerType) {
         return AppContainer_1.resolve(Authentication_1.Authentication).getAuthProvider(providerType);

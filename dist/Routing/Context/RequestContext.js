@@ -92,9 +92,9 @@ class RequestContext {
      * @param user
      */
     setUser(user) {
-        const authedUser = new Common_1.Authenticatable().setUser(user);
-        this.container.register(Common_1.Authenticatable, { useValue: authedUser });
-        this.user = authedUser;
+        //	const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
+        this.container.register(Common_1.Authenticatable, { useValue: user });
+        this.user = user;
     }
 }
 exports.RequestContext = RequestContext;

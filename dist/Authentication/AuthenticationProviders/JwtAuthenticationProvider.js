@@ -91,7 +91,7 @@ class JwtAuthenticationProvider extends AuthenticationProvider_1.AuthenticationP
             if (!user) {
                 return null;
             }
-            return new Common_1.Authenticatable().setUser(user);
+            return new Common_1.Authenticatable().setUser(user.getUser());
         });
     }
     issueToken(id) {

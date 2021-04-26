@@ -53,10 +53,11 @@ class ModelUserProvider extends UserProvider_1.UserProvider {
     verifyLoginCredentials(credentials) {
         return __awaiter(this, void 0, void 0, function* () {
             const primaryIdentifier = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('auth.primaryIdentifier');
-            const user = yield this.userForIdentifier(credentials[primaryIdentifier]);
+            let user = yield this.userForIdentifier(credentials[primaryIdentifier]);
             if (!user) {
                 return null;
             }
+            //		user = user.getUser();
             // Ts ignore until we find a nicer solution for shared structure
             //@ts-ignore
             const password = user.password;
