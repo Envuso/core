@@ -127,6 +127,12 @@ export class TestingController extends Controller {
 		};
 	}
 
+	@get('/model/pagination')
+	async testPagination() {
+		return User.paginate(1);
+//		return User.get();
+	}
+
 	@get()
 	async testQueryBuilderMethod() {
 		User.where({
@@ -159,9 +165,9 @@ export class TestingController extends Controller {
 
 		User.create({});
 
-		const users = await User.where({}).orderByAsc('something').get()
+		const users = await User.where({}).orderByAsc('something').get();
 
-		const user = await User.where({}).first()
+		const user = await User.where({}).first();
 
 	}
 

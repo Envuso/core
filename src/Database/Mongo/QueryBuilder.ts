@@ -2,6 +2,7 @@ import {Cursor, FilterQuery, FindOneOptions, UpdateManyOptions, UpdateQuery, Upd
 import {ClassType, Ref} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Model} from "./Model";
+import {Paginator} from "./Paginator";
 
 interface CollectionOrder {
 	direction: 1 | -1,
@@ -18,13 +19,46 @@ export class QueryBuilder<T> {
 	 */
 	private _builderResult: Cursor<T>;
 
+	/**
+	 * An instance of the model to use for interaction
+	 *
+	 * @type {Model<T>}
+	 * @private
+	 */
 	private _model: Model<T>;
 
+	/**
+	 * Handle filtering the collection
+	 *
+	 * @type {object}
+	 * @private
+	 */
 	private _collectionFilter: object = null;
 
+	/**
+	 * Handle collection aggregations
+	 * Currently used for collection relations
+	 *
+	 * @type {object[]}
+	 * @private
+	 */
 	private _collectionAggregation: object[] = [];
 
+	/**
+	 * Allow for specifying ordering on the collection
+	 *
+	 * @type {CollectionOrder | null}
+	 * @private
+	 */
 	private _collectionOrder: CollectionOrder | null = null;
+
+	/**
+	 * Limit the return size of the collection
+	 *
+	 * @type {number}
+	 * @private
+	 */
+	private _limit: number = null;
 
 	constructor(model: Model<T>) {
 		this._model = model;
@@ -36,7 +70,7 @@ export class QueryBuilder<T> {
 	 * @param attributes
 	 */
 	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilder<T> {
-		this._collectionFilter = attributes;
+		this._collectionFilter = {...this._collectionFilter, ...attributes};
 
 		return this;
 	}
@@ -111,52 +145,24 @@ export class QueryBuilder<T> {
 	}
 
 	/**
-	 * When a filter has been specified with where(). It will apply to
-	 * {@see _collectionFilter} then when we make other calls, like
-	 * .get(), .first() or .count() it will resolve the cursor
-	 * or use it to make further mongodb calls.
-	 *
-	 * @private
-	 */
-	private resolveFilter() {
-		const options = {} as WithoutProjection<FindOneOptions<T>>;
-
-		if (this._collectionOrder && this._collectionOrder?.direction) {
-			options.sort                            = {};
-			options.sort[this._collectionOrder.key] = this._collectionOrder.direction;
-		}
-
-		if (this._collectionAggregation?.length) {
-			const aggregation = [
-				{$match : this._collectionFilter},
-				...this._collectionAggregation
-			];
-
-			this._builderResult = this._model
-				.collection()
-				.aggregate<T>(aggregation);
-
-			return this._builderResult;
-		}
-
-		this._builderResult = this._model
-			.collection()
-			.find(this._collectionFilter, options);
-
-		return this._builderResult;
-	}
-
-	/**
 	 * Get the first result in the mongo Cursor
 	 */
 	async first(): Promise<T> {
 		await this.resolveFilter();
 
-		const result = await this._builderResult.limit(1).next();
+		let result = await this._builderResult.limit(1).next();
 
-		if (!result) return null;
+		if (!result) {
+			this.cleanupBuilder();
 
-		return hydrateModel(result, this._model.constructor as any);
+			return null;
+		}
+
+		result = hydrateModel(result, this._model.constructor as any);
+
+		this.cleanupBuilder();
+
+		return result;
 	}
 
 	/**
@@ -165,11 +171,13 @@ export class QueryBuilder<T> {
 	async get(): Promise<T[]> {
 		const cursor = await this.resolveFilter();
 
-		const results = await cursor.toArray();
-
-		return results.map(
+		const results = (await cursor.toArray()).map(
 			result => hydrateModel(result, this._model.constructor as unknown as ClassType<T>)
 		);
+
+		this.cleanupBuilder();
+
+		return results;
 	}
 
 	/**
@@ -208,6 +216,18 @@ export class QueryBuilder<T> {
 	}
 
 	/**
+	 * Limit the results of the collection
+	 *
+	 * @param {number} limit
+	 * @returns {this<T>}
+	 */
+	public limit(limit: number) {
+		this._limit = limit;
+
+		return this;
+	}
+
+	/**
 	 * Delete any items from the collection specified in the where() clause
 	 *
 	 * @returns {Promise<boolean>}
@@ -230,5 +250,77 @@ export class QueryBuilder<T> {
 		return this._model.collection().countDocuments(this._collectionFilter);
 	}
 
+	/**
+	 * Paginate the results
+	 *
+	 * @param {number} limit
+	 * @returns {Paginator<{}>}
+	 */
+	public async paginate(limit: number = 20): Promise<Paginator<T>> {
+		this.limit(limit);
+
+		const paginator = new Paginator(
+			this._model,
+			this._collectionFilter,
+			this._limit
+		);
+
+		await paginator.getResults();
+
+		return paginator;
+	}
+
+	/**
+	 * When a filter has been specified with where(). It will apply to
+	 * {@see _collectionFilter} then when we make other calls, like
+	 * .get(), .first() or .count() it will resolve the cursor
+	 * or use it to make further mongodb calls.
+	 *
+	 * @private
+	 */
+	private resolveFilter() {
+		const options = {} as WithoutProjection<FindOneOptions<T>>;
+
+		if (this._collectionOrder && this._collectionOrder?.direction) {
+			options.sort                            = {};
+			options.sort[this._collectionOrder.key] = this._collectionOrder.direction;
+		}
+
+		if (this._limit) {
+			options.limit = this._limit;
+		}
+
+		if (this._collectionAggregation?.length) {
+			const aggregation = [
+				{$match : this._collectionFilter},
+				...this._collectionAggregation
+			];
+
+			this._builderResult = this._model
+				.collection()
+				.aggregate<T>(aggregation);
+
+			return this._builderResult;
+		}
+
+		this._builderResult = this._model
+			.collection()
+			.find(this._collectionFilter, options);
+
+		return this._builderResult;
+	}
+
+	/**
+	 * After we have resolved our query, we need to make sure we clear everything
+	 * up, just so that filters don't remain and cause unexpected issues
+	 * @private
+	 */
+	private cleanupBuilder() {
+		this._builderResult         = null;
+		this._collectionFilter      = null;
+		this._collectionAggregation = null;
+		this._collectionOrder       = null;
+		this._limit                 = null;
+	}
 
 }

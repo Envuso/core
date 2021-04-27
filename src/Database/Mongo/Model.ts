@@ -4,6 +4,7 @@ import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, Wi
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
 import {dehydrateModel, hydrateModel} from "../Serialization/Serializer";
+import {Paginator} from "./Paginator";
 import {QueryBuilder} from "./QueryBuilder";
 
 
@@ -32,6 +33,13 @@ export class Model<M> {
 	}
 
 	/**
+	 * Get an instance of the mongo repository
+	 */
+	static getCollection<T extends Model<any>>(this: new() => T): Collection<T> {
+		return resolve<Collection<T>>(this.name + 'Model');
+	}
+
+	/**
 	 * Get the query builder instance
 	 */
 	queryBuilder(): QueryBuilder<M> {
@@ -41,6 +49,9 @@ export class Model<M> {
 	/**
 	 * Get an instance of query builder, similar to using collection.find()
 	 * But... our query builder returns a couple of helper methods, first(), get()
+	 *
+	 * This method proxies right through to the query builder.
+	 *
 	 * {@see QueryBuilder}
 	 *
 	 * @param attributes
@@ -50,13 +61,6 @@ export class Model<M> {
 		attributes: FilterQuery<T> | Partial<T>
 	): QueryBuilder<T> {
 		return new this().queryBuilder().where<T>(attributes);
-	}
-
-	/**
-	 * Get an instance of the mongo repository
-	 */
-	static getCollection<T extends Model<any>>(this: new() => T): Collection<T> {
-		return resolve<Collection<T>>(this.name + 'Model');
 	}
 
 	/**
@@ -93,6 +97,16 @@ export class Model<M> {
 	 */
 	public static async count(): Promise<number> {
 		return this.where({}).count();
+	}
+
+	/**
+	 * Paginate all data on the collection
+	 */
+	public static paginate<T extends Model<any>>(
+		this: new() => T,
+		limit: number = 20
+	): Promise<Paginator<T>> {
+		return new this().queryBuilder().paginate(limit);
 	}
 
 	/**
@@ -153,6 +167,22 @@ export class Model<M> {
 		key: keyof T
 	): QueryBuilder<T> {
 		return new QueryBuilder<T>(new this()).orderByAsc(key);
+	}
+
+	/**
+	 * Sometimes we just want a simple way to check if
+	 * a document exists with the specified fields
+	 *
+	 * @param {FilterQuery<T>} query
+	 * @returns {Promise<boolean>}
+	 */
+	static async exists<T extends Model<any>>(
+		this: new() => T,
+		query: FilterQuery<T>
+	) {
+		const result = await new this().collection().findOne(query);
+
+		return !!result;
 	}
 
 	/**

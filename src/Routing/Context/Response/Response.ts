@@ -33,7 +33,7 @@ export class Response {
 		this._cookieJar = new CookieJar();
 	}
 
-	get fastifyReply() {
+	get fastifyReply(): FastifyReply {
 		return this._response;
 	}
 
@@ -49,11 +49,11 @@ export class Response {
 		this._data = data;
 	}
 
-	get code() {
+	get code(): StatusCodes {
 		return this._code ?? 200;
 	}
 
-	get data() {
+	get data(): any {
 		return this._data ?? {};
 	}
 
@@ -63,7 +63,7 @@ export class Response {
 	 * @param {string} header
 	 * @returns {boolean}
 	 */
-	hasHeader(header: string) {
+	hasHeader(header: string): boolean {
 		return this.fastifyReply.hasHeader(header);
 	}
 
@@ -73,7 +73,7 @@ export class Response {
 	 * @param {string} header
 	 * @returns {string}
 	 */
-	getHeader(header: string) {
+	getHeader(header: string): string | undefined {
 		return this.fastifyReply.getHeader(header);
 	}
 
@@ -83,7 +83,7 @@ export class Response {
 	 * @param header
 	 * @param value
 	 */
-	header(header: string, value: any) {
+	header(header: string, value: any): this {
 		this.fastifyReply.header(header, value);
 
 		return this;
@@ -95,7 +95,7 @@ export class Response {
 	 * @param data
 	 * @param code
 	 */
-	setResponse(data: any, code: StatusCodes) {
+	setResponse(data: any, code: StatusCodes): this {
 		this._data = data;
 		this._code = code;
 
@@ -107,7 +107,7 @@ export class Response {
 	 *
 	 * @param code
 	 */
-	setCode(code: StatusCodes) {
+	setCode(code: StatusCodes): this {
 		this._code = code;
 
 		return this;
@@ -116,7 +116,7 @@ export class Response {
 	/**
 	 * Send the data/status code manually
 	 */
-	send() {
+	send(): FastifyReply {
 		return this.fastifyReply
 			.status(this.code)
 			.send(this.data);
@@ -127,7 +127,7 @@ export class Response {
 	 *
 	 * @param url
 	 */
-	redirect(url: string) {
+	redirect(url: string): this {
 		return this
 			.setResponse(null, StatusCodes.TEMPORARY_REDIRECT)
 			.header('Location', url);
@@ -138,7 +138,7 @@ export class Response {
 	 *
 	 * @param data
 	 */
-	notFound(data?: any) {
+	notFound(data?: any): this {
 		return this.setResponse(data, StatusCodes.NOT_FOUND);
 	}
 
@@ -147,7 +147,7 @@ export class Response {
 	 *
 	 * @param data
 	 */
-	badRequest(data?: any) {
+	badRequest(data?: any): this {
 		return this.setResponse(data, StatusCodes.BAD_REQUEST);
 	}
 
@@ -167,7 +167,7 @@ export class Response {
 	 * @param data
 	 * @param code
 	 */
-	json(data?: any, code?: StatusCodes) {
+	json(data?: any, code?: StatusCodes): this {
 		return this.setResponse(data || {}, code || StatusCodes.ACCEPTED);
 	}
 

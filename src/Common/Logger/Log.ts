@@ -40,7 +40,7 @@ export class Log {
 		if(this.isLoggingDisabled())
 			return;
 
-		LogService.get().error(message, error);
+		LogService.get().error(message, {error});
 	}
 
 	static info(message, ...args) {

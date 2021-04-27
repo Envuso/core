@@ -115,8 +115,7 @@ export class Server {
 		});
 
 		this._server.addHook('onError', (request, reply, error, done) => {
-			Log.error(error.message);
-			console.error(error);
+			Log.exception(error.message, error);
 
 			done();
 		});
@@ -154,7 +153,7 @@ export class Server {
 						}
 					},
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
-						await this.handleException(error, request, reply);
+						return await this.handleException(error, request, reply);
 					}
 				});
 

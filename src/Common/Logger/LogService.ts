@@ -45,7 +45,7 @@ export class LogService {
 			maxFiles      : "14d"
 		});
 
-		const myFormat = printf(({level, message, label, ms, timestamp, stack, ...metadata}) => {
+		const myFormat = printf(({level, message, label, ms, timestamp, ...metadata}) => {
 			if (ms) {
 				if (ms.replace("ms", "").replace("+", "").replace("s", "") > 100) {
 					ms = chalk.redBright`${ms}`;
@@ -98,7 +98,27 @@ export class LogService {
 			const levelWrap = chalk.gray`${level}`;
 			message         = messageColor`${message}`;
 
+
+			if (metadata.error) {
+
+				let errorMessage =  chalk.redBright((metadata.error.stack ?? metadata.error).toString());
+
+				//take the first line, we want to make this red :D
+//				if (errorMessage.includes('\n')) {
+//					const lines = errorMessage.split('\n');
+//					lines[0]    = chalk.redBright(lines[0]);
+//
+//					errorMessage = lines.join('\n');
+//				}
+
+				message += errorMessage;
+				message += `\n`;
+
+				delete metadata.error;
+			}
+
 			let msg = `${timestamp} ${levelWrap} ${message} ${ms}`;
+
 
 			if (metadata && Object.keys(metadata).length) {
 				try {
@@ -109,10 +129,6 @@ export class LogService {
 				}
 			}
 
-			if (stack) {
-				message += `\n`;
-				message += stack;
-			}
 
 			return msg;
 		});
