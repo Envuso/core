@@ -1,6 +1,7 @@
 import {IsString, MinLength} from "class-validator";
 import {ObjectId} from "mongodb";
-import {Auth} from "../../../Authentication";
+import {Auth, Authentication} from "../../../Authentication";
+import {Authenticatable} from "../../../Common";
 import {
 	body,
 	context,
@@ -14,7 +15,7 @@ import {
 	Middleware, param, post, query, request,
 	RequestContext,
 	response,
-	session
+	session, user
 } from "../../../Routing";
 import {User} from "../../Models/User";
 import {TestMiddleware} from "../Middleware/TestMiddleware";
@@ -27,6 +28,13 @@ class DTO extends DataTransferObject {
 	something: string;
 }
 
+
+class SetUserMiddleware extends Middleware {
+	public async handler(context: RequestContext): Promise<any> {
+		Auth.authoriseAs(new Authenticatable().setUser({lel : true}))
+	}
+
+}
 
 @middleware(new TestMiddleware())
 @controller('/testing')
@@ -131,6 +139,12 @@ export class TestingController extends Controller {
 	async testPagination() {
 		return User.paginate(1);
 //		return User.get();
+	}
+
+	@middleware(new SetUserMiddleware())
+	@get('/auth/userdecorator')
+	public async testUserDecorator(@user user : User) {
+		return {user};
 	}
 
 	@get()
