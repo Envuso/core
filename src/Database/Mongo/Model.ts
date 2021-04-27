@@ -1,6 +1,6 @@
 import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection} from "mongodb";
+import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
 import {dehydrateModel, hydrateModel} from "../Serialization/Serializer";
@@ -212,24 +212,55 @@ export class Model<M> {
 	 * @param options
 	 */
 	async update(
-		attributes: Partial<M>,
+		attributes: UpdateQuery<M> | Partial<M>,
 		options: ReplaceOneOptions = {}
-	): Promise<this> {
-		const plain = dehydrateModel({...this, ...attributes});
+	): Promise<M> {
+		//		const plain = dehydrateModel({...this, ...attributes});
 
-		await this.collection().replaceOne({
-			_id : (this as any)._id
-		}, plain as any, options);
+		const attributeChecks = attributes as UpdateQuery<M>;
 
-		for (let attributesKey in attributes) {
-			(this as any)[attributesKey] = attributes[attributesKey];
+		// Update queries in mongo require atomic operators...
+		// We'll check if any of the mongo atomic operators are defined
+		// in the update query... if so, then we'll manually call $set
+		// This will allow us to use both kinds of updates
+
+		let usesAtomicOperator = false;
+		for (let key of Object.keys(attributeChecks)) {
+			if(this.getMongoAtomicOperators().includes(key)){
+				usesAtomicOperator = true;
+				break;
+			}
 		}
 
-		//		await this.refresh();
+		if(!usesAtomicOperator){
+			//@ts-ignore - some silly type issue i cba to figure out rn
+			attributes = {$set : attributes}
+		}
 
-		return this;
+		await this.collection().updateOne({
+			'_id' : (this as any)._id
+		}, attributes, options);
+
+		const updatedModel = await this.queryBuilder()
+			.where({_id : this.getModelId()})
+			.first();
+
+		Object.assign(this, updatedModel);
+
+		return updatedModel;
+
+		// await this.collection().replaceOne({
+		// 	_id : (this as any)._id
+		// }, plain as any, options);
+
+		// for (let attributesKey in attributes) {
+		// 	(this as any)[attributesKey] = attributes[attributesKey];
+		// }
+
+		// await this.refresh();
+
+//		return this;
 	}
-
 
 	/**
 	 * Save any changes made to the model
@@ -265,7 +296,16 @@ export class Model<M> {
 	 * @returns {boolean}
 	 */
 	isFresh(): boolean {
-		return !!(this as any)?._id;
+		return !!this.getModelId();
+	}
+
+	/**
+	 * Get the current models id
+	 *
+	 * @returns {ObjectId}
+	 */
+	getModelId(): ObjectId {
+		return (this as any)?._id;
 	}
 
 	/**
@@ -285,8 +325,10 @@ export class Model<M> {
 	/**
 	 * Delete the current model instance from the collection
 	 */
-	async delete() {
-		await this.collection().deleteOne({_id : (this as any)._id});
+	async delete(): Promise<boolean> {
+		const response = await this.collection().deleteOne({_id : (this as any)._id});
+
+		return !!response.result.ok;
 	}
 
 	public mongoResponse(): any {
@@ -321,6 +363,26 @@ export class Model<M> {
 			{},
 			options
 		);
+	}
+
+	getMongoAtomicOperators() {
+		return [
+			"$currentDate",
+			"$inc",
+			"$min",
+			"$max",
+			"$mul",
+			"$rename",
+			"$set",
+			"$setOnInsert",
+			"$unset",
+			"$addToSet",
+			"$pop",
+			"$pull",
+			"$push",
+			"$pullAll",
+			"$bit",
+		]
 	}
 
 }
