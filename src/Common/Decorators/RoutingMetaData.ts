@@ -12,5 +12,6 @@ export enum METADATA {
 	REQUEST_METHOD_QUERY_PARAMETER = 'request-method-query-parameter',
 	REQUEST_METHOD_BODY            = 'request-method-body',
 	REQUEST_METHOD_HEADERS         = 'request-method-headers',
+	REQUEST_AUTHENTICATED_USER     = 'request-authenticated-user',
 	MODEL                          = 'MODEL',
 }

@@ -5,6 +5,7 @@ import {
 	RequestHeadersParam,
 	RouteParameterParam,
 } from "./RequestInjection";
+import {RouteUserParam} from "./RequestInjection/RouteUserParam";
 
 export function dto(validateOnRequest?: boolean): ParameterDecorator {
 	return function (target: Object, propertyKey: string | symbol, parameterIndex: number) {
@@ -28,4 +29,8 @@ export const body = function (target: Object, propertyKey: string | symbol, para
 
 export const headers = function (target: Object, propertyKey: string | symbol, parameterIndex: number) {
 	RequestHeadersParam.handleParameter({target, propertyKey, parameterIndex});
+};
+
+export const user = function (target: Object, propertyKey: string | symbol, parameterIndex: number) {
+	RouteUserParam.handleParameter({target, propertyKey, parameterIndex});
 };

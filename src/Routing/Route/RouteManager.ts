@@ -19,7 +19,8 @@ export class RouteManager {
 			METADATA.REQUEST_METHOD_ROUTE_PARAMETER,
 			METADATA.REQUEST_METHOD_QUERY_PARAMETER,
 			METADATA.REQUEST_METHOD_BODY,
-			METADATA.REQUEST_METHOD_HEADERS
+			METADATA.REQUEST_METHOD_HEADERS,
+			METADATA.REQUEST_AUTHENTICATED_USER,
 		];
 	}
 
@@ -49,17 +50,7 @@ export class RouteManager {
 		for (let index in route.methodMeta.parameters) {
 			const parameter = route.methodMeta.parameters[index];
 
-			//@TODO: Add route model binding back here...
-			if (parameter.type.prototype instanceof Model) {
-				const modelInstance: typeof Model = parameter.type;
-
-				const identifier = request.params[parameter.name];
-				const model      = await modelInstance.find(identifier) ?? null;
-
-				parameterArgs.push(model);
-
-				continue;
-			}
+			let boundParameter = false;
 
 			for (let metadataKey of this.methodParamTypesForInjection()) {
 
@@ -82,8 +73,26 @@ export class RouteManager {
 
 				if (canBind) {
 					parameterArgs.push(await methodMeta.bind(request, response));
+
+					boundParameter = true;
 					break;
 				}
+			}
+
+			// Route model binding was conflicting with @user decorator... so
+			// When we've handled a decorator for this parameter, we'll set bound
+			// to true. This way, we can then fall-back to attempting route model binding.
+			if(boundParameter){
+				break;
+			}
+
+			if (parameter.type.prototype instanceof Model) {
+				const modelInstance: typeof Model = parameter.type;
+
+				const identifier = request.params[parameter.name];
+				const model      = await modelInstance.find(identifier) ?? null;
+
+				parameterArgs.push(model);
 			}
 
 		}
