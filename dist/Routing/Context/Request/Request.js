@@ -27,8 +27,17 @@ class Request {
         this._uploadedFiles = [];
         this._request = request;
     }
+    isFastifyRequest(request) {
+        return this._request.routerMethod !== undefined;
+    }
+    isSocketRequest(request) {
+        return this._request.routerMethod === undefined;
+    }
+    get socketRequest() {
+        return this.isSocketRequest(this._request) ? this._request : null;
+    }
     get fastifyRequest() {
-        return this._request;
+        return this.isFastifyRequest(this._request) ? this._request : null;
     }
     /**
      * Get the value of a header from the request
@@ -50,12 +59,16 @@ class Request {
      * Get the body of the request
      */
     body() {
+        if (!this.isFastifyRequest(this._request))
+            return null;
         return this._request.body;
     }
     /**
      * Get the ip the request originated from
      */
     ip() {
+        if (!this.isFastifyRequest(this._request))
+            return null;
         return this._request.ip;
     }
     /**
@@ -66,6 +79,8 @@ class Request {
      * @see https://www.fastify.io/docs/latest/Request/
      */
     ips() {
+        if (!this.isFastifyRequest(this._request))
+            return null;
         return this._request.ips;
     }
     /**
@@ -84,6 +99,8 @@ class Request {
      * The id assigned to this request
      */
     id() {
+        if (!this.isFastifyRequest(this._request))
+            return null;
         return this._request.id;
     }
     /**
@@ -93,6 +110,8 @@ class Request {
      * @param _default
      */
     get(key, _default = null) {
+        if (!this.isFastifyRequest(this._request))
+            return null;
         if (this._request.body && this._request.body[key]) {
             return this._request.body[key];
         }

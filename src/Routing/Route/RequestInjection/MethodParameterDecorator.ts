@@ -42,7 +42,7 @@ export class MethodParameterDecorator {
 	 * @param request
 	 * @param response
 	 */
-	async bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply) {
 		return undefined;
 	}
 

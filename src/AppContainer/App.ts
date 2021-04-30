@@ -154,14 +154,15 @@ export class App {
 
 		const cwd   = process.cwd();
 		const paths = {
-			root        : cwd,
-			src         : path.join(cwd, 'src'),
-			config      : path.join(cwd, 'Config', 'index.js'),
-			controllers : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
-			providers   : path.join(cwd, 'src', 'App', 'Providers'),
-			models      : path.join(cwd, 'src', 'App', 'Models'),
-			storage     : path.join(cwd, 'storage'),
-			temp        : path.join(cwd, 'storage', 'temp'),
+			root            : cwd,
+			src             : path.join(cwd, 'src'),
+			config          : path.join(cwd, 'Config', 'index.js'),
+			controllers     : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
+			socketListeners : path.join(cwd, 'src', 'App', 'Http', 'Sockets'),
+			providers       : path.join(cwd, 'src', 'App', 'Providers'),
+			models          : path.join(cwd, 'src', 'App', 'Models'),
+			storage         : path.join(cwd, 'storage'),
+			temp            : path.join(cwd, 'storage', 'temp'),
 		};
 
 		await configRepository.loadConfigFrom(this._baseConfiguration.config);

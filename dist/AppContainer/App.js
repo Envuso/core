@@ -132,6 +132,7 @@ class App {
                 src: path_1.default.join(cwd, 'src'),
                 config: path_1.default.join(cwd, 'Config', 'index.js'),
                 controllers: path_1.default.join(cwd, 'src', 'App', 'Http', 'Controllers'),
+                socketListeners: path_1.default.join(cwd, 'src', 'App', 'Http', 'Sockets'),
                 providers: path_1.default.join(cwd, 'src', 'App', 'Providers'),
                 models: path_1.default.join(cwd, 'src', 'App', 'Models'),
                 storage: path_1.default.join(cwd, 'storage'),

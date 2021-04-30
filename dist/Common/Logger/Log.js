@@ -30,7 +30,7 @@ class Log {
     static exception(message, error) {
         if (this.isLoggingDisabled())
             return;
-        LogService_1.LogService.get().error(message, error);
+        LogService_1.LogService.get().error(message, { error });
     }
     static info(message, ...args) {
         if (this.isLoggingDisabled())

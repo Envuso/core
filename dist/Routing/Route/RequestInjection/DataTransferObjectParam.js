@@ -46,9 +46,6 @@ class DataTransferObjectParam extends MethodParameterDecorator_1.MethodParameter
             return dtoClass;
         });
     }
-    static canInject(target, key) {
-        return !!this.getMetadata(target[key]);
-    }
 }
 exports.DataTransferObjectParam = DataTransferObjectParam;
 //# sourceMappingURL=DataTransferObjectParam.js.map

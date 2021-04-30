@@ -34,3 +34,4 @@ export const headers = function (target: Object, propertyKey: string | symbol, p
 export const user = function (target: Object, propertyKey: string | symbol, parameterIndex: number) {
 	RouteUserParam.handleParameter({target, propertyKey, parameterIndex});
 };
+

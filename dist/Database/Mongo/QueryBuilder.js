@@ -12,11 +12,38 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueryBuilder = void 0;
 const Serializer_1 = require("../Serialization/Serializer");
 const Model_1 = require("./Model");
+const Paginator_1 = require("./Paginator");
 class QueryBuilder {
     constructor(model) {
+        /**
+         * Handle filtering the collection
+         *
+         * @type {object}
+         * @private
+         */
         this._collectionFilter = null;
+        /**
+         * Handle collection aggregations
+         * Currently used for collection relations
+         *
+         * @type {object[]}
+         * @private
+         */
         this._collectionAggregation = [];
+        /**
+         * Allow for specifying ordering on the collection
+         *
+         * @type {CollectionOrder | null}
+         * @private
+         */
         this._collectionOrder = null;
+        /**
+         * Limit the return size of the collection
+         *
+         * @type {number}
+         * @private
+         */
+        this._limit = null;
         this._model = model;
     }
     /**
@@ -25,7 +52,7 @@ class QueryBuilder {
      * @param attributes
      */
     where(attributes) {
-        this._collectionFilter = attributes;
+        this._collectionFilter = Object.assign(Object.assign({}, this._collectionFilter), attributes);
         return this;
     }
     /**
@@ -84,45 +111,19 @@ class QueryBuilder {
         return this;
     }
     /**
-     * When a filter has been specified with where(). It will apply to
-     * {@see _collectionFilter} then when we make other calls, like
-     * .get(), .first() or .count() it will resolve the cursor
-     * or use it to make further mongodb calls.
-     *
-     * @private
-     */
-    resolveFilter() {
-        var _a, _b;
-        const options = {};
-        if (this._collectionOrder && ((_a = this._collectionOrder) === null || _a === void 0 ? void 0 : _a.direction)) {
-            options.sort = {};
-            options.sort[this._collectionOrder.key] = this._collectionOrder.direction;
-        }
-        if ((_b = this._collectionAggregation) === null || _b === void 0 ? void 0 : _b.length) {
-            const aggregation = [
-                { $match: this._collectionFilter },
-                ...this._collectionAggregation
-            ];
-            this._builderResult = this._model
-                .collection()
-                .aggregate(aggregation);
-            return this._builderResult;
-        }
-        this._builderResult = this._model
-            .collection()
-            .find(this._collectionFilter, options);
-        return this._builderResult;
-    }
-    /**
      * Get the first result in the mongo Cursor
      */
     first() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.resolveFilter();
-            const result = yield this._builderResult.limit(1).next();
-            if (!result)
+            let result = yield this._builderResult.limit(1).next();
+            if (!result) {
+                this.cleanupBuilder();
                 return null;
-            return Serializer_1.hydrateModel(result, this._model.constructor);
+            }
+            result = Serializer_1.hydrateModel(result, this._model.constructor);
+            this.cleanupBuilder();
+            return result;
         });
     }
     /**
@@ -131,8 +132,9 @@ class QueryBuilder {
     get() {
         return __awaiter(this, void 0, void 0, function* () {
             const cursor = yield this.resolveFilter();
-            const results = yield cursor.toArray();
-            return results.map(result => Serializer_1.hydrateModel(result, this._model.constructor));
+            const results = (yield cursor.toArray()).map(result => Serializer_1.hydrateModel(result, this._model.constructor));
+            this.cleanupBuilder();
+            return results;
         });
     }
     /**
@@ -164,6 +166,16 @@ class QueryBuilder {
         });
     }
     /**
+     * Limit the results of the collection
+     *
+     * @param {number} limit
+     * @returns {this<T>}
+     */
+    limit(limit) {
+        this._limit = limit;
+        return this;
+    }
+    /**
      * Delete any items from the collection specified in the where() clause
      *
      * @returns {Promise<boolean>}
@@ -184,6 +196,65 @@ class QueryBuilder {
      */
     count() {
         return this._model.collection().countDocuments(this._collectionFilter);
+    }
+    /**
+     * Paginate the results
+     *
+     * @param {number} limit
+     * @returns {Paginator<{}>}
+     */
+    paginate(limit = 20) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.limit(limit);
+            const paginator = new Paginator_1.Paginator(this._model, this._collectionFilter, this._limit);
+            yield paginator.getResults();
+            return paginator;
+        });
+    }
+    /**
+     * When a filter has been specified with where(). It will apply to
+     * {@see _collectionFilter} then when we make other calls, like
+     * .get(), .first() or .count() it will resolve the cursor
+     * or use it to make further mongodb calls.
+     *
+     * @private
+     */
+    resolveFilter() {
+        var _a, _b;
+        const options = {};
+        if (this._collectionOrder && ((_a = this._collectionOrder) === null || _a === void 0 ? void 0 : _a.direction)) {
+            options.sort = {};
+            options.sort[this._collectionOrder.key] = this._collectionOrder.direction;
+        }
+        if (this._limit) {
+            options.limit = this._limit;
+        }
+        if ((_b = this._collectionAggregation) === null || _b === void 0 ? void 0 : _b.length) {
+            const aggregation = [
+                { $match: this._collectionFilter },
+                ...this._collectionAggregation
+            ];
+            this._builderResult = this._model
+                .collection()
+                .aggregate(aggregation);
+            return this._builderResult;
+        }
+        this._builderResult = this._model
+            .collection()
+            .find(this._collectionFilter, options);
+        return this._builderResult;
+    }
+    /**
+     * After we have resolved our query, we need to make sure we clear everything
+     * up, just so that filters don't remain and cause unexpected issues
+     * @private
+     */
+    cleanupBuilder() {
+        this._builderResult = null;
+        this._collectionFilter = null;
+        this._collectionAggregation = null;
+        this._collectionOrder = null;
+        this._limit = null;
     }
 }
 exports.QueryBuilder = QueryBuilder;

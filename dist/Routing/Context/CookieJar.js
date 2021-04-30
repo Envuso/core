@@ -11,7 +11,7 @@ class CookieJar {
     constructor() {
         this._jar = new Map();
         const configRepository = AppContainer_1.resolve(AppContainer_1.ConfigRepository);
-        this._config = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('session');
+        this._config = configRepository.get('session');
         this._secret = configRepository.get('app.appKey');
     }
     /**

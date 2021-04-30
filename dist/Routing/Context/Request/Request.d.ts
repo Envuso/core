@@ -1,6 +1,9 @@
+/// <reference path="../../../index.d.ts" />
 /// <reference types="node" />
+/// <reference types="node/http" />
 import { FastifyRequest, HTTPMethods } from "fastify";
 import { Multipart } from "fastify-multipart";
+import { IncomingMessage } from "http";
 import { Authenticatable } from "../../../Common";
 import { UploadedFile } from "./UploadedFile";
 export declare class Request {
@@ -15,7 +18,10 @@ export declare class Request {
      * @private
      */
     private _uploadedFiles;
-    constructor(request: FastifyRequest);
+    constructor(request: FastifyRequest | IncomingMessage);
+    isFastifyRequest(request: FastifyRequest | IncomingMessage): request is FastifyRequest;
+    isSocketRequest(request: FastifyRequest | IncomingMessage): request is IncomingMessage;
+    get socketRequest(): IncomingMessage;
     get fastifyRequest(): FastifyRequest;
     /**
      * Get the value of a header from the request

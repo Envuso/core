@@ -15,6 +15,7 @@ export class LogService {
 		const rotateFile = new DailyRotateFile({
 			dirname       : "./storage/logs",
 			filename      : "%DATE%-app.log",
+			level         : "error",
 			format        : combine(
 				format.timestamp({format : 'M/D HH:mm:ss.SSS'}),
 				format.ms(),
@@ -101,15 +102,15 @@ export class LogService {
 
 			if (metadata.error) {
 
-				let errorMessage =  chalk.redBright((metadata.error.stack ?? metadata.error).toString());
+				let errorMessage = chalk.redBright((metadata.error.stack ?? metadata.error).toString());
 
 				//take the first line, we want to make this red :D
-//				if (errorMessage.includes('\n')) {
-//					const lines = errorMessage.split('\n');
-//					lines[0]    = chalk.redBright(lines[0]);
-//
-//					errorMessage = lines.join('\n');
-//				}
+				//				if (errorMessage.includes('\n')) {
+				//					const lines = errorMessage.split('\n');
+				//					lines[0]    = chalk.redBright(lines[0]);
+				//
+				//					errorMessage = lines.join('\n');
+				//				}
 
 				message += errorMessage;
 				message += `\n`;

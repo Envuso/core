@@ -103,12 +103,14 @@ class Route {
         if (controllerResponse === undefined || controllerResponse === null) {
             return response.setResponse(null, http_status_codes_1.StatusCodes.NO_CONTENT).send();
         }
-        const responseSerializationConfig = AppContainer_1.App.getInstance()
-            .resolve(AppContainer_1.ConfigRepository)
-            .get('server.responseSerialization', {
-            enableCircularCheck: true,
-            strategy: 'exposeAll'
-        });
+        //		const responseSerializationConfig = App.getInstance()
+        //			.resolve(ConfigRepository)
+        //			.get<ClassTransformOptions>(
+        //				'server.responseSerialization', {
+        //					enableCircularCheck : true,
+        //					strategy            : 'exposeAll'
+        //				} as ClassTransformOptions
+        //			);
         if (!(controllerResponse instanceof Response_1.Response)) {
             return response.setResponse(controllerResponse, 
             //classToPlain(controllerResponse, responseSerializationConfig),
@@ -136,7 +138,7 @@ class Route {
         });
         return (context) => __awaiter(this, void 0, void 0, function* () {
             for (const middleware of middlewares) {
-                yield middleware.handler(context);
+                yield middleware.handle(context);
             }
         });
     }

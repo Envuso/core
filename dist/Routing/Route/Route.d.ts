@@ -1,4 +1,6 @@
+/// <reference path="../../index.d.ts" />
 /// <reference types="node" />
+/// <reference types="node/http" />
 import { FastifyReply, FastifyRequest, HTTPMethods } from "fastify";
 import { RequestContext } from "../Context/RequestContext";
 import { Response } from "../Context/Response/Response";

@@ -11,6 +11,8 @@ export default {
 	 */
 	port : 3000,
 
+	middleware : [],
+
 	/**
 	 * Cors is automatically configured internally due to some framework
 	 * configuration that needs to align. But you can also adjust the
@@ -19,11 +21,10 @@ export default {
 	cors : {
 		enabled : true,
 		options : {
-			origin               : [
-				"https://chatreward.test",
-				"https://app.chatreward.test",
-			],
-			credentials          : true,
+			origin      : (origin: string, callback) => {
+				callback(null, true);
+			},
+			credentials : true,
 		} as FastifyCorsOptions
 	},
 
@@ -42,7 +43,9 @@ export default {
 	 * Any options to pass to fastify when it boots
 	 *
 	 */
-	fastifyOptions : {} as FastifyServerOptions,
+	fastifyOptions : {
+
+	} as FastifyServerOptions,
 
 	/**
 	 * Before we return a response we serialize the result, mainly

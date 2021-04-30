@@ -60,7 +60,7 @@ export class RouteManager {
 				);
 
 				if (!methodMeta) {
-					Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
+//					Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
 
 					continue;
 				}

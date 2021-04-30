@@ -45,7 +45,7 @@ export class RouteParameterParam extends MethodParameterDecorator {
 		return this.expectedParamType === param;
 	}
 
-	async bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply) {
 		const paramValue = request.params[this.parameterName];
 		const param      = this.expectedParamType(paramValue);
 

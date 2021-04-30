@@ -10,6 +10,7 @@ const Database_1 = __importDefault(require("./Database"));
 const Server_1 = __importDefault(require("./Server"));
 const Session_1 = __importDefault(require("./Session"));
 const Storage_1 = __importDefault(require("./Storage"));
+const Websockets_1 = __importDefault(require("./Websockets"));
 exports.Config = {
     app: {
         appKey: '1234',
@@ -27,6 +28,7 @@ exports.Config = {
     database: Database_1.default,
     storage: Storage_1.default,
     server: Server_1.default,
-    session: Session_1.default
+    session: Session_1.default,
+    websockets: Websockets_1.default
 };
 //# sourceMappingURL=index.js.map

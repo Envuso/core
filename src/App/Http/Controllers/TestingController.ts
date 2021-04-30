@@ -1,23 +1,23 @@
 import {IsString, MinLength} from "class-validator";
 import {ObjectId} from "mongodb";
 import {Auth} from "../../../Authentication";
+
 import {
 	body,
-	context,
 	Controller,
 	controller,
 	DataTransferObject,
 	dto,
-	get,
+	get, JwtAuthenticationMiddleware,
 	method,
-	middleware,
-	Middleware, param, post, query, request,
-	RequestContext,
+	middleware, post, query, request,
 	response,
-	session
+	session, user
 } from "../../../Routing";
 import {User} from "../../Models/User";
+import {SetUserMiddleware} from "../Middleware/SetUserMiddleware";
 import {TestMiddleware} from "../Middleware/TestMiddleware";
+import {UserSocketListener} from "../Sockets/UserSocketListener";
 import {TestController} from "./TestController";
 
 class DTO extends DataTransferObject {
@@ -28,7 +28,7 @@ class DTO extends DataTransferObject {
 }
 
 
-@middleware(new TestMiddleware())
+//@middleware(new TestMiddleware())
 @controller('/testing')
 export class TestingController extends Controller {
 
@@ -127,10 +127,34 @@ export class TestingController extends Controller {
 		};
 	}
 
+	@get('/auth/token')
+	async getToken() {
+		const user = await User.where({email : 'sam@iffdt.dev'}).first();
+
+		return user.generateToken();
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/auth/event')
+	async sendSocketEventToAuthedUser(/*@user userd: User*/) {
+		const user = Auth.user<User>();
+		//		user.sendSocketEvent('wewt', {message : 'yeah boi'});
+
+		user.sendSocketChannelEvent(UserSocketListener, 'wewt', {message : 'yeah boi'});
+
+		return {};
+	}
+
 	@get('/model/pagination')
 	async testPagination() {
 		return User.paginate(1);
-//		return User.get();
+		//		return User.get();
+	}
+
+	@middleware(new SetUserMiddleware())
+	@get('/auth/userdecorator')
+	public async testUserDecorator(@user user: User) {
+		return {user};
 	}
 
 	@get()

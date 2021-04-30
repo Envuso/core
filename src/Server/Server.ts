@@ -1,23 +1,24 @@
-import {Cors} from "aws-sdk/clients/apigatewayv2";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import fastify, {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
 import {FastifyCorsOptions} from "fastify-cors";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
-import {ConfigRepository, resolve} from "../../AppContainer";
-import {Exception, Log} from "../../Common";
-import {ControllerManager, RequestContext, Response, UploadedFile} from "../../Routing";
+import {ConfigRepository, resolve} from "../AppContainer";
+import {Exception, Log} from "../Common";
+import {ControllerManager, Middleware, RequestContext, Response, UploadedFile} from "../Routing";
+import {SocketServer} from "../Sockets/SocketServer";
 
 export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
 
 interface CorsConfiguration {
 	enabled: boolean;
-	options: FastifyCorsOptions;
+	options: FastifyCorsOptions
 }
 
 
 interface ServerConfiguration {
 	port: number;
+	middleware: (new () => Middleware)[]
 	cors: CorsConfiguration;
 	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
 	fastifyOptions: FastifyServerOptions;
@@ -25,7 +26,6 @@ interface ServerConfiguration {
 }
 
 export class Server {
-
 
 	/**
 	 * Our fastify instance for the server
@@ -67,7 +67,10 @@ export class Server {
 		await this._server.register(middie);
 
 		this.registerPlugins();
-
+		this._server.addHook('onRequest', (r, re, done) => {
+			console.time('REQUEST TIME');
+			done();
+		});
 		// Handled just before our controllers receive/process the request
 		// This handler needs to work by it-self to provide the context
 		this._server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
@@ -77,7 +80,7 @@ export class Server {
 				return;
 			}
 
-			(new RequestContext(request, response)).bind(done);
+			(new RequestContext(request, response)).bindToFastify(done);
 		});
 
 		// Handled just before our controllers receive/process the request
@@ -114,6 +117,10 @@ export class Server {
 				await RequestContext.session().save();
 		});
 
+		this._server.addHook('onResponse', (r, re, done) => {
+			console.timeEnd('REQUEST TIME');
+			done();
+		});
 		this._server.addHook('onError', (request, reply, error, done) => {
 			Log.exception(error.message, error);
 
@@ -131,8 +138,6 @@ export class Server {
 	 * @private
 	 */
 	private registerControllers() {
-
-		//		this._server.register((instance, opts, done) => {
 
 		const controllers = ControllerManager.initiateControllers();
 
@@ -162,10 +167,6 @@ export class Server {
 				Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
 			}
 		}
-
-		//			done();
-		//		})
-
 	}
 
 	/**
@@ -198,6 +199,18 @@ export class Server {
 	 * Begin listening for connections
 	 */
 	async listen() {
+
+		const socketServer = resolve(SocketServer);
+
+		if(socketServer.isEnabled()){
+			await socketServer.initiate(this._server)
+		}
+
+//		if (this._config.websocketsEnabled) {
+//			this._socketServer = new SocketServer();
+//			await this._socketServer.prepareIo(this._server, this._config.cors);
+//		}
+
 		await this._server.listen(this._config.port);
 
 		Log.success('Server is running at http://127.0.0.1:' + this._config.port);

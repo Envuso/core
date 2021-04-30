@@ -61,8 +61,8 @@ export class Route {
 			path = '/' + path;
 		}
 
-		if(path.endsWith('/')){
-			path = path.slice(0, -1)
+		if (path.endsWith('/')) {
+			path = path.slice(0, -1);
 		}
 
 		return path;
@@ -88,6 +88,7 @@ export class Route {
 			const controller = App.getInstance().resolve<Controller>(
 				this.controllerMeta.controller.target
 			);
+
 
 			const routeMethod   = controller[this.methodMeta.key].bind(controller);
 			const routeResponse = await routeMethod(...parameters);
@@ -138,14 +139,14 @@ export class Route {
 			return response.setResponse(null, StatusCodes.NO_CONTENT).send();
 		}
 
-		const responseSerializationConfig = App.getInstance()
-			.resolve(ConfigRepository)
-			.get<ClassTransformOptions>(
-				'server.responseSerialization', {
-					enableCircularCheck : true,
-					strategy            : 'exposeAll'
-				} as ClassTransformOptions
-			);
+//		const responseSerializationConfig = App.getInstance()
+//			.resolve(ConfigRepository)
+//			.get<ClassTransformOptions>(
+//				'server.responseSerialization', {
+//					enableCircularCheck : true,
+//					strategy            : 'exposeAll'
+//				} as ClassTransformOptions
+//			);
 
 		if (!(controllerResponse instanceof Response)) {
 			return response.setResponse(
@@ -156,10 +157,9 @@ export class Route {
 		}
 
 
-
-//		controllerResponse.data = serialize(
-//			controllerResponse.data, responseSerializationConfig
-//		);
+		//		controllerResponse.data = serialize(
+		//			controllerResponse.data, responseSerializationConfig
+		//		);
 
 		return controllerResponse.send();
 	}
@@ -190,7 +190,7 @@ export class Route {
 
 		return async (context: RequestContext) => {
 			for (const middleware of middlewares) {
-				await middleware.handler(context);
+				await middleware.handle(context);
 			}
 		};
 

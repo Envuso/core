@@ -18,10 +18,17 @@ const RequestContextStore_1 = require("./RequestContextStore");
 const Response_1 = require("./Response/Response");
 const Session_1 = require("./Session");
 class RequestContext {
-    constructor(request, response) {
+    constructor(request, response, socket) {
+        this.request = null;
+        this.response = null;
         this.session = null;
-        this.request = new Request_1.Request(request);
-        this.response = new Response_1.Response(response);
+        this.socket = null;
+        if (request)
+            this.request = new Request_1.Request(request);
+        if (response)
+            this.response = new Response_1.Response(response);
+        if (socket)
+            this.socket = socket;
     }
     /**
      * Set any cookies from the request into the cookie jar
@@ -41,13 +48,21 @@ class RequestContext {
      *
      * @param done
      */
-    bind(done) {
+    bindToFastify(done) {
         this.container = AppContainer_1.App.getInstance().container().createChildContainer();
         // We bind the context to the current request, so it's obtainable
         // throughout the lifecycle of this request, this isn't bound to
         // our wrapper request class, only the original fastify request
         Reflect.defineMetadata(Common_1.METADATA.HTTP_CONTEXT, this, this.request.fastifyRequest);
         RequestContextStore_1.RequestContextStore.getInstance().bind(this.request.fastifyRequest, done);
+    }
+    bindToSockets(done) {
+        this.container = AppContainer_1.App.getInstance().container().createChildContainer();
+        // We bind the context to the current request, so it's obtainable
+        // throughout the lifecycle of this request, this isn't bound to
+        // our wrapper request class, only the original fastify request
+        Reflect.defineMetadata(Common_1.METADATA.HTTP_CONTEXT, this, this.socket);
+        RequestContextStore_1.RequestContextStore.getInstance().bind(this.socket, done);
     }
     /**
      * Get the current request context.

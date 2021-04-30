@@ -23,6 +23,7 @@ export * from './Route/RequestInjection/index';
 export * from './Route/Route';
 export * from './Route/RouteDecorators';
 export * from './Route/RouteManager';
+export * from './Middleware/Middlewares/JwtAuthenticationMiddleware';
 export declare const context: () => RequestContext;
 export declare const session: () => Session;
 export declare const response: () => Response;

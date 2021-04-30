@@ -1,5 +1,5 @@
-import {App, resolve} from "../AppContainer";
-import {Log} from "../Common";
+import {App, resolve} from "./AppContainer";
+import {Log} from "./Common";
 import {ErrorHandlerFn, Server} from "./Server/Server";
 
 export class Envuso {
