@@ -5,7 +5,7 @@ export class TestMiddleware extends Middleware {
 
 	constructor(public authentication?: Authentication) { super(); }
 
-	public async handler(context: RequestContext, authentication?: Authentication) {
+	public async handle(context: RequestContext, authentication?: Authentication) {
 		return true;
 	}
 

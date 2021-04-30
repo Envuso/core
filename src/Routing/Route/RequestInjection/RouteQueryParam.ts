@@ -46,7 +46,7 @@ export class RouteQueryParam extends MethodParameterDecorator {
 //		return this instanceof RouteQueryParam;
 	}
 
-	async bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply) {
 		const paramValue = request.query[this.parameterName];
 		const param      = this.expectedParamType(paramValue);
 

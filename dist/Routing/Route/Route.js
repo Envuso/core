@@ -136,7 +136,7 @@ class Route {
         });
         return (context) => __awaiter(this, void 0, void 0, function* () {
             for (const middleware of middlewares) {
-                yield middleware.handler(context);
+                yield middleware.handle(context);
             }
         });
     }

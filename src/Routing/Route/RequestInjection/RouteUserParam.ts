@@ -37,7 +37,7 @@ export class RouteUserParam extends MethodParameterDecorator {
 		return Reflect.getMetadata(METADATA.REQUEST_AUTHENTICATED_USER, target);
 	}
 
-	async bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply) {
 		return RequestContext.get().user;
 	}
 

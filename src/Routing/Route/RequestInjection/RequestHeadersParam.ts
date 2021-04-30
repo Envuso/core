@@ -29,7 +29,7 @@ export class RequestHeadersParam extends MethodParameterDecorator {
 		return parameterIndex === this.parameterIndex;
 	}
 
-	async bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply) {
 		return request.headers;
 	}
 }

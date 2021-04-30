@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { FastifyReply } from "fastify";
 import { StatusCodes } from "http-status-codes";
 import { CookieJar } from "../CookieJar";
@@ -26,7 +25,7 @@ export declare class Response {
      */
     private _cookieJar;
     constructor(response: FastifyReply);
-    get fastifyReply(): FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>;
+    get fastifyReply(): FastifyReply;
     cookieJar(): CookieJar;
     set code(code: StatusCodes);
     set data(data: any);
@@ -45,7 +44,7 @@ export declare class Response {
      * @param {string} header
      * @returns {string}
      */
-    getHeader(header: string): string;
+    getHeader(header: string): string | undefined;
     /**
      * Apply a header to the response, this applies directly to the fastify response
      *
@@ -69,7 +68,7 @@ export declare class Response {
     /**
      * Send the data/status code manually
      */
-    send(): FastifyReply<import("http").Server, import("http").IncomingMessage, import("http").ServerResponse, import("fastify/types/route").RouteGenericInterface, unknown>;
+    send(): FastifyReply;
     /**
      * Send a redirect response to x url
      *

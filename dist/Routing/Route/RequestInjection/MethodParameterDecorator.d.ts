@@ -31,7 +31,7 @@ export declare class MethodParameterDecorator {
      * @param request
      * @param response
      */
-    bind(request: FastifyRequest, response: FastifyReply): Promise<any>;
+    bind(request: FastifyRequest, response: FastifyReply): any;
     /**
      * We will define logic in each instance to see if we
      * can bind this instance to the route parameter.

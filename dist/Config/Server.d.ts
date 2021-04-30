@@ -1,4 +1,6 @@
+/// <reference path="../index.d.ts" />
 /// <reference types="node" />
+/// <reference types="node/http" />
 import { ClassTransformOptions } from "class-transformer/types/interfaces";
 import { FastifyPlugin, FastifyPluginOptions, FastifyServerOptions } from "fastify";
 import { FastifyCorsOptions } from "fastify-cors";
@@ -7,6 +9,7 @@ declare const _default: {
      * The port that fastify will listen on
      */
     port: number;
+    middleware: any[];
     /**
      * Cors is automatically configured internally due to some framework
      * configuration that needs to align. But you can also adjust the

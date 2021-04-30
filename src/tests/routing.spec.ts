@@ -126,7 +126,7 @@ describe('test route service provider', () => {
 		const app = App.getInstance();
 
 		class TestMiddleware extends Middleware {
-			public handler(context): Promise<any> {
+			public handle(context): Promise<any> {
 				return Promise.resolve(true);
 			}
 		}

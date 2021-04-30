@@ -52,7 +52,7 @@ export class DataTransferObjectParam extends MethodParameterDecorator {
 		return dtoClass;
 	}
 
-	static canInject(target: any, key: string | symbol) {
-		return !!this.getMetadata(target[key]);
-	}
+//	static canInject(target: any, key: string | symbol) {
+//		return !!this.getMetadata(target[key]);
+//	}
 }

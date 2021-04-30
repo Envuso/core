@@ -1,9 +1,10 @@
-import { FastifyRequest, HookHandlerDoneFunction } from "fastify";
+import { FastifyRequest } from "fastify";
+import { SocketConnection } from "../../Sockets/SocketConnection";
 import { RequestContext } from "./RequestContext";
 export declare class RequestContextStore {
     private readonly _store;
     constructor();
     static getInstance(): RequestContextStore;
     context(): RequestContext;
-    bind(request: FastifyRequest, done: HookHandlerDoneFunction): void;
+    bind(request: FastifyRequest | SocketConnection, done: any): void;
 }

@@ -16,6 +16,7 @@ var METADATA;
     METADATA["REQUEST_METHOD_QUERY_PARAMETER"] = "request-method-query-parameter";
     METADATA["REQUEST_METHOD_BODY"] = "request-method-body";
     METADATA["REQUEST_METHOD_HEADERS"] = "request-method-headers";
+    METADATA["REQUEST_AUTHENTICATED_USER"] = "request-authenticated-user";
     METADATA["MODEL"] = "MODEL";
 })(METADATA = exports.METADATA || (exports.METADATA = {}));
 //# sourceMappingURL=RoutingMetaData.js.map

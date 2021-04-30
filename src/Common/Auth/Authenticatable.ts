@@ -3,6 +3,9 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {config, resolve} from "../../AppContainer";
 import {Authentication, JwtAuthenticationProvider} from "../../Authentication";
 import {Model} from "../../Database";
+import {SocketEvents} from "../../Sockets/SocketEvents";
+import {SocketChannelListener} from "../../Sockets/SocketChannelListener";
+import {SocketServer} from "../../Sockets/SocketServer";
 
 export class Authenticatable<T> extends Model<T> {
 
@@ -13,6 +16,16 @@ export class Authenticatable<T> extends Model<T> {
 		return resolve(Authentication)
 			.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider)
 			.issueToken((this as any)._id as unknown as string);
+	}
+
+	sendSocketChannelEvent(channel: new () => SocketChannelListener, eventName: SocketEvents | string, data: any) {
+		resolve(SocketServer).sendToUserViaChannel(
+			(this as any)._id.toString(), channel, eventName, data
+		);
+	}
+
+	sendSocketEvent(eventName: SocketEvents | string, data: any) {
+		resolve(SocketServer).sendToUser(this._user._id.toString(), eventName, data);
 	}
 
 	setUser(user: any) {

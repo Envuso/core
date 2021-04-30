@@ -7,5 +7,5 @@ export declare class RequestBodyParam extends MethodParameterDecorator {
     private static setMetadata;
     static getMetadata(target: Function): RequestBodyParam | undefined;
     canBind(target: Function, param: any, parameterIndex: number): boolean;
-    bind(request: FastifyRequest, response: FastifyReply): Promise<unknown>;
+    bind(request: FastifyRequest, response: FastifyReply): unknown;
 }

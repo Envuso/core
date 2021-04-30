@@ -26,7 +26,8 @@ class RouteManager {
             Common_1.METADATA.REQUEST_METHOD_ROUTE_PARAMETER,
             Common_1.METADATA.REQUEST_METHOD_QUERY_PARAMETER,
             Common_1.METADATA.REQUEST_METHOD_BODY,
-            Common_1.METADATA.REQUEST_METHOD_HEADERS
+            Common_1.METADATA.REQUEST_METHOD_HEADERS,
+            Common_1.METADATA.REQUEST_AUTHENTICATED_USER,
         ];
     }
     /**
@@ -53,25 +54,31 @@ class RouteManager {
             const parameterArgs = [];
             for (let index in route.methodMeta.parameters) {
                 const parameter = route.methodMeta.parameters[index];
-                //@TODO: Add route model binding back here...
-                if (parameter.type.prototype instanceof Database_1.Model) {
-                    const modelInstance = parameter.type;
-                    const identifier = request.params[parameter.name];
-                    const model = (_a = yield modelInstance.find(identifier)) !== null && _a !== void 0 ? _a : null;
-                    parameterArgs.push(model);
-                    continue;
-                }
+                let boundParameter = false;
                 for (let metadataKey of this.methodParamTypesForInjection()) {
                     const methodMeta = RequestInjection_1.MethodParameterDecorator.getMethodMetadata(route.methodMeta.target[route.methodMeta.key], metadataKey);
                     if (!methodMeta) {
-                        Common_1.Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
+                        //					Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
                         continue;
                     }
                     const canBind = methodMeta.canBind(route.methodMeta.target[route.methodMeta.key], parameter.type, Number(index));
                     if (canBind) {
                         parameterArgs.push(yield methodMeta.bind(request, response));
+                        boundParameter = true;
                         break;
                     }
+                }
+                // Route model binding was conflicting with @user decorator... so
+                // When we've handled a decorator for this parameter, we'll set bound
+                // to true. This way, we can then fall-back to attempting route model binding.
+                if (boundParameter) {
+                    break;
+                }
+                if (parameter.type.prototype instanceof Database_1.Model) {
+                    const modelInstance = parameter.type;
+                    const identifier = request.params[parameter.name];
+                    const model = (_a = yield modelInstance.find(identifier)) !== null && _a !== void 0 ? _a : null;
+                    parameterArgs.push(model);
                 }
             }
             return parameterArgs;

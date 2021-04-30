@@ -1,15 +1,14 @@
 import "reflect-metadata";
 import {FastifyReply, FastifyRequest} from "fastify";
-import {constants} from "os";
 import path from "path";
 import {config} from 'dotenv';
 
 config({path : path.join(__dirname, '..', '..', 'Components', '.env')});
 
-import {Config} from "../Config";
-import {response} from "../Routing";
+import {Config} from "./Config";
+import {response} from "./Routing";
 import {Envuso} from "./Envuso";
-import {Exception, Log} from "../Common";
+import {Exception, Log} from "./Common";
 
 const envuso = new Envuso();
 

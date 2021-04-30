@@ -33,6 +33,7 @@ __exportStar(require("./Route/RequestInjection/index"), exports);
 __exportStar(require("./Route/Route"), exports);
 __exportStar(require("./Route/RouteDecorators"), exports);
 __exportStar(require("./Route/RouteManager"), exports);
+__exportStar(require("./Middleware/Middlewares/JwtAuthenticationMiddleware"), exports);
 const context = () => RequestContext_1.RequestContext.get();
 exports.context = context;
 const session = () => RequestContext_1.RequestContext.session();

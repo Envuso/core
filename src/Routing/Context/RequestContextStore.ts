@@ -1,6 +1,7 @@
 import {AsyncLocalStorage} from "async_hooks";
-import {FastifyRequest, HookHandlerDoneFunction} from "fastify";
+import {FastifyRequest} from "fastify";
 import {METADATA} from "../../Common";
+import {SocketConnection} from "../../Sockets/SocketConnection";
 import {RequestContext} from "./RequestContext";
 
 let instance = null;
@@ -27,7 +28,8 @@ export class RequestContextStore {
 		return this._store.getStore();
 	}
 
-	bind(request: FastifyRequest, done: HookHandlerDoneFunction) {
+	bind(request: FastifyRequest|SocketConnection, done: any) {
 		this._store.run(Reflect.getMetadata(METADATA.HTTP_CONTEXT, request), done);
 	}
+
 }

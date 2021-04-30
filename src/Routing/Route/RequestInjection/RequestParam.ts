@@ -28,7 +28,7 @@ export class RequestParam extends MethodParameterDecorator {
 		return this instanceof RequestParam;
 	}
 
-	async bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply) {
 		return RequestContext.get().request;
 	}
 

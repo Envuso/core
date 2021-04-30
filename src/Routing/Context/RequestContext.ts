@@ -1,8 +1,10 @@
 import {FastifyReply, FastifyRequest} from "fastify";
+import {IncomingMessage} from "http";
 import {DependencyContainer} from "tsyringe";
 import {App, resolve} from "../../AppContainer";
 import {Authentication, SessionAuthenticationProvider} from "../../Authentication";
 import {Authenticatable, METADATA} from "../../Common";
+import {SocketConnection} from "../../Sockets/SocketConnection";
 import {Request} from "./Request/Request";
 import {RequestContextStore} from "./RequestContextStore";
 import {Response} from "./Response/Response";
@@ -10,18 +12,28 @@ import {Session} from "./Session";
 
 export class RequestContext {
 
-	request: Request;
-	response: Response;
+	request: Request   = null;
+	response: Response = null;
+
 	container: DependencyContainer;
+
 	user: Authenticatable<any>;
+
 	session: Session = null;
 
+	socket: SocketConnection = null;
+
 	constructor(
-		request: FastifyRequest,
-		response: FastifyReply
+		request?: FastifyRequest | IncomingMessage,
+		response?: FastifyReply,
+		socket?: SocketConnection
 	) {
-		this.request  = new Request(request);
-		this.response = new Response(response);
+		if (request)
+			this.request = new Request(request);
+		if (response)
+			this.response = new Response(response);
+		if (socket)
+			this.socket = socket;
 	}
 
 	/**
@@ -30,7 +42,6 @@ export class RequestContext {
 	 */
 	async initiateForRequest() {
 		this.response.cookieJar().setCookies(this.request.fastifyRequest);
-
 		if (resolve(Authentication).isUsingProvider(SessionAuthenticationProvider)) {
 			this.session = await Session.prepare(this.response.cookieJar());
 		}
@@ -42,7 +53,7 @@ export class RequestContext {
 	 *
 	 * @param done
 	 */
-	bind(done) {
+	bindToFastify(done) {
 		this.container = App.getInstance().container().createChildContainer();
 
 		// We bind the context to the current request, so it's obtainable
@@ -53,6 +64,19 @@ export class RequestContext {
 		);
 
 		RequestContextStore.getInstance().bind(this.request.fastifyRequest, done);
+	}
+
+	bindToSockets(done) {
+		this.container = App.getInstance().container().createChildContainer();
+
+		// We bind the context to the current request, so it's obtainable
+		// throughout the lifecycle of this request, this isn't bound to
+		// our wrapper request class, only the original fastify request
+		Reflect.defineMetadata(
+			METADATA.HTTP_CONTEXT, this, this.socket
+		);
+
+		RequestContextStore.getInstance().bind(this.socket, done);
 	}
 
 	/**
@@ -103,7 +127,7 @@ export class RequestContext {
 	 * @param user
 	 */
 	public setUser<T>(user: Authenticatable<T>) {
-	//	const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
+		//	const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
 
 		this.container.register<Authenticatable<T>>(
 			Authenticatable, {useValue : user}

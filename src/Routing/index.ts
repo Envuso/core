@@ -24,6 +24,7 @@ export * from './Route/RequestInjection/index';
 export * from './Route/Route';
 export * from './Route/RouteDecorators';
 export * from './Route/RouteManager';
+export * from './Middleware/Middlewares/JwtAuthenticationMiddleware';
 
 
 export const context  = (): RequestContext => RequestContext.get();

@@ -6,5 +6,5 @@ export declare class RequestParam extends MethodParameterDecorator {
     private static setMetadata;
     static getMetadata(target: Function): RequestParam | undefined;
     canBind(target: Function, param: any, parameterIndex: number): boolean;
-    bind(request: FastifyRequest, response: FastifyReply): Promise<import("../..").Request>;
+    bind(request: FastifyRequest, response: FastifyReply): import("../..").Request;
 }

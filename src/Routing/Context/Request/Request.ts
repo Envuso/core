@@ -1,5 +1,6 @@
 import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
+import {IncomingMessage} from "http";
 import {Authenticatable} from "../../../Common";
 import {Storage} from "../../../Storage";
 import {RequestContext} from "../RequestContext";
@@ -7,7 +8,7 @@ import {UploadedFile} from "./UploadedFile";
 
 export class Request {
 
-	private readonly _request: FastifyRequest;
+	private readonly _request: FastifyRequest | IncomingMessage;
 
 	/**
 	 * If this request contains files that have been uploaded
@@ -20,12 +21,24 @@ export class Request {
 	 */
 	private _uploadedFiles: UploadedFile[] = [];
 
-	constructor(request: FastifyRequest) {
+	constructor(request: FastifyRequest | IncomingMessage) {
 		this._request = request;
 	}
 
+	isFastifyRequest(request: FastifyRequest | IncomingMessage): request is FastifyRequest {
+		return (this._request as FastifyRequest).routerMethod !== undefined;
+	}
+
+	isSocketRequest(request: FastifyRequest | IncomingMessage): request is IncomingMessage {
+		return (this._request as FastifyRequest).routerMethod === undefined;
+	}
+
+	get socketRequest(): IncomingMessage {
+		return this.isSocketRequest(this._request) ? this._request : null;
+	}
+
 	get fastifyRequest(): FastifyRequest {
-		return this._request;
+		return this.isFastifyRequest(this._request) ? this._request : null;
 	}
 
 	/**
@@ -48,7 +61,10 @@ export class Request {
 	/**
 	 * Get the body of the request
 	 */
-	body<T>(): T {
+	body<T>() {
+		if (!this.isFastifyRequest(this._request))
+			return null;
+
 		return <T>this._request.body;
 	}
 
@@ -56,6 +72,9 @@ export class Request {
 	 * Get the ip the request originated from
 	 */
 	ip() {
+		if (!this.isFastifyRequest(this._request))
+			return null;
+
 		return this._request.ip;
 	}
 
@@ -67,6 +86,9 @@ export class Request {
 	 * @see https://www.fastify.io/docs/latest/Request/
 	 */
 	ips() {
+		if (!this.isFastifyRequest(this._request))
+			return null;
+
 		return this._request.ips;
 	}
 
@@ -88,6 +110,10 @@ export class Request {
 	 * The id assigned to this request
 	 */
 	id() {
+		if (!this.isFastifyRequest(this._request))
+			return null;
+
+
 		return this._request.id;
 	}
 
@@ -98,6 +124,9 @@ export class Request {
 	 * @param _default
 	 */
 	get<T>(key: string, _default: any = null): T {
+		if(!this.isFastifyRequest(this._request))
+			return null;
+
 		if (this._request.body && this._request.body[key]) {
 			return this._request.body[key] as T;
 		}

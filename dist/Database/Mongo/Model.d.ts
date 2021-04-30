@@ -1,4 +1,5 @@
-import { Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, WithoutProjection } from "mongodb";
+import { Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection } from "mongodb";
+import { Paginator } from "./Paginator";
 import { QueryBuilder } from "./QueryBuilder";
 export declare class Model<M> {
     /**
@@ -14,41 +15,96 @@ export declare class Model<M> {
      */
     collection(): Collection<M>;
     /**
+     * Get an instance of the mongo repository
+     */
+    static getCollection<T extends Model<any>>(this: new () => T): Collection<T>;
+    /**
      * Get the query builder instance
      */
     queryBuilder(): QueryBuilder<M>;
     /**
-     * A helper method used to return a correct type...
-     * We're still getting used to generics.
+     * Get an instance of query builder, similar to using collection.find()
+     * But... our query builder returns a couple of helper methods, first(), get()
      *
-     * @private
-     */
-    private modelInstance;
-    /**
-     * Get an instance of the mongo repository
-     */
-    static getCollection<T extends Model<T>>(): Collection<T>;
-    /**
-     * Insert a new model into the collection
+     * This method proxies right through to the query builder.
      *
-     * @param entity
+     * {@see QueryBuilder}
+     *
+     * @param attributes
      */
-    static insert(entity: Model<any>): Promise<Model<any>>;
+    static where<T extends Model<any>>(this: new () => T, attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T>;
+    /**
+     * Query for a single model instance
+     *
+     * @param query
+     */
+    static findOne<T extends Model<any>>(this: new () => T, query?: FilterQuery<T | {
+        _id: any;
+    }>): Promise<T | null>;
+    /**
+     * calls mongodb.find function and returns its cursor with attached map function that hydrates results
+     * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
+     */
+    static get<T extends Model<any>>(this: new () => T, query?: FilterQuery<T | {
+        _id: any;
+    }>, options?: WithoutProjection<FindOneOptions<T>>): Promise<T[]>;
+    /**
+     * Count all the documents in the collection
+     */
+    static count(): Promise<number>;
+    /**
+     * Paginate all data on the collection
+     */
+    static paginate<T extends Model<any>>(this: new () => T, limit?: number): Promise<Paginator<T>>;
+    /**
+     * Allows us to efficiently load relationships
+     * one to many
+     *
+     * @param refs
+     */
+    static with<T extends Model<any>>(this: new () => T, ...refs: (keyof T)[]): QueryBuilder<T>;
+    /**
+     * Find an item using it's id and return it as a model.
+     *
+     * @param key
+     * @param field
+     */
+    static find<T extends Model<any>>(this: new () => T, key: string | ObjectId, field?: keyof T | '_id'): Promise<T>;
+    /**
+     * Basically an alias of the {@see QueryBuilder.orderByDesc()}
+     * that allows us to order and call get() or first()
+     *
+     * @param key
+     */
+    static orderByDesc<T extends Model<any>>(this: new () => T, key: keyof T): QueryBuilder<T>;
+    /**
+     * Basically an alias of the {@see QueryBuilder.orderByAsc()}
+     * that allows us to order and call get() or first()
+     *
+     * @param key
+     */
+    static orderByAsc<T extends Model<any>>(this: new () => T, key: keyof T): QueryBuilder<T>;
+    /**
+     * Sometimes we just want a simple way to check if
+     * a document exists with the specified fields
+     *
+     * @param {FilterQuery<T>} query
+     * @returns {Promise<boolean>}
+     */
+    static exists<T extends Model<any>>(this: new () => T, query: FilterQuery<T>): Promise<boolean>;
+    /**
+     * Create a new instance of this model and store it in the collection
+     *
+     * @param {Partial<M>} attributes
+     */
+    static create<T extends Model<any>>(this: new () => T, attributes: Partial<T>): Promise<T>;
     /**
      * Update this model
      *
      * @param attributes
      * @param options
      */
-    update(attributes: Partial<M>, options?: ReplaceOneOptions): Promise<void>;
-    /**
-     * Query for a single model instance
-     *
-     * @param query
-     */
-    static findOne<T extends Model<T>>(query?: FilterQuery<T | {
-        _id: any;
-    }>): Promise<T | null>;
+    update(attributes: UpdateQuery<M> | Partial<M>, options?: ReplaceOneOptions): Promise<M>;
     /**
      * Save any changes made to the model
      *
@@ -61,72 +117,24 @@ export declare class Model<M> {
      */
     save(): Promise<this>;
     /**
+     * Has this model been persisted to the database yet?
+     * @returns {boolean}
+     */
+    isFresh(): boolean;
+    /**
+     * Get the current models id
+     *
+     * @returns {ObjectId}
+     */
+    getModelId(): ObjectId;
+    /**
      * Get all the properties from the database for this model
      */
-    refresh(): Promise<void>;
+    refresh(): Promise<this>;
     /**
      * Delete the current model instance from the collection
      */
-    delete(): Promise<void>;
-    /**
-     * calls mongodb.find function and returns its cursor with attached map function that hydrates results
-     * mongodb.find: http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#find
-     */
-    static get<T extends Model<T>>(query?: FilterQuery<T | {
-        _id: any;
-    }>, options?: WithoutProjection<FindOneOptions<T>>): Promise<T[]>;
-    /**
-     * Count all the documents in the collection
-     */
-    static count(): Promise<number>;
-    /**
-     * Get an instance of query builder, similar to using collection.find()
-     * But... our query builder returns a couple of helper methods, first(), get()
-     * {@see QueryBuilder}
-     *
-     * @param attributes
-     */
-    static where<T extends Model<T>>(attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T>;
-    /**
-     * Allows us to efficiently load relationships
-     * Many to many or one to many
-     *
-     * @param refs
-     */
-    static with<T>(...refs: (keyof T)[]): QueryBuilder<T>;
-    /**
-     * Find an item using it's id and return it as a model.
-     *
-     * @param key
-     * @param field
-     */
-    static find<T extends Model<T>>(key: string | ObjectId, field?: keyof T | '_id'): Promise<T>;
-    /**
-     * Basically an alias of the {@see QueryBuilder.orderByDesc()}
-     * that allows us to order and call get() or first()
-     *
-     * @param key
-     */
-    static orderByDesc<T>(key: keyof T): QueryBuilder<T>;
-    /**
-     * Basically an alias of the {@see QueryBuilder.orderByAsc()}
-     * that allows us to order and call get() or first()
-     *
-     * @param key
-     */
-    static orderByAsc<T>(key: keyof T): QueryBuilder<T>;
-    /**
-     * Create a new instance of this model and store it in the collection
-     *
-     * @TODO: Need to figure a solution for using generics with static methods.
-     *
-     * @param {Partial<M>} attributes
-     */
-    static create<T extends Model<T>>(attributes: Partial<T>): Promise<T>;
-    /**
-     * Get an instance of the underlying mongo repository for this model
-     */
-    static query<T extends Model<T>>(): import("winston").Logger;
+    delete(): Promise<boolean>;
     mongoResponse(): any;
     setMongoResponse(response: any): any;
     /**
@@ -140,4 +148,5 @@ export declare class Model<M> {
      * that any @Exclude() properties etc are taken care of.
      */
     toJSON(): Record<string, any>;
+    getMongoAtomicOperators(): string[];
 }

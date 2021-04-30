@@ -1,4 +1,6 @@
+/// <reference path="../index.d.ts" />
 /// <reference types="node" />
+/// <reference types="node/http" />
 import { StorageServiceProvider } from '../';
 export declare const Config: {
     app: {
@@ -6,8 +8,9 @@ export declare const Config: {
         providers: (typeof StorageServiceProvider)[];
     };
     auth: {
-        authenticationProviders: (typeof import("../Authentication").JwtAuthenticationProvider | typeof import("../Authentication").SessionAuthenticationProvider)[];
-        userProvider: typeof import("../Authentication").BaseUserProvider;
+        userModel: typeof import("../App/Models/User").User;
+        authenticationProviders: (typeof import("../Authentication").SessionAuthenticationProvider | typeof import("../Authentication").JwtAuthenticationProvider)[];
+        userProvider: typeof import("../Authentication").ModelUserProvider;
         primaryIdentifier: keyof import("./Auth").AuthCredentialContract;
         jwt: {
             authorizationHeaderPrefix: string;
@@ -25,6 +28,7 @@ export declare const Config: {
     };
     server: {
         port: number;
+        middleware: any[];
         cors: {
             enabled: boolean;
             options: import("fastify-cors").FastifyCorsOptions;
@@ -37,5 +41,13 @@ export declare const Config: {
         cookie: import("../Routing").CookieConfiguration;
         cookieName: string;
         encryptCookies: boolean;
+    };
+    websockets: {
+        enabled: boolean;
+        middleware: typeof import("../Routing").JwtAuthenticationMiddleware[];
+        cors: {
+            enabled: boolean;
+        };
+        options: import("ws").ServerOptions;
     };
 };

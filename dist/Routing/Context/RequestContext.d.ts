@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { IncomingMessage } from "http";
 import { DependencyContainer } from "tsyringe";
 import { Authenticatable } from "../../Common";
+import { SocketConnection } from "../../Sockets/SocketConnection";
 import { Request } from "./Request/Request";
 import { Response } from "./Response/Response";
 import { Session } from "./Session";
@@ -10,7 +12,8 @@ export declare class RequestContext {
     container: DependencyContainer;
     user: Authenticatable<any>;
     session: Session;
-    constructor(request: FastifyRequest, response: FastifyReply);
+    socket: SocketConnection;
+    constructor(request?: FastifyRequest | IncomingMessage, response?: FastifyReply, socket?: SocketConnection);
     /**
      * Set any cookies from the request into the cookie jar
      * If we're using cookie based sessions, prepare our session
@@ -22,7 +25,8 @@ export declare class RequestContext {
      *
      * @param done
      */
-    bind(done: any): void;
+    bindToFastify(done: any): void;
+    bindToSockets(done: any): void;
     /**
      * Get the current request context.
      * This will return an instance of this class.

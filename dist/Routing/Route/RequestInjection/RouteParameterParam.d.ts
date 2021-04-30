@@ -8,5 +8,5 @@ export declare class RouteParameterParam extends MethodParameterDecorator {
     private static setMetadata;
     static getMetadata(target: Function): RouteParameterParam | undefined;
     canBind(target: Function, param: any, parameterIndex: number): boolean;
-    bind(request: FastifyRequest, response: FastifyReply): Promise<any>;
+    bind(request: FastifyRequest, response: FastifyReply): any;
 }

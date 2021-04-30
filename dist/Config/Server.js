@@ -9,6 +9,7 @@ exports.default = {
      * The port that fastify will listen on
      */
     port: 3000,
+    middleware: [],
     /**
      * Cors is automatically configured internally due to some framework
      * configuration that needs to align. But you can also adjust the
@@ -17,10 +18,9 @@ exports.default = {
     cors: {
         enabled: true,
         options: {
-            origin: [
-                "https://chatreward.test",
-                "https://app.chatreward.test",
-            ],
+            origin: (origin, callback) => {
+                callback(null, true);
+            },
             credentials: true,
         }
     },

@@ -43,12 +43,14 @@
     "src/AppContainer/**/*",
     "src/Authentication/**/*",
     "src/Common/**/*",
-    "src/Core/**/*",
+    "src/Server/**/*",
     "src/Database/**/*",
     "src/Routing/**/*",
     "src/Storage/**/*",
     "src/Cache/**/*",
     "src/Crypt/**/*",
+    "src/Envuso.ts",
+    "src/run-dev.ts",
     "src/index.ts"
   ]
 }

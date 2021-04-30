@@ -9,5 +9,4 @@ export declare class DataTransferObjectParam extends MethodParameterDecorator {
     private static setMetadata;
     static getMetadata(target: Function): DataTransferObjectParam | undefined;
     bind(request: FastifyRequest, response: FastifyReply): Promise<DataTransferObject>;
-    static canInject(target: any, key: string | symbol): boolean;
 }

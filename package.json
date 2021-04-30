@@ -14,7 +14,7 @@
     "preparereeee": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
     "serve": "nodemon",
-    "dev": "ts-node ./src/Core/run-dev.ts",
+    "dev": "ts-node src/run-dev.ts",
     "push": "yarn build && cp package.json dist/package.json && cd dist && yalc push"
   },
   "dependencies": {
@@ -25,11 +25,13 @@
     "@babel/plugin-transform-classes": "^7.13.0",
     "@babel/preset-env": "^7.13.15",
     "@babel/preset-typescript": "^7.13.0",
+    "@types/ws": "^7.4.2",
     "@zishone/dotnotate": "^0.1.3",
     "aws-sdk": "^2.884.0",
     "babel-loader": "^8.2.2",
     "babel-plugin-replace-ts-export-assignment": "^0.0.2",
     "bcrypt": "^5.0.1",
+    "bufferutil": "^4.0.3",
     "chalk": "^4.1.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
@@ -56,9 +58,12 @@
     "redis": "^3.1.2",
     "reflect-metadata": "^0.1.10",
     "simple-crypto-js": "^3.0.0",
+    "ts-node": "^9.1.1",
     "tsyringe": "^4.5.0",
+    "utf-8-validate": "^5.0.4",
     "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.2"
+    "winston-daily-rotate-file": "^4.5.2",
+    "ws": "^7.4.5"
   },
   "devDependencies": {
     "@types/busboy": "^0.2.3",

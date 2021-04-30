@@ -1,5 +1,6 @@
-import { Cursor, FilterQuery, UpdateManyOptions, UpdateQuery } from "mongodb";
+import { Cursor, FilterQuery, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult } from "mongodb";
 import { Model } from "./Model";
+import { Paginator } from "./Paginator";
 export declare class QueryBuilder<T> {
     /**
      * When we call any internal mongo methods to query a collection
@@ -8,10 +9,42 @@ export declare class QueryBuilder<T> {
      * @private
      */
     private _builderResult;
+    /**
+     * An instance of the model to use for interaction
+     *
+     * @type {Model<T>}
+     * @private
+     */
     private _model;
+    /**
+     * Handle filtering the collection
+     *
+     * @type {object}
+     * @private
+     */
     private _collectionFilter;
+    /**
+     * Handle collection aggregations
+     * Currently used for collection relations
+     *
+     * @type {object[]}
+     * @private
+     */
     private _collectionAggregation;
+    /**
+     * Allow for specifying ordering on the collection
+     *
+     * @type {CollectionOrder | null}
+     * @private
+     */
     private _collectionOrder;
+    /**
+     * Limit the return size of the collection
+     *
+     * @type {number}
+     * @private
+     */
+    private _limit;
     constructor(model: Model<T>);
     /**
      * Similar to using collection.find()
@@ -38,18 +71,9 @@ export declare class QueryBuilder<T> {
      */
     orderByAsc(key: keyof T | string): this;
     /**
-     * When a filter has been specified with where(). It will apply to
-     * {@see _collectionFilter} then when we make other calls, like
-     * .get(), .first() or .count() it will resolve the cursor
-     * or use it to make further mongodb calls.
-     *
-     * @private
-     */
-    private resolveFilter;
-    /**
      * Get the first result in the mongo Cursor
      */
-    first(): Promise<unknown>;
+    first(): Promise<T>;
     /**
      * Get all items from the collection that match the query
      */
@@ -65,11 +89,18 @@ export declare class QueryBuilder<T> {
      */
     update(attributes: UpdateQuery<T> | Partial<T>, options?: UpdateManyOptions & {
         returnMongoResponse: boolean;
-    }): Promise<boolean | import("mongodb").UpdateWriteOpResult>;
+    }): Promise<boolean | UpdateWriteOpResult>;
     /**
      * Get an instance of the underlying mongo cursor
      */
     cursor(): Promise<Cursor<T>>;
+    /**
+     * Limit the results of the collection
+     *
+     * @param {number} limit
+     * @returns {this<T>}
+     */
+    limit(limit: number): this;
     /**
      * Delete any items from the collection specified in the where() clause
      *
@@ -83,4 +114,26 @@ export declare class QueryBuilder<T> {
      * @returns integer
      */
     count(): Promise<number>;
+    /**
+     * Paginate the results
+     *
+     * @param {number} limit
+     * @returns {Paginator<{}>}
+     */
+    paginate(limit?: number): Promise<Paginator<T>>;
+    /**
+     * When a filter has been specified with where(). It will apply to
+     * {@see _collectionFilter} then when we make other calls, like
+     * .get(), .first() or .count() it will resolve the cursor
+     * or use it to make further mongodb calls.
+     *
+     * @private
+     */
+    private resolveFilter;
+    /**
+     * After we have resolved our query, we need to make sure we clear everything
+     * up, just so that filters don't remain and cause unexpected issues
+     * @private
+     */
+    private cleanupBuilder;
 }

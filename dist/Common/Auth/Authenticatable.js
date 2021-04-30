@@ -14,11 +14,18 @@ const class_transformer_1 = require("class-transformer");
 const AppContainer_1 = require("../../AppContainer");
 const Authentication_1 = require("../../Authentication");
 const Database_1 = require("../../Database");
+const SocketServer_1 = require("../../Sockets/SocketServer");
 class Authenticatable extends Database_1.Model {
     generateToken() {
         return AppContainer_1.resolve(Authentication_1.Authentication)
             .getAuthProvider(Authentication_1.JwtAuthenticationProvider)
             .issueToken(this._id);
+    }
+    sendSocketChannelEvent(channel, eventName, data) {
+        AppContainer_1.resolve(SocketServer_1.SocketServer).sendToUserViaChannel(this._id.toString(), channel, eventName, data);
+    }
+    sendSocketEvent(eventName, data) {
+        AppContainer_1.resolve(SocketServer_1.SocketServer).sendToUser(this._user._id.toString(), eventName, data);
     }
     setUser(user) {
         Object.assign(this, user);

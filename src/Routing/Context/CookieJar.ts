@@ -29,7 +29,7 @@ export class CookieJar {
 	constructor() {
 		const configRepository = resolve(ConfigRepository);
 
-		this._config = resolve(ConfigRepository).get<SessionConfiguration>('session');
+		this._config = configRepository.get<SessionConfiguration>('session');
 		this._secret = configRepository.get('app.appKey');
 	}
 
@@ -82,7 +82,7 @@ export class CookieJar {
 		for (let key of Object.keys(cookies)) {
 			let value = cookies[key];
 			try {
-				value = Encryption.decrypt(value);
+				value = Encryption.decrypt(value) as string;
 			} catch (e) {
 				Log.error('Failed to decrypt cookie value...');
 			}
