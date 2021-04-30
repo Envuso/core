@@ -5,7 +5,7 @@ export declare enum SocketEvents {
     SOCKET_READY = "ready",
     CHANNEL_SUBSCRIBE_REQUEST = "subscribe-channel-request",
     CHANNEL_SUBSCRIBE_RESPONSE = "subscribe-channel-response",
-    HELLO = "hello"
+    CHANNEL_UNSUBSCRIBE_REQUEST = "unsubscribe-channel-request"
 }
 /**
  * Parse the requested channel name and return information

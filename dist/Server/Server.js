@@ -43,6 +43,10 @@ class Server {
             this._server = fastify_1.default(this._config.fastifyOptions);
             yield this._server.register(middie_1.default);
             this.registerPlugins();
+            this._server.addHook('onRequest', (r, re, done) => {
+                console.time('REQUEST TIME');
+                done();
+            });
             // Handled just before our controllers receive/process the request
             // This handler needs to work by it-self to provide the context
             this._server.addHook('preHandler', (request, response, done) => {
@@ -80,6 +84,10 @@ class Server {
                 if (Routing_1.RequestContext.isUsingSession())
                     yield Routing_1.RequestContext.session().save();
             }));
+            this._server.addHook('onResponse', (r, re, done) => {
+                console.timeEnd('REQUEST TIME');
+                done();
+            });
             this._server.addHook('onError', (request, reply, error, done) => {
                 Common_1.Log.exception(error.message, error);
                 done();
@@ -106,12 +114,10 @@ class Server {
                     url: route.getPath(),
                     preHandler: function (req, res) {
                         return __awaiter(this, void 0, void 0, function* () {
-                            console.time();
                             if (handler) {
                                 const context = Routing_1.RequestContext.get();
                                 yield handler(context);
                             }
-                            console.timeEnd();
                         });
                     },
                     errorHandler: (error, request, reply) => __awaiter(this, void 0, void 0, function* () {

@@ -80,6 +80,15 @@ export declare class SocketConnection {
      */
     private _onChannelSubscribeRequest;
     /**
+     * The client library can request to unsubscribe from a channel
+     * We'll make sure they have permission to do this, then delete the listener.
+     *
+     * @param {any} channel
+     * @returns {Promise<void>}
+     * @private
+     */
+    private _onChannelUnsubscribeRequest;
+    /**
      * We have to send the token in the query string of the socket url
      * For the regular {@see JwtAuthenticationMiddleware} to work, we
      * also need to add this token manually as an authorization header.
@@ -111,6 +120,13 @@ export declare class SocketConnection {
      * @param data
      */
     send(event: SocketEvents | string, data?: any): void;
+    /**
+     * Send a socket event to the channel
+     *
+     * @param {string} channel
+     * @param {SocketEvents | string} event
+     * @param data
+     */
     sendToChannel(channel: string, event: SocketEvents | string, data: any): void;
     /**
      * Disconnect the socket connection
@@ -140,6 +156,18 @@ export declare class SocketConnection {
      * @param {Function} callback
      */
     onDisconnect(callback: Function): void;
+    /**
+     * Does a subscription exist for this ChannelListener?
+     *
+     * @param {{new(): SocketChannelListener} | SocketChannelListener} channel
+     * @returns {boolean}
+     */
     hasSubscription(channel: (new () => SocketChannelListener) | SocketChannelListener): boolean;
+    /**
+     * Get a socket subscription for the listener
+     *
+     * @param {{new(): SocketChannelListener} | SocketChannelListener} channel
+     * @returns {SocketChannelListener}
+     */
     getSubscription(channel: (new () => SocketChannelListener) | SocketChannelListener): SocketChannelListener;
 }

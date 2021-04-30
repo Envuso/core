@@ -8,7 +8,7 @@ exports.default = {
      * This will allow you to swap out authentication handling
      * and build your own custom providers for different things
      */
-    authenticationProviders: [Authentication_1.JwtAuthenticationProvider, Authentication_1.SessionAuthenticationProvider],
+    authenticationProviders: [Authentication_1.JwtAuthenticationProvider, /*SessionAuthenticationProvider*/],
     /**
      * This will allow you to change how the user is acquired
      * For example, you could write a provider to get user

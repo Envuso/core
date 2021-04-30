@@ -9,7 +9,7 @@ export declare const Config: {
     };
     auth: {
         userModel: typeof import("../App/Models/User").User;
-        authenticationProviders: (typeof import("../Authentication").SessionAuthenticationProvider | typeof import("../Authentication").JwtAuthenticationProvider)[];
+        authenticationProviders: typeof import("../Authentication").JwtAuthenticationProvider[];
         userProvider: typeof import("../Authentication").ModelUserProvider;
         primaryIdentifier: keyof import("./Auth").AuthCredentialContract;
         jwt: {

@@ -8,7 +8,7 @@ var SocketEvents;
     SocketEvents["SOCKET_READY"] = "ready";
     SocketEvents["CHANNEL_SUBSCRIBE_REQUEST"] = "subscribe-channel-request";
     SocketEvents["CHANNEL_SUBSCRIBE_RESPONSE"] = "subscribe-channel-response";
-    SocketEvents["HELLO"] = "hello";
+    SocketEvents["CHANNEL_UNSUBSCRIBE_REQUEST"] = "unsubscribe-channel-request";
 })(SocketEvents = exports.SocketEvents || (exports.SocketEvents = {}));
 /**
  * Parse the requested channel name and return information

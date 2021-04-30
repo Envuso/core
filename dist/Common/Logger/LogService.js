@@ -28,6 +28,7 @@ class LogService {
         const rotateFile = new winston_daily_rotate_file_1.default({
             dirname: "./storage/logs",
             filename: "%DATE%-app.log",
+            level: "error",
             format: combine(winston_1.format.timestamp({ format: 'M/D HH:mm:ss.SSS' }), winston_1.format.ms(), printf((_a) => {
                 var { level, message, label, ms, timestamp } = _a, metadata = __rest(_a, ["level", "message", "label", "ms", "timestamp"]);
                 if (ms) {

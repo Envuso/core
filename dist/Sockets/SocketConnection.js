@@ -54,6 +54,9 @@ class SocketConnection {
                 case SocketEvents_1.SocketEvents.CHANNEL_SUBSCRIBE_REQUEST:
                     yield this._onChannelSubscribeRequest(packet.data);
                     break;
+                case SocketEvents_1.SocketEvents.CHANNEL_UNSUBSCRIBE_REQUEST:
+                    yield this._onChannelUnsubscribeRequest(packet.data);
+                    break;
                 default:
                     yield this._onMessage(packet);
             }
@@ -178,6 +181,33 @@ class SocketConnection {
         });
     }
     /**
+     * The client library can request to unsubscribe from a channel
+     * We'll make sure they have permission to do this, then delete the listener.
+     *
+     * @param {any} channel
+     * @returns {Promise<void>}
+     * @private
+     */
+    _onChannelUnsubscribeRequest({ channel }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const channelInfo = SocketEvents_1.parseSocketChannelName(channel);
+            const listener = AppContainer_1.resolve(channelInfo.containerListenerName);
+            if (!listener) {
+                console.error('Listener not found.... ', channelInfo);
+                return;
+            }
+            const subscription = this._subscribedChannels.get(channelInfo.channelName);
+            if (!subscription) {
+                return;
+            }
+            const isAuthorised = yield subscription.isAuthorised(this, this.user);
+            if (!isAuthorised) {
+                return;
+            }
+            this._subscribedChannels.delete(channelInfo.channelName);
+        });
+    }
+    /**
      * We have to send the token in the query string of the socket url
      * For the regular {@see JwtAuthenticationMiddleware} to work, we
      * also need to add this token manually as an authorization header.
@@ -236,6 +266,13 @@ class SocketConnection {
     send(event, data = {}) {
         this.socket.send(SocketPacket_1.SocketPacket.create(event, data).response());
     }
+    /**
+     * Send a socket event to the channel
+     *
+     * @param {string} channel
+     * @param {SocketEvents | string} event
+     * @param data
+     */
     sendToChannel(channel, event, data) {
         this.socket.send(SocketPacket_1.SocketPacket.createForChannel(channel, event, data).response());
     }
@@ -277,10 +314,22 @@ class SocketConnection {
     onDisconnect(callback) {
         this._onDisconnectCallback = callback;
     }
+    /**
+     * Does a subscription exist for this ChannelListener?
+     *
+     * @param {{new(): SocketChannelListener} | SocketChannelListener} channel
+     * @returns {boolean}
+     */
     hasSubscription(channel) {
         const channelInst = (channel instanceof SocketChannelListener_1.SocketChannelListener) ? channel : new channel();
         return this._subscribedChannels.has(channelInst.channelName());
     }
+    /**
+     * Get a socket subscription for the listener
+     *
+     * @param {{new(): SocketChannelListener} | SocketChannelListener} channel
+     * @returns {SocketChannelListener}
+     */
     getSubscription(channel) {
         const channelInst = (channel instanceof SocketChannelListener_1.SocketChannelListener) ? channel : new channel();
         return this._subscribedChannels.get(channelInst.channelName());
