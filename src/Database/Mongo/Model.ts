@@ -286,7 +286,7 @@ export class Model<M> {
 			return;
 		}
 
-		await this.update(this as any);
+		await this.update(dehydrateModel(this as any));
 
 		return this;
 	}
