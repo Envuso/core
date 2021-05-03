@@ -26,11 +26,11 @@ export class Request {
 	}
 
 	isFastifyRequest(request: FastifyRequest | IncomingMessage): request is FastifyRequest {
-		return (this._request as FastifyRequest).routerMethod !== undefined;
+		return (this._request as FastifyRequest)?.routerMethod !== undefined;
 	}
 
 	isSocketRequest(request: FastifyRequest | IncomingMessage): request is IncomingMessage {
-		return (this._request as FastifyRequest).routerMethod === undefined;
+		return (this._request as FastifyRequest)?.routerMethod === undefined;
 	}
 
 	get socketRequest(): IncomingMessage {

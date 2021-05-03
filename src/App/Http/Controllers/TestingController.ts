@@ -1,7 +1,6 @@
 import {IsString, MinLength} from "class-validator";
 import {ObjectId} from "mongodb";
 import {Auth} from "../../../Authentication";
-
 import {
 	body,
 	Controller,
@@ -16,7 +15,6 @@ import {
 } from "../../../Routing";
 import {User} from "../../Models/User";
 import {SetUserMiddleware} from "../Middleware/SetUserMiddleware";
-import {TestMiddleware} from "../Middleware/TestMiddleware";
 import {UserSocketListener} from "../Sockets/UserSocketListener";
 import {TestController} from "./TestController";
 
@@ -36,6 +34,10 @@ export class TestingController extends Controller {
 		super();
 	}
 
+	@get('/redirect')
+	async redirect(@query message: string) {
+		return response().redirect('https://google.com')
+	}
 	@get('/decorator/param')
 	async testQueryParamDecorator(@query message: string) {
 		return message;

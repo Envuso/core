@@ -59,6 +59,13 @@ export class RequestContext {
 		// We bind the context to the current request, so it's obtainable
 		// throughout the lifecycle of this request, this isn't bound to
 		// our wrapper request class, only the original fastify request
+		const request = this.request.fastifyRequest;
+		if(!request){
+			done();
+
+			return;
+		}
+
 		Reflect.defineMetadata(
 			METADATA.HTTP_CONTEXT, this, this.request.fastifyRequest
 		);
@@ -99,7 +106,7 @@ export class RequestContext {
 	 * own helper methods to make things a little easier
 	 */
 	static response(): Response {
-		return this.get().response;
+		return this.get()?.response;
 	}
 
 	/**

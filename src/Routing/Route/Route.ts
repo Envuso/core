@@ -98,7 +98,7 @@ export class Route {
 				return;
 			}
 
-			return Route.getResponseResult(routeResponse);
+			Route.getResponseResult(routeResponse);
 		};
 	}
 
@@ -160,6 +160,10 @@ export class Route {
 		//		controllerResponse.data = serialize(
 		//			controllerResponse.data, responseSerializationConfig
 		//		);
+
+		if(response.data === null || response.data === undefined){
+			response.data = {};
+		}
 
 		return controllerResponse.send();
 	}

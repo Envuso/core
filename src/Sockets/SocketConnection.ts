@@ -4,7 +4,6 @@ import WebSocket from "ws";
 import {config, resolve} from "../AppContainer";
 import {Auth} from "../Authentication";
 import {Authenticatable, Log, Str} from "../Common";
-import {UnauthorisedChannelEvent} from "../Common/Exception/UnauthorisedChannelEvent";
 import {Middleware, RequestContext} from "../Routing";
 import {parseSocketChannelName, SocketEvents} from "./SocketEvents";
 import {SocketChannelListener} from "./SocketChannelListener";

@@ -68,6 +68,10 @@ export class Server {
 
 		this.registerPlugins();
 
+		this._server.setNotFoundHandler((request: FastifyRequest, response: FastifyReply) => {
+			response.code(404).send({message : "Not found"});
+		});
+
 		// Handled just before our controllers receive/process the request
 		// This handler needs to work by it-self to provide the context
 		this._server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
@@ -87,7 +91,13 @@ export class Server {
 				return;
 			}
 
-			await RequestContext.get().initiateForRequest();
+			const context = RequestContext.get();
+
+			if (!context) {
+				return;
+			}
+
+			await context.initiateForRequest();
 
 			if (request.isMultipart())
 				await UploadedFile.addToRequest(request);
@@ -97,6 +107,10 @@ export class Server {
 		this._server.addHook('onSend', async (request: FastifyRequest, response: FastifyReply) => {
 			//If this request is a cors preflight request... we don't want to handle our internal logic.
 			if ((request as any).corsPreflightEnabled) {
+				return;
+			}
+
+			if (!RequestContext.get()) {
 				return;
 			}
 
@@ -195,14 +209,14 @@ export class Server {
 
 		const socketServer = resolve(SocketServer);
 
-		if(socketServer.isEnabled()){
-			await socketServer.initiate(this._server)
+		if (socketServer.isEnabled()) {
+			await socketServer.initiate(this._server);
 		}
 
-//		if (this._config.websocketsEnabled) {
-//			this._socketServer = new SocketServer();
-//			await this._socketServer.prepareIo(this._server, this._config.cors);
-//		}
+		//		if (this._config.websocketsEnabled) {
+		//			this._socketServer = new SocketServer();
+		//			await this._socketServer.prepareIo(this._server, this._config.cors);
+		//		}
 
 		await this._server.listen(this._config.port);
 
