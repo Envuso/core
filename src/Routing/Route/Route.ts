@@ -139,14 +139,14 @@ export class Route {
 			return response.setResponse(null, StatusCodes.NO_CONTENT).send();
 		}
 
-//		const responseSerializationConfig = App.getInstance()
-//			.resolve(ConfigRepository)
-//			.get<ClassTransformOptions>(
-//				'server.responseSerialization', {
-//					enableCircularCheck : true,
-//					strategy            : 'exposeAll'
-//				} as ClassTransformOptions
-//			);
+		//		const responseSerializationConfig = App.getInstance()
+		//			.resolve(ConfigRepository)
+		//			.get<ClassTransformOptions>(
+		//				'server.responseSerialization', {
+		//					enableCircularCheck : true,
+		//					strategy            : 'exposeAll'
+		//				} as ClassTransformOptions
+		//			);
 
 		if (!(controllerResponse instanceof Response)) {
 			return response.setResponse(
@@ -161,8 +161,12 @@ export class Route {
 		//			controllerResponse.data, responseSerializationConfig
 		//		);
 
-		if(response.data === null || response.data === undefined){
+		if (response.data === null || response.data === undefined) {
 			response.data = {};
+		}
+
+		if (controllerResponse.data === null || controllerResponse.data === undefined) {
+			controllerResponse.data = {};
 		}
 
 		return controllerResponse.send();

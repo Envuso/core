@@ -122,6 +122,9 @@ class Route {
         if (response.data === null || response.data === undefined) {
             response.data = {};
         }
+        if (controllerResponse.data === null || controllerResponse.data === undefined) {
+            controllerResponse.data = {};
+        }
         return controllerResponse.send();
     }
     /**
