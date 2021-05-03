@@ -296,7 +296,7 @@ export class Model<M> {
 	 * @returns {boolean}
 	 */
 	isFresh(): boolean {
-		return !!this.getModelId();
+		return this.getModelId() === undefined;
 	}
 
 	/**

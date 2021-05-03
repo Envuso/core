@@ -249,7 +249,7 @@ class Model {
      * @returns {boolean}
      */
     isFresh() {
-        return !!this.getModelId();
+        return this.getModelId() === undefined;
     }
     /**
      * Get the current models id
