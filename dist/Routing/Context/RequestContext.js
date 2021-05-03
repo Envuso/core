@@ -53,6 +53,11 @@ class RequestContext {
         // We bind the context to the current request, so it's obtainable
         // throughout the lifecycle of this request, this isn't bound to
         // our wrapper request class, only the original fastify request
+        const request = this.request.fastifyRequest;
+        if (!request) {
+            done();
+            return;
+        }
         Reflect.defineMetadata(Common_1.METADATA.HTTP_CONTEXT, this, this.request.fastifyRequest);
         RequestContextStore_1.RequestContextStore.getInstance().bind(this.request.fastifyRequest, done);
     }
@@ -82,7 +87,8 @@ class RequestContext {
      * own helper methods to make things a little easier
      */
     static response() {
-        return this.get().response;
+        var _a;
+        return (_a = this.get()) === null || _a === void 0 ? void 0 : _a.response;
     }
     /**
      * The developer may have disabled the session authentication provider

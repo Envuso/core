@@ -35,7 +35,7 @@ export declare class Route {
      *
      * @private
      */
-    getHandlerFactory(): (request?: FastifyRequest, response?: FastifyReply) => Promise<never>;
+    getHandlerFactory(): (request?: FastifyRequest, response?: FastifyReply) => Promise<void>;
     /**
      * Get all parameter types for this method
      *

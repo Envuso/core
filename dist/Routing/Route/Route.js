@@ -72,7 +72,7 @@ class Route {
                 console.warn('Response is already sent... something is offf.');
                 return;
             }
-            return Route.getResponseResult(routeResponse);
+            Route.getResponseResult(routeResponse);
         });
     }
     /**
@@ -119,6 +119,9 @@ class Route {
         //		controllerResponse.data = serialize(
         //			controllerResponse.data, responseSerializationConfig
         //		);
+        if (response.data === null || response.data === undefined) {
+            response.data = {};
+        }
         return controllerResponse.send();
     }
     /**

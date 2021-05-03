@@ -43,6 +43,9 @@ class Server {
             this._server = fastify_1.default(this._config.fastifyOptions);
             yield this._server.register(middie_1.default);
             this.registerPlugins();
+            this._server.setNotFoundHandler((request, response) => {
+                response.code(404).send({ message: "Not found" });
+            });
             // Handled just before our controllers receive/process the request
             // This handler needs to work by it-self to provide the context
             this._server.addHook('preHandler', (request, response, done) => {
@@ -59,7 +62,11 @@ class Server {
                 if (request.corsPreflightEnabled) {
                     return;
                 }
-                yield Routing_1.RequestContext.get().initiateForRequest();
+                const context = Routing_1.RequestContext.get();
+                if (!context) {
+                    return;
+                }
+                yield context.initiateForRequest();
                 if (request.isMultipart())
                     yield Routing_1.UploadedFile.addToRequest(request);
             }));
@@ -67,6 +74,9 @@ class Server {
             this._server.addHook('onSend', (request, response) => __awaiter(this, void 0, void 0, function* () {
                 //If this request is a cors preflight request... we don't want to handle our internal logic.
                 if (request.corsPreflightEnabled) {
+                    return;
+                }
+                if (!Routing_1.RequestContext.get()) {
                     return;
                 }
                 Routing_1.RequestContext.response().cookieJar().setCookiesOnResponse();

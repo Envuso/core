@@ -28,10 +28,12 @@ class Request {
         this._request = request;
     }
     isFastifyRequest(request) {
-        return this._request.routerMethod !== undefined;
+        var _a;
+        return ((_a = this._request) === null || _a === void 0 ? void 0 : _a.routerMethod) !== undefined;
     }
     isSocketRequest(request) {
-        return this._request.routerMethod === undefined;
+        var _a;
+        return ((_a = this._request) === null || _a === void 0 ? void 0 : _a.routerMethod) === undefined;
     }
     get socketRequest() {
         return this.isSocketRequest(this._request) ? this._request : null;
