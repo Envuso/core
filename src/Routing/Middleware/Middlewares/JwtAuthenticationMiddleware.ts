@@ -10,10 +10,8 @@ export class JwtAuthenticationMiddleware extends Middleware {
 	public async handle(context: RequestContext) {
 
 		const authentication = resolve(Authentication);
-
-		const authedUser = await Auth
-			.getAuthProvider(JwtAuthenticationProvider)
-			.authoriseRequest(context.request);
+		const provider       = authentication.getAuthProvider(JwtAuthenticationProvider);
+		const authedUser     = await provider.authoriseRequest(context.request);
 
 		if (!authedUser) {
 			throw new UnauthorisedException();

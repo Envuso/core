@@ -18,9 +18,8 @@ class JwtAuthenticationMiddleware extends Middleware_1.Middleware {
     handle(context) {
         return __awaiter(this, void 0, void 0, function* () {
             const authentication = AppContainer_1.resolve(Authentication_1.Authentication);
-            const authedUser = yield Authentication_1.Auth
-                .getAuthProvider(Authentication_1.JwtAuthenticationProvider)
-                .authoriseRequest(context.request);
+            const provider = authentication.getAuthProvider(Authentication_1.JwtAuthenticationProvider);
+            const authedUser = yield provider.authoriseRequest(context.request);
             if (!authedUser) {
                 throw new UnauthorisedException_1.UnauthorisedException();
             }
