@@ -89,11 +89,11 @@
     "AppContainer/**/*",
     "Authentication/**/*",
     "Common/**/*",
-    "Core/**/*",
     "Database/**/*",
     "Routing/**/*",
     "Sockets/**/*",
     "Storage/**/*",
+    "Server/**/*",
     "Cache/**/*",
     "Crypt/**/*",
     "index.*"
