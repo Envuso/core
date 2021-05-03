@@ -67,10 +67,7 @@ export class Server {
 		await this._server.register(middie);
 
 		this.registerPlugins();
-		this._server.addHook('onRequest', (r, re, done) => {
-			console.time('REQUEST TIME');
-			done();
-		});
+
 		// Handled just before our controllers receive/process the request
 		// This handler needs to work by it-self to provide the context
 		this._server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
@@ -117,10 +114,6 @@ export class Server {
 				await RequestContext.session().save();
 		});
 
-		this._server.addHook('onResponse', (r, re, done) => {
-			console.timeEnd('REQUEST TIME');
-			done();
-		});
 		this._server.addHook('onError', (request, reply, error, done) => {
 			Log.exception(error.message, error);
 
