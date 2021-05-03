@@ -240,7 +240,7 @@ class Model {
                 plain._id = res.insertedId;
                 return;
             }
-            yield this.update(this);
+            yield this.update(Serializer_1.dehydrateModel(this));
             return this;
         });
     }
