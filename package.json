@@ -96,6 +96,7 @@
     "Server/**/*",
     "Cache/**/*",
     "Crypt/**/*",
+    "Envuso.ts",
     "index.*"
   ],
   "types": "./"
