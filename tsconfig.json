@@ -47,6 +47,7 @@
     "src/Database/**/*",
     "src/Routing/**/*",
     "src/Storage/**/*",
+    "src/Sockets/**/*",
     "src/Cache/**/*",
     "src/Crypt/**/*",
     "src/Envuso.ts",

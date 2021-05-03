@@ -92,6 +92,7 @@
     "Core/**/*",
     "Database/**/*",
     "Routing/**/*",
+    "Sockets/**/*",
     "Storage/**/*",
     "Cache/**/*",
     "Crypt/**/*",
