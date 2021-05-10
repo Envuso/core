@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
+const class_transformer_1 = require("class-transformer");
 const mongodb_1 = require("mongodb");
 const Common_1 = require("../../Common");
 const Database_1 = require("../../Database");
@@ -23,5 +24,9 @@ __decorate([
     Database_1.id,
     __metadata("design:type", mongodb_1.ObjectId)
 ], User.prototype, "_id", void 0);
+__decorate([
+    class_transformer_1.Exclude(),
+    __metadata("design:type", String)
+], User.prototype, "password", void 0);
 exports.User = User;
 //# sourceMappingURL=User.js.map

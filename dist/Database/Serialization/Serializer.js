@@ -21,7 +21,8 @@ function dehydrateModel(entity) {
     }
     const plain = class_transformer_1.classToPlain(entity, {
         enableCircularCheck: true,
-        excludePrefixes: ['_']
+        excludePrefixes: ['_'],
+        ignoreDecorators: true
     });
     //	const plain: any = Object.assign({}, entity);
     for (let name in refs) {
@@ -46,7 +47,9 @@ function dehydrateModel(entity) {
 }
 exports.dehydrateModel = dehydrateModel;
 function hydrateModel(plain, type) {
-    return plain ? class_transformer_1.plainToClass(type, plain) : null;
+    return plain ? class_transformer_1.plainToClass(type, plain, {
+        ignoreDecorators: true,
+    }) : null;
 }
 exports.hydrateModel = hydrateModel;
 //# sourceMappingURL=Serializer.js.map

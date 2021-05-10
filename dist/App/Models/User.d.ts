@@ -4,4 +4,6 @@ export declare class User extends Authenticatable<User> {
     _id: ObjectId;
     email: string;
     something: string;
+    orderValue: number;
+    password: string;
 }
