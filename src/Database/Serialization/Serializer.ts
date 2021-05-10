@@ -29,14 +29,14 @@ export function dehydrateModel<T>(entity: T): Object {
 
 	const plain: any = classToPlain(entity, {
 		enableCircularCheck : true,
-		excludePrefixes : ['_']
+		excludePrefixes     : ['_'],
+		ignoreDecorators    : true
 	});
-//	const plain: any = Object.assign({}, entity);
+	//	const plain: any = Object.assign({}, entity);
 
 	for (let name in refs) {
 		delete plain[name];
 	}
-
 
 	const nested = Reflect.getMetadata('mongo:nested', entity) || [];
 	for (let {name, array} of nested) {
@@ -57,6 +57,8 @@ export function dehydrateModel<T>(entity: T): Object {
 	return plain;
 }
 
-export function hydrateModel<T>(plain: Object | null, type : ClassType<T>) {
-	return plain ? plainToClass<T, Object>(type, plain) : null;
+export function hydrateModel<T>(plain: Object | null, type: ClassType<T>) {
+	return plain ? plainToClass<T, Object>(type, plain, {
+		ignoreDecorators : true,
+	}) : null;
 }

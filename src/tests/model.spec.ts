@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {debug} from "winston";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
 import {Str} from "../Common";
@@ -74,13 +75,13 @@ describe('models', () => {
 	});
 
 	test('updating a model via .save()', async () => {
-		const random = Str.random();
+		const random       = Str.random();
 		const secondRandom = Str.random();
 
 		const user = await User.create({something : random});
 
 		user.something = secondRandom;
-		await user.save()
+		await user.save();
 
 		const foundUser = await User.find(secondRandom, 'something');
 
@@ -92,14 +93,14 @@ describe('models', () => {
 	});
 
 	test('updating a model via .update()', async () => {
-		const random = Str.random();
+		const random       = Str.random();
 		const secondRandom = Str.random();
 
 		const user = await User.create({something : random});
 
 		const updated = await user.update({
 			something : secondRandom
-		})
+		});
 
 		expect(updated.something).toEqual(secondRandom);
 		expect(updated._id).toEqual(updated._id);
@@ -108,7 +109,25 @@ describe('models', () => {
 
 		expect(user.something).toEqual(secondRandom);
 		expect(user._id).toEqual(foundUser._id);
-		expect(await foundUser.delete()).toBeTruthy()
+		expect(await foundUser.delete()).toBeTruthy();
+	});
+
+	test('using save on document with @excluded properties, arent removed', async () => {
+
+		const user      = new User();
+		user.orderValue = 1;
+		user.something  = 'hello';
+		user.email      = 'hello@hello.test';
+		user.password   = 'helloworld';
+		await user.save();
+
+
+		const retrievedUser = await User.where({
+			_id : user._id
+		}).first();
+
+		expect(user.password).toEqual('helloworld');
+		expect(retrievedUser.password).toEqual('helloworld');
 	});
 
 });

@@ -1,3 +1,4 @@
+import {Exclude} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Common";
 import {id} from "../../Database";
@@ -9,6 +10,12 @@ export class User extends Authenticatable<User> {
 	_id: ObjectId;
 
 	email: string;
+
 	something: string = 'hello';
+
+	orderValue: number;
+
+	@Exclude()
+	password: string;
 
 }

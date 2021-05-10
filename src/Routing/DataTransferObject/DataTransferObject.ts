@@ -1,4 +1,5 @@
 
+import {Exclude} from "class-transformer";
 import {validateOrReject, ValidationError} from "class-validator";
 import {Log} from "../../Common";
 import {DtoValidationException} from "./DtoValidationException";
@@ -11,6 +12,7 @@ export class DataTransferObject {
 	 *
 	 * @private
 	 */
+	@Exclude()
 	_validationErrors?: ValidationError[] = [];
 
 	/**
