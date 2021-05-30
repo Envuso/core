@@ -6,6 +6,7 @@ interface PaginatedResponse<T> {
         before: string;
         after: string;
         hasNext: boolean;
+        hasPrevious: boolean;
         total: number;
         limit: number;
     };

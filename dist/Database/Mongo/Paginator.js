@@ -40,6 +40,7 @@ class Paginator {
                     before: this._beforeCursor,
                     after: this._afterCursor,
                     hasNext: false,
+                    hasPrevious: false,
                     total: 0,
                     limit: this.limit,
                 }
@@ -48,10 +49,12 @@ class Paginator {
                 return this;
             const total = yield this.model.queryBuilder().where(this.query).count();
             const hasNext = (results.length === this.limit) && (total > results.length);
+            const hasPrevious = this.getAfterCursor() !== null;
             this._response.pagination = {
-                before: results[0]._id,
+                before: hasPrevious ? results[0]._id : null,
                 after: hasNext ? results[results.length - 1]._id : null,
                 hasNext: hasNext,
+                hasPrevious: hasPrevious,
                 total: total,
                 limit: this.limit
             };
