@@ -1,6 +1,7 @@
 import {IsString, MinLength} from "class-validator";
 import {ObjectId} from "mongodb";
 import {Auth} from "../../../Authentication";
+import {Authorization} from "../../../Authorization/Authorization";
 import {
 	body,
 	Controller,
@@ -199,6 +200,66 @@ export class TestingController extends Controller {
 
 		const user = await User.where({}).first();
 
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/user/policy')
+	async testFailingUserPolicy(@user user : User) {
+
+		const otherUser = await User.create({});
+
+		const result = await Authorization.can('deleteAccount', otherUser);
+
+		return {result};
+
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/user/policy/successful')
+	async testSuccessfulUserPolicy(@user user : User) {
+		const result = await Authorization.can('deleteAccount', user);
+
+		return {result};
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/user/policy/controller')
+	async testFailingUserPolicyOnController(@user user : User) {
+
+		const otherUser = await User.create({});
+
+		const result = await this.can('deleteAccount', otherUser);
+
+		return {result};
+
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/user/policy/controller/successful')
+	async testSuccessfulUserPolicyOnController(@user user : User) {
+		const result = await this.can('deleteAccount', user);
+
+		return {result};
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/user/policy/controller/user')
+	async testFailingUserPolicyOnUser(@user user : User) {
+
+		const otherUser = await User.create({});
+
+		const result = await user.can('deleteAccount', otherUser);
+
+		return {result};
+
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@get('/user/policy/controller/user/successful')
+	async testSuccessfulUserPolicyOnUser(@user user : User) {
+		const result = await user.can('deleteAccount', user);
+
+		return {result};
 	}
 
 }

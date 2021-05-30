@@ -375,7 +375,7 @@ describe('test route service provider', () => {
 			}
 		});
 
-		expect(res.statusCode).toEqual(404);
+		expect(res.statusCode).toEqual(400);
 
 	});
 

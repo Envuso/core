@@ -1,6 +1,8 @@
 import {FastifyReply, FastifyRequest} from "fastify";
+import {ObjectId} from "mongodb";
 import {Log, METADATA} from "../../Common";
 import {Model} from "../../Database";
+import {InvalidObjectIdUsed} from "../../Database/Exceptions/InvalidObjectIdUsed";
 import {ModelNotFoundException} from "../../Database/Exceptions/ModelNotFoundException";
 import {RequestContext} from "../Context/RequestContext";
 import {MethodParameterDecorator} from "./RequestInjection";
@@ -93,7 +95,12 @@ export class RouteManager {
 				const modelInstance: typeof Model = parameter.type;
 
 				const identifier = request.params[parameter.name];
-				const model      = await modelInstance.find(identifier) ?? null;
+
+				if (!ObjectId.isValid(identifier)) {
+					throw new InvalidObjectIdUsed(modelInstance.name);
+				}
+
+				const model = await modelInstance.find(identifier) ?? null;
 
 				if (model === null) {
 					throw new ModelNotFoundException(modelInstance.name);

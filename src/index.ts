@@ -12,6 +12,7 @@ export {DatabaseServiceProvider} from "./Database";
 export {CacheServiceProvider} from "./Cache";
 export * from "./Server/ServerServiceProvider";
 export {AuthenticationServiceProvider} from "./Authentication";
+export {AuthorizationServiceProvider} from './Authorization';
 export {StorageServiceProvider} from "./Storage";
 
 

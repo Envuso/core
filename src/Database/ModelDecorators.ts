@@ -1,7 +1,7 @@
 import {classToPlain, plainToClass, Transform} from "class-transformer";
 import {ObjectId} from "mongodb";
 import pluralize from "pluralize";
-import {ClassType, ModelObjectId, Nested, Ref} from "./index";
+import {ClassType, Model, ModelObjectId, Nested, Ref} from "./index";
 
 function addRef(name: string, ref: Ref, target: any) {
 	const refs = Reflect.getMetadata('mongo:refs', target) || {};
@@ -108,6 +108,10 @@ export function ids(target: any, propertyKey: string) {
 
 	isNotPrimitive(target, propertyKey);
 
+	pushToMetadata('mongo:objectId', [
+		{name : propertyKey} as ModelObjectId
+	], target);
+
 	Transform((val) => {
 		if (!val.value) {
 			return null;
@@ -125,6 +129,7 @@ export function ids(target: any, propertyKey: string) {
 
 }
 
+
 export function id(target: any, propertyKey: string) {
 	pushToMetadata('mongo:objectId', [
 		{name : propertyKey} as ModelObjectId
@@ -133,4 +138,15 @@ export function id(target: any, propertyKey: string) {
 	Transform(({value}) => new ObjectId(value), {toClassOnly : true})(target, propertyKey);
 	Transform(({value}) => value.toString(), {toPlainOnly : true})(target, propertyKey);
 
+}
+
+export function policy(policy: ClassType<any>) {
+	return function (constructor: Function) {
+		Reflect.defineMetadata('authorization-policy', policy, constructor);
+
+		if(constructor.prototype.constructor.name !== 'Model') {
+			Reflect.defineMetadata('authorization-policy', policy, constructor.prototype);
+		}
+
+	};
 }

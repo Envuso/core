@@ -1,9 +1,11 @@
 import {Exclude} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Common";
-import {id} from "../../Database";
+import {id, policy} from "../../Database";
+import {UserPolicy} from "../Policies/UserPolicy";
 
 
+@policy(UserPolicy)
 export class User extends Authenticatable<User> {
 
 	@id

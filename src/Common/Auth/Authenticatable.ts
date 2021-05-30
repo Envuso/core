@@ -2,6 +2,7 @@ import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {config, resolve} from "../../AppContainer";
 import {Authentication, JwtAuthenticationProvider} from "../../Authentication";
+import {Authorization, ModelConstructorOrInstantiatedModel} from "../../Authorization/Authorization";
 import {Model} from "../../Database";
 import {SocketEvents} from "../../Sockets/SocketEvents";
 import {SocketChannelListener} from "../../Sockets/SocketChannelListener";
@@ -37,6 +38,14 @@ export class Authenticatable<T> extends Model<T> {
 
 	getUser<T>(): T {
 		return this._user as T;
+	}
+
+	can<T extends ModelConstructorOrInstantiatedModel>(permission: string, model: T, ...additional): Promise<boolean> {
+		return Authorization.can<T>(permission, model, ...additional);
+	}
+
+	cannot<T extends ModelConstructorOrInstantiatedModel>(permission: string, model: T, ...additional): Promise<boolean> {
+		return Authorization.cannot<T>(permission, model, ...additional);
 	}
 
 	toJSON() {

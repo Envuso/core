@@ -8,6 +8,7 @@ import {
 	ServerServiceProvider,
 
 } from '../';
+import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
 
 import Auth from "./Auth";
 import Database from "./Database";
@@ -26,6 +27,7 @@ export const Config = {
 			CacheServiceProvider,
 			EncryptionServiceProvider,
 			AuthenticationServiceProvider,
+			AuthorizationServiceProvider,
 			RouteServiceProvider,
 			StorageServiceProvider,
 			ServerServiceProvider,
