@@ -1,6 +1,7 @@
 import {classToPlain, plainToClass} from "class-transformer";
 import {ObjectId} from 'mongodb';
-import {ClassType, Ref} from "../index";
+import {Obj} from "../../Common";
+import {ClassType, ModelObjectId, Ref} from "../index";
 
 export function dehydrateModel<T>(entity: T): Object {
 	if (!entity)
@@ -54,6 +55,16 @@ export function dehydrateModel<T>(entity: T): Object {
 		delete plain[name];
 	}
 
+	const objectIds = this.getModelObjectIds(entity);
+
+	for (let objectIdField of objectIds) {
+		if (!plain[objectIdField.name]) {
+			continue;
+		}
+
+		plain[objectIdField.name] = new ObjectId(plain[objectIdField.name]);
+	}
+
 	return plain;
 }
 
@@ -61,4 +72,8 @@ export function hydrateModel<T>(plain: Object | null, type: ClassType<T>) {
 	return plain ? plainToClass<T, Object>(type, plain, {
 		ignoreDecorators : true,
 	}) : null;
+}
+
+export function getModelObjectIds(entity: any): ModelObjectId[] {
+	return Reflect.getMetadata('mongo:objectId', entity) || [];
 }

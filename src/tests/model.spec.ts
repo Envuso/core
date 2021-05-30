@@ -1,14 +1,17 @@
 import "reflect-metadata";
-import {debug} from "winston";
+import {ObjectId} from "mongodb";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
 import {Str} from "../Common";
 import {Config} from "../Config";
+import {Server} from "../Server/Server";
 
 
 const bootApp = async function () {
 	const app = await App.bootInstance({config : Config});
 	await app.loadServiceProviders();
+	await app.container().resolve(Server).initialise();
+
 };
 
 beforeAll(() => {
@@ -128,6 +131,87 @@ describe('models', () => {
 
 		expect(user.password).toEqual('helloworld');
 		expect(retrievedUser.password).toEqual('helloworld');
+	});
+
+	test('using .save() with multiple @id decorators', async () => {
+
+		const otherUser = await User.create({something : "randomtext"});
+
+		const user      = new User();
+		user.someUserId = otherUser._id;
+		await user.save();
+
+		expect(otherUser._id).toBeDefined();
+		expect(otherUser._id).toBeInstanceOf(ObjectId);
+		expect(user._id).toBeDefined();
+		expect(user.someUserId).toBeDefined();
+		expect(user.someUserId).toEqual(otherUser._id);
+		expect(user.someUserId).toBeInstanceOf(ObjectId);
+
+		const storedUser = await User.find(user._id);
+
+		expect(user.someUserId).toBeDefined();
+		expect(user.someUserId).toEqual(otherUser._id);
+		expect(user.someUserId).toBeInstanceOf(ObjectId);
+	});
+
+	test('test regular paginating', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/model/pagination',
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const json = res.json();
+
+		expect(json.data).toBeDefined()
+		expect(res).toBeDefined();
+
+	});
+
+	test('test paginating with filter', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/model/pagination/filtered',
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const json = res.json();
+
+		expect(json.data).toBeDefined()
+		expect(res).toBeDefined();
+
+	});
+
+	test('using optional where chaining', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const count = await User
+			.when(false, {something : 'hello'})
+			.where({_id : 'dsjfksdjk'})
+			.count();
+
+		expect(count).toEqual(0);
+
+		const countTwo = await User
+			.where({something : 'jdfkjsdjflsjdlfjsldjlfjsdkljfsdljfsd'})
+			.when(true, {something : 'hello'})
+			.count();
+
+		expect(countTwo).toBeGreaterThan(0);
 	});
 
 });

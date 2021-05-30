@@ -59,7 +59,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 				ignoreExpiration : false,
 				algorithms       : ["HS256"],
 			} as VerifyOptions
-		})
+		});
 
 
 		if (!this._config?.authorizationHeaderPrefix) {
@@ -92,12 +92,12 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		return null;
 	}
 
-	public validateAuthenticationInformation(credential: string): VerifiedTokenInterface | null {
+	public validateAuthenticationInformation<T extends VerifiedTokenInterface>(credential: string): T | null {
 		if (!credential) {
 			return null;
 		}
 
-		return <VerifiedTokenInterface>verify(
+		return <T>verify(
 			credential,
 			this._appKey,
 			this._config.jwtVerifyOptions
@@ -132,9 +132,12 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		return new Authenticatable().setUser(user.getUser()) as Authenticatable<T>;
 	}
 
-	public issueToken(id: string): string {
+	public issueToken(id: string, additionalPayload?: any): string {
 		return sign(
-			{id},
+			{
+				...additionalPayload,
+				...{id}
+			},
 			this._appKey,
 			this._config.jwtSigningOptions
 		);

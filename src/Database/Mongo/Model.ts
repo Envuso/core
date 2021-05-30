@@ -3,7 +3,7 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
-import {dehydrateModel, hydrateModel} from "../Serialization/Serializer";
+import {dehydrateModel, getModelObjectIds, hydrateModel} from "../Serialization/Serializer";
 import {Paginator} from "./Paginator";
 import {QueryBuilder} from "./QueryBuilder";
 
@@ -60,6 +60,22 @@ export class Model<M> {
 		this: new() => T,
 		attributes: FilterQuery<T> | Partial<T>
 	): QueryBuilder<T> {
+		return new this().queryBuilder().where<T>(attributes);
+	}
+
+	static when<T extends Model<any>>(
+		this: new() => T,
+		condition : boolean|(() => boolean),
+		attributes: FilterQuery<T> | Partial<T>
+	): QueryBuilder<T> {
+		if(typeof condition === 'boolean' && !condition) {
+			return new this().queryBuilder();
+		}
+
+		if(typeof condition === 'function' && !condition()) {
+			return new this().queryBuilder();
+		}
+
 		return new this().queryBuilder().where<T>(attributes);
 	}
 
@@ -133,14 +149,15 @@ export class Model<M> {
 		key: string | ObjectId,
 		field: keyof T | '_id' = '_id'
 	): Promise<T> {
+		const objectId = getModelObjectIds(new this()).find(f => f.name === field);
+
+		if (objectId !== undefined) {
+			key = new ObjectId(key);
+		}
+
 		return new this().queryBuilder()
-			.where<T>({
-				[field] : field === '_id' ? new ObjectId(key) : key
-			})
+			.where<T>({[field] : key})
 			.first();
-		//		return this.findOne({
-		//			[field] : field === '_id' ? new ObjectId(key) : key
-		//		});
 	}
 
 	/**
@@ -226,15 +243,15 @@ export class Model<M> {
 
 		let usesAtomicOperator = false;
 		for (let key of Object.keys(attributeChecks)) {
-			if(this.getMongoAtomicOperators().includes(key)){
+			if (this.getMongoAtomicOperators().includes(key)) {
 				usesAtomicOperator = true;
 				break;
 			}
 		}
 
-		if(!usesAtomicOperator){
+		if (!usesAtomicOperator) {
 			//@ts-ignore - some silly type issue i cba to figure out rn
-			attributes = {$set : attributes}
+			attributes = {$set : attributes};
 		}
 
 		await this.collection().updateOne({
@@ -259,7 +276,7 @@ export class Model<M> {
 
 		// await this.refresh();
 
-//		return this;
+		//		return this;
 	}
 
 	/**
@@ -382,7 +399,7 @@ export class Model<M> {
 			"$push",
 			"$pullAll",
 			"$bit",
-		]
+		];
 	}
 
 }

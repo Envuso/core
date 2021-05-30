@@ -10,13 +10,6 @@ class dtoshit extends DataTransferObject {
 @controller('/lel')
 export class TestController extends Controller {
 
-	/**
-	 * TYPE CASTING THE METHOD LIKE
-	 * (REQ: FASTIFYREQUEST) WILL BREAK FUCKING EVERYTHING
-	 *
-	 * @TODO: FIX PLS
-	 */
-
 	@post('/test')
 	async testMethod(@dto() dto: dtoshit) {
 		dto.validate()

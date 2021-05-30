@@ -150,12 +150,16 @@ export class TestingController extends Controller {
 	@get('/model/pagination')
 	async testPagination() {
 		return User.paginate(1);
-		//		return User.get();
 	}
 
-	@middleware(new SetUserMiddleware())
-	@get('/auth/userdecorator')
-	public async testUserDecorator(@user user: User) {
+	@get('/model/pagination/filtered')
+	async testPaginationFiltered() {
+		return User.where({something : "randomtext"}).paginate(1);
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@post('/auth/userdecorator')
+	public async testUserDecorator(@user user: User, @dto() dt: DTO) {
 		return {user};
 	}
 

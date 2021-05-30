@@ -1,7 +1,7 @@
 import {classToPlain, plainToClass, Transform} from "class-transformer";
 import {ObjectId} from "mongodb";
 import pluralize from "pluralize";
-import {ClassType, Nested, Ref} from "./index";
+import {ClassType, ModelObjectId, Nested, Ref} from "./index";
 
 function addRef(name: string, ref: Ref, target: any) {
 	const refs = Reflect.getMetadata('mongo:refs', target) || {};
@@ -25,7 +25,7 @@ export function nested(typeFunction: any) {
 		const targetType = Reflect.getMetadata('design:type', target, propertyKey);
 		isNotPrimitive(targetType, propertyKey);
 
-//		Type(() => typeFunction)(target, propertyKey);
+		//		Type(() => typeFunction)(target, propertyKey);
 
 		Transform((val) => {
 			if (!val.value) {
@@ -33,10 +33,10 @@ export function nested(typeFunction: any) {
 			}
 
 			if (targetType === Array) {
-				return val.value.map(v => plainToClass(typeFunction, v))
+				return val.value.map(v => plainToClass(typeFunction, v));
 			}
 
-			return plainToClass(typeFunction, val.value)
+			return plainToClass(typeFunction, val.value);
 		}, {toClassOnly : true})(target, propertyKey);
 
 		Transform((val) => {
@@ -44,15 +44,15 @@ export function nested(typeFunction: any) {
 				return null;
 			}
 			if (targetType === Array) {
-				return val.value.map(v => classToPlain(v))
+				return val.value.map(v => classToPlain(v));
 			}
 
-			return classToPlain(val.value)
+			return classToPlain(val.value);
 		}, {toPlainOnly : true})(target, propertyKey);
 
 
 		pushToMetadata('mongo:nested', [{name : propertyKey, typeFunction, array : targetType === Array} as Nested], target);
-	}
+	};
 }
 
 export function ignore(target: any, propertyKey: any) {
@@ -75,7 +75,7 @@ export function ref(modelReference: ClassType<any>) {
 			_id       : refId,
 			array     : isArray,
 			modelName : modelReference.name
-		}
+		};
 		addRef(propertyKey, refInfo, target);
 
 		Transform((val) => {
@@ -84,10 +84,10 @@ export function ref(modelReference: ClassType<any>) {
 			}
 
 			if (targetType === Array) {
-				return val.value.map(v => plainToClass(modelReference, v))
+				return val.value.map(v => plainToClass(modelReference, v));
 			}
 
-			return plainToClass(modelReference, val.value)
+			return plainToClass(modelReference, val.value);
 		}, {toClassOnly : true})(target, propertyKey);
 
 		Transform((val) => {
@@ -95,10 +95,10 @@ export function ref(modelReference: ClassType<any>) {
 				return null;
 			}
 			if (targetType === Array) {
-				return val.value.map(v => classToPlain(v))
+				return val.value.map(v => classToPlain(v));
 			}
 
-			return classToPlain(val.value)
+			return classToPlain(val.value);
 		}, {toPlainOnly : true})(target, propertyKey);
 
 	};
@@ -113,19 +113,22 @@ export function ids(target: any, propertyKey: string) {
 			return null;
 		}
 
-		return val.value.map(v => new ObjectId(v))
+		return val.value.map(v => new ObjectId(v));
 	}, {toClassOnly : true})(target, propertyKey);
 	Transform((val) => {
 		if (!val.value) {
 			return null;
 		}
 
-		return val.value.map(v => v.toString())
+		return val.value.map(v => v.toString());
 	}, {toPlainOnly : true})(target, propertyKey);
 
 }
 
 export function id(target: any, propertyKey: string) {
+	pushToMetadata('mongo:objectId', [
+		{name : propertyKey} as ModelObjectId
+	], target);
 
 	Transform(({value}) => new ObjectId(value), {toClassOnly : true})(target, propertyKey);
 	Transform(({value}) => value.toString(), {toPlainOnly : true})(target, propertyKey);

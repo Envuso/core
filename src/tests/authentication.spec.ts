@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {FastifyRequest} from "fastify";
 import {App, ConfigRepository} from "../AppContainer";
-import {Auth, Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider} from "../Authentication";
+import {Auth, Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider, VerifiedTokenInterface} from "../Authentication";
 import {Authenticatable} from "../Common";
 import {Config} from "../Config";
 import {request, Request, RequestContext} from "../Routing";
@@ -88,6 +88,25 @@ describe('jwt authentication', () => {
 			.issueToken('1234');
 
 		expect(token).toBeDefined();
+	});
+
+	test('can generate jwt with additional payload', async () => {
+		const app  = App.getInstance();
+		const auth = app.resolve(Authentication);
+
+		const token = auth
+			.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider)
+			.issueToken('1234', {someInformation : ["yas", "woot"]});
+
+		interface SomeTokenPayload extends VerifiedTokenInterface {
+			someInformation : string[];
+		}
+
+		const tokenPayload = auth.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider)
+			.validateAuthenticationInformation<SomeTokenPayload>(token);
+
+		expect(token).toBeDefined();
+		expect(tokenPayload.someInformation).toEqual(["yas", "woot"])
 	});
 
 	test('can verify jwt', async () => {

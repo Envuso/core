@@ -2,14 +2,28 @@ import "reflect-metadata";
 
 import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
+import {FastifyRequest} from "fastify";
 import * as fs from "fs";
 import * as path from "path";
 import {TestingController} from "../App/Http/Controllers/TestingController";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
+import {Auth, Authentication, JwtAuthenticationProvider} from "../Authentication";
+import {Authenticatable} from "../Common";
 import {Config} from "../Config";
-import {Server} from "../Core";
-import {Controller, controller, ControllerManager, DataTransferObject, DtoValidationException, get, middleware, Middleware} from "../Routing";
+import {
+	Controller,
+	controller,
+	ControllerManager,
+	DataTransferObject,
+	DtoValidationException,
+	get,
+	middleware,
+	Middleware,
+	Request,
+	RequestContext
+} from "../Routing";
+import {Server} from "../Server/Server";
 
 
 const bootApp = async function () {
@@ -231,6 +245,33 @@ describe('test route service provider', () => {
 
 	});
 
+	test('using @user decorator on controller method', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+		const auth   = app.resolve(Authentication);
+
+		const user = await User.create({
+			email : 'yeet@yeet.com'
+		});
+		await user.refresh();
+
+		const jwt = user.generateToken();
+
+		const res = await server._server.inject({
+			method  : 'post',
+			url     : '/testing/auth/userdecorator',
+			headers : {
+				'Authorization' : 'Bearer ' + jwt
+			},
+			payload : {
+				something : "something"
+			}
+		});
+
+		expect(res.statusCode).toEqual(202);
+		expect(res.body).toEqual(JSON.stringify({user}));
+	});
+
 	test('route model binding returning user object', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
@@ -318,6 +359,23 @@ describe('test route service provider', () => {
 
 		expect(body._id).toEqual(user._id.toString());
 		expect(res.statusCode).toEqual(202);
+
+	});
+
+	test('route model binding failing to return user values', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/rmb/uservals/kdfjfdlkjdklfj',
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		expect(res.statusCode).toEqual(404);
 
 	});
 

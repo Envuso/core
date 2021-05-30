@@ -76,14 +76,13 @@ export class Route {
 	getHandlerFactory() {
 		return async (request?: FastifyRequest, response?: FastifyReply) => {
 
-			const parameters = await RouteManager.parametersForRoute(
-				request, response, this
-			);
-
 			let httpContext: RequestContext | null = null;
 			if (request)
 				httpContext = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
 
+			const parameters = await RouteManager.parametersForRoute(
+				request, response, this, httpContext
+			);
 
 			const controller = App.getInstance().resolve<Controller>(
 				this.controllerMeta.controller.target

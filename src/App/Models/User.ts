@@ -9,6 +9,9 @@ export class User extends Authenticatable<User> {
 	@id
 	_id: ObjectId;
 
+	@id
+	someUserId: ObjectId;
+
 	email: string;
 
 	something: string = 'hello';

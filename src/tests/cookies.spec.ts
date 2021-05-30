@@ -1,7 +1,7 @@
 import "./preptests";
 import {app, config} from "../AppContainer";
-import {Server} from "../Core";
 import {Encryption} from "../Crypt";
+import {Server} from "../Server/Server";
 
 //container().resolve<Server>(Server);
 describe('using cookies', () => {

@@ -37,6 +37,7 @@ export class Paginator<T> {
 
 		this.mergeQuery(this.setupQuery());
 
+
 		const results = await this.model.queryBuilder()
 			.where(this.query)
 			.limit(this.limit)
@@ -146,7 +147,7 @@ export class Paginator<T> {
 		if (query._id)
 			(this.query as any)._id = query._id;
 
-		this.query = query;
+		this.query = {...this.query, ...query};
 	}
 
 	/**

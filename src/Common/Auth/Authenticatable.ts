@@ -12,10 +12,10 @@ export class Authenticatable<T> extends Model<T> {
 	@Exclude()
 	private _user: any;
 
-	generateToken() {
+	generateToken(additionalPayload?: any) {
 		return resolve(Authentication)
 			.getAuthProvider<JwtAuthenticationProvider>(JwtAuthenticationProvider)
-			.issueToken((this as any)._id as unknown as string);
+			.issueToken((this as any)._id as unknown as string, additionalPayload);
 	}
 
 	sendSocketChannelEvent(channel: new () => SocketChannelListener, eventName: SocketEvents | string, data: any) {

@@ -75,6 +75,21 @@ export class QueryBuilder<T> {
 		return this;
 	}
 
+	public when<M>(
+		condition : boolean|(() => boolean),
+		attributes: FilterQuery<M | T> | Partial<M | T>
+	): QueryBuilder<T> {
+		if(typeof condition === 'boolean' && !condition) {
+			return this;
+		}
+
+		if(typeof condition === 'function' && !condition()) {
+			return this;
+		}
+
+		return this.where<M>(attributes);
+	}
+
 	/**
 	 * Allows us to specify any model refs to load in this query
 	 *
@@ -308,6 +323,10 @@ export class QueryBuilder<T> {
 			.find(this._collectionFilter, options);
 
 		return this._builderResult;
+	}
+
+	get collectionFilter() {
+		return this._collectionFilter;
 	}
 
 	/**

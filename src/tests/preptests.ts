@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import {App} from "../AppContainer";
 import {Config} from "../Config";
-import {Server} from "../Core";
+import {Server} from "../Server/Server";
 
 const bootApp = async function () {
 	const app = await App.bootInstance({config : Config});

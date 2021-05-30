@@ -1,6 +1,8 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {Log, METADATA} from "../../Common";
 import {Model} from "../../Database";
+import {ModelNotFoundException} from "../../Database/Exceptions/ModelNotFoundException";
+import {RequestContext} from "../Context/RequestContext";
 import {MethodParameterDecorator} from "./RequestInjection";
 import {Route} from "./Route";
 import {param} from "./RouteDecorators";
@@ -34,8 +36,9 @@ export class RouteManager {
 	 * @param request
 	 * @param response
 	 * @param route
+	 * @param context
 	 */
-	public static async parametersForRoute(request: FastifyRequest, response: FastifyReply, route: Route) {
+	public static async parametersForRoute(request: FastifyRequest, response: FastifyReply, route: Route, context: RequestContext) {
 
 		//TODO: Double check we actually need this, pretty sure that
 		//We figured out last night that, this was basically useless
@@ -60,7 +63,7 @@ export class RouteManager {
 				);
 
 				if (!methodMeta) {
-//					Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
+					//					Log.info('Param ' + route.methodMeta.key + ' doesnt have meta for injector: ' + metadataKey);
 
 					continue;
 				}
@@ -82,8 +85,8 @@ export class RouteManager {
 			// Route model binding was conflicting with @user decorator... so
 			// When we've handled a decorator for this parameter, we'll set bound
 			// to true. This way, we can then fall-back to attempting route model binding.
-			if(boundParameter){
-				break;
+			if (boundParameter) {
+				continue;
 			}
 
 			if (parameter.type.prototype instanceof Model) {
@@ -91,6 +94,10 @@ export class RouteManager {
 
 				const identifier = request.params[parameter.name];
 				const model      = await modelInstance.find(identifier) ?? null;
+
+				if (model === null) {
+					throw new ModelNotFoundException(modelInstance.name);
+				}
 
 				parameterArgs.push(model);
 			}

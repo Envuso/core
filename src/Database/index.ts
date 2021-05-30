@@ -68,6 +68,9 @@ export interface Ref {
 	modelName: string;
 }
 
+export interface ModelObjectId {
+	name: string;
+}
 
 export interface RepositoryOptions {
 	/**
