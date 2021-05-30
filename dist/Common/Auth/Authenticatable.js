@@ -13,6 +13,7 @@ exports.Authenticatable = void 0;
 const class_transformer_1 = require("class-transformer");
 const AppContainer_1 = require("../../AppContainer");
 const Authentication_1 = require("../../Authentication");
+const Authorization_1 = require("../../Authorization/Authorization");
 const Database_1 = require("../../Database");
 const SocketServer_1 = require("../../Sockets/SocketServer");
 class Authenticatable extends Database_1.Model {
@@ -34,6 +35,12 @@ class Authenticatable extends Database_1.Model {
     }
     getUser() {
         return this._user;
+    }
+    can(permission, model, ...additional) {
+        return Authorization_1.Authorization.can(permission, model, ...additional);
+    }
+    cannot(permission, model, ...additional) {
+        return Authorization_1.Authorization.cannot(permission, model, ...additional);
     }
     toJSON() {
         const options = AppContainer_1.config('server.responseSerialization');

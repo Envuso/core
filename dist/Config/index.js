@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Config = void 0;
 const __1 = require("../");
+const AuthorizationServiceProvider_1 = require("../Authorization/AuthorizationServiceProvider");
 const Auth_1 = __importDefault(require("./Auth"));
 const Database_1 = __importDefault(require("./Database"));
 const Server_1 = __importDefault(require("./Server"));
@@ -19,6 +20,7 @@ exports.Config = {
             __1.CacheServiceProvider,
             __1.EncryptionServiceProvider,
             __1.AuthenticationServiceProvider,
+            AuthorizationServiceProvider_1.AuthorizationServiceProvider,
             __1.RouteServiceProvider,
             __1.StorageServiceProvider,
             __1.ServerServiceProvider,

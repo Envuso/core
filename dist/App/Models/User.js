@@ -14,12 +14,13 @@ const class_transformer_1 = require("class-transformer");
 const mongodb_1 = require("mongodb");
 const Common_1 = require("../../Common");
 const Database_1 = require("../../Database");
-class User extends Common_1.Authenticatable {
+const UserPolicy_1 = require("../Policies/UserPolicy");
+let User = class User extends Common_1.Authenticatable {
     constructor() {
         super(...arguments);
         this.something = 'hello';
     }
-}
+};
 __decorate([
     Database_1.id,
     __metadata("design:type", mongodb_1.ObjectId)
@@ -32,5 +33,8 @@ __decorate([
     class_transformer_1.Exclude(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+User = __decorate([
+    Database_1.policy(UserPolicy_1.UserPolicy)
+], User);
 exports.User = User;
 //# sourceMappingURL=User.js.map

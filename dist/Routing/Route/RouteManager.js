@@ -10,8 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteManager = void 0;
+const mongodb_1 = require("mongodb");
 const Common_1 = require("../../Common");
 const Database_1 = require("../../Database");
+const InvalidObjectIdUsed_1 = require("../../Database/Exceptions/InvalidObjectIdUsed");
 const ModelNotFoundException_1 = require("../../Database/Exceptions/ModelNotFoundException");
 const RequestInjection_1 = require("./RequestInjection");
 class RouteManager {
@@ -79,6 +81,9 @@ class RouteManager {
                 if (parameter.type.prototype instanceof Database_1.Model) {
                     const modelInstance = parameter.type;
                     const identifier = request.params[parameter.name];
+                    if (!mongodb_1.ObjectId.isValid(identifier)) {
+                        throw new InvalidObjectIdUsed_1.InvalidObjectIdUsed(modelInstance.name);
+                    }
                     const model = (_a = yield modelInstance.find(identifier)) !== null && _a !== void 0 ? _a : null;
                     if (model === null) {
                         throw new ModelNotFoundException_1.ModelNotFoundException(modelInstance.name);

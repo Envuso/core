@@ -7,5 +7,5 @@ export declare class RouteUserParam extends MethodParameterDecorator {
     static handleParameter(reflector: ReflectControllerMethodParamData): void;
     private static setMetadata;
     static getMetadata(target: Function): RouteUserParam | undefined;
-    bind(request: FastifyRequest, response: FastifyReply): import("../../../Common").Authenticatable<any>;
+    bind(request: FastifyRequest, response: FastifyReply): unknown;
 }

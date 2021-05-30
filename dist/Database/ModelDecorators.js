@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.id = exports.ids = exports.ref = exports.ignore = exports.nested = void 0;
+exports.policy = exports.id = exports.ids = exports.ref = exports.ignore = exports.nested = void 0;
 const class_transformer_1 = require("class-transformer");
 const mongodb_1 = require("mongodb");
 const pluralize_1 = __importDefault(require("pluralize"));
@@ -90,6 +90,9 @@ function ref(modelReference) {
 exports.ref = ref;
 function ids(target, propertyKey) {
     isNotPrimitive(target, propertyKey);
+    pushToMetadata('mongo:objectId', [
+        { name: propertyKey }
+    ], target);
     class_transformer_1.Transform((val) => {
         if (!val.value) {
             return null;
@@ -112,4 +115,13 @@ function id(target, propertyKey) {
     class_transformer_1.Transform(({ value }) => value.toString(), { toPlainOnly: true })(target, propertyKey);
 }
 exports.id = id;
+function policy(policy) {
+    return function (constructor) {
+        Reflect.defineMetadata('authorization-policy', policy, constructor);
+        if (constructor.prototype.constructor.name !== 'Model') {
+            Reflect.defineMetadata('authorization-policy', policy, constructor.prototype);
+        }
+    };
+}
+exports.policy = policy;
 //# sourceMappingURL=ModelDecorators.js.map

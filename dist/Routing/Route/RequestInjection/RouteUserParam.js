@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteUserParam = void 0;
+const AppContainer_1 = require("../../../AppContainer");
+const Authentication_1 = require("../../../Authentication");
 const Common_1 = require("../../../Common");
-const RequestContext_1 = require("../../Context/RequestContext");
 const MethodParameterDecorator_1 = require("./MethodParameterDecorator");
 class RouteUserParam extends MethodParameterDecorator_1.MethodParameterDecorator {
     constructor(parameterName, type, paramIndex) {
@@ -24,7 +25,7 @@ class RouteUserParam extends MethodParameterDecorator_1.MethodParameterDecorator
         return Reflect.getMetadata(Common_1.METADATA.REQUEST_AUTHENTICATED_USER, target);
     }
     bind(request, response) {
-        return RequestContext_1.RequestContext.get().user;
+        return AppContainer_1.resolve(Authentication_1.Authentication).user().getUser();
     }
 }
 exports.RouteUserParam = RouteUserParam;
