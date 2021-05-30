@@ -57,6 +57,9 @@ export interface Ref {
     array: boolean;
     modelName: string;
 }
+export interface ModelObjectId {
+    name: string;
+}
 export interface RepositoryOptions {
     /**
      * create indexes when creating repository. Will force `background` flag and not block other database operations.

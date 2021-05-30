@@ -25,6 +25,10 @@ __decorate([
     __metadata("design:type", mongodb_1.ObjectId)
 ], User.prototype, "_id", void 0);
 __decorate([
+    Database_1.id,
+    __metadata("design:type", mongodb_1.ObjectId)
+], User.prototype, "someUserId", void 0);
+__decorate([
     class_transformer_1.Exclude(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);

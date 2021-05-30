@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RouteManager = void 0;
 const Common_1 = require("../../Common");
 const Database_1 = require("../../Database");
+const ModelNotFoundException_1 = require("../../Database/Exceptions/ModelNotFoundException");
 const RequestInjection_1 = require("./RequestInjection");
 class RouteManager {
     /**
@@ -40,8 +41,9 @@ class RouteManager {
      * @param request
      * @param response
      * @param route
+     * @param context
      */
-    static parametersForRoute(request, response, route) {
+    static parametersForRoute(request, response, route, context) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Double check we actually need this, pretty sure that
@@ -72,12 +74,15 @@ class RouteManager {
                 // When we've handled a decorator for this parameter, we'll set bound
                 // to true. This way, we can then fall-back to attempting route model binding.
                 if (boundParameter) {
-                    break;
+                    continue;
                 }
                 if (parameter.type.prototype instanceof Database_1.Model) {
                     const modelInstance = parameter.type;
                     const identifier = request.params[parameter.name];
                     const model = (_a = yield modelInstance.find(identifier)) !== null && _a !== void 0 ? _a : null;
+                    if (model === null) {
+                        throw new ModelNotFoundException_1.ModelNotFoundException(modelInstance.name);
+                    }
                     parameterArgs.push(model);
                 }
             }

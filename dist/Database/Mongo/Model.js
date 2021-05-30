@@ -69,6 +69,15 @@ class Model {
     static where(attributes) {
         return new this().queryBuilder().where(attributes);
     }
+    static when(condition, attributes) {
+        if (typeof condition === 'boolean' && !condition) {
+            return new this().queryBuilder();
+        }
+        if (typeof condition === 'function' && !condition()) {
+            return new this().queryBuilder();
+        }
+        return new this().queryBuilder().where(attributes);
+    }
     /**
      * Query for a single model instance
      *
@@ -121,14 +130,13 @@ class Model {
      * @param field
      */
     static find(key, field = '_id') {
+        const objectId = Serializer_1.getModelObjectIds(new this()).find(f => f.name === field);
+        if (objectId !== undefined) {
+            key = new mongodb_1.ObjectId(key);
+        }
         return new this().queryBuilder()
-            .where({
-            [field]: field === '_id' ? new mongodb_1.ObjectId(key) : key
-        })
+            .where({ [field]: key })
             .first();
-        //		return this.findOne({
-        //			[field] : field === '_id' ? new ObjectId(key) : key
-        //		});
     }
     /**
      * Basically an alias of the {@see QueryBuilder.orderByDesc()}

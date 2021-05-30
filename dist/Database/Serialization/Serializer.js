@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hydrateModel = exports.dehydrateModel = void 0;
+exports.getModelObjectIds = exports.hydrateModel = exports.dehydrateModel = void 0;
 const class_transformer_1 = require("class-transformer");
 const mongodb_1 = require("mongodb");
 function dehydrateModel(entity) {
@@ -43,6 +43,13 @@ function dehydrateModel(entity) {
     for (const name in ignores) {
         delete plain[name];
     }
+    const objectIds = this.getModelObjectIds(entity);
+    for (let objectIdField of objectIds) {
+        if (!plain[objectIdField.name]) {
+            continue;
+        }
+        plain[objectIdField.name] = new mongodb_1.ObjectId(plain[objectIdField.name]);
+    }
     return plain;
 }
 exports.dehydrateModel = dehydrateModel;
@@ -52,4 +59,8 @@ function hydrateModel(plain, type) {
     }) : null;
 }
 exports.hydrateModel = hydrateModel;
+function getModelObjectIds(entity) {
+    return Reflect.getMetadata('mongo:objectId', entity) || [];
+}
+exports.getModelObjectIds = getModelObjectIds;
 //# sourceMappingURL=Serializer.js.map

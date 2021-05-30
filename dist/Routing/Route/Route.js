@@ -61,10 +61,10 @@ class Route {
      */
     getHandlerFactory() {
         return (request, response) => __awaiter(this, void 0, void 0, function* () {
-            const parameters = yield RouteManager_1.RouteManager.parametersForRoute(request, response, this);
             let httpContext = null;
             if (request)
                 httpContext = Reflect.getMetadata(Common_1.METADATA.HTTP_CONTEXT, request);
+            const parameters = yield RouteManager_1.RouteManager.parametersForRoute(request, response, this, httpContext);
             const controller = AppContainer_1.App.getInstance().resolve(this.controllerMeta.controller.target);
             const routeMethod = controller[this.methodMeta.key].bind(controller);
             const routeResponse = yield routeMethod(...parameters);

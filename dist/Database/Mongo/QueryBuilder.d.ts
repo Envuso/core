@@ -52,6 +52,7 @@ export declare class QueryBuilder<T> {
      * @param attributes
      */
     where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilder<T>;
+    when<M>(condition: boolean | (() => boolean), attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilder<T>;
     /**
      * Allows us to specify any model refs to load in this query
      *
@@ -130,6 +131,7 @@ export declare class QueryBuilder<T> {
      * @private
      */
     private resolveFilter;
+    get collectionFilter(): object;
     /**
      * After we have resolved our query, we need to make sure we clear everything
      * up, just so that filters don't remain and cause unexpected issues

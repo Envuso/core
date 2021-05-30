@@ -16,10 +16,10 @@ const Authentication_1 = require("../../Authentication");
 const Database_1 = require("../../Database");
 const SocketServer_1 = require("../../Sockets/SocketServer");
 class Authenticatable extends Database_1.Model {
-    generateToken() {
+    generateToken(additionalPayload) {
         return AppContainer_1.resolve(Authentication_1.Authentication)
             .getAuthProvider(Authentication_1.JwtAuthenticationProvider)
-            .issueToken(this._id);
+            .issueToken(this._id, additionalPayload);
     }
     sendSocketChannelEvent(channel, eventName, data) {
         AppContainer_1.resolve(SocketServer_1.SocketServer).sendToUserViaChannel(this._id.toString(), channel, eventName, data);

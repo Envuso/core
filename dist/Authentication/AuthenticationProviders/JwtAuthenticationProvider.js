@@ -94,8 +94,8 @@ class JwtAuthenticationProvider extends AuthenticationProvider_1.AuthenticationP
             return new Common_1.Authenticatable().setUser(user.getUser());
         });
     }
-    issueToken(id) {
-        return jsonwebtoken_1.sign({ id }, this._appKey, this._config.jwtSigningOptions);
+    issueToken(id, additionalPayload) {
+        return jsonwebtoken_1.sign(Object.assign(Object.assign({}, additionalPayload), { id }), this._appKey, this._config.jwtSigningOptions);
     }
 }
 exports.JwtAuthenticationProvider = JwtAuthenticationProvider;

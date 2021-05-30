@@ -122,7 +122,7 @@ class Paginator {
         }
         if (query._id)
             this.query._id = query._id;
-        this.query = query;
+        this.query = Object.assign(Object.assign({}, this.query), query);
     }
     /**
      * Get the response of the paginator

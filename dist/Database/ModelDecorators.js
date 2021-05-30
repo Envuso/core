@@ -105,6 +105,9 @@ function ids(target, propertyKey) {
 }
 exports.ids = ids;
 function id(target, propertyKey) {
+    pushToMetadata('mongo:objectId', [
+        { name: propertyKey }
+    ], target);
     class_transformer_1.Transform(({ value }) => new mongodb_1.ObjectId(value), { toClassOnly: true })(target, propertyKey);
     class_transformer_1.Transform(({ value }) => value.toString(), { toPlainOnly: true })(target, propertyKey);
 }

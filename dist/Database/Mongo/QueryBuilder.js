@@ -55,6 +55,15 @@ class QueryBuilder {
         this._collectionFilter = Object.assign(Object.assign({}, this._collectionFilter), attributes);
         return this;
     }
+    when(condition, attributes) {
+        if (typeof condition === 'boolean' && !condition) {
+            return this;
+        }
+        if (typeof condition === 'function' && !condition()) {
+            return this;
+        }
+        return this.where(attributes);
+    }
     /**
      * Allows us to specify any model refs to load in this query
      *
@@ -243,6 +252,9 @@ class QueryBuilder {
             .collection()
             .find(this._collectionFilter, options);
         return this._builderResult;
+    }
+    get collectionFilter() {
+        return this._collectionFilter;
     }
     /**
      * After we have resolved our query, we need to make sure we clear everything

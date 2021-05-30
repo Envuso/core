@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { METADATA } from "../../Common";
+import { RequestContext } from "../Context/RequestContext";
 import { Route } from "./Route";
 export declare class RouteManager {
     /**
@@ -18,6 +19,7 @@ export declare class RouteManager {
      * @param request
      * @param response
      * @param route
+     * @param context
      */
-    static parametersForRoute(request: FastifyRequest, response: FastifyReply, route: Route): Promise<any[]>;
+    static parametersForRoute(request: FastifyRequest, response: FastifyReply, route: Route, context: RequestContext): Promise<any[]>;
 }

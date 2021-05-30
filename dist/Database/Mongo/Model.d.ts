@@ -33,6 +33,7 @@ export declare class Model<M> {
      * @param attributes
      */
     static where<T extends Model<any>>(this: new () => T, attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T>;
+    static when<T extends Model<any>>(this: new () => T, condition: boolean | (() => boolean), attributes: FilterQuery<T> | Partial<T>): QueryBuilder<T>;
     /**
      * Query for a single model instance
      *
