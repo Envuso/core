@@ -10,6 +10,7 @@ interface PaginatedResponse<T> {
 		before: string;
 		after: string;
 		hasNext: boolean;
+		hasPrevious: boolean;
 		total: number;
 		limit: number;
 	}
@@ -46,26 +47,29 @@ export class Paginator<T> {
 		this._response = {
 			data       : results,
 			pagination : {
-				before  : this._beforeCursor,
-				after   : this._afterCursor,
-				hasNext : false,
-				total   : 0,
-				limit   : this.limit,
+				before      : this._beforeCursor,
+				after       : this._afterCursor,
+				hasNext     : false,
+				hasPrevious : false,
+				total       : 0,
+				limit       : this.limit,
 			}
 		};
 
 		if (!results?.length)
 			return this;
 
-		const total   = await this.model.queryBuilder().where(this.query).count();
-		const hasNext = (results.length === this.limit) && (total > results.length);
+		const total       = await this.model.queryBuilder().where(this.query).count();
+		const hasNext     = (results.length === this.limit) && (total > results.length);
+		const hasPrevious = this.getAfterCursor() !== null;
 
 		this._response.pagination = {
-			before  : (results[0] as any)._id,
-			after   : hasNext ? (results[results.length - 1] as any)._id : null,
-			hasNext : hasNext,
-			total   : total,
-			limit   : this.limit
+			before      : hasPrevious ? (results[0] as any)._id : null,
+			after       : hasNext ? (results[results.length - 1] as any)._id : null,
+			hasNext     : hasNext,
+			hasPrevious : hasPrevious,
+			total       : total,
+			limit       : this.limit
 		};
 
 		return this;
