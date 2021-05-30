@@ -42,6 +42,7 @@
   "include": [
     "src/AppContainer/**/*",
     "src/Authentication/**/*",
+    "src/Authorization/**/*",
     "src/Common/**/*",
     "src/Server/**/*",
     "src/Database/**/*",

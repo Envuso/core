@@ -87,6 +87,7 @@
   },
   "files": [
     "AppContainer/**/*",
+    "Authorization/**/*",
     "Authentication/**/*",
     "Common/**/*",
     "Database/**/*",
