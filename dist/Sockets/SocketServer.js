@@ -206,6 +206,24 @@ let SocketServer = class SocketServer {
             }
         });
     }
+    /**
+     * Broadcast a packet to all connections on a specified socket channel
+     *
+     * @param {SocketChannelListener} listener
+     * @param {string} channel
+     * @param {string} event
+     * @param data
+     */
+    broadcast(listener, channel, event, data) {
+        this._connections.forEach((userConnections, userId) => {
+            userConnections.forEach((connection) => {
+                if (!connection.hasSubscription(listener)) {
+                    return;
+                }
+                connection.sendToChannel(channel, event, data);
+            });
+        });
+    }
 };
 SocketServer = __decorate([
     tsyringe_1.injectable(),

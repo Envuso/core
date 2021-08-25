@@ -1,5 +1,6 @@
 import { Middleware } from "../Routing";
 import { SocketConnection } from "./SocketConnection";
+import { SocketPacket } from "./SocketPacket";
 import { ChannelInformation } from "./SocketServer";
 export declare abstract class SocketChannelListener {
     protected channelInfo: ChannelInformation;
@@ -32,4 +33,12 @@ export declare abstract class SocketChannelListener {
      * @returns {Promise<boolean>}
      */
     abstract isAuthorised(connection: SocketConnection, user: any): Promise<boolean>;
+    /**
+     * Broadcast a packet to a channel with the specified event
+     *
+     * @param {string} channel
+     * @param {string} event
+     * @param data
+     */
+    broadcast<T extends SocketPacket>(channel: string, event: string, data: T | any): void;
 }

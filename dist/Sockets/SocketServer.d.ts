@@ -6,6 +6,7 @@ import { ConfigRepository } from "../AppContainer";
 import { SocketChannelListener } from "./SocketChannelListener";
 import { SocketConnection } from "./SocketConnection";
 import { SocketEvents } from "./SocketEvents";
+import { SocketPacket } from "./SocketPacket";
 export interface ChannelInformation {
     containerListenerName: string;
     channelName: string;
@@ -79,4 +80,13 @@ export declare class SocketServer {
      * @param data
      */
     sendToUserViaChannel(id: ObjectId | string, channel: new () => SocketChannelListener, event: SocketEvents | string, data: any): void;
+    /**
+     * Broadcast a packet to all connections on a specified socket channel
+     *
+     * @param {SocketChannelListener} listener
+     * @param {string} channel
+     * @param {string} event
+     * @param data
+     */
+    broadcast<T extends SocketPacket>(listener: SocketChannelListener, channel: string, event: string, data: T | any): void;
 }
