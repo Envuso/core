@@ -310,12 +310,21 @@ export class SocketConnection {
 	}
 
 	/**
+	 * Send a custom created socket packet on this connection
+	 *
+	 * @param {T} packet
+	 */
+	public sendPacket<T extends SocketPacket>(packet: T) {
+		this.socket.send(packet.response());
+	}
+
+	/**
 	 * Send a socket event to this connection
 	 *
 	 * @param {SocketEvents} event
 	 * @param data
 	 */
-	public send(event: SocketEvents | string, data: any = {}) {
+	public send<T>(event: SocketEvents | string, data: T|any = {}) {
 		this.socket.send(
 			SocketPacket.create(event, data).response()
 		);
@@ -328,7 +337,7 @@ export class SocketConnection {
 	 * @param {SocketEvents | string} event
 	 * @param data
 	 */
-	public sendToChannel(channel: string, event: SocketEvents | string, data: any) {
+	public sendToChannel<T>(channel: string, event: SocketEvents | string, data: T|any) {
 		this.socket.send(
 			SocketPacket.createForChannel(channel, event, data).response()
 		);

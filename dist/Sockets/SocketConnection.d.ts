@@ -4,6 +4,7 @@ import { Authenticatable } from "../Common";
 import { Middleware } from "../Routing";
 import { SocketEvents } from "./SocketEvents";
 import { SocketChannelListener } from "./SocketChannelListener";
+import { SocketPacket } from "./SocketPacket";
 export declare class SocketConnection {
     private socket;
     private request;
@@ -114,12 +115,18 @@ export declare class SocketConnection {
      */
     prepareConnection(): Promise<this>;
     /**
+     * Send a custom created socket packet on this connection
+     *
+     * @param {T} packet
+     */
+    sendPacket<T extends SocketPacket>(packet: T): void;
+    /**
      * Send a socket event to this connection
      *
      * @param {SocketEvents} event
      * @param data
      */
-    send(event: SocketEvents | string, data?: any): void;
+    send<T>(event: SocketEvents | string, data?: T | any): void;
     /**
      * Send a socket event to the channel
      *
@@ -127,7 +134,7 @@ export declare class SocketConnection {
      * @param {SocketEvents | string} event
      * @param data
      */
-    sendToChannel(channel: string, event: SocketEvents | string, data: any): void;
+    sendToChannel<T>(channel: string, event: SocketEvents | string, data: T | any): void;
     /**
      * Disconnect the socket connection
      *

@@ -258,6 +258,14 @@ class SocketConnection {
         });
     }
     /**
+     * Send a custom created socket packet on this connection
+     *
+     * @param {T} packet
+     */
+    sendPacket(packet) {
+        this.socket.send(packet.response());
+    }
+    /**
      * Send a socket event to this connection
      *
      * @param {SocketEvents} event
