@@ -12,6 +12,7 @@ import {SocketChannelListener} from "./SocketChannelListener";
 import {SocketConnection} from "./SocketConnection";
 import {SocketEvents} from "./SocketEvents";
 import {SocketListener} from "./SocketListener";
+import {SocketPacket} from "./SocketPacket";
 
 export interface ChannelInformation {
 	containerListenerName: string;
@@ -258,6 +259,28 @@ export class SocketServer {
 
 				connection.sendToChannel(subscription.getChannelName(), event, data);
 			}
+		});
+	}
+
+	/**
+	 * Broadcast a packet to all connections on a specified socket channel
+	 *
+	 * @param {SocketChannelListener} listener
+	 * @param {string} channel
+	 * @param {string} event
+	 * @param data
+	 */
+	broadcast<T extends SocketPacket>(listener: SocketChannelListener, channel: string, event: string, data: T | any) {
+		this._connections.forEach((userConnections, userId) => {
+			userConnections.forEach((connection) => {
+				if (!connection.hasSubscription(listener)) {
+					return;
+				}
+
+				connection.sendToChannel(
+					channel, event, data
+				);
+			});
 		});
 	}
 }

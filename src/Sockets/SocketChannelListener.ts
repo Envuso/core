@@ -1,6 +1,8 @@
+import {resolve} from "../AppContainer";
 import {Middleware} from "../Routing";
 import {SocketConnection} from "./SocketConnection";
-import {ChannelInformation} from "./SocketServer";
+import {SocketPacket} from "./SocketPacket";
+import {ChannelInformation, SocketServer} from "./SocketServer";
 
 export abstract class SocketChannelListener {
 
@@ -51,5 +53,16 @@ export abstract class SocketChannelListener {
 	// So if you happen to look here, these are the available parameters.
 
 	// handle(connection: SocketConnection, user: any, packet : SocketPacket): Promise<any>;
+
+	/**
+	 * Broadcast a packet to a channel with the specified event
+	 *
+	 * @param {string} channel
+	 * @param {string} event
+	 * @param data
+	 */
+	broadcast<T extends SocketPacket>(channel:string, event: string, data: T | any) {
+		resolve(SocketServer).broadcast<T>(this, channel, event, data);
+	}
 
 }
