@@ -10,7 +10,7 @@
     "commit-files-for-publish": "cp package.json dist && cp readme.md dist && git add . && git commit -m \":package: Build and Increased version\"",
     "prep": "yarn build-commit-version && yarn commit-files-for-publish",
     "link": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn link",
-    "dist": "yarn build && cp package.json dist && cp .bin/cli-prod dist/ecli cp readme.md dist && cd dist && yarn publish",
+    "dist": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn publish",
     "preparereeee": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
     "serve": "nodemon",
@@ -100,6 +100,7 @@
     "Server/**/*",
     "Cache/**/*",
     "Crypt/**/*",
+    "ecli",
     "Envuso.*",
     "index.*"
   ],
