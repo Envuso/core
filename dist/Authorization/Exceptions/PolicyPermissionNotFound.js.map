@@ -1,0 +1,1 @@
+{"version":3,"file":"PolicyPermissionNotFound.js","sourceRoot":"","sources":["../../../src/Authorization/Exceptions/PolicyPermissionNotFound.ts"],"names":[],"mappings":";;;AAAA,yDAA8C;AAC9C,yCAAuC;AAEvC,MAAa,wBAAyB,SAAQ,kBAAS;IACtD,YAAY,UAAkB,EAAE,cAAsB;QACrD,KAAK,CAAC,SAAS,UAAU,mCAAmC,cAAc,EAAE,CAAC,CAAC;QAC9E,IAAI,CAAC,IAAI,GAAG,+BAAW,CAAC,SAAS,CAAC;IACnC,CAAC;CACD;AALD,4DAKC"}

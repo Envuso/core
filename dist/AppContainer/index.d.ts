@@ -1,0 +1,13 @@
+import { constructor } from "tsyringe/dist/typings/types";
+import { App } from "./App";
+import { ConfigRepository } from "./Config/ConfigRepository";
+export * from './ServiceProvider';
+export * from './App';
+export * from './Config/ConfigRepository';
+export * from './Exceptions/FailedToBindException';
+export { injectable, autoInjectable, singleton, scoped, inject, DependencyContainer } from 'tsyringe';
+export declare const resolve: <T>(identifier: string | constructor<T>) => T;
+export declare const app: () => App;
+declare function config(): ConfigRepository;
+declare function config<T>(key: string, _default?: any): T;
+export { config };
