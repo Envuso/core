@@ -35,7 +35,6 @@ exports.Storage = void 0;
 const fs_1 = __importDefault(require("fs"));
 const AppContainer_1 = require("../AppContainer");
 const Common_1 = require("../Common");
-const LocalFileProvider_1 = require("./Providers/LocalFileProvider");
 const StorageProviderContract_1 = require("./StorageProviderContract");
 const path_1 = __importDefault(require("path"));
 const stream_1 = require("stream");
@@ -44,22 +43,44 @@ const pump = util.promisify(stream_1.pipeline);
 class Storage {
     constructor(storageConfig) {
         this._config = storageConfig;
-        this._provider = new storageConfig.defaultProvider(storageConfig);
+        this._disk = storageConfig.disks[storageConfig.defaultDisk];
+        this._provider = new storageConfig.drivers[this._disk.driver](this._disk);
         if (!(this._provider instanceof StorageProviderContract_1.StorageProviderContract)) {
             throw new Error('Your storage provider is not an instance of StorageProviderContract');
         }
     }
     /**
-     * Use storage with a different provider
+     * Get an instance of x storage provider that is using x disk configuration
+     * This allows us to map multiple local/remote locations/credentials to use
+     * and switch between on the fly when it's needed.
      *
-     * Allows us to set our default as S3 for example, then use disk for other things.
-     *
-     * @param provider
+     * @param {string} disk
+     * @returns {StorageProviderContract}
      */
-    static provider(provider) {
-        const storageConfig = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('storage');
-        return new provider(storageConfig);
+    static disk(disk) {
+        const config = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('storage');
+        const selectedDisk = config.disks[disk];
+        if (!selectedDisk) {
+            throw new Error('You specified an invalid disk: ' + disk);
+        }
+        const driver = config.drivers[selectedDisk.driver];
+        if (!driver) {
+            throw new Error('You specified an invalid driver for this disk: ' + selectedDisk.driver);
+        }
+        return new driver(selectedDisk);
     }
+    //	/**
+    //	 * Use storage with a different provider
+    //	 *
+    //	 * Allows us to set our default as S3 for example, then use disk for other things.
+    //	 *
+    //	 * @param provider
+    //	 */
+    //	static provider(provider: new (storageConfig: StorageConfiguration) => StorageProviderContract) {
+    //		const storageConfig = resolve(ConfigRepository).get<StorageConfiguration>('storage');
+    //
+    //		return new provider(storageConfig);
+    //	}
     /**
      * Access the storage provider adapter statically
      * This will resolve a new instance of the provider from the container
@@ -71,9 +92,10 @@ class Storage {
      * Get the files from the target directory
      *
      * @param directory
+     * @param recursive
      */
-    static files(directory) {
-        return this.getAdapter().files(directory);
+    static files(directory, recursive = false) {
+        return this.getAdapter().files(directory, recursive);
     }
     /**
      * Get all directories in the directory
@@ -161,7 +183,7 @@ class Storage {
     static saveTemporaryFile(fileName, stream) {
         return __awaiter(this, void 0, void 0, function* () {
             const tempPath = AppContainer_1.resolve(AppContainer_1.ConfigRepository).get('paths.temp');
-            yield Storage.provider(LocalFileProvider_1.LocalFileProvider).makeDirectory(path_1.default.join('storage', 'temp'));
+            yield Storage.disk('temp').makeDirectory(path_1.default.join('storage', 'temp'));
             const tempName = Common_1.Str.random() + '.' + (fileName.split('.').pop());
             yield pump(stream, fs_1.default.createWriteStream(path_1.default.join(tempPath, tempName)));
             return tempName;

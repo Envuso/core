@@ -1,13 +1,14 @@
-import { StorageConfig } from "../../Config/Storage";
-import { StorageProviderContract, StoragePutOptions, UploadedFileInformation } from "../StorageProviderContract";
+import { LocalStorageProviderConfiguration, StorageProviderContract, StoragePutOptions, UploadedFileInformation } from "../StorageProviderContract";
 export declare class LocalFileProvider extends StorageProviderContract {
-    constructor(config: StorageConfig);
+    private basePath;
+    constructor(config: LocalStorageProviderConfiguration);
     /**
      * Get the files from the target directory
      *
      * @param directory
+     * @param recursive
      */
-    files(directory: string): void;
+    files(directory: string, recursive?: boolean): Promise<string[]>;
     /**
      * Get all directories in the directory
      *
@@ -37,7 +38,7 @@ export declare class LocalFileProvider extends StorageProviderContract {
      *
      * @param location
      */
-    get(location: string): void;
+    get(location: string): Promise<string>;
     /**
      * Create a new file and put the contents
      *
@@ -56,7 +57,7 @@ export declare class LocalFileProvider extends StorageProviderContract {
      *
      * @param location
      */
-    url(location: string): void;
+    url(location: string): string;
     /**
      * Get a temporary url for the file
      * (only works if it's an S3 based provider)
@@ -64,5 +65,6 @@ export declare class LocalFileProvider extends StorageProviderContract {
      * @param location
      * @param expiresInSeconds
      */
-    temporaryUrl(location: string, expiresInSeconds: number): any;
+    temporaryUrl(location: string, expiresInSeconds: number): Promise<string>;
+    private formatPath;
 }

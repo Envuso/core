@@ -1,3 +1,15 @@
+export declare type S3StorageProviderConfiguration = {
+    bucket: string;
+    url: string;
+    endpoint: string;
+    credentials: {
+        accessKeyId: string;
+        secretAccessKey: string;
+    };
+};
+export declare type LocalStorageProviderConfiguration = {
+    root: string;
+};
 export interface UploadedFileInformation {
     url: string;
     path: string;
@@ -24,57 +36,58 @@ export declare abstract class StorageProviderContract {
      * Get the files from the target directory
      *
      * @param directory
+     * @param recursive
      */
-    abstract files(directory: string): any;
+    abstract files(directory: string, recursive?: boolean): Promise<string[]>;
     /**
      * Get all directories in the directory
      *
      * @param directory
      */
-    abstract directories(directory: string): any;
+    abstract directories(directory: string): Promise<string[]>;
     /**
      * Create a new directory
      *
      * @param directory
      */
-    abstract makeDirectory(directory: string): any;
+    abstract makeDirectory(directory: string): Promise<boolean>;
     /**
      * Delete a directory
      *
      * @param directory
      */
-    abstract deleteDirectory(directory: string): any;
+    abstract deleteDirectory(directory: string): Promise<boolean>;
     /**
      * Check if a file exists at the location
      *
      * @param key
      */
-    abstract fileExists(key: string): any;
+    abstract fileExists(key: string): Promise<boolean>;
     /**
      * Get the contents of a file
      *
      * @param location
      */
-    abstract get(location: string): any;
+    abstract get(location: string): Promise<string>;
     /**
      * Create a new file and put the contents
      *
      * @param location
      * @param file
      */
-    abstract put(location: string, file: StoragePutOptions): any;
+    abstract put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation>;
     /**
      * Delete a file
      *
      * @param location
      */
-    abstract remove(location: string): any;
+    abstract remove(location: string): Promise<boolean>;
     /**
      * Get the url for the file
      *
      * @param location
      */
-    abstract url(location: string): any;
+    abstract url(location: string): string;
     /**
      * Get a temporary url for the file
      * (only works if it's an S3 based provider)
@@ -82,5 +95,5 @@ export declare abstract class StorageProviderContract {
      * @param location
      * @param expiresInSeconds
      */
-    abstract temporaryUrl(location: string, expiresInSeconds: number): any;
+    abstract temporaryUrl(location: string, expiresInSeconds: number): Promise<string>;
 }

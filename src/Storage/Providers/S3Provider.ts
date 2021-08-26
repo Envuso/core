@@ -1,20 +1,19 @@
 import {S3} from "aws-sdk";
-import {DeleteObjectOutput} from "aws-sdk/clients/s3";
 import fs from "fs";
 import {Str} from "../../Common";
-import {S3Config, StorageConfig} from "../../Config/Storage";
-import {StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
+import {S3StorageProviderConfiguration, StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
 
 export class S3Provider extends StorageProviderContract {
-	private s3: S3;
-	private _config: S3Config = null;
 
-	constructor(config: StorageConfig) {
+	private s3: S3;
+	private _config: S3StorageProviderConfiguration = null;
+
+	constructor(config: S3StorageProviderConfiguration) {
 		super();
 
-		this._config = config.s3;
+		this._config = config;
 
-		this.s3 = new S3(config.s3);
+		this.s3 = new S3(config);
 	}
 
 	/**

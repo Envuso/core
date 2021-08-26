@@ -14,4 +14,5 @@ __exportStar(require("./StorageServiceProvider"), exports);
 __exportStar(require("./Storage"), exports);
 __exportStar(require("./StorageProviderContract"), exports);
 __exportStar(require("./Providers/S3Provider"), exports);
+__exportStar(require("./Providers/LocalFileProvider"), exports);
 //# sourceMappingURL=index.js.map

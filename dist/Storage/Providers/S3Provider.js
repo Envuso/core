@@ -12,15 +12,16 @@ class S3Provider extends StorageProviderContract_1.StorageProviderContract {
     constructor(config) {
         super();
         this._config = null;
-        this._config = config.s3;
-        this.s3 = new aws_sdk_1.S3(config.s3);
+        this._config = config;
+        this.s3 = new aws_sdk_1.S3(config);
     }
     /**
      * Get the files from the target directory
      *
      * @param directory
+     * @param recursive
      */
-    files(directory) {
+    files(directory, recursive = false) {
         if (!directory.endsWith('/')) {
             directory += '/';
         }
@@ -32,7 +33,7 @@ class S3Provider extends StorageProviderContract_1.StorageProviderContract {
                 if (error) {
                     return reject(error);
                 }
-                resolve(data);
+                resolve(data.Contents.map(f => f.Key));
             });
         });
     }
@@ -97,7 +98,7 @@ class S3Provider extends StorageProviderContract_1.StorageProviderContract {
                 if (error) {
                     return reject(error);
                 }
-                resolve(data);
+                resolve(true);
             });
         });
     }

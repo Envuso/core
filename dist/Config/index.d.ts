@@ -19,10 +19,7 @@ export declare const Config: {
         };
     };
     database: import("./Database").DatabaseConfiguration;
-    storage: {
-        defaultProvider: typeof import("../Storage").S3Provider;
-        s3: import("./Storage").S3Config;
-    };
+    storage: import("./Storage").StorageConfiguration;
     server: {
         port: number;
         middleware: any[];

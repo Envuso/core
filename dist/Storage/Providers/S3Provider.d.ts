@@ -1,16 +1,15 @@
-import { DeleteObjectOutput } from "aws-sdk/clients/s3";
-import { StorageConfig } from "../../Config/Storage";
-import { StorageProviderContract, StoragePutOptions, UploadedFileInformation } from "../StorageProviderContract";
+import { S3StorageProviderConfiguration, StorageProviderContract, StoragePutOptions, UploadedFileInformation } from "../StorageProviderContract";
 export declare class S3Provider extends StorageProviderContract {
     private s3;
     private _config;
-    constructor(config: StorageConfig);
+    constructor(config: S3StorageProviderConfiguration);
     /**
      * Get the files from the target directory
      *
      * @param directory
+     * @param recursive
      */
-    files(directory: string): Promise<unknown>;
+    files(directory: string, recursive?: boolean): Promise<string[]>;
     /**
      * Get all directories in the directory
      *
@@ -28,7 +27,7 @@ export declare class S3Provider extends StorageProviderContract {
      *
      * @param directory
      */
-    deleteDirectory(directory: string): Promise<DeleteObjectOutput>;
+    deleteDirectory(directory: string): Promise<boolean>;
     /**
      * Check if a file exists at the location
      *
@@ -40,7 +39,7 @@ export declare class S3Provider extends StorageProviderContract {
      *
      * @param location
      */
-    get(location: string): Promise<unknown>;
+    get(location: string): Promise<string>;
     /**
      * Create a new file and put the contents
      *
