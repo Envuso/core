@@ -12,10 +12,10 @@ const Database_1 = require("../Database");
 const envuso = new Envuso_1.Envuso();
 const yargs = require("yargs");
 const run = (dev = false) => {
-    const config = dev ? require('./../Config') : require('../../../../dist/Config');
+    const { Config } = dev ? require('./../Config') : require('../../../../dist/Config');
     yargs.command('db:seed', 'Run the database seeders. Seeders are defined in /src/Seeders/Seeders.ts.', (yargs) => {
     }, (argv) => {
-        envuso.initiateWithoutServing(config)
+        envuso.initiateWithoutServing(Config)
             .then(() => {
             const seederClass = AppContainer_1.config('database.seeder');
             const seeder = new seederClass();

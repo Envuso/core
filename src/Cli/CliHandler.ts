@@ -15,7 +15,7 @@ const envuso = new Envuso();
 const yargs = require("yargs");
 
 export const run = (dev: boolean = false) => {
-	const config = dev ? require('./../Config') : require('../../../../dist/Config');
+	const {Config} = dev ? require('./../Config') : require('../../../../dist/Config');
 
 	yargs.command(
 		'db:seed',
@@ -23,7 +23,7 @@ export const run = (dev: boolean = false) => {
 		(yargs) => {
 		},
 		(argv) => {
-			envuso.initiateWithoutServing(config)
+			envuso.initiateWithoutServing(Config)
 				.then(() => {
 					const seederClass = appConfig<(new () => DatabaseSeeder)>('database.seeder');
 					const seeder      = new seederClass();
