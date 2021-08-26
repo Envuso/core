@@ -1,3 +1,16 @@
+export type S3StorageProviderConfiguration = {
+	bucket: string;
+	url: string;
+	endpoint: string;
+	credentials: {
+		accessKeyId: string;
+		secretAccessKey: string;
+	}
+}
+
+export type LocalStorageProviderConfiguration = {
+	root: string;
+}
 
 export interface UploadedFileInformation {
 	url: string;

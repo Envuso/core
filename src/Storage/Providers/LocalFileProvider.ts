@@ -1,13 +1,15 @@
 import path from "path";
 import {Str} from "../../Common";
-import {StorageConfig} from "../../Config/Storage";
-import fs, {BaseEncodingOptions, readdir} from 'fs';
-import {StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
+import fs from 'fs';
+import {LocalStorageProviderConfiguration, StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
 
 export class LocalFileProvider extends StorageProviderContract {
+	private basePath: string;
 
-	constructor(config: StorageConfig) {
+	constructor(config: LocalStorageProviderConfiguration) {
 		super();
+
+		this.basePath = config.root ?? '';
 	}
 
 	/**
@@ -17,6 +19,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param recursive
 	 */
 	public files(directory: string, recursive: boolean = false): Promise<string[]> {
+		directory = this.formatPath(directory);
+
 		return new Promise((resolve, reject) => {
 
 			const listFiles = (dirName, files_?: string[]) => {
@@ -56,6 +60,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param directory
 	 */
 	public directories(directory: string): Promise<string[]> {
+		directory = this.formatPath(directory);
+
 		return new Promise((resolve, reject) => {
 			fs.readdir(directory, {}, (error, result) => {
 				if (error) {
@@ -73,16 +79,12 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param directory
 	 */
 	public makeDirectory(directory: string): Promise<boolean> {
+		directory = this.formatPath(directory);
+
 		return new Promise((resolve, reject) => {
-			const splitDirs = directory.split('/');
-			const builtDir  = [];
 
-			for (let dir of splitDirs) {
-				if (!fs.existsSync(path.join(...builtDir, dir))) {
-					fs.mkdirSync(path.join(...builtDir, dir));
-				}
-
-				builtDir.push(dir);
+			if (!fs.existsSync(directory)) {
+				fs.mkdirSync(directory, {recursive : true});
 			}
 
 			return resolve(fs.existsSync(directory));
@@ -95,12 +97,14 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param directory
 	 */
 	public deleteDirectory(directory: string): Promise<boolean> {
+		directory = this.formatPath(directory);
+
 		return new Promise((resolve, reject) => {
 			if (!fs.existsSync(directory)) {
 				return resolve(true);
 			}
 
-			fs.rmdirSync(directory, {recursive : true});
+			fs.rmSync(directory, {recursive : true});
 
 			resolve(fs.existsSync(directory) === false);
 		});
@@ -112,6 +116,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param key
 	 */
 	public fileExists(key: string): Promise<boolean> {
+		key = this.formatPath(key);
+
 		return new Promise((resolve, reject) => {
 			const stat = fs.statSync(key);
 
@@ -129,6 +135,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param location
 	 */
 	public get(location: string): Promise<string> {
+		location = this.formatPath(location);
+
 		return new Promise((resolve, reject) => {
 			resolve(fs.readFileSync(location, {encoding : 'utf-8'}));
 		});
@@ -141,6 +149,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param file
 	 */
 	public put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation> {
+		location = this.formatPath(location);
+
 		return new Promise((resolve, reject) => {
 			const extension = file.filename.split(".").pop();
 			const newName   = Str.random() + "." + extension;
@@ -174,6 +184,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param location
 	 */
 	public remove(location: string): Promise<boolean> {
+		location = this.formatPath(location);
+
 		return new Promise((resolve, reject) => {
 			fs.rm(location, (err) => {
 				if (err) {
@@ -203,5 +215,9 @@ export class LocalFileProvider extends StorageProviderContract {
 	 */
 	public temporaryUrl(location: string, expiresInSeconds: number): Promise<string> {
 		return null;
+	}
+
+	private formatPath(definedPath: string) {
+		return path.resolve(path.join(this.basePath, definedPath));
 	}
 }
