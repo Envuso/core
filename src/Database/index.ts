@@ -9,6 +9,10 @@ export * from './ModelDecorators';
 export * from './Serialization/Serializer';
 export * from './Redis/Redis';
 
+export * from './Seeder/DatabaseSeeder';
+export * from './Seeder/Seeder';
+export * from './Seeder/SeedManager';
+
 export declare type ClassType<T> = {
 	new(...args: any[]): T;
 };

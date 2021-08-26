@@ -5,6 +5,7 @@ import {App, app, ConfigRepository, resolve} from "../AppContainer";
 import {FileLoader} from "../Common";
 import {MongoConnectionConfiguration} from "../Config/Database";
 import path from 'path';
+import {SeedManager} from "./Seeder/SeedManager";
 import {RedisClientInstance} from "./Redis/RedisClientInstance";
 
 export class DatabaseServiceProvider extends ServiceProvider {
@@ -15,6 +16,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		const connection  = await client.connect();
 
 		app.container().register(MongoClient, {useValue : connection});
+		app.container().register(SeedManager, {useValue : new SeedManager()});
 
 		await this.loadModels(config.get('paths.models'));
 	}

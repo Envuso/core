@@ -13,17 +13,28 @@ export class Envuso {
 	 * providers to the container and such.
 	 */
 	async prepare(config: object) {
-		await App.bootInstance({config:config});
+		await this.initiateWithoutServing(config);
+
+		this._server = resolve<Server>(Server);
+
+		await this.serve();
+	}
+
+	/**
+	 * There is certain cases where we need to boot the framework, but not run the web server
+	 * Instead of calling prepare(), we can call this method
+	 *
+	 * @param {object} config
+	 * @returns {Promise<void>}
+	 */
+	async initiateWithoutServing(config: object) {
+		await App.bootInstance({config : config});
 
 		await App.getInstance().loadServiceProviders();
 
 		this._app = App.getInstance();
 
-		Log.success('Envuso is ready to go? PogU');
-
-		this._server = resolve<Server>(Server);
-
-		await this.serve();
+		Log.success('Envuso is booted!');
 	}
 
 	/**

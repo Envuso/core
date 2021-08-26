@@ -10,12 +10,15 @@
     "commit-files-for-publish": "cp package.json dist && cp readme.md dist && git add . && git commit -m \":package: Build and Increased version\"",
     "prep": "yarn build-commit-version && yarn commit-files-for-publish",
     "link": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn link",
-    "dist": "yarn build && cp package.json dist && cp readme.md dist && cd dist && yarn publish",
+    "dist": "yarn build && cp package.json dist && cp .bin/cli-prod dist/.bin/ecli cp readme.md dist && cd dist && yarn publish",
     "preparereeee": "npm run build && npm version prerelease --preid=alpha",
     "test": "jest --roots src",
     "serve": "nodemon",
     "dev": "ts-node src/run-dev.ts",
     "push": "yarn build && cp package.json dist/package.json && cd dist && yalc push"
+  },
+  "bin": {
+    "ecli": ".bin/ecli"
   },
   "dependencies": {
     "@babel/core": "^7.13.14",

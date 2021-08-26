@@ -1,5 +1,7 @@
 import {MongoClientOptions} from "mongodb";
 import {ClientOpts} from "redis";
+import {DatabaseSeeder} from "../Database";
+import {Seeders} from "../Seeders/Seeders";
 
 export interface MongoConnectionConfiguration {
 	name: string;
@@ -14,6 +16,7 @@ export interface RedisConnectionConfiguration extends ClientOpts {
 export interface DatabaseConfiguration {
 	mongo: MongoConnectionConfiguration;
 	redis: RedisConnectionConfiguration;
+	seeder: new () => DatabaseSeeder
 }
 
 export default {
@@ -39,6 +42,13 @@ export default {
 		//		db     : 'default',
 		host : '127.0.0.1',
 		port : 6379,
-	}
+	},
+
+	/**
+	 * Your user defined seeder manager
+	 * This is where you will register all of your seeder instances
+	 * They will all be looped through and seeded.
+	 */
+	seeder : Seeders
 
 } as DatabaseConfiguration;

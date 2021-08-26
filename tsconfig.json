@@ -51,7 +51,8 @@
     "src/Sockets/**/*",
     "src/Cache/**/*",
     "src/Crypt/**/*",
-    "src/Envuso.ts",
+    "src/Crypt/**/*",
+    "src/Cli/**/*.ts",
     "src/run-dev.ts",
     "src/index.ts"
   ]
