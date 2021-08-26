@@ -1,4 +1,5 @@
 #!/usr/bin/env node
 
-require('./Cli/CliHandler');
+
+require('@envuso/core/Cli/CliHandler');
 
