@@ -27,6 +27,13 @@ beforeAll(() => {
 
 describe('s3 storage', () => {
 
+	test('list files', async () => {
+		const directories = await Storage.provider(S3Provider).files('/');
+
+		expect(directories.includes('/')).toBeTruthy();
+		expect(directories.length).toBeGreaterThan(0);
+	});
+
 	test('list directories', async () => {
 		const directories = await Storage.provider(S3Provider).directories('/');
 
@@ -155,6 +162,24 @@ describe('s3 storage', () => {
 
 
 describe('local storage', () => {
+
+	test('list files', async () => {
+		const directories = await Storage.provider(LocalFileProvider).files(
+			path.join(process.cwd(), 'storage', 'logs')
+		);
+
+		expect(directories.some(d => d.includes('.log'))).toBeTruthy();
+		expect(directories.length).toBeGreaterThan(0);
+	});
+
+	test('list files recursively', async () => {
+		const directories = await Storage.provider(LocalFileProvider).files(
+			path.join(process.cwd(), 'storage'), true
+		);
+
+		expect(directories.some(d => d.includes('logs/'))).toBeTruthy();
+		expect(directories.length).toBeGreaterThan(0);
+	});
 
 	test('list directories', async () => {
 		const directories = await Storage.provider(LocalFileProvider).directories(

@@ -3,7 +3,7 @@ import {ConfigRepository, resolve} from "../AppContainer";
 import {Str} from "../Common";
 import {StorageConfig} from "../Config/Storage";
 import {LocalFileProvider} from "./Providers/LocalFileProvider";
-import {StorageProviderContract, StoragePutOptions} from "./StorageProviderContract";
+import {StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "./StorageProviderContract";
 import path from "path";
 import {pipeline} from "stream";
 import * as util from 'util';
@@ -50,9 +50,10 @@ export class Storage {
 	 * Get the files from the target directory
 	 *
 	 * @param directory
+	 * @param recursive
 	 */
-	public static files(directory: string) {
-		return this.getAdapter().files(directory);
+	public static files(directory: string, recursive: boolean = false): Promise<string[]> {
+		return this.getAdapter().files(directory, recursive);
 	}
 
 	/**
@@ -60,7 +61,7 @@ export class Storage {
 	 *
 	 * @param directory
 	 */
-	public static directories(directory: string) {
+	public static directories(directory: string): Promise<string[]> {
 		return this.getAdapter().directories(directory);
 	}
 
@@ -69,7 +70,7 @@ export class Storage {
 	 *
 	 * @param directory
 	 */
-	public static makeDirectory(directory: string) {
+	public static makeDirectory(directory: string): Promise<boolean> {
 		return this.getAdapter().makeDirectory(directory);
 	}
 
@@ -78,7 +79,7 @@ export class Storage {
 	 *
 	 * @param directory
 	 */
-	public static deleteDirectory(directory: string) {
+	public static deleteDirectory(directory: string): Promise<boolean> {
 		return this.getAdapter().deleteDirectory(directory);
 	}
 
@@ -87,7 +88,7 @@ export class Storage {
 	 *
 	 * @param key
 	 */
-	public static fileExists(key: string) {
+	public static fileExists(key: string): Promise<boolean> {
 		return this.getAdapter().fileExists(key);
 	}
 
@@ -96,7 +97,7 @@ export class Storage {
 	 *
 	 * @param location
 	 */
-	public static get(location: string) {
+	public static get(location: string): Promise<string> {
 		return this.getAdapter().get(location);
 	}
 
@@ -106,7 +107,7 @@ export class Storage {
 	 * @param location
 	 * @param file
 	 */
-	public static put(location: string, file: StoragePutOptions) {
+	public static put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation> {
 		return this.getAdapter().put(location, file);
 	}
 
@@ -115,7 +116,7 @@ export class Storage {
 	 *
 	 * @param location
 	 */
-	public static remove(location: string) {
+	public static remove(location: string): Promise<boolean> {
 		return this.getAdapter().remove(location);
 	}
 
@@ -124,7 +125,7 @@ export class Storage {
 	 *
 	 * @param location
 	 */
-	public static url(location: string) {
+	public static url(location: string): string {
 		return this.getAdapter().url(location);
 	}
 
@@ -135,7 +136,7 @@ export class Storage {
 	 * @param location
 	 * @param expiresInSeconds
 	 */
-	public static temporaryUrl(location: string, expiresInSeconds: number) {
+	public static temporaryUrl(location: string, expiresInSeconds: number): Promise<string> {
 		return this.getAdapter().temporaryUrl(location, expiresInSeconds);
 	}
 
@@ -147,7 +148,7 @@ export class Storage {
 	 * @param fileName
 	 * @param stream
 	 */
-	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream) {
+	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream): Promise<string> {
 		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
 
 		await Storage.provider(LocalFileProvider).makeDirectory(path.join('storage', 'temp'));

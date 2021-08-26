@@ -21,8 +21,9 @@ export class S3Provider extends StorageProviderContract {
 	 * Get the files from the target directory
 	 *
 	 * @param directory
+	 * @param recursive
 	 */
-	public files(directory: string) {
+	public files(directory: string, recursive: boolean = false): Promise<string[]> {
 		if (!directory.endsWith('/')) {
 			directory += '/';
 		}
@@ -36,8 +37,8 @@ export class S3Provider extends StorageProviderContract {
 					return reject(error);
 				}
 
-				resolve(data);
-			})
+				resolve(data.Contents.map(f => f.Key));
+			});
 		});
 	}
 
@@ -61,7 +62,7 @@ export class S3Provider extends StorageProviderContract {
 				}
 
 				resolve(data.CommonPrefixes.map(d => d.Prefix));
-			})
+			});
 		});
 	}
 
@@ -88,7 +89,7 @@ export class S3Provider extends StorageProviderContract {
 				}
 
 				resolve(!!data.ETag);
-			})
+			});
 		});
 	}
 
@@ -97,7 +98,7 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param directory
 	 */
-	public deleteDirectory(directory: string): Promise<DeleteObjectOutput> {
+	public deleteDirectory(directory: string): Promise<boolean> {
 		if (!directory.endsWith('/')) {
 			directory += '/';
 		}
@@ -111,8 +112,8 @@ export class S3Provider extends StorageProviderContract {
 					return reject(error);
 				}
 
-				resolve(data);
-			})
+				resolve(true);
+			});
 		});
 	}
 
@@ -132,7 +133,7 @@ export class S3Provider extends StorageProviderContract {
 				}
 
 				resolve(!!data.ContentLength);
-			})
+			});
 		});
 	}
 
@@ -141,7 +142,7 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param location
 	 */
-	public get(location: string) {
+	public get(location: string): Promise<string> {
 		return new Promise((resolve, reject) => {
 			this.s3.getObject({
 				Bucket : this._config.bucket,
@@ -152,7 +153,7 @@ export class S3Provider extends StorageProviderContract {
 				}
 
 				resolve(Buffer.from(data.Body as Buffer).toString());
-			})
+			});
 		});
 	}
 
@@ -183,7 +184,7 @@ export class S3Provider extends StorageProviderContract {
 					originalName : file.filename
 				});
 			});
-		})
+		});
 	}
 
 	/**
@@ -202,7 +203,7 @@ export class S3Provider extends StorageProviderContract {
 				}
 
 				resolve(true);
-			})
+			});
 		});
 	}
 
@@ -211,7 +212,7 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param location
 	 */
-	public url(location: string) {
+	public url(location: string): string {
 		let path = this._config.url;
 
 		if (location.startsWith('/')) {
@@ -231,7 +232,7 @@ export class S3Provider extends StorageProviderContract {
 	 * @param location
 	 * @param expiresInSeconds
 	 */
-	public temporaryUrl(location: string, expiresInSeconds: number) {
+	public temporaryUrl(location: string, expiresInSeconds: number): Promise<string> {
 		return this.s3.getSignedUrlPromise("getObject", {
 			Bucket  : this._config.bucket,
 			Key     : location,

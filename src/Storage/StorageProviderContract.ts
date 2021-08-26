@@ -1,5 +1,4 @@
 
-
 export interface UploadedFileInformation {
 	url: string;
 	path: string;
@@ -29,43 +28,44 @@ export abstract class StorageProviderContract {
 	 * Get the files from the target directory
 	 *
 	 * @param directory
+	 * @param recursive
 	 */
-	abstract files(directory: string);
+	abstract files(directory: string, recursive?: boolean): Promise<string[]>;
 
 	/**
 	 * Get all directories in the directory
 	 *
 	 * @param directory
 	 */
-	abstract directories(directory: string);
+	abstract directories(directory: string): Promise<string[]>;
 
 	/**
 	 * Create a new directory
 	 *
 	 * @param directory
 	 */
-	abstract makeDirectory(directory: string);
+	abstract makeDirectory(directory: string): Promise<boolean>;
 
 	/**
 	 * Delete a directory
 	 *
 	 * @param directory
 	 */
-	abstract deleteDirectory(directory: string);
+	abstract deleteDirectory(directory: string): Promise<boolean> ;
 
 	/**
 	 * Check if a file exists at the location
 	 *
 	 * @param key
 	 */
-	abstract fileExists(key: string);
+	abstract fileExists(key: string): Promise<boolean>;
 
 	/**
 	 * Get the contents of a file
 	 *
 	 * @param location
 	 */
-	abstract get(location: string);
+	abstract get(location: string): Promise<string> ;
 
 	/**
 	 * Create a new file and put the contents
@@ -73,21 +73,21 @@ export abstract class StorageProviderContract {
 	 * @param location
 	 * @param file
 	 */
-	abstract put(location: string, file: StoragePutOptions);
+	abstract put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation>;
 
 	/**
 	 * Delete a file
 	 *
 	 * @param location
 	 */
-	abstract remove(location: string);
+	abstract remove(location: string): Promise<boolean>;
 
 	/**
 	 * Get the url for the file
 	 *
 	 * @param location
 	 */
-	abstract url(location: string);
+	abstract url(location: string): string;
 
 	/**
 	 * Get a temporary url for the file
@@ -96,6 +96,6 @@ export abstract class StorageProviderContract {
 	 * @param location
 	 * @param expiresInSeconds
 	 */
-	abstract temporaryUrl(location: string, expiresInSeconds: number);
+	abstract temporaryUrl(location: string, expiresInSeconds: number): Promise<string>;
 
 }

@@ -1,5 +1,5 @@
-import {DeleteObjectOutput} from "aws-sdk/clients/s3";
 import path from "path";
+import {Str} from "../../Common";
 import {StorageConfig} from "../../Config/Storage";
 import fs, {BaseEncodingOptions, readdir} from 'fs';
 import {StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
@@ -14,9 +14,40 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * Get the files from the target directory
 	 *
 	 * @param directory
+	 * @param recursive
 	 */
-	public files(directory: string) {
+	public files(directory: string, recursive: boolean = false): Promise<string[]> {
+		return new Promise((resolve, reject) => {
 
+			const listFiles = (dirName, files_?: string[]) => {
+				files_    = files_ || [];
+				let files = fs.readdirSync(dirName);
+
+				for (let i in files) {
+					const name        = dirName + '/' + files[i];
+					const isDirectory = fs.statSync(name).isDirectory();
+
+					if (isDirectory && !recursive) {
+						continue;
+					}
+					if (isDirectory && recursive) {
+						listFiles(name, files_);
+					}
+
+					if (!isDirectory) {
+						files_.push(name);
+					}
+				}
+
+				return files_;
+			};
+
+			resolve(
+				listFiles(directory).map(
+					name => name.replace(directory + '/', '').replace(directory, '')
+				)
+			);
+		});
 	}
 
 	/**
@@ -65,13 +96,13 @@ export class LocalFileProvider extends StorageProviderContract {
 	 */
 	public deleteDirectory(directory: string): Promise<boolean> {
 		return new Promise((resolve, reject) => {
-			if(!fs.existsSync(directory)){
-				return resolve(true)
+			if (!fs.existsSync(directory)) {
+				return resolve(true);
 			}
 
-			fs.rmdirSync(directory, {recursive: true})
+			fs.rmdirSync(directory, {recursive : true});
 
-			resolve(fs.existsSync(directory) === false)
+			resolve(fs.existsSync(directory) === false);
 		});
 	}
 
@@ -82,7 +113,13 @@ export class LocalFileProvider extends StorageProviderContract {
 	 */
 	public fileExists(key: string): Promise<boolean> {
 		return new Promise((resolve, reject) => {
+			const stat = fs.statSync(key);
 
+			if (!stat) {
+				resolve(false);
+			}
+
+			resolve(stat.isFile());
 		});
 	}
 
@@ -91,8 +128,10 @@ export class LocalFileProvider extends StorageProviderContract {
 	 *
 	 * @param location
 	 */
-	public get(location: string) {
-
+	public get(location: string): Promise<string> {
+		return new Promise((resolve, reject) => {
+			resolve(fs.readFileSync(location, {encoding : 'utf-8'}));
+		});
 	}
 
 	/**
@@ -102,9 +141,30 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param file
 	 */
 	public put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation> {
-
 		return new Promise((resolve, reject) => {
+			const extension = file.filename.split(".").pop();
+			const newName   = Str.random() + "." + extension;
+			const fileKey   = path.join(location, (file.storeAs ? file.storeAs : newName));
 
+			const writeStream = fs.createWriteStream(fileKey);
+
+			const readStream = fs.createReadStream(file.tempFilePath);
+
+			readStream.on('open', function () {
+				readStream.pipe(writeStream);
+			});
+
+			readStream.on('error', function (err) {
+				reject(err);
+			});
+
+			readStream.on('end', () => {
+				resolve(<UploadedFileInformation>{
+					url          : null,
+					path         : fileKey,
+					originalName : file.filename
+				});
+			});
 		});
 	}
 
@@ -114,9 +174,14 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param location
 	 */
 	public remove(location: string): Promise<boolean> {
-
 		return new Promise((resolve, reject) => {
+			fs.rm(location, (err) => {
+				if (err) {
+					reject(err);
+				}
 
+				resolve(true);
+			});
 		});
 	}
 
@@ -125,8 +190,8 @@ export class LocalFileProvider extends StorageProviderContract {
 	 *
 	 * @param location
 	 */
-	public url(location: string) {
-
+	public url(location: string): string {
+		return null;
 	}
 
 	/**
@@ -136,7 +201,7 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param location
 	 * @param expiresInSeconds
 	 */
-	public temporaryUrl(location: string, expiresInSeconds: number) {
+	public temporaryUrl(location: string, expiresInSeconds: number): Promise<string> {
 		return null;
 	}
 }
