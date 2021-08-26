@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-require('reflect-metadata');
 
-require('./../dist/Cli/CliHandler');
+const {run} = require('./../dist/Cli/CliHandler');
 
+run(true);
