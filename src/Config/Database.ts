@@ -7,6 +7,15 @@ export interface MongoConnectionConfiguration {
 	clientOptions: MongoClientOptions;
 }
 
+export interface RedisConnectionConfiguration extends ClientOpts {
+	enabled: boolean;
+}
+
+export interface DatabaseConfiguration {
+	mongo: MongoConnectionConfiguration;
+	redis: RedisConnectionConfiguration;
+}
+
 export default {
 
 	mongo : {
@@ -18,13 +27,18 @@ export default {
 			useNewUrlParser    : true,
 			useUnifiedTopology : true
 		}
-	} as MongoConnectionConfiguration,
+	},
 
 	redis : {
-		prefix : 'envuso-',
-//		db     : 'default',
-		host   : '127.0.0.1',
-		port   : 6379,
-	} as ClientOpts
+		/**
+		 * Set this to false to disable redis integration
+		 */
+		enabled : true,
 
-};
+		prefix : 'envuso-',
+		//		db     : 'default',
+		host : '127.0.0.1',
+		port : 6379,
+	}
+
+} as DatabaseConfiguration;

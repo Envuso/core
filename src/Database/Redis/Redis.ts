@@ -25,6 +25,10 @@ export class Redis {
 	 * @returns {any}
 	 */
 	public static put(key, value: any) {
+		if(!RedisClientInstance.isEnabled()) {
+			return;
+		}
+
 		const setAsync = promisify(RedisClientInstance.client().set).bind(RedisClientInstance.client());
 
 		return setAsync(key, JSON.stringify({value : value}));
@@ -41,6 +45,10 @@ export class Redis {
 	 * @returns {Promise<T>}
 	 */
 	public static async get<T>(key, _default: any = null): Promise<T> {
+		if(!RedisClientInstance.isEnabled()) {
+			return null;
+		}
+
 		const getAsync = promisify(RedisClientInstance.client().get).bind(RedisClientInstance.client());
 
 		let value = await getAsync(key);
@@ -61,6 +69,10 @@ export class Redis {
 	 * @returns {any}
 	 */
 	public static remove(key: string) {
+		if(!RedisClientInstance.isEnabled()) {
+			return;
+		}
+
 		const delAsync = promisify(RedisClientInstance.client().del).bind(RedisClientInstance.client());
 
 		return delAsync(key);
