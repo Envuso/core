@@ -1,7 +1,6 @@
 export * from './Exception/Exception';
 export * from './Decorators/DecoratorHelpers';
 export * from './Decorators/RoutingMetaData';
-export * from './Model/ModelInstance';
 export * from './Auth/Authenticatable';
 export * from './Utility/Hash';
 export * from './Utility/FileLoader';

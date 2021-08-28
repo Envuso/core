@@ -42,6 +42,7 @@ export class RequestContext {
 	 */
 	async initiateForRequest() {
 		this.response.cookieJar().setCookies(this.request.fastifyRequest);
+
 		if (resolve(Authentication).isUsingProvider(SessionAuthenticationProvider)) {
 			this.session = await Session.prepare(this.response.cookieJar());
 		}

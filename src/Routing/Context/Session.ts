@@ -17,7 +17,7 @@ export class Session {
 	 *
 	 * @private
 	 */
-	private async getSessionStore() {
+	private async getSessionStore(): Promise<void> {
 		const storedValues = await Redis.get(this.sessionId);
 
 		if (!storedValues) {
@@ -34,7 +34,7 @@ export class Session {
 	 *
 	 * @returns {string}
 	 */
-	getId() {
+	getId(): string {
 		return this.sessionId;
 	}
 
@@ -61,16 +61,16 @@ export class Session {
 	 * @param {string} key
 	 * @param value
 	 */
-	put(key: string, value: any) {
+	put(key: string, value: any): void {
 		this.store.set(key, value);
 	}
 
 	/**
-	 * Remove a value from the sesion store
+	 * Remove a value from the session store
 	 *
 	 * @param {string} key
 	 */
-	remove(key: string) {
+	remove(key: string): void {
 		this.store.delete(key);
 	}
 
@@ -79,7 +79,7 @@ export class Session {
 	 *
 	 * @returns {Promise<void>}
 	 */
-	async clear() {
+	async clear(): Promise<void> {
 		this.store = new Map();
 
 		await Redis.remove(this.sessionId);
@@ -88,7 +88,7 @@ export class Session {
 	/**
 	 * Save all values in the session store on redis against the session id
 	 */
-	async save() {
+	async save(): Promise<void> {
 		const sessionValues = {};
 
 		for (let key of this.store.keys()) {
@@ -103,7 +103,7 @@ export class Session {
 	 *
 	 * @returns {Session}
 	 */
-	static create() {
+	static create(): Session {
 		return new Session(Str.uniqueRandom(32));
 	}
 
@@ -133,6 +133,6 @@ export class Session {
 	 * @returns {string}
 	 */
 	static getCookieName(): string {
-		return config<string>('session.cookieName', 'sessionId');
+		return config<string>('session.sessionCookie.sessionCookieName', 'sessionId');
 	}
 }

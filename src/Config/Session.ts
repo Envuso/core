@@ -1,10 +1,22 @@
 import {DateTime} from "../Common";
 import {CookieConfiguration} from "../Routing";
 
+export type SessionCookie = {
+	name : string;
+	encrypt : boolean;
+}
+
+export type SessionConfiguration = {
+	cookie: CookieConfiguration;
+	sessionCookie : SessionCookie;
+}
 
 export default {
 
-	cookie : <CookieConfiguration>{
+	/**
+	 * Cookie configuration for https://npmjs.com/package/cookie
+	 */
+	cookie : {
 		path     : '/',
 		httpOnly : false,
 		secure   : true,
@@ -13,8 +25,23 @@ export default {
 		domain   : null,
 	},
 
-	cookieName : 'session',
+	/**
+	 * Configuration for session cookies
+	 * These settings affect how SessionAuthenticationProvider works.
+	 */
+	sessionCookie : {
+		name    : 'sessionId',
+		encrypt : true,
+	},
 
+	/**
+	 * The cookie name for identifying a session
+	 */
+	sessionCookieName : 'session',
+
+	/**
+	 *
+	 */
 	encryptCookies : true,
 
-};
+} as SessionConfiguration;

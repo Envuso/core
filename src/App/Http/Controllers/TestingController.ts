@@ -15,9 +15,7 @@ import {
 	session, user
 } from "../../../Routing";
 import {User} from "../../Models/User";
-import {SetUserMiddleware} from "../Middleware/SetUserMiddleware";
 import {UserSocketListener} from "../Sockets/UserSocketListener";
-import {TestController} from "./TestController";
 
 class DTO extends DataTransferObject {
 
@@ -31,10 +29,6 @@ class DTO extends DataTransferObject {
 @controller('/testing')
 export class TestingController extends Controller {
 
-	constructor(public testController?: TestController) {
-		super();
-	}
-
 	@get('/redirect')
 	async redirect(@query message: string) {
 		return response().redirect('https://google.com')
@@ -47,6 +41,15 @@ export class TestingController extends Controller {
 	@get('/cookie/is-set')
 	async testCookieIsSet() {
 		response().cookieJar().put('hello', 'world');
+		response().cookieJar().put('hello-two', 'world', true);
+
+		return true;
+	}
+
+	@get('/cookie/test-encrypted')
+	async testCookieEncryption() {
+		console.log(response().cookieJar().get('hello-two'));
+		console.log(response().cookieJar().get('hello-two'));
 
 		return true;
 	}
