@@ -3,15 +3,33 @@ import {resolve} from "../AppContainer";
 
 export class Encryption {
 
-	static encrypt(content: any) {
+	/**
+	 * Encrypt some content and returns a string
+	 *
+	 * @param content
+	 * @returns {string}
+	 */
+	static encrypt(content: any): string {
 		return resolve(SimpleCrypto).encrypt(content);
 	}
 
-	static decrypt(content: any) {
-		return resolve(SimpleCrypto).decrypt(content);
+	/**
+	 * Decrypts some content back to it's original form
+	 *
+	 * @param {string} content
+	 * @returns {T}
+	 */
+	static decrypt<T>(content: string): T {
+		return resolve(SimpleCrypto).decrypt(content) as unknown as T;
 	}
 
-	static random(length?: number) {
+	/**
+	 * Generate a random string
+	 *
+	 * @param {number} length
+	 * @returns {string}
+	 */
+	static random(length?: number): string {
 		return SimpleCrypto.generateRandomString(length);
 	}
 
