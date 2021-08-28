@@ -1,5 +1,5 @@
 {
-  "version": "0.1.5-alpha.43",
+  "version": "0.1.5-alpha.44",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -54,7 +54,6 @@
     "lodash.set": "^4.3.2",
     "middie": "^5.2.0",
     "mongodb": "^3.6.5",
-    "node-cache-redis": "^6.3.1",
     "node-fetch": "^2.6.1",
     "pluralize": "^8.0.0",
     "read-chunk": "^3.2.0",
