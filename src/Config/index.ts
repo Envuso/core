@@ -30,7 +30,6 @@ export const Config = {
 			ServerServiceProvider,
 		]
 	},
-
 	auth       : Auth,
 	database   : Database,
 	storage    : Storage,

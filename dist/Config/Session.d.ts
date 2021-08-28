@@ -1,4 +1,4 @@
-import { CookieConfiguration } from "../Routing/Context/CookieJar";
+import { CookieConfiguration } from "../Routing";
 declare const _default: {
     cookie: CookieConfiguration;
     cookieName: string;

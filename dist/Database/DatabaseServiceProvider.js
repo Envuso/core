@@ -35,7 +35,7 @@ class DatabaseServiceProvider extends ServiceProvider_1.ServiceProvider {
     boot(app, config) {
         return __awaiter(this, void 0, void 0, function* () {
             // Initiate the connection to redis and prep the client for usage
-            RedisClientInstance_1.RedisClientInstance.get();
+            new RedisClientInstance_1.RedisClientInstance(config.get('database.redis'));
         });
     }
     loadModels(modulePath) {

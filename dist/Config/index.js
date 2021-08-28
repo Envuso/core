@@ -17,7 +17,6 @@ exports.Config = {
         appKey: '1234',
         providers: [
             __1.DatabaseServiceProvider,
-            __1.CacheServiceProvider,
             __1.EncryptionServiceProvider,
             __1.AuthenticationServiceProvider,
             AuthorizationServiceProvider_1.AuthorizationServiceProvider,

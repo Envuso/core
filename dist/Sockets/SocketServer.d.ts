@@ -88,5 +88,5 @@ export declare class SocketServer {
      * @param {string} event
      * @param data
      */
-    broadcast<T extends SocketPacket>(listener: SocketChannelListener, channel: string, event: string, data: T | any): void;
+    broadcast<T extends SocketPacket>(listener: (new () => SocketChannelListener) | SocketChannelListener, channel: string, event: string, data: T | any): void;
 }
