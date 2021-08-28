@@ -3,10 +3,8 @@ import {
 	AuthenticationServiceProvider,
 	RouteServiceProvider,
 	StorageServiceProvider,
-	CacheServiceProvider,
 	DatabaseServiceProvider,
 	ServerServiceProvider,
-
 } from '../';
 import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
 
@@ -24,7 +22,6 @@ export const Config = {
 
 		providers : [
 			DatabaseServiceProvider,
-			CacheServiceProvider,
 			EncryptionServiceProvider,
 			AuthenticationServiceProvider,
 			AuthorizationServiceProvider,

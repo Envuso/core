@@ -1,7 +1,7 @@
 import redis, {RedisClient} from "redis";
-import {ConfigRepository, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {RedisConnectionConfiguration} from "../../Config/Database";
+import {Redis} from "./Redis";
 
 let instance = null;
 
@@ -9,7 +9,9 @@ export class RedisClientInstance {
 	private _client: RedisClient | null;
 	private _config: RedisConnectionConfiguration;
 
-	constructor() {
+	constructor(config : any) {
+		if(instance) return;
+
 		const defaultConfiguration = {
 			enabled : false,
 			prefix  : 'envuso-',
@@ -18,11 +20,11 @@ export class RedisClientInstance {
 			port    : 6379,
 		};
 
-		this._config = resolve(ConfigRepository).get(
-			'database.redis', defaultConfiguration
-		);
+		this._config = config ?? defaultConfiguration;
 
 		this.setup();
+
+		instance = this;
 	}
 
 	/**
@@ -36,24 +38,39 @@ export class RedisClientInstance {
 
 		this._client = redis.createClient(this._config);
 
+		Log.info('Redis is: '+(this._client.connected ? 'Connected': 'Disconnected'));
+
 		this._client.on("error", (error) => {
 			Log.exception('Redis Error: ', error);
 		});
+
+		new Redis(this._client);
 	}
 
+	/**
+	 * Get the instance of the class
+	 *
+	 * @returns {RedisClientInstance}
+	 */
 	static get(): RedisClientInstance {
-		if (instance) return instance;
-
-		instance = new this();
-
 		return instance;
 	}
 
+	/**
+	 * Is redis enabled/disabled in the configuration?
+	 *
+	 * @returns {boolean}
+	 */
 	static isEnabled() {
 		return this.get()._config.enabled;
 	}
 
-	static client() {
+	/**
+	 * Get the underlying redis client instance
+	 *
+	 * @returns {RedisClient}
+	 */
+	static client(): RedisClient {
 		return this.get()._client;
 	}
 }

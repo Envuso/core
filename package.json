@@ -54,7 +54,6 @@
     "lodash.set": "^4.3.2",
     "middie": "^5.2.0",
     "mongodb": "^3.6.5",
-    "node-cache-redis": "^6.3.1",
     "node-fetch": "^2.6.1",
     "pluralize": "^8.0.0",
     "read-chunk": "^3.2.0",

@@ -9,7 +9,6 @@ declare module "http" {
 export {EncryptionServiceProvider, Encryption} from "./Crypt";
 export {RouteServiceProvider} from "./Routing";
 export {DatabaseServiceProvider} from "./Database";
-export {CacheServiceProvider} from "./Cache";
 export * from "./Server/ServerServiceProvider";
 export {AuthenticationServiceProvider} from "./Authentication";
 export {AuthorizationServiceProvider} from './Authorization';

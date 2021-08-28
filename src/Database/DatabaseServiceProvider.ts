@@ -22,10 +22,8 @@ export class DatabaseServiceProvider extends ServiceProvider {
 	}
 
 	public async boot(app: App, config: ConfigRepository) {
-
 		// Initiate the connection to redis and prep the client for usage
-		RedisClientInstance.get();
-
+		new RedisClientInstance(config.get('database.redis'));
 	}
 
 	async loadModels(modulePath: string) {

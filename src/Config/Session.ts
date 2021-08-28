@@ -1,5 +1,5 @@
-import {DateTime} from "../Common/Utility/DateTime";
-import {CookieConfiguration} from "../Routing/Context/CookieJar";
+import {DateTime} from "../Common";
+import {CookieConfiguration} from "../Routing";
 
 
 export default {
@@ -8,7 +8,7 @@ export default {
 		path     : '/',
 		httpOnly : false,
 		secure   : true,
-		expires  : DateTime.now().add(5, 'years').toDate(),
+		expires  : DateTime.now().addYears(5).toDate(),
 		sameSite : true,
 		domain   : null,
 	},

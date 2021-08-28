@@ -270,7 +270,7 @@ export class SocketServer {
 	 * @param {string} event
 	 * @param data
 	 */
-	broadcast<T extends SocketPacket>(listener: SocketChannelListener, channel: string, event: string, data: T | any) {
+	broadcast<T extends SocketPacket>(listener: (new() => SocketChannelListener) | SocketChannelListener, channel: string, event: string, data: T | any) {
 		this._connections.forEach((userConnections, userId) => {
 			userConnections.forEach((connection) => {
 				if (!connection.hasSubscription(listener)) {
