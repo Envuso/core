@@ -7,6 +7,7 @@ import {ConfigRepository, resolve} from "../AppContainer";
 import {Exception, Log} from "../Common";
 import {ControllerManager, Middleware, RequestContext, Response, UploadedFile} from "../Routing";
 import {SocketServer} from "../Sockets/SocketServer";
+import {Hook} from "./ServerHooks";
 
 export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
 
@@ -56,7 +57,7 @@ export class Server {
 	/**
 	 * Initialise fastify, add all routes to the application and apply any middlewares
 	 */
-	public async initialise() {
+	public async initialise(hooks: (new () => Hook)[]) {
 		if (this._server)
 			throw new Error('Server has already been built');
 
@@ -72,67 +73,9 @@ export class Server {
 			response.code(404).send({message : "Not found"});
 		});
 
-		// Handled just before our controllers receive/process the request
-		// This handler needs to work by it-self to provide the context
-		this._server.addHook('preHandler', (request: FastifyRequest, response: FastifyReply, done) => {
-			//If this request is a cors preflight request... we don't want to handle our internal logic.
-			if ((request as any).corsPreflightEnabled) {
-				done();
-				return;
-			}
-
-			(new RequestContext(request, response)).bindToFastify(done);
-		});
-
-		// Handled just before our controllers receive/process the request
-		this._server.addHook('preHandler', async (request: FastifyRequest, response: FastifyReply) => {
-			//If this request is a cors preflight request... we don't want to handle our internal logic.
-			if ((request as any).corsPreflightEnabled) {
-				return;
-			}
-
-			const context = RequestContext.get();
-
-			if (!context) {
-				return;
-			}
-
-			await context.initiateForRequest();
-
-			if (request.isMultipart())
-				await UploadedFile.addToRequest(request);
-		});
-
-		// Handled before the response is sent to the client
-		this._server.addHook('onSend', async (request: FastifyRequest, response: FastifyReply) => {
-			//If this request is a cors preflight request... we don't want to handle our internal logic.
-			if ((request as any).corsPreflightEnabled) {
-				return;
-			}
-
-			if (!RequestContext.get()) {
-				return;
-			}
-
-			RequestContext.response().cookieJar().setCookiesOnResponse();
-		});
-
-		// Handled after the response has been sent to the client
-		this._server.addHook('onResponse', async (request: FastifyRequest, response: FastifyReply) => {
-			//If this request is a cors preflight request... we don't want to handle our internal logic.
-			if ((request as any).corsPreflightEnabled) {
-				return;
-			}
-
-			if (RequestContext.isUsingSession())
-				await RequestContext.session().save();
-		});
-
-		this._server.addHook('onError', (request, reply, error, done) => {
-			Log.exception(error.message, error);
-
-			done();
-		});
+		for (let hook of hooks) {
+			new hook().register(this._server);
+		}
 
 		this.registerControllers();
 
@@ -212,11 +155,6 @@ export class Server {
 		if (socketServer.isEnabled()) {
 			await socketServer.initiate(this._server);
 		}
-
-		//		if (this._config.websocketsEnabled) {
-		//			this._socketServer = new SocketServer();
-		//			await this._socketServer.prepareIo(this._server, this._config.cors);
-		//		}
 
 		await this._server.listen(this._config.port);
 

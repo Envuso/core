@@ -176,6 +176,11 @@ export class SocketServer {
 			return;
 		}
 
+		if(connections.size === 0) {
+			this._connections.delete(userId);
+			return;
+		}
+
 		for (let connection of connections.values()) {
 			if (connection.id !== connectionId) {
 				continue;

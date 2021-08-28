@@ -65,14 +65,14 @@ export class Model<M> {
 
 	static when<T extends Model<any>>(
 		this: new() => T,
-		condition : boolean|(() => boolean),
+		condition: boolean | (() => boolean),
 		attributes: FilterQuery<T> | Partial<T>
 	): QueryBuilder<T> {
-		if(typeof condition === 'boolean' && !condition) {
+		if (typeof condition === 'boolean' && !condition) {
 			return new this().queryBuilder();
 		}
 
-		if(typeof condition === 'function' && !condition()) {
+		if (typeof condition === 'function' && !condition()) {
 			return new this().queryBuilder();
 		}
 
@@ -250,9 +250,20 @@ export class Model<M> {
 		}
 
 		if (!usesAtomicOperator) {
+			// We want to iterate over the attributes to actually ensure they're a property
+			// of our model. Without this, random properties can be saved onto our document.
+			const attributesToSet = {};
+			for (let attributesKey in attributes) {
+				if (this[attributesKey] === undefined) {
+					continue;
+				}
+				attributesToSet[attributesKey] = attributes[attributesKey];
+			}
+
 			//@ts-ignore - some silly type issue i cba to figure out rn
-			attributes = {$set : attributes};
+			attributes = {$set : attributesToSet};
 		}
+
 
 		await this.collection().updateOne({
 			'_id' : (this as any)._id

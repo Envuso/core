@@ -13,10 +13,15 @@ import {Exception, Log} from "./Common";
 const envuso = new Envuso();
 
 
-envuso.prepare(Config)
+envuso.boot(Config)
+	.then(() => envuso.serve())
 	.then(() => {
-		envuso.addExceptionHandler(async (exception: Error|Exception, request: FastifyRequest, reply: FastifyReply) => {
+		envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {
 			Log.exception('Server error: ', exception);
+
+			if (!response()?.json) {
+				console.log('response.json not defined??');
+			}
 
 			return response().json(exception instanceof Exception ? exception.response : exception);
 		});

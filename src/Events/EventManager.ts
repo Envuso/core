@@ -1,4 +1,3 @@
-import {AuthedEventListener} from "../App/Events/Listeners/AuthedEventListener";
 import {resolve} from "../AppContainer";
 import {Classes, Log} from "../Common";
 import {EventDispatcher} from "./EventDispatcher";
@@ -53,8 +52,6 @@ export class EventManager {
 				...dispatcherInstance.triggers()
 			);
 		}
-
-		this.registerListener('authed', AuthedEventListener);
 
 		this.prepared = true;
 	}

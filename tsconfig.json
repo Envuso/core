@@ -10,6 +10,7 @@
     "moduleResolution": "node",
     "outDir": "./dist",
     "esModuleInterop": true,
+    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "rootDir": "./src/",
     "baseUrl": "./src/",
