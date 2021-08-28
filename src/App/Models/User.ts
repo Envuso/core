@@ -12,7 +12,7 @@ export class User extends Authenticatable<User> {
 	_id: ObjectId;
 
 	@id
-	someUserId: ObjectId;
+	someUserId: ObjectId|string;
 
 	email: string;
 

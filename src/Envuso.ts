@@ -83,7 +83,9 @@ export class Envuso {
 	async serve() {
 		this._server = resolve<Server>(Server);
 
-		await this._server.initialise(this._serverHooks);
+		await this._server.initialise();
+
+		this._server.registerHooks(this._serverHooks);
 
 		await this._server.listen();
 	}

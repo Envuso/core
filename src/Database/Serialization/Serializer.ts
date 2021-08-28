@@ -1,6 +1,6 @@
 import {classToPlain, plainToClass} from "class-transformer";
 import {ObjectId} from 'mongodb';
-import {Obj} from "../../Common";
+import {Log, Obj} from "../../Common";
 import {ClassType, ModelObjectId, Ref} from "../index";
 
 export function dehydrateModel<T>(entity: T): Object {
@@ -55,14 +55,9 @@ export function dehydrateModel<T>(entity: T): Object {
 		delete plain[name];
 	}
 
-	const objectIds = this.getModelObjectIds(entity);
-
-	for (let objectIdField of objectIds) {
-		if (!plain[objectIdField.name]) {
-			continue;
-		}
-
-		plain[objectIdField.name] = new ObjectId(plain[objectIdField.name]);
+	const modelObjectIds = convertEntityObjectIds(entity, plain);
+	for (let modelObjectIdsKey in modelObjectIds) {
+		plain[modelObjectIdsKey] = modelObjectIds[modelObjectIdsKey];
 	}
 
 	return plain;
@@ -72,6 +67,30 @@ export function hydrateModel<T>(plain: Object | null, type: ClassType<T>) {
 	return plain ? plainToClass<T, Object>(type, plain, {
 		ignoreDecorators : true,
 	}) : null;
+}
+
+export function convertEntityObjectIds<T>(entity: T, plain: any): Object {
+	const objectIds = getModelObjectIds(entity);
+
+	const modelObjectIds: { [key: string]: string | ObjectId } = {};
+
+	for (let objectIdField of objectIds) {
+		if (!plain[objectIdField.name]) {
+			continue;
+		}
+		if (plain[objectIdField.name] instanceof ObjectId) {
+			modelObjectIds[objectIdField.name] = plain[objectIdField.name];
+			continue;
+		}
+		if (!ObjectId.isValid(plain[objectIdField.name])) {
+			Log.warn('Field ' + objectIdField.name + ' is being converted to an ObjectID... but ' + plain[objectIdField.name] + ' is not able to be converted to an ObjectID.');
+			continue;
+		}
+
+		modelObjectIds[objectIdField.name] = new ObjectId(plain[objectIdField.name]);
+	}
+
+	return modelObjectIds;
 }
 
 export function getModelObjectIds(entity: any): ModelObjectId[] {

@@ -3,7 +3,7 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
-import {dehydrateModel, getModelObjectIds, hydrateModel} from "../Serialization/Serializer";
+import {convertEntityObjectIds, dehydrateModel, getModelObjectIds, hydrateModel} from "../Serialization/Serializer";
 import {Paginator} from "./Paginator";
 import {QueryBuilder} from "./QueryBuilder";
 
@@ -264,7 +264,6 @@ export class Model<M> {
 			attributes = {$set : attributesToSet};
 		}
 
-
 		await this.collection().updateOne({
 			'_id' : (this as any)._id
 		}, attributes, options);
@@ -310,6 +309,11 @@ export class Model<M> {
 
 			(this as any)._id  = res.insertedId;
 			(plain as any)._id = res.insertedId;
+
+			const modelObjectIds = convertEntityObjectIds(this, plain);
+			for (let modelObjectIdsKey in modelObjectIds) {
+				this[modelObjectIdsKey] = modelObjectIds[modelObjectIdsKey];
+			}
 
 			return;
 		}

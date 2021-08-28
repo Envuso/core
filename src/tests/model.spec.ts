@@ -21,7 +21,6 @@ beforeAll(() => {
 
 describe('models', () => {
 
-
 	test('model can use be initiated', async () => {
 
 		const m     = new User();
@@ -138,12 +137,13 @@ describe('models', () => {
 		const otherUser = await User.create({something : "randomtext"});
 
 		const user      = new User();
-		user.someUserId = otherUser._id;
+		user.someUserId = otherUser._id.toHexString();
 		await user.save();
 
 		expect(otherUser._id).toBeDefined();
 		expect(otherUser._id).toBeInstanceOf(ObjectId);
 		expect(user._id).toBeDefined();
+
 		expect(user.someUserId).toBeDefined();
 		expect(user.someUserId).toEqual(otherUser._id);
 		expect(user.someUserId).toBeInstanceOf(ObjectId);
@@ -193,6 +193,14 @@ describe('models', () => {
 		expect(json.data).toBeDefined()
 		expect(res).toBeDefined();
 
+	});
+
+	test('saving a model with multiple @id tags', async () => {
+		const user = new User();
+		user.someUserId = '1234';
+		await user.save();
+
+		expect(user.someUserId).toBeInstanceOf(ObjectId);
 	});
 
 	test('using optional where chaining', async () => {

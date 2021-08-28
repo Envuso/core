@@ -57,7 +57,7 @@ export class Server {
 	/**
 	 * Initialise fastify, add all routes to the application and apply any middlewares
 	 */
-	public async initialise(hooks: (new () => Hook)[]) {
+	public async initialise() {
 		if (this._server)
 			throw new Error('Server has already been built');
 
@@ -72,10 +72,6 @@ export class Server {
 		this._server.setNotFoundHandler((request: FastifyRequest, response: FastifyReply) => {
 			response.code(404).send({message : "Not found"});
 		});
-
-		for (let hook of hooks) {
-			new hook().register(this._server);
-		}
 
 		this.registerControllers();
 
@@ -116,6 +112,12 @@ export class Server {
 
 				Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
 			}
+		}
+	}
+
+	public registerHooks(hooks: { new(): Hook }[]) {
+		for (let hook of hooks) {
+			new hook().register(this._server);
 		}
 	}
 
@@ -181,4 +183,5 @@ export class Server {
 
 		response.send();
 	}
+
 }
