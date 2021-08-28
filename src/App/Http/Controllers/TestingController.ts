@@ -2,6 +2,7 @@ import {IsString, MinLength} from "class-validator";
 import {ObjectId} from "mongodb";
 import {Auth} from "../../../Authentication";
 import {Authorization} from "../../../Authorization/Authorization";
+import {EventManager} from "../../../Events";
 import {
 	body,
 	Controller,
@@ -14,6 +15,7 @@ import {
 	response,
 	session, user
 } from "../../../Routing";
+import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
 import {User} from "../../Models/User";
 import {UserSocketListener} from "../Sockets/UserSocketListener";
 
@@ -263,6 +265,16 @@ export class TestingController extends Controller {
 		const result = await user.can('deleteAccount', user);
 
 		return {result};
+	}
+
+
+	@get('/events/dispatching')
+	async testDispatchingEvent() {
+		TestingEventDispatcher.dispatch('hello!')
+		EventManager.dispatch('authed', ['wew, hi']);
+		EventManager.dispatch('TestingEventDispatcher', ['wew, hi']);
+
+		return {};
 	}
 
 }

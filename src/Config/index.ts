@@ -5,6 +5,7 @@ import {
 	StorageServiceProvider,
 	DatabaseServiceProvider,
 	ServerServiceProvider,
+	EventServiceProvider,
 } from '../';
 import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
 
@@ -16,11 +17,12 @@ import Storage from "./Storage";
 import Websockets from "./Websockets";
 
 export const Config = {
-	app : {
+	app        : {
 
 		appKey : '1234',
 
 		providers : [
+			EventServiceProvider,
 			DatabaseServiceProvider,
 			EncryptionServiceProvider,
 			AuthenticationServiceProvider,

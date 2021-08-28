@@ -74,7 +74,7 @@ export class SocketServer {
 	 * @returns {Promise<void>}
 	 */
 	async prepareEventListeners() {
-		const socketListeners = await FileLoader.importModulesFrom(
+		const socketListeners = await FileLoader.importModulesFrom<SocketChannelListener | SocketListener>(
 			path.join(config().get('paths.socketListeners'), '**', '*.ts')
 		);
 

@@ -13,6 +13,7 @@ export * from "./Server/ServerServiceProvider";
 export {AuthenticationServiceProvider} from "./Authentication";
 export {AuthorizationServiceProvider} from './Authorization';
 export {StorageServiceProvider} from "./Storage";
+export {EventServiceProvider} from "./Events";
 
 
 export {Envuso} from './Envuso';

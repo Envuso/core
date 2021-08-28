@@ -9,8 +9,8 @@ interface FormatPathInformation {
 	forNode: string; //'js';
 }
 
-interface ImportedModule {
-	instance: any;
+interface ImportedModule<T> {
+	instance: new () => T;
 	name: any;
 	originalPath: string;
 	forRunEnvironment: string;
@@ -133,7 +133,7 @@ export class FileLoader {
 	 * to convert them to the correct run environments
 	 * @param path
 	 */
-	static async importModulesFrom(path: string): Promise<ImportedModule[]> {
+	static async importModulesFrom<T>(path: string): Promise<ImportedModule<T>[]> {
 		const files   = this.filesInPath(path);
 		const modules = [];
 

@@ -17,7 +17,7 @@ export class Classes {
 	 * @param c
 	 * @returns {boolean}
 	 */
-	public static getConstructor(c: any): boolean {
+	public static getConstructor<T>(c: any): new () => T {
 		if (this.isInstantiated(c)) {
 			return c.constructor;
 		}
