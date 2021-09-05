@@ -1,14 +1,15 @@
 import {injectable} from "tsyringe";
 import {App} from "../../AppContainer";
-import {DecoratorHelpers, METADATA} from "../../Common";
+import {Classes, DecoratorHelpers, METADATA} from "../../Common";
+import {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
+import {RouteContract} from "../../Contracts/Routing/Route/RouteContract";
 import {Route} from "../Route/Route";
-import {RouteServiceProvider} from "../RouteServiceProvider";
-import {Controller} from "./Controller";
 import {AllControllerMeta, ControllerMetadata} from "./ControllerDecorators";
 
 export interface ControllerAndRoutes {
-	controller: Controller;
-	routes: Route[];
+	controller: new () => ControllerContract;
+	controllerName: string;
+	routes: RouteContract[];
 }
 
 export class ControllerManager {
@@ -21,17 +22,18 @@ export class ControllerManager {
 	 */
 	public static bindControllerMeta(path) {
 		return function (target: any) {
+
 			const currentMetadata: ControllerMetadata = {
 				path            : path,
 				target          : target,
-				injectionParams : DecoratorHelpers.paramTypes(target) ?? []
+				injectionParams : DecoratorHelpers.paramTypes(target) ?? [],
+				modulePath      : Classes.getModulePathFromConstructor(target),
 			};
 
-//			autoInjectable()(target);
 			injectable()(target);
+
 			//const params = DecoratorHelpers.paramTypes(target);
 			Reflect.defineMetadata(METADATA.CONTROLLER, currentMetadata, target);
-
 
 			const previousMetadata: ControllerMetadata[] = Reflect.getMetadata(
 				METADATA.CONTROLLER,
@@ -53,16 +55,19 @@ export class ControllerManager {
 	 * and setup the route instances for them
 	 */
 	static initiateControllers() {
-		const controllers = App.getInstance()
-			.resolve(RouteServiceProvider)
-			.getAllControllers();
+
+		const controllers = App.getInstance().container().resolveAll<new () => ControllerContract>('Controllers');
+		/*const controllers = App.getInstance()
+		 .resolve(RouteServiceProvider)
+		 .getAllControllers();*/
 
 		const routes: ControllerAndRoutes[] = [];
 
 		for (let controller of controllers) {
 			routes.push({
-				controller : controller,
-				routes     : this.getRoutesForController(controller)
+				controller     : controller,
+				controllerName : controller.name,
+				routes         : this.getRoutesForController(controller)
 			});
 		}
 
@@ -73,11 +78,11 @@ export class ControllerManager {
 	 * Get the metadata the controller
 	 * Tells us the target for Reflect and it's path
 	 */
-	static getMeta(controller : any): AllControllerMeta {
+	static getMeta(controller: any): AllControllerMeta {
 		return {
 			controller : Reflect.getMetadata(METADATA.CONTROLLER, controller),
 			methods    : Reflect.getMetadata(METADATA.CONTROLLER_METHODS, controller)
-		}
+		};
 	}
 
 	/**
@@ -86,7 +91,7 @@ export class ControllerManager {
 	 * @param controller
 	 * @private
 	 */
-	static getRoutesForController(controller: Controller) {
+	static getRoutesForController(controller: new () => ControllerContract) {
 		const meta = this.getMeta(controller);
 
 		if (!meta?.controller && !meta?.methods) {

@@ -1,4 +1,8 @@
-import {RequestContext} from "../../Routing";
+import {config} from "../../AppContainer";
+import {Cookie, CookieJar} from "../../Cookies";
+import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
+import {Encryption} from "../../Crypt";
+import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
 /**
@@ -23,7 +27,40 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 			return;
 		}
 
-		await context.initiateForRequest();
+		const cookieJar        = new CookieJar();
+		const processedCookies = Cookie.fromHeader(context.request.fastifyRequest.raw.headers.cookie || '');
+
+		for (let cookie of processedCookies) {
+			cookieJar._jar.set(cookie.getName(), cookie);
+		}
+
+		context.response.setCookieJar(cookieJar);
+		context.request.setCookieJar(cookieJar);
+
+		const sessionConfig = config('Session');
+
+		if (!sessionConfig.cookie.encrypted) {
+			return;
+		}
+
+		const cookies = context.request.cookieJar().all();
+
+		for (let cookie of cookies) {
+			try {
+				const value = Encryption.decrypt<string>(cookie.value);
+
+				const isValid = value.indexOf(
+					CookieValuePrefix.create(cookie.name, Encryption.getKey())
+				) === 0;
+
+				cookie.value = isValid ? CookieValuePrefix.remove(value) : null;
+
+				context.request.cookieJar().put(cookie.name, cookie);
+			} catch (e) {
+				console.log(e);
+			}
+		}
 	}
+
 
 }

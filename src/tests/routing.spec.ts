@@ -2,14 +2,12 @@ import "reflect-metadata";
 
 import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
-import {FastifyRequest} from "fastify";
 import * as fs from "fs";
 import * as path from "path";
 import {TestingController} from "../App/Http/Controllers/TestingController";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
-import {Auth, Authentication, JwtAuthenticationProvider} from "../Authentication";
-import {Authenticatable} from "../Common";
+import {Authentication} from "../Authentication";
 import {Config} from "../Config";
 import {
 	Controller,
@@ -20,8 +18,6 @@ import {
 	get,
 	middleware,
 	Middleware,
-	Request,
-	RequestContext
 } from "../Routing";
 import {Server} from "../Server/Server";
 
@@ -188,11 +184,7 @@ describe('test route service provider', () => {
 
 		const dto = plainToClass(TestDTO, {property : ''});
 
-		await dto.validate();
-
-		expect(() => {
-			dto.throwIfFailed();
-		}).toThrow(new DtoValidationException(dto._validationErrors));
+		expect(() => dto.validate()).toThrow(DtoValidationException);
 
 	});
 	test('hitting route with global middleware', async () => {

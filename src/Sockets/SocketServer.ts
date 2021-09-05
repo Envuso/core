@@ -2,46 +2,33 @@ import {FastifyInstance} from "fastify";
 import http from "http";
 import {ObjectId} from "mongodb";
 import path from "path";
-import {injectable} from "tsyringe";
-import WebSocket, {Server, ServerOptions} from 'ws';
+import {delay, inject, injectable} from "tsyringe";
+import WebSocket, {Server} from 'ws';
 import {app, config, ConfigRepository} from "../AppContainer";
 import {Auth} from "../Authentication";
 import {FileLoader, Log} from "../Common";
-import {Middleware} from "../Routing";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {SocketChannelListenerContract} from "../Contracts/Sockets/SocketChannelListenerContract";
+import {SocketConnectionContract} from "../Contracts/Sockets/SocketConnectionContract";
+import {SocketPacketContract} from "../Contracts/Sockets/SocketPacketContract";
+import {SocketServerContract, WebsocketsConfiguration} from "../Contracts/Sockets/SocketServerContract";
 import {SocketChannelListener} from "./SocketChannelListener";
 import {SocketConnection} from "./SocketConnection";
 import {SocketEvents} from "./SocketEvents";
 import {SocketListener} from "./SocketListener";
-import {SocketPacket} from "./SocketPacket";
 
-export interface ChannelInformation {
-	containerListenerName: string;
-	channelName: string;
-	wildcardValue: string | null;
-}
 
-type RoomSocketListenerInstance = new() => SocketChannelListener | undefined;
-
-interface WebsocketsConfiguration {
-	//	cors: {
-	//		enabled: boolean;
-	//		options: CorsOptions
-	//	};
-	enabled: boolean;
-	middleware: (new () => Middleware)[],
-	options: ServerOptions
-}
 
 @injectable()
-export class SocketServer {
+export class SocketServer implements SocketServerContract {
 
-	private server: Server;
+	public server: Server;
 
-	private pingInterval: NodeJS.Timeout;
+	public pingInterval: NodeJS.Timeout;
 
-	private _listeners: Map<string, new () => SocketChannelListener> = new Map();
+	public _listeners: Map<string, new () => SocketChannelListenerContract> = new Map();
 
-	private _config: WebsocketsConfiguration;
+	public _config: WebsocketsConfiguration;
 
 	/**
 	 * Stores a user id -> socket ids
@@ -49,13 +36,13 @@ export class SocketServer {
 	 * @type {Map<string, string[]>}
 	 * @private
 	 */
-	private _connections: Map<string, Set<SocketConnection>> = new Map();
+	public _connections: Map<string, Set<SocketConnectionContract>> = new Map();
 
-	constructor(configRepository: ConfigRepository) {
-		this._config = configRepository.get<WebsocketsConfiguration>('websockets');
+	constructor(@inject(delay(() => ConfigRepository)) configRepository: ConfigRepositoryContract) {
+		this._config = configRepository.get('Websockets');
 	}
 
-	getServer(): Server {
+	public getServer(): Server {
 		return this.server;
 	}
 
@@ -64,7 +51,7 @@ export class SocketServer {
 	 *
 	 * @returns {boolean}
 	 */
-	isEnabled() {
+	public isEnabled() {
 		return this._config?.enabled || true;
 	}
 
@@ -73,9 +60,9 @@ export class SocketServer {
 	 *
 	 * @returns {Promise<void>}
 	 */
-	async prepareEventListeners() {
+	public async prepareEventListeners() {
 		const socketListeners = await FileLoader.importModulesFrom<SocketChannelListener | SocketListener>(
-			path.join(config().get('paths.socketListeners'), '**', '*.ts')
+			path.join(config().get('FilesystemPaths').get('socketListeners'), '**', '*.ts')
 		);
 
 		for (let socketListener of socketListeners) {
@@ -120,7 +107,7 @@ export class SocketServer {
 	 * @param app
 	 * @returns {this}
 	 */
-	async initiate(app: FastifyInstance): Promise<this> {
+	public async initiate(app: FastifyInstance): Promise<this> {
 		await this.prepareEventListeners();
 
 		app.ready(() => {
@@ -147,9 +134,9 @@ export class SocketServer {
 	 * @param {WebSocket} socket
 	 * @param {http.IncomingMessage} request
 	 */
-	_handleConnection(socket: WebSocket, request: http.IncomingMessage) {
+	public _handleConnection(socket: WebSocket, request: http.IncomingMessage) {
 		new SocketConnection(socket, request).setup(
-			(connection: SocketConnection) => {
+			(connection: SocketConnectionContract) => {
 				this.addConnection(connection);
 
 				connection.onDisconnect((userId, id) => {
@@ -161,7 +148,7 @@ export class SocketServer {
 		);
 	}
 
-	addConnection(connection: SocketConnection) {
+	public addConnection(connection: SocketConnectionContract) {
 		if (!this._connections.has(Auth.id())) {
 			this._connections.set(Auth.id(), new Set());
 		}
@@ -169,14 +156,14 @@ export class SocketServer {
 		this._connections.get(Auth.id()).add(connection);
 	}
 
-	removeConnection(userId: string, connectionId: string) {
+	public removeConnection(userId: string, connectionId: string) {
 		const connections = this._connections.get(userId);
 
 		if (!connections) {
 			return;
 		}
 
-		if(connections.size === 0) {
+		if (connections.size === 0) {
 			this._connections.delete(userId);
 			return;
 		}
@@ -192,7 +179,7 @@ export class SocketServer {
 		this._connections.set(userId, connections);
 	}
 
-	private createHeartBeat() {
+	public createHeartBeat() {
 		if (this.pingInterval) return;
 
 		this.pingInterval = setInterval(() => {
@@ -218,7 +205,7 @@ export class SocketServer {
 	 * @param {ObjectId | string} id
 	 * @returns {SocketConnection[]}
 	 */
-	getUserSockets(id: ObjectId | string): SocketConnection[] {
+	public getUserSockets(id: ObjectId | string): SocketConnectionContract[] {
 		if (id instanceof ObjectId) {
 			id = id.toString();
 		}
@@ -235,7 +222,7 @@ export class SocketServer {
 	 * @param event
 	 * @param data
 	 */
-	sendToUser(id: ObjectId | string, event: SocketEvents | string, data: any) {
+	public sendToUser(id: ObjectId | string, event: SocketEvents | string, data: any) {
 		const connections = this.getUserSockets(id);
 
 		connections.forEach(connection => {
@@ -250,7 +237,7 @@ export class SocketServer {
 	 * @param {SocketEvents | string} event
 	 * @param data
 	 */
-	sendToUserViaChannel(id: ObjectId | string, channel: new () => SocketChannelListener, event: SocketEvents | string, data: any) {
+	public sendToUserViaChannel(id: ObjectId | string, channel: new () => SocketChannelListenerContract, event: SocketEvents | string, data: any) {
 		const connections = this.getUserSockets(id);
 
 		connections.forEach(connection => {
@@ -275,7 +262,7 @@ export class SocketServer {
 	 * @param {string} event
 	 * @param data
 	 */
-	broadcast<T extends SocketPacket>(listener: (new() => SocketChannelListener) | SocketChannelListener, channel: string, event: string, data: T | any) {
+	public broadcast<T extends SocketPacketContract>(listener: (new() => SocketChannelListenerContract) | SocketChannelListenerContract, channel: string, event: string, data: T | any) {
 		this._connections.forEach((userConnections, userId) => {
 			userConnections.forEach((connection) => {
 				if (!connection.hasSubscription(listener)) {

@@ -1,25 +1,23 @@
-import {FastifyRequest} from "fastify";
 import {Multipart} from "fastify-multipart";
-import {Stats} from "fs";
-import * as fs from "fs";
-import {StatusCodes} from "http-status-codes";
-import path from "path";
-import {ConfigRepository, resolve} from "../../../AppContainer";
-import {Exception, Log} from "../../../Common";
-import {Storage, UploadedFileInformation} from "../../../Storage";
-import {RequestContext} from "../RequestContext";
 import {default as FileType, FileExtension, MimeType} from 'file-type';
+import * as fs from "fs";
+import {Stats} from "fs";
+import path from "path";
 import * as readChunk from "read-chunk";
+import {ConfigRepository, resolve} from "../../../AppContainer";
+import {Exception, Log, StatusCodes} from "../../../Common";
+import {UploadedFileContract} from "../../../Contracts/Routing/Context/Request/UploadedFileContract";
+import {Storage, UploadedFileInformation} from "../../../Storage";
 
-export class UploadedFile {
+export class UploadedFile implements UploadedFileContract {
 
-	private _extension: FileExtension = null;
-	private _mimeType: MimeType       = null;
-	private _fileStat: Stats          = null;
+	public _extension: FileExtension = null;
+	public _mimeType: MimeType = null;
+	public _fileStat: Stats = null;
 
 	constructor(
-		private file: Multipart,
-		private tempFileName: string
+		public file: Multipart,
+		public tempFileName: string
 	) { }
 
 	/**
@@ -27,7 +25,7 @@ export class UploadedFile {
 	 *
 	 * @returns {MimeType|null}
 	 */
-	getMimeType(): MimeType {
+	public getMimeType(): MimeType {
 		return this._mimeType;
 	}
 
@@ -39,7 +37,7 @@ export class UploadedFile {
 	 *
 	 * @returns {FileExtension}
 	 */
-	getOriginalMimeType(): MimeType {
+	public getOriginalMimeType(): MimeType {
 		return this.file.mimetype as MimeType;
 	}
 
@@ -48,7 +46,7 @@ export class UploadedFile {
 	 *
 	 * @returns {string}
 	 */
-	getEncoding(): string {
+	public getEncoding(): string {
 		return this.file.encoding;
 	}
 
@@ -58,7 +56,7 @@ export class UploadedFile {
 	 *
 	 * @returns {FileExtension | null}
 	 */
-	getExtension(): FileExtension {
+	public getExtension(): FileExtension {
 		return this._extension;
 	}
 
@@ -67,7 +65,7 @@ export class UploadedFile {
 	 *
 	 * @returns {Stats}
 	 */
-	getFileStat(): Stats {
+	public getFileStat(): Stats {
 		return this._fileStat;
 	}
 
@@ -76,7 +74,7 @@ export class UploadedFile {
 	 *
 	 * @returns {number}
 	 */
-	getSize(): number {
+	public getSize(): number {
 		const stat = this.getFileStat();
 
 		return stat?.size ?? null;
@@ -90,14 +88,14 @@ export class UploadedFile {
 	 *
 	 * @returns {FileExtension}
 	 */
-	getOriginalExtension(): FileExtension {
+	public getOriginalExtension(): FileExtension {
 		return this.file.filename.split(".").pop() as FileExtension;
 	}
 
 	/**
 	 * Get the name of the field that this file was submitted via
 	 */
-	getFieldName(): string {
+	public getFieldName(): string {
 		return this.file.fieldname;
 	}
 
@@ -106,15 +104,15 @@ export class UploadedFile {
 	 *
 	 * @returns {string}
 	 */
-	getTempFileName(): string {
+	public getTempFileName(): string {
 		return this.tempFileName;
 	}
 
 	/**
 	 * Get the absolute path of the temporary file
 	 */
-	getTempFilePath(): string {
-		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
+	public getTempFilePath(): string {
+		const tempPath = resolve(ConfigRepository).get('FilesystemPaths').get('temp');
 
 		return path.join(tempPath, this.tempFileName);
 	}
@@ -124,7 +122,7 @@ export class UploadedFile {
 	 *
 	 * @returns {string}
 	 */
-	getOriginalFileName(): string {
+	public getOriginalFileName(): string {
 		return this.file.filename;
 	}
 
@@ -133,7 +131,7 @@ export class UploadedFile {
 	 *
 	 * @returns {string}
 	 */
-	getFileNameWithoutExtension(): string {
+	public getFileNameWithoutExtension(): string {
 		return this.getOriginalFileName().split('.').shift() ?? null;
 	}
 
@@ -142,7 +140,7 @@ export class UploadedFile {
 	 *
 	 * @param location
 	 */
-	async store(location: string): Promise<UploadedFileInformation> {
+	public async store(location: string): Promise<UploadedFileInformation> {
 		return this.storeFile(location);
 	}
 
@@ -153,7 +151,7 @@ export class UploadedFile {
 	 * @param location
 	 * @param fileName
 	 */
-	async storeAs(location: string, fileName: string): Promise<UploadedFileInformation> {
+	public async storeAs(location: string, fileName: string): Promise<UploadedFileInformation> {
 		return this.storeFile(location, fileName);
 	}
 
@@ -165,7 +163,7 @@ export class UploadedFile {
 	 * @param location
 	 * @param storeAs
 	 */
-	private async storeFile(location: string, storeAs?: string): Promise<UploadedFileInformation> {
+	public async storeFile(location: string, storeAs?: string): Promise<UploadedFileInformation> {
 
 		let response = null;
 
@@ -193,34 +191,11 @@ export class UploadedFile {
 	/**
 	 * If the temp file exists, it will be deleted.
 	 */
-	deleteTempFile() {
+	public deleteTempFile() {
 		const tempFilePath = this.getTempFilePath();
 
 		if (fs.existsSync(tempFilePath))
 			fs.rmSync(tempFilePath);
-	}
-
-	/**
-	 * We will bind the uploaded file from the request into our request
-	 * context, so that it is ready to be processed and any async operations
-	 * have already been handled and are completed.
-	 *
-	 * @param request
-	 */
-	public static async addToRequest(request: FastifyRequest) {
-
-		if (!request.isMultipart)
-			return;
-
-		const context = RequestContext.get();
-
-		if (!context)
-			return;
-
-		await context.request.setUploadedFile(
-			await request.file()
-		);
-
 	}
 
 	/**

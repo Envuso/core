@@ -1,0 +1,32 @@
+
+<a href="/testing/view/flash">
+	Flash some input
+</a>
+<br>
+<a href="http://127.0.0.1:3000/auth/redirect">
+	Auth
+</a>
+<br/>
+<a href="{{ route('TestingController.testQueryParamDecorator') }}">
+	Testing route helper
+</a>
+<br/>
+<p>Some old value: {{ old('messageflashed') }}</p>
+<br/>
+<div style="padding: 10px; background: rgb(20, 20, 20);">
+	{{ message }}
+</div>
+<br/>
+<div style="padding: 10px; background: rgb(20, 20, 20);">
+	@each((value, key) in session())
+		{{key}} => {{value}} <br/>
+	@end
+</div>
+<br/>
+CSRF Token:
+<form method="post" action="/testing/view/post" enctype="application/x-www-form-urlencoded">
+	{{{ csrfField() }}}
+
+	<button type="submit">Submit</submit>
+</form>
+

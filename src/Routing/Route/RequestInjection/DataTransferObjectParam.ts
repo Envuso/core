@@ -1,9 +1,7 @@
-import {plainToClass} from "class-transformer";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
 import {DataTransferObject} from "../../DataTransferObject/DataTransferObject";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
-
 
 export class DataTransferObjectParam extends MethodParameterDecorator {
 
@@ -41,18 +39,8 @@ export class DataTransferObjectParam extends MethodParameterDecorator {
 	}
 
 	async bind(request: FastifyRequest, response: FastifyReply) {
-		const dtoClass = plainToClass(this.dtoParameter, request.body);
-
-		await dtoClass.validate();
-
-		if (this.validateOnRequest) {
-			dtoClass.throwIfFailed();
-		}
-
-		return dtoClass;
+		return await this.dtoParameter.handleControllerBinding(
+			request.body as object, this.validateOnRequest
+		);
 	}
-
-//	static canInject(target: any, key: string | symbol) {
-//		return !!this.getMetadata(target[key]);
-//	}
 }

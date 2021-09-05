@@ -1,6 +1,7 @@
+import {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
 
-export abstract class Seeder {
+export abstract class Seeder implements SeederContract {
 
-	abstract seed(): Promise<any>;
+	public abstract seed(): Promise<any>;
 
 }

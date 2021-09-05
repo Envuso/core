@@ -1,4 +1,5 @@
 import {DateTime} from "../Common";
+import {DateTimeContract} from "../Contracts/Common/Utility/DateTimeContract";
 import {Redis} from "../Database";
 
 
@@ -24,7 +25,7 @@ export class Cache {
 	 * @returns {Promise<boolean>}
 	 */
 	public static put(key: string, value: any): Promise<boolean> ;
-	public static put(key: string, value: any, ttl: DateTime): Promise<boolean> ;
+	public static put(key: string, value: any, ttl: DateTimeContract): Promise<boolean> ;
 	public static put(key: string, value: any, ttl: DateTime = undefined): Promise<boolean> {
 		return Redis.put(`redis-cache.${key}`, value, ttl);
 	}

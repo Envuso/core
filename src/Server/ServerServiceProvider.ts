@@ -1,15 +1,17 @@
-import {App, ConfigRepository, ServiceProvider} from "../AppContainer";
-import {Server} from "./Server";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {SocketServer} from "../Sockets/SocketServer";
+import {Server} from "./Server";
 
 export class ServerServiceProvider extends ServiceProvider {
 
-	async register(app: App, config: ConfigRepository) {
+	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		app.container().registerSingleton<Server>(Server);
 		app.container().registerSingleton<SocketServer>(SocketServer);
 	}
 
-	async boot(app: App, config: ConfigRepository) {
+	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 	}
 

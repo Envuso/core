@@ -1,44 +1,46 @@
 import {MongoClient} from "mongodb";
-import pluralize from "pluralize";
-import {ServiceProvider} from "../AppContainer/ServiceProvider";
-import {App, app, ConfigRepository, resolve} from "../AppContainer";
-import {FileLoader} from "../Common";
-import {MongoConnectionConfiguration} from "../Config/Database";
 import path from 'path';
-import {SeedManager} from "./Seeder/SeedManager";
+import pluralize from "pluralize";
+import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
+import {FileLoader} from "../Common";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {RedisClientInstance} from "./Redis/RedisClientInstance";
+import {SeedManager} from "./Seeder/SeedManager";
 
 export class DatabaseServiceProvider extends ServiceProvider {
 
-	public async register(app: App, config: ConfigRepository) {
-		const mongoConfig = config.get<MongoConnectionConfiguration>('database.mongo');
+	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
+		const mongoConfig = config.get('Database').get('mongo');
 		const client      = new MongoClient(mongoConfig.url, mongoConfig.clientOptions);
 		const connection  = await client.connect();
 
 		app.container().register(MongoClient, {useValue : connection});
 		app.container().register(SeedManager, {useValue : new SeedManager()});
 
-		await this.loadModels(config.get('paths.models'));
+
+		await this.loadModels(app, config, config.get('FilesystemPaths').get('models'));
 	}
 
-	public async boot(app: App, config: ConfigRepository) {
+	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		// Initiate the connection to redis and prep the client for usage
-		new RedisClientInstance(config.get('database.redis'));
+		new RedisClientInstance(config.get('Database').get('redis'));
 	}
 
-	async loadModels(modulePath: string) {
+	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {
 		const modules = await FileLoader.importModulesFrom(
 			path.join(modulePath, '**', '*.ts')
 		);
-		const client  = resolve(MongoClient);
-		const dbName  = resolve(ConfigRepository).get<string>('database.mongo.name');
+		const client  = app.resolve(MongoClient);
+		const dbName  = config.get('Database').get('mongo').name;
 
 		for (let module of modules) {
 			const collection = client.db(dbName).collection<typeof module.instance>(
 				pluralize(module.name.toLowerCase())
 			);
 
-			app().container().register(module.name + 'Model', {
+			app.container().register(module.name + 'Model', {
 				useValue : collection
 			});
 		}

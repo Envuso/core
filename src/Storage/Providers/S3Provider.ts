@@ -157,6 +157,33 @@ export class S3Provider extends StorageProviderContract {
 	}
 
 	/**
+	 * Write a string into a file at the specified location
+	 *
+	 * @param {string} location
+	 * @param {string} contents
+	 * @return {Promise<UploadedFileInformation>}
+	 */
+	public write(location: string, contents: string): Promise<UploadedFileInformation> {
+		return new Promise((resolve, reject) => {
+			this.s3.putObject({
+				ACL    : "public-read",
+				Bucket : this._config.bucket,
+				Key    : location,
+				Body   : contents
+			}, (error) => {
+				if (error) {
+					return reject(error);
+				}
+				resolve(<UploadedFileInformation>{
+					url          : `${this._config.url}/${location}`,
+					path         : location,
+					originalName : location
+				});
+			});
+		});
+	}
+
+	/**
 	 * Create a new file and put the contents
 	 *
 	 * @param location

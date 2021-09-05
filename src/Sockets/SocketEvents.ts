@@ -1,4 +1,4 @@
-import {ChannelInformation} from "./SocketServer";
+import {ChannelInformation} from "../Contracts/Sockets/SocketServerContract";
 
 export enum SocketEvents {
 	SOCKET_PING                 = 'ping',

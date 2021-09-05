@@ -1,27 +1,29 @@
 import {App, resolve} from "./AppContainer";
 import {Log} from "./Common";
+import {EnvusoContract} from "./Contracts/EnvusoContract";
+import {ErrorHandlerFn} from "./Contracts/Server/ServerContract";
+import {HookContract} from "./Contracts/Server/ServerHooks/HookContract";
 import {BindRequestContextHook} from "./Server/InternalHooks/BindRequestContextHook";
-import {HandleErrorHook} from "./Server/InternalHooks/HandleErrorHook";
 import {InitiateRequestContextHook} from "./Server/InternalHooks/InitiateRequestContextHook";
 import {ProcessUploadedFilesHook} from "./Server/InternalHooks/ProcessUploadedFilesHook";
 import {SaveSessionHook} from "./Server/InternalHooks/SaveSessionHook";
 import {SetResponseCookiesHook} from "./Server/InternalHooks/SetResponseCookiesHook";
-import {ErrorHandlerFn, Server} from "./Server/Server";
+import {Server} from "./Server/Server";
 import {Hook} from "./Server/ServerHooks";
 
-export class Envuso {
+export class Envuso implements EnvusoContract {
 
-	private _app: App = null;
+	public _app: App = null;
 
-	private _server: Server = null;
+	public _server: Server = null;
 
-	private _serverHooks: (new () => Hook)[] = [];
+	public _serverHooks: (new () => HookContract)[] = [];
 
 	/**
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	async boot(config: object) {
+	public async boot(config: object) {
 		await this.initiateWithoutServing(config);
 	}
 
@@ -32,7 +34,7 @@ export class Envuso {
 	 * @param {object} config
 	 * @returns {Promise<void>}
 	 */
-	async initiateWithoutServing(config: object) {
+	public async initiateWithoutServing(config: object) {
 		await App.bootInstance({config : config});
 
 		await App.getInstance().loadServiceProviders();
@@ -45,8 +47,11 @@ export class Envuso {
 			ProcessUploadedFilesHook,
 			SetResponseCookiesHook,
 			SaveSessionHook,
-			HandleErrorHook
-		)
+			//HandleErrorHook
+		);
+
+		//		await FrameworkModuleMetaGenerator.generate();
+		//		await RouteMetaGenerator.generate();
 
 		Log.success('Envuso is booted!');
 	}
@@ -56,9 +61,9 @@ export class Envuso {
 	 *
 	 * @param {Hook} hooks
 	 */
-	registerServerHooks(...hooks : (new () => Hook)[]) {
+	public registerServerHooks(...hooks: (new () => HookContract)[]) {
 		for (let hook of hooks) {
-			if(this._serverHooks.includes(hook)) {
+			if (this._serverHooks.includes(hook)) {
 				continue;
 			}
 
@@ -72,7 +77,7 @@ export class Envuso {
 	 *
 	 * @param handler
 	 */
-	addExceptionHandler(handler: ErrorHandlerFn) {
+	public addExceptionHandler(handler: ErrorHandlerFn) {
 		this._server.setErrorHandling(handler);
 	}
 
@@ -80,7 +85,7 @@ export class Envuso {
 	 * This will initialise all of the server
 	 * Bind your custom exception handler and begin listening for connections.
 	 */
-	async serve() {
+	public async serve() {
 		this._server = resolve<Server>(Server);
 
 		await this._server.initialise();

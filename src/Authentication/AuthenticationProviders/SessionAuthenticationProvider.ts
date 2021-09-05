@@ -1,14 +1,14 @@
-import {Authenticatable} from "../../Common";
-import {Request} from "../../Routing";
+import {Authenticatable} from "../../Authenticatable";
+import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {AuthenticationProvider} from "../AuthenticationProvider";
 
 export class SessionAuthenticationProvider extends AuthenticationProvider {
 
-	public async authoriseRequest<T>(request: Request): Promise<Authenticatable<T>> {
+	public async authoriseRequest<T>(request: RequestContract): Promise<Authenticatable<T>> {
 		return Promise.resolve(undefined);
 	}
 
-	public getAuthenticationInformation<T>(request: Request) {
+	public getAuthenticationInformation<T>(request: RequestContract) {
 	}
 
 	public validateAuthenticationInformation<T>(credential: any) {

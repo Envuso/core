@@ -1,15 +1,13 @@
 import {Cursor, FilterQuery, FindOneOptions, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult, WithoutProjection} from "mongodb";
+import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
+import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
 import {ClassType, Ref} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
-import {Model} from "./Model";
+//import {Model} from "./Model";
 import {Paginator} from "./Paginator";
 
-interface CollectionOrder {
-	direction: 1 | -1,
-	key: string,
-}
-
-export class QueryBuilder<T> {
+export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 	/**
 	 * When we call any internal mongo methods to query a collection
@@ -17,15 +15,15 @@ export class QueryBuilder<T> {
 	 *
 	 * @private
 	 */
-	private _builderResult: Cursor<T>;
+	public _builderResult: Cursor<T>;
 
 	/**
 	 * An instance of the model to use for interaction
 	 *
-	 * @type {Model<T>}
+	 * @type {ModelContract<T>}
 	 * @private
 	 */
-	private _model: Model<T>;
+	public _model: ModelContract<T>;
 
 	/**
 	 * Handle filtering the collection
@@ -33,7 +31,7 @@ export class QueryBuilder<T> {
 	 * @type {object}
 	 * @private
 	 */
-	private _collectionFilter: object = null;
+	public _collectionFilter: object = null;
 
 	/**
 	 * Handle collection aggregations
@@ -42,7 +40,7 @@ export class QueryBuilder<T> {
 	 * @type {object[]}
 	 * @private
 	 */
-	private _collectionAggregation: object[] = [];
+	public _collectionAggregation: object[] = [];
 
 	/**
 	 * Allow for specifying ordering on the collection
@@ -50,7 +48,7 @@ export class QueryBuilder<T> {
 	 * @type {CollectionOrder | null}
 	 * @private
 	 */
-	private _collectionOrder: CollectionOrder | null = null;
+	public _collectionOrder: CollectionOrder | null = null;
 
 	/**
 	 * Limit the return size of the collection
@@ -58,9 +56,9 @@ export class QueryBuilder<T> {
 	 * @type {number}
 	 * @private
 	 */
-	private _limit: number = null;
+	public _limit: number = null;
 
-	constructor(model: Model<T>) {
+	constructor(model: ModelContract<T>) {
 		this._model = model;
 	}
 
@@ -69,21 +67,21 @@ export class QueryBuilder<T> {
 	 *
 	 * @param attributes
 	 */
-	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilder<T> {
+	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T> {
 		this._collectionFilter = {...this._collectionFilter, ...attributes};
 
 		return this;
 	}
 
 	public when<M>(
-		condition : boolean|(() => boolean),
+		condition: boolean | (() => boolean),
 		attributes: FilterQuery<M | T> | Partial<M | T>
-	): QueryBuilder<T> {
-		if(typeof condition === 'boolean' && !condition) {
+	): QueryBuilderContract<T> {
+		if (typeof condition === 'boolean' && !condition) {
 			return this;
 		}
 
-		if(typeof condition === 'function' && !condition()) {
+		if (typeof condition === 'function' && !condition()) {
 			return this;
 		}
 
@@ -95,7 +93,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @param refsToLoad
 	 */
-	public with(...refsToLoad: (keyof T)[]): QueryBuilder<T> {
+	public with(...refsToLoad: (keyof T)[]): QueryBuilderContract<T> {
 
 		const refs = Reflect.getMetadata('mongo:refs', this._model) || {};
 
@@ -109,7 +107,7 @@ export class QueryBuilder<T> {
 
 			this._collectionAggregation.push({
 				$lookup : {
-					from         : Model.formatNameForCollection(refInfo.modelName, true),
+					from         : refInfo.aggregationLookupModelName,//Model.formatNameForCollection(refInfo.modelName, true),
 					localField   : refInfo._id,
 					foreignField : '_id',
 					as           : ref
@@ -119,7 +117,7 @@ export class QueryBuilder<T> {
 			if (!refInfo.array) {
 				this._collectionAggregation.push({
 					$unwind : {
-						path                       : '$' + Model.formatNameForCollection(refInfo.modelName, refInfo.array),
+						path                       : '$' + refInfo.aggregationUnwindModelName,//Model.formatNameForCollection(refInfo.modelName, refInfo.array),
 						preserveNullAndEmptyArrays : true
 					}
 				});
@@ -136,7 +134,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @param key
 	 */
-	orderByDesc(key: keyof T | string): this {
+	public orderByDesc(key: keyof T | string): this {
 		this._collectionOrder = {
 			key       : String(key),
 			direction : -1
@@ -150,7 +148,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @param key
 	 */
-	orderByAsc(key: keyof T | string): this {
+	public orderByAsc(key: keyof T | string): this {
 		this._collectionOrder = {
 			key       : String(key),
 			direction : 1
@@ -162,7 +160,7 @@ export class QueryBuilder<T> {
 	/**
 	 * Get the first result in the mongo Cursor
 	 */
-	async first(): Promise<T> {
+	public async first(): Promise<T> {
 		await this.resolveFilter();
 
 		let result = await this._builderResult.limit(1).next();
@@ -183,7 +181,7 @@ export class QueryBuilder<T> {
 	/**
 	 * Get all items from the collection that match the query
 	 */
-	async get(): Promise<T[]> {
+	public async get(): Promise<T[]> {
 		const cursor = await this.resolveFilter();
 
 		const results = (await cursor.toArray()).map(
@@ -226,7 +224,7 @@ export class QueryBuilder<T> {
 	/**
 	 * Get an instance of the underlying mongo cursor
 	 */
-	async cursor(): Promise<Cursor<T>> {
+	public async cursor(): Promise<Cursor<T>> {
 		return this._builderResult;
 	}
 
@@ -247,7 +245,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @returns {Promise<boolean>}
 	 */
-	async delete(): Promise<boolean> {
+	public async delete(): Promise<boolean> {
 		const deleteOperation = await this._model
 			.collection()
 			.deleteMany(this._collectionFilter);
@@ -269,9 +267,9 @@ export class QueryBuilder<T> {
 	 * Paginate the results
 	 *
 	 * @param {number} limit
-	 * @returns {Paginator<{}>}
+	 * @returns {PaginatorContract<{}>}
 	 */
-	public async paginate(limit: number = 20): Promise<Paginator<T>> {
+	public async paginate(limit: number = 20): Promise<PaginatorContract<T>> {
 		this.limit(limit);
 
 		const paginator = new Paginator(
@@ -293,7 +291,7 @@ export class QueryBuilder<T> {
 	 *
 	 * @private
 	 */
-	private resolveFilter() {
+	public resolveFilter() {
 		const options = {} as WithoutProjection<FindOneOptions<T>>;
 
 		if (this._collectionOrder && this._collectionOrder?.direction) {
@@ -325,7 +323,7 @@ export class QueryBuilder<T> {
 		return this._builderResult;
 	}
 
-	get collectionFilter() {
+	public get collectionFilter() {
 		return this._collectionFilter;
 	}
 
@@ -334,7 +332,7 @@ export class QueryBuilder<T> {
 	 * up, just so that filters don't remain and cause unexpected issues
 	 * @private
 	 */
-	private cleanupBuilder() {
+	public cleanupBuilder() {
 		this._builderResult         = null;
 		this._collectionFilter      = null;
 		this._collectionAggregation = null;

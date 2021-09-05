@@ -70,6 +70,8 @@ export interface Ref {
 	_id: string;
 	array: boolean;
 	modelName: string;
+	aggregationLookupModelName: string;
+	aggregationUnwindModelName: string;
 }
 
 export interface ModelObjectId {

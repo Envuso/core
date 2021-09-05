@@ -1,13 +1,13 @@
 import {resolve} from "../../../AppContainer";
 import {UnauthorisedException} from "../../../AppContainer/Exceptions/UnauthorisedException";
-import {Auth, Authentication, JwtAuthenticationProvider} from "../../../Authentication";
-import {RequestContext} from "../../Context/RequestContext";
+import {Authentication, JwtAuthenticationProvider} from "../../../Authentication";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {Middleware} from "../Middleware";
 
 
 export class JwtAuthenticationMiddleware extends Middleware {
 
-	public async handle(context: RequestContext) {
+	public async handle(context: RequestContextContract) {
 
 		const authentication = resolve(Authentication);
 		const provider       = authentication.getAuthProvider(JwtAuthenticationProvider);

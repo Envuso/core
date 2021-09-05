@@ -1,10 +1,22 @@
 import {ConfigRepository, resolve} from "../../AppContainer";
-import {Authenticatable, Hash} from "../../Common";
-import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
-import {Model} from "../../Database";
+import {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
+import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
+import {ModelContractConstructor} from "../../Contracts/Database/Mongo/ModelContract";
+import {Hash} from "../../Crypt";
 import {UserProvider} from "./UserProvider";
 
-export class ModelUserProvider extends UserProvider {
+export class ModelUserProvider extends UserProvider implements UserProviderContract {
+
+	private getInstance<T>(): AuthenticatableContract<T> {
+		return resolve<AuthenticatableContract<T>>('Authenticatable');
+	}
+
+	private getUserModel<T>(): ModelContractConstructor<T> {
+		const userModelName: string = resolve(ConfigRepository).get('Auth').get('userModel');
+
+		return resolve(userModelName + 'Model');
+	}
 
 	/**
 	 * Get a user by id from mongodb
@@ -12,8 +24,10 @@ export class ModelUserProvider extends UserProvider {
 	 *
 	 * @param id
 	 */
-	public async getUser<T>(id: string): Promise<Authenticatable<T>> {
-		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
+	public async getUser<T>(id: string): Promise<AuthenticatableContract<T>> {
+		//		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
+
+		const userModel = this.getUserModel<T>();
 
 		const user: any = await userModel.find(id);
 
@@ -21,7 +35,7 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user) as Authenticatable<T>;
+		return this.getInstance<T>().setUser(user) as AuthenticatableContract<T>;
 	}
 
 	/**
@@ -30,31 +44,28 @@ export class ModelUserProvider extends UserProvider {
 	 *
 	 * @param identifier
 	 */
-	public async userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>> {
-		const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
+	public async userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<AuthenticatableContract<T>> {
+		//const userModel: typeof Model = resolve(ConfigRepository).get<typeof Model>('auth.userModel');
 
-		const primaryIdentifier = resolve(ConfigRepository)
-			.get<AuthenticationIdentifier>(
-				'auth.primaryIdentifier'
-			);
+		const userModel = this.getUserModel<T>();
 
-		const filter              = {} as Partial<AuthCredentialContract>;
+		const primaryIdentifier = resolve(ConfigRepository).get('Auth').get('primaryIdentifier');
+
+		const filter              = {};
 		filter[primaryIdentifier] = identifier;
 
-		const user: any = await userModel.where<Model<any>>(filter as any).first();
+		const user: any = await userModel.where(filter as any).first();
 
 		if (!user?._id) {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user) as Authenticatable<T>;
+		return this.getInstance<T>().setUser(user) as AuthenticatableContract<T>;
 
 	}
 
-	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<Authenticatable<T>> {
-		const primaryIdentifier = resolve(ConfigRepository).get<string>(
-			'auth.primaryIdentifier'
-		);
+	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<AuthenticatableContract<T>> {
+		const primaryIdentifier = resolve(ConfigRepository).get('Auth').get('primaryIdentifier');
 
 		let user = await this.userForIdentifier(
 			credentials[primaryIdentifier] as AuthenticationIdentifier
@@ -64,7 +75,7 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-//		user = user.getUser();
+		//		user = user.getUser();
 
 		// Ts ignore until we find a nicer solution for shared structure
 		//@ts-ignore
@@ -73,7 +84,7 @@ export class ModelUserProvider extends UserProvider {
 			return null;
 		}
 
-		return user as Authenticatable<T>;
+		return user as AuthenticatableContract<T>;
 	}
 
 }

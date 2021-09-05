@@ -1,4 +1,4 @@
-import {RequestContext} from "../../Routing";
+import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, OnResponseHook} from "../ServerHooks";
 
 /**
@@ -12,7 +12,7 @@ export class SaveSessionHook extends OnResponseHook {
 			return;
 		}
 
-		if (!RequestContext.isUsingSession()){
+		if (!RequestContext.isUsingSession()) {
 			return;
 		}
 

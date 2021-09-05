@@ -1,41 +1,42 @@
 import {resolve} from "../AppContainer";
 import {Classes, Log} from "../Common";
-import {EventDispatcher} from "./EventDispatcher";
-import {EventListener} from "./EventListener";
+import {EventDispatcherContract} from "../Contracts/Events/EventDispatcherContract";
+import {EventListenerContract} from "../Contracts/Events/EventListenerContract";
+import {EventManagerContract} from "../Contracts/Events/EventManagerContract";
 
-type EventModule<T> = {
+export type EventModule<T> = {
 	name: string;
 	instance: new () => T;
 }
 
-type EventMap = {
+export type EventMap = {
 	[key: string]: {
 		eventName: string,
 		listeners: EventListenerConstructor[]
 	}
 }
 
-export type EventListenerConstructor = (new (...args: any[]) => EventListener)
-export type EventDispatcherConstructor = (new (...args: any[]) => EventDispatcher)
-export type DispatchEventName = (new (...args: any[]) => EventDispatcher) | string;
+export type EventListenerConstructor = (new (...args: any[]) => EventListenerContract)
+export type EventDispatcherConstructor = (new (...args: any[]) => EventDispatcherContract)
+export type DispatchEventName = (new (...args: any[]) => EventDispatcherContract) | string;
 
-export class EventManager {
+export class EventManager implements EventManagerContract {
 
-	private prepared: boolean = false;
+	public prepared: boolean = false;
 
 	constructor(
-		public dispatchers: EventModule<EventDispatcher>[],
-		public listeners: EventModule<EventListener>[],
+		public dispatchers: EventModule<EventDispatcherContract>[],
+		public listeners: EventModule<EventListenerContract>[],
 	) {}
 
-	private eventMap: EventMap = {};
+	public eventMap: EventMap = {};
 
 	/**
 	 * Should not be called by developer
 	 *
 	 * This is used internally to register all of our dispatchers->listeners
 	 */
-	prepare(): void {
+	public prepare(): void {
 		if (this.prepared) return;
 
 		for (let dispatcher of this.dispatchers) {
@@ -61,10 +62,10 @@ export class EventManager {
 	 *
 	 * This method should only be used if you want to hook into framework events or have some custom logic.
 	 *
-	 * @param {{new(): EventDispatcher} | string} eventNameOrDispatcher
+	 * @param {{new(): EventDispatcherContract} | string} eventNameOrDispatcher
 	 * @param {EventListenerConstructor} listener
 	 */
-	registerListener(eventNameOrDispatcher: (new () => EventDispatcher) | string, listener: EventListenerConstructor) {
+	public registerListener(eventNameOrDispatcher: (new () => EventDispatcherContract) | string, listener: EventListenerConstructor) {
 		let eventName: string = '';
 
 		if (typeof eventNameOrDispatcher !== 'string') {
@@ -101,7 +102,7 @@ export class EventManager {
 	 * @param {any[]} args
 	 * @return {Promise<void>}
 	 */
-	async dispatch(dispatcher: DispatchEventName, args: any[]): Promise<void> {
+	public async dispatch(dispatcher: DispatchEventName, args: any[]): Promise<void> {
 		const dispatcherName = typeof dispatcher === 'string'
 			? dispatcher
 			: Classes.getConstructor(dispatcher).name;

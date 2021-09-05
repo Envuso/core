@@ -1,9 +1,10 @@
 import {resolve} from "../AppContainer";
-import {Authenticatable} from "../Common";
-import {AuthCredentialContract} from "../Config/Auth";
+import {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";
+import {AuthCredentialContract} from "../Contracts/Authentication/UserProvider/AuthCredentials";
+import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {UserProviderContract} from "../Contracts/Authentication/UserProvider/UserProviderContract";
 import {Authentication} from "./Authentication";
 import {AuthenticationProvider} from "./AuthenticationProvider";
-import {UserProvider} from "./UserProvider/UserProvider";
 
 /**
  * This class is kind of like a proxy for accessing Authentication without
@@ -34,9 +35,9 @@ export class Auth {
 	/**
 	 * Authenticate as x user
 	 *
-	 * @param {Authenticatable<T>} user
+	 * @param {AuthenticatableContract<T>} user
 	 */
-	public static authoriseAs<T>(user: Authenticatable<T>) {
+	public static authoriseAs<T>(user: AuthenticatableContract<T>) {
 		return resolve(Authentication).authoriseAs(user);
 	}
 
@@ -46,7 +47,7 @@ export class Auth {
 	 * @returns {T}
 	 */
 	public static user<T>(): T {
-		return resolve(Authentication).user().getUser<T>();
+		return resolve(Authentication).user<T>().getUser();
 	}
 
 	/**
@@ -54,19 +55,19 @@ export class Auth {
 	 *
 	 * @returns {string|null}
 	 */
-	public static id() : string|null {
+	public static id(): string | null {
 		const user = resolve(Authentication).user().getUser() as any;
 
 		return user?._id.toHexString() ?? null;
 	}
 
 	public static getAuthProvider<T extends AuthenticationProvider>(
-		providerType: new (userProvider: UserProvider) => AuthenticationProvider
+		providerType: new (userProvider: UserProviderContract) => AuthenticationProviderContract
 	): T {
 		return resolve(Authentication).getAuthProvider(providerType) as T;
 	}
 
-	public static getUserProvider(): UserProvider {
+	public static getUserProvider(): UserProviderContract {
 		return resolve(Authentication).getUserProvider();
 	}
 

@@ -1,10 +1,11 @@
 import {FilterQuery, ObjectId} from "mongodb";
-import {RequestContext} from "../../Routing";
-import {Model} from "./Model";
+import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
+import {RequestContextStore} from "../../Routing/Context/RequestContextStore";
 
-type PageCursor = 'after' | 'before';
+export type PageCursor = 'after' | 'before';
 
-interface PaginatedResponse<T> {
+export interface PaginatedResponse<T> {
 	data: T[];
 	pagination: {
 		before: string;
@@ -16,16 +17,16 @@ interface PaginatedResponse<T> {
 	}
 }
 
-export class Paginator<T> {
+export class Paginator<T> implements PaginatorContract<T> {
 
-	private _response: PaginatedResponse<T> = null;
-	private _beforeCursor: string           = null;
-	private _afterCursor: string            = null;
+	public _response: PaginatedResponse<T> = null;
+	public _beforeCursor: string = null;
+	public _afterCursor: string = null;
 
 	constructor(
-		private model: Model<T>,
-		private query: FilterQuery<T> | Partial<T>,
-		private limit: number
+		public model: ModelContract<T>,
+		public query: FilterQuery<T> | Partial<T>,
+		public limit: number
 	) {}
 
 	/**
@@ -33,7 +34,7 @@ export class Paginator<T> {
 	 *
 	 * @returns {Promise<Paginator<T>>}
 	 */
-	async getResults(): Promise<this> {
+	public async getResults(): Promise<this> {
 		this.setPageCursors();
 
 		this.mergeQuery(this.setupQuery());
@@ -79,9 +80,11 @@ export class Paginator<T> {
 	 * Attempt to get the before/after cursors specified on the request
 	 * We'll then store them on the class
 	 */
-	private setPageCursors() {
-		this._afterCursor  = RequestContext.request().get<string>('after') ?? null;
-		this._beforeCursor = RequestContext.request().get<string>('before') ?? null;
+	public setPageCursors() {
+		const ctx = RequestContextStore.getInstance();
+
+		this._afterCursor  = ctx.context().request.get<string>('after') ?? null;
+		this._beforeCursor = ctx.context().request.get<string>('before') ?? null;
 	}
 
 	/**
@@ -89,7 +92,7 @@ export class Paginator<T> {
 	 *
 	 * @returns {string | null}
 	 */
-	getBeforeCursor(): string | null {
+	public getBeforeCursor(): string | null {
 		return this._beforeCursor;
 	}
 
@@ -98,7 +101,7 @@ export class Paginator<T> {
 	 *
 	 * @returns {string | null}
 	 */
-	getAfterCursor(): string | null {
+	public getAfterCursor(): string | null {
 		return this._afterCursor;
 	}
 
@@ -109,7 +112,7 @@ export class Paginator<T> {
 	 * @returns {null | {_id: {}}}
 	 * @private
 	 */
-	private setupQuery(): FilterQuery<T> | Partial<T> {
+	public setupQuery(): FilterQuery<T> | Partial<T> {
 		let query = {
 			'_id' : {}
 		};
@@ -137,7 +140,7 @@ export class Paginator<T> {
 	 *
 	 * @param query
 	 */
-	private mergeQuery(query: any): void {
+	public mergeQuery(query: any): void {
 		if (this.query === null) {
 			this.query = {};
 		}
@@ -159,11 +162,11 @@ export class Paginator<T> {
 	 *
 	 * @returns {PaginatedResponse<T>}
 	 */
-	getResponse(): PaginatedResponse<T> {
+	public getResponse(): PaginatedResponse<T> {
 		return this._response;
 	}
 
-	toJSON(): PaginatedResponse<T> {
+	public toJSON(): PaginatedResponse<T> {
 		return this._response;
 	}
 

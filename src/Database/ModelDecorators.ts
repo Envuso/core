@@ -72,9 +72,11 @@ export function ref(modelReference: ClassType<any>) {
 		Reflect.defineMetadata('design:type', (isArray ? Array : ObjectId), target, refId);
 
 		const refInfo = {
-			_id       : refId,
-			array     : isArray,
-			modelName : modelReference.name
+			_id                  : refId,
+			array                : isArray,
+			modelName            : modelReference.name,
+			aggregationLookupModelName : String(pluralize(modelReference.name, 2)).toLowerCase(),
+			aggregationUnwindModelName : String(pluralize(modelReference.name, isArray ? 2 : 1)).toLowerCase(),
 		};
 		addRef(propertyKey, refInfo, target);
 
@@ -144,7 +146,7 @@ export function policy(policy: ClassType<any>) {
 	return function (constructor: Function) {
 		Reflect.defineMetadata('authorization-policy', policy, constructor);
 
-		if(constructor.prototype.constructor.name !== 'Model') {
+		if (constructor.prototype.constructor.name !== 'Model') {
 			Reflect.defineMetadata('authorization-policy', policy, constructor.prototype);
 		}
 

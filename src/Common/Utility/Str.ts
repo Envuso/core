@@ -1,4 +1,6 @@
+import pluralize, {isPlural, isSingular, plural, singular} from "pluralize";
 import Obj from "./Obj";
+
 
 export class Str {
 
@@ -46,5 +48,71 @@ export class Str {
 	static isEmpty(value: any): boolean {
 		return (Obj.isNullOrUndefined(value) || String(value).trim().length === 0);
 	}
-
 }
+
+declare global {
+	interface StringConstructor {
+		random(length?: number): string;
+	}
+
+	interface String {
+		isEmpty(): boolean;
+
+		contains(values: string[]): boolean;
+
+		capitalize(): this;
+
+		remove(subStr: string): this;
+
+		plural(): this;
+
+		isPlural(): boolean;
+
+		isSingular(): boolean;
+
+		singular(): this;
+
+	}
+}
+
+String.random = function (length: number = 10): string {
+	return Str.random(length);
+};
+
+String.prototype.isEmpty = function (): boolean {
+	return Str.isEmpty(this);
+};
+
+String.prototype.contains = function (values: string[]) {
+	for (let value of values) {
+		if (!this.includes(value)) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+String.prototype.capitalize = function () {
+	return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+String.prototype.remove = function (subStr: string) {
+	return this.replace(subStr, '');
+};
+
+String.prototype.plural = function () {
+	return plural(this);
+};
+
+String.prototype.isPlural = function (): boolean {
+	return isPlural(this);
+};
+
+String.prototype.isSingular = function (): boolean {
+	return isSingular(this);
+};
+
+String.prototype.singular = function () {
+	return singular(this);
+};

@@ -1,8 +1,8 @@
-import {Middleware} from "Routing";
+import {Middleware} from "../../../Routing";
 import {injectable} from "tsyringe";
-import {Authentication} from "../../../Authentication";
 import {Log} from "../../../Common";
-import {SocketConnection} from "../../../Sockets/SocketConnection";
+import {AuthenticationContract} from "../../../Contracts/Authentication/AuthenticationContract";
+import {SocketConnectionContract} from "../../../Contracts/Sockets/SocketConnectionContract";
 import {SocketChannelListener} from "../../../Sockets/SocketChannelListener";
 import {SocketPacket} from "../../../Sockets/SocketPacket";
 import {User} from "../../Models/User";
@@ -10,24 +10,26 @@ import {User} from "../../Models/User";
 @injectable()
 export class UserSocketListener extends SocketChannelListener {
 
-	constructor(private auth?: Authentication) {
+	constructor(private auth?: AuthenticationContract) {
 		super();
+
 	}
 
-	middlewares(): Middleware[] {
+	public middlewares(): Middleware[] {
 		return [];
 	}
 
-	channelName(): string {
+	public channelName(): string {
 		return "user:*";
 	}
 
-	async isAuthorised(connection: SocketConnection, user: User): Promise<boolean> {
+	public async isAuthorised(connection: SocketConnectionContract, user: User): Promise<boolean> {
 		return this.channelInfo.wildcardValue === user._id.toString();
 	}
 
-	async hello(connection: SocketConnection, user: User, packet: SocketPacket): Promise<any> {
+	async hello(connection: SocketConnectionContract, user: User, packet: SocketPacket): Promise<any> {
 		Log.success('GREAT SUCCESS HIGH FIVE');
+
 
 		connection.send('hello', {message : 'Fuck yeah from ' + user._id});
 	}

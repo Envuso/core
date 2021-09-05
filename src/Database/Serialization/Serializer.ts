@@ -1,6 +1,6 @@
 import {classToPlain, plainToClass} from "class-transformer";
 import {ObjectId} from 'mongodb';
-import {Log, Obj} from "../../Common";
+import {Log} from "../../Common";
 import {ClassType, ModelObjectId, Ref} from "../index";
 
 export function dehydrateModel<T>(entity: T): Object {

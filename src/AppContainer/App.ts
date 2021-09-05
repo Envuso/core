@@ -5,6 +5,8 @@ import {container} from "tsyringe";
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import constructor from "tsyringe/dist/typings/types/constructor";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {ConfigRepository} from "./Config/ConfigRepository";
 import {FailedToBindException} from "./Exceptions/FailedToBindException";
 import {ServiceProvider} from "./ServiceProvider";
@@ -16,7 +18,7 @@ interface BaseConfiguration {
 	//	paths: { [key: string]: string };
 }
 
-export class App {
+export class App implements AppContract {
 
 	/**
 	 * The base container instance
@@ -95,7 +97,7 @@ export class App {
 	 *               | container, by default it will use constructor.name
 	 *               | This does not apply to classes that extend ServiceProvider
 	 */
-	bind(binder: (app: App, config: ConfigRepository) => any, bindAs?: string) {
+	bind(binder: (app?: AppContract, config?: ConfigRepositoryContract) => any, bindAs?: string) {
 		const result = binder(this, this.resolve(ConfigRepository));
 
 		if (!result?.constructor) {
@@ -128,7 +130,7 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolve<T>(key: InjectionToken<T>) {
+	resolve<T>(key: InjectionToken<T>): T {
 		return this.container().resolve<T>(key);
 	}
 
@@ -137,7 +139,7 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolveAll<T>(key: InjectionToken<T>) {
+	resolveAll<T>(key: InjectionToken<T>): T[] {
 		return this.container().resolveAll<T>(key);
 	}
 
@@ -152,24 +154,26 @@ export class App {
 
 		const configRepository = this._container.resolve(ConfigRepository);
 
-		const cwd   = process.cwd();
-		const paths = {
-			root             : cwd,
-			src              : path.join(cwd, 'src'),
-			config           : path.join(cwd, 'Config', 'index.js'),
-			controllers      : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
-			socketListeners  : path.join(cwd, 'src', 'App', 'Http', 'Sockets'),
-			eventDispatchers : path.join(cwd, 'src', 'App', 'Events', 'Dispatchers'),
-			eventListeners   : path.join(cwd, 'src', 'App', 'Events', 'Listeners'),
-			providers        : path.join(cwd, 'src', 'App', 'Providers'),
-			models           : path.join(cwd, 'src', 'App', 'Models'),
-			storage          : path.join(cwd, 'storage'),
-			temp             : path.join(cwd, 'storage', 'temp'),
-		};
+		//		const cwd   = process.cwd();
+		//		const paths = {
+		//			root             : cwd,
+		//			src              : path.join(cwd, 'src'),
+		//			config           : path.join(cwd, 'Config', 'index.js'),
+		//			controllers      : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
+		//			socketListeners  : path.join(cwd, 'src', 'App', 'Http', 'Sockets'),
+		//			eventDispatchers : path.join(cwd, 'src', 'App', 'Events', 'Dispatchers'),
+		//			eventListeners   : path.join(cwd, 'src', 'App', 'Events', 'Listeners'),
+		//			providers        : path.join(cwd, 'src', 'App', 'Providers'),
+		//			models           : path.join(cwd, 'src', 'App', 'Models'),
+		//			storage          : path.join(cwd, 'storage'),
+		//			temp             : path.join(cwd, 'storage', 'temp'),
+		//			views            : path.join(cwd, 'src', 'Resources', 'Views'),
+		//			assets           : path.join(cwd, 'src', 'Resources', 'Assets'),
+		//		};
 
-		await configRepository.loadConfigFrom(this._baseConfiguration.config);
+		configRepository.loadConfigFrom(this._baseConfiguration.config);
 
-		configRepository.set('paths', paths);
+		//		configRepository.set('paths', paths);
 	}
 
 	/**
@@ -177,21 +181,20 @@ export class App {
 	 */
 	async loadServiceProviders() {
 		type Provider = (constructor<ServiceProvider>)
+		const configRepository = this.resolve(ConfigRepository);
 
-		const providers = this.resolve(ConfigRepository).get<Array<Provider>>('app.providers');
+		const appConfig = configRepository.file("App");
 
-		if (!providers) {
+		if (!appConfig) {
 			throw new Error('No service providers found.');
 		}
 
-		for (let providerClass of providers) {
+		for (let providerClass of appConfig.providers) {
 			const provider = new providerClass();
 
 			this.bind(() => provider);
 
-			await provider.register(
-				this, this.resolve(ConfigRepository)
-			);
+			await provider.register(this, this.resolve(ConfigRepository));
 
 			Log.info('Provider registered: ' + provider.constructor.name);
 		}
@@ -200,9 +203,7 @@ export class App {
 
 		for (let provider of serviceProviders) {
 
-			await provider.boot(
-				this, this.resolve(ConfigRepository)
-			);
+			await provider.boot(this, this.resolve(ConfigRepository));
 
 			Log.info('Service provider booted: ' + provider.constructor.name);
 		}

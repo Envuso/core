@@ -1,9 +1,11 @@
 import {resolve} from "../AppContainer";
 import {Classes} from "../Common";
+import {EventDispatcherContract} from "../Contracts/Events/EventDispatcherContract";
+import {EventListenerContract} from "../Contracts/Events/EventListenerContract";
 import {EventListener} from "./EventListener";
 import {EventManager} from "./EventManager";
 
-export abstract class EventDispatcher {
+export abstract class EventDispatcher implements EventDispatcherContract {
 
 	/**
 	 * Trigger all of the event listeners
@@ -25,6 +27,6 @@ export abstract class EventDispatcher {
 	 *
 	 * @return {{new(): EventListener}[]}
 	 */
-	public abstract triggers(): (new (...args: any[]) => EventListener)[];
+	public abstract triggers(): (new (...args: any[]) => EventListenerContract)[];
 
 }

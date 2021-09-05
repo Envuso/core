@@ -1,14 +1,16 @@
+import {config, resolve} from "../../AppContainer";
 import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
-import {config, resolve} from "../../AppContainer";
+import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
+import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
 import {convertEntityObjectIds, dehydrateModel, getModelObjectIds, hydrateModel} from "../Serialization/Serializer";
-import {Paginator} from "./Paginator";
 import {QueryBuilder} from "./QueryBuilder";
 
 
-export class Model<M> {
+export class Model<M> implements ModelContract<M> {
 
 	/**
 	 * We'll store the result of the recent mongo request if there
@@ -16,10 +18,10 @@ export class Model<M> {
 	 * generic true/false types of responses for some operations.
 	 */
 	@Exclude()
-	private _recentMongoResponse: any = null;
+	public _recentMongoResponse: any = null;
 
 	@Exclude()
-	private readonly _queryBuilder: QueryBuilder<M>;
+	public readonly _queryBuilder: QueryBuilder<M>;
 
 	constructor() {
 		this._queryBuilder = new QueryBuilder<M>(this);
@@ -28,7 +30,7 @@ export class Model<M> {
 	/**
 	 * Access the underlying mongo collection for this model
 	 */
-	collection(): Collection<M> {
+	public collection(): Collection<M> {
 		return resolve<Collection<M>>(this.constructor.name + 'Model');
 	}
 
@@ -42,7 +44,7 @@ export class Model<M> {
 	/**
 	 * Get the query builder instance
 	 */
-	queryBuilder(): QueryBuilder<M> {
+	public queryBuilder(): QueryBuilderContract<M> {
 		return this._queryBuilder;
 	}
 
@@ -59,15 +61,21 @@ export class Model<M> {
 	static where<T extends Model<any>>(
 		this: new() => T,
 		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilder<T> {
+	): QueryBuilderContract<T> {
 		return new this().queryBuilder().where<T>(attributes);
+	}
+
+	static query<T extends Model<any>>(
+		this: new() => T,
+	): QueryBuilderContract<T> {
+		return new this().queryBuilder();
 	}
 
 	static when<T extends Model<any>>(
 		this: new() => T,
 		condition: boolean | (() => boolean),
 		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilder<T> {
+	): QueryBuilderContract<T> {
 		if (typeof condition === 'boolean' && !condition) {
 			return new this().queryBuilder();
 		}
@@ -121,7 +129,7 @@ export class Model<M> {
 	public static paginate<T extends Model<any>>(
 		this: new() => T,
 		limit: number = 20
-	): Promise<Paginator<T>> {
+	): Promise<PaginatorContract<T>> {
 		return new this().queryBuilder().paginate(limit);
 	}
 
@@ -134,7 +142,7 @@ export class Model<M> {
 	static with<T extends Model<any>>(
 		this: new() => T,
 		...refs: (keyof T)[]
-	): QueryBuilder<T> {
+	): QueryBuilderContract<T> {
 		return new this().queryBuilder().with(...refs);
 	}
 
@@ -169,7 +177,7 @@ export class Model<M> {
 	static orderByDesc<T extends Model<any>>(
 		this: new() => T,
 		key: keyof T
-	): QueryBuilder<T> {
+	): QueryBuilderContract<T> {
 		return new QueryBuilder<T>(new this()).orderByDesc(key);
 	}
 
@@ -182,7 +190,7 @@ export class Model<M> {
 	static orderByAsc<T extends Model<any>>(
 		this: new() => T,
 		key: keyof T
-	): QueryBuilder<T> {
+	): QueryBuilderContract<T> {
 		return new QueryBuilder<T>(new this()).orderByAsc(key);
 	}
 
@@ -228,7 +236,7 @@ export class Model<M> {
 	 * @param attributes
 	 * @param options
 	 */
-	async update(
+	public async update(
 		attributes: UpdateQuery<M> | Partial<M>,
 		options: ReplaceOneOptions = {}
 	): Promise<M> {
@@ -299,7 +307,7 @@ export class Model<M> {
 	 *
 	 * @return this
 	 */
-	async save(): Promise<this> {
+	public async save(): Promise<this> {
 		//If the model hasn't been persisted to the db yet... we'll
 		//dehydrate it, insert it to the db, then add the id to the model
 		if (this.isFresh()) {
@@ -327,7 +335,7 @@ export class Model<M> {
 	 * Has this model been persisted to the database yet?
 	 * @returns {boolean}
 	 */
-	isFresh(): boolean {
+	public isFresh(): boolean {
 		return this.getModelId() === undefined;
 	}
 
@@ -336,14 +344,14 @@ export class Model<M> {
 	 *
 	 * @returns {ObjectId}
 	 */
-	getModelId(): ObjectId {
+	public getModelId(): ObjectId {
 		return (this as any)?._id;
 	}
 
 	/**
 	 * Get all the properties from the database for this model
 	 */
-	async refresh(): Promise<this> {
+	public async refresh(): Promise<this> {
 		const newVersion = await this.queryBuilder()
 			.where({_id : (this as any)._id})
 			.first();
@@ -357,7 +365,7 @@ export class Model<M> {
 	/**
 	 * Delete the current model instance from the collection
 	 */
-	async delete(): Promise<boolean> {
+	public async delete(): Promise<boolean> {
 		const response = await this.collection().deleteOne({_id : (this as any)._id});
 
 		return !!response.result.ok;
@@ -387,8 +395,8 @@ export class Model<M> {
 	 * response, we'll make sure to use classToPlain so
 	 * that any @Exclude() properties etc are taken care of.
 	 */
-	toJSON() {
-		const options = config('server.responseSerialization') as ClassTransformOptions;
+	public toJSON() {
+		const options = config('Server').responseSerialization as ClassTransformOptions;
 
 		return classToPlainFromExist(
 			this,
@@ -397,7 +405,7 @@ export class Model<M> {
 		);
 	}
 
-	getMongoAtomicOperators() {
+	public getMongoAtomicOperators() {
 		return [
 			"$currentDate",
 			"$inc",

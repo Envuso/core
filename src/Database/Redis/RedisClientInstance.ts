@@ -1,6 +1,6 @@
 import redis, {RedisClient} from "redis";
 import {Log} from "../../Common";
-import {RedisConnectionConfiguration} from "../../Config/Database";
+import {RedisConnectionConfiguration} from "../../Contracts/Configuration/DatabaseConfigurationContracts";
 import {Redis} from "./Redis";
 
 let instance = null;
@@ -37,8 +37,6 @@ export class RedisClientInstance {
 		}
 
 		this._client = redis.createClient(this._config);
-
-		Log.info('Redis is: '+(this._client.connected ? 'Connected': 'Disconnected'));
 
 		this._client.on("error", (error) => {
 			Log.exception('Redis Error: ', error);

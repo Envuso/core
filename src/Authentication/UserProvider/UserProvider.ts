@@ -1,11 +1,11 @@
-import {Authenticatable} from "../../Common";
-import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
+import {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
+import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 
-export abstract class UserProvider {
+export abstract class UserProvider implements UserProviderContract {
+	public abstract getUser<T>(id: string): Promise<AuthenticatableContract<T>>;
 
-	abstract getUser<T>(id: string): Promise<Authenticatable<T>>;
+	public abstract userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<AuthenticatableContract<T>>
 
-	abstract userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>>
-
-	abstract verifyLoginCredentials<T>(credentials: AuthCredentialContract) : Promise<Authenticatable<T>>;
+	public abstract verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<AuthenticatableContract<T>>;
 }

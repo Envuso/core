@@ -3,25 +3,30 @@ import querystring from "querystring";
 import WebSocket from "ws";
 import {config, resolve} from "../AppContainer";
 import {Auth} from "../Authentication";
-import {Authenticatable, Log, Str} from "../Common";
-import {Middleware, RequestContext} from "../Routing";
-import {parseSocketChannelName, SocketEvents} from "./SocketEvents";
+import {Classes, Log, Str} from "../Common";
+import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
+import {SocketChannelListenerContract, SocketChannelListenerContractConstructor} from "../Contracts/Sockets/SocketChannelListenerContract";
+import {SocketConnectionContract} from "../Contracts/Sockets/SocketConnectionContract";
+import {SocketListenerContract} from "../Contracts/Sockets/SocketListenerContract";
+import {SocketPacketContract} from "../Contracts/Sockets/SocketPacketContract";
+import {ChannelInformation} from "../Contracts/Sockets/SocketServerContract";
+import {RequestContext} from "../Routing/Context/RequestContext";
 import {SocketChannelListener} from "./SocketChannelListener";
-import {SocketListener} from "./SocketListener";
+import {parseSocketChannelName, SocketEvents} from "./SocketEvents";
 import {SocketPacket} from "./SocketPacket";
-import {ChannelInformation} from "./SocketServer";
 
 
-export class SocketConnection {
-	private socket: WebSocket;
-	private request: IncomingMessage;
-	private token: string;
+export class SocketConnection implements SocketConnectionContract {
+	public socket: WebSocket;
+	public request: IncomingMessage;
+	public token: string;
 
 	public id: string;
 	public userId: string;
-	public user: Authenticatable<any>;
+	public user: AuthenticatableContract<any>;
 
-	private isConnected: boolean;
+	public isConnected: boolean;
 
 	/**
 	 * The callback for the server so we can remove the connection
@@ -29,9 +34,9 @@ export class SocketConnection {
 	 * @type {Function}
 	 * @private
 	 */
-	private _onDisconnectCallback: Function;
+	public _onDisconnectCallback: Function;
 
-	private _subscribedChannels: Map<string, SocketChannelListener> = new Map();
+	public _subscribedChannels: Map<string, SocketChannelListenerContract> = new Map();
 
 	constructor(socket: WebSocket, request: IncomingMessage) {
 		this.id          = Str.uniqueRandom(20);
@@ -98,7 +103,7 @@ export class SocketConnection {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	private async _onMessage(data) {
+	public async _onMessage(data) {
 
 		const packet = SocketPacket.createFromReceived(data);
 
@@ -111,14 +116,14 @@ export class SocketConnection {
 		await this._onEventMessage(packet);
 	}
 
-	private async _onEventMessage(packet: SocketPacket) {
+	public async _onEventMessage(packet: SocketPacketContract) {
 		const channelInformation: ChannelInformation = {
 			channelName           : packet.getEvent(),
 			containerListenerName : 'ws:listener:' + packet.getEvent(),
 			wildcardValue         : null,
 		};
 
-		const listener = resolve<SocketListener>(channelInformation.containerListenerName);
+		const listener = resolve<SocketListenerContract>(channelInformation.containerListenerName);
 
 		if (!listener) {
 			Log.warn('Received socket event: ' + channelInformation.channelName + '... but no event listener is defined for this event.');
@@ -129,10 +134,10 @@ export class SocketConnection {
 		await listener.handle(this, this.user, packet);
 	}
 
-	private async _onChannelMessage(packet: SocketPacket) {
+	public async _onChannelMessage(packet: SocketPacketContract) {
 		const channelInformation = parseSocketChannelName(packet.getChannel());
 
-		const listener = resolve<SocketChannelListener>(channelInformation.containerListenerName);
+		const listener = resolve<SocketChannelListenerContract>(channelInformation.containerListenerName);
 
 		if (!this.hasSubscription(listener)) {
 			Log.warn("Someone sent a message to a channel that they're not subscribed to...", channelInformation);
@@ -159,7 +164,7 @@ export class SocketConnection {
 	 * @param data
 	 * @private
 	 */
-	private _onPong(data) {
+	public _onPong(data) {
 		Log.info(`Socket pong from: ${this.id} userId: ${this.userId}`);
 
 		this.isConnected = true;
@@ -173,7 +178,7 @@ export class SocketConnection {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	private async _onClose(code, reason) {
+	public async _onClose(code, reason) {
 		this.disconnect(reason);
 		Log.info('Socket closed...', {code, reason});
 	}
@@ -191,10 +196,10 @@ export class SocketConnection {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	private async _onChannelSubscribeRequest({channel}) {
+	public async _onChannelSubscribeRequest({channel}) {
 		const channelInfo = parseSocketChannelName(channel);
 
-		const listener = resolve<SocketChannelListener>(channelInfo.containerListenerName);
+		const listener = resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
 		if (!listener) {
 			console.error('Listener not found.... ', channelInfo);
@@ -225,10 +230,10 @@ export class SocketConnection {
 	 * @returns {Promise<void>}
 	 * @private
 	 */
-	private async _onChannelUnsubscribeRequest({channel}) {
+	public async _onChannelUnsubscribeRequest({channel}) {
 		const channelInfo = parseSocketChannelName(channel);
 
-		const listener = resolve<SocketChannelListener>(channelInfo.containerListenerName);
+		const listener = resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
 		if (!listener) {
 			console.error('Listener not found.... ', channelInfo);
@@ -271,7 +276,7 @@ export class SocketConnection {
 	 * @returns {Middleware[]}
 	 */
 	public getGlobalSocketMiddlewares() {
-		const middlewares = config<(new () => Middleware)[]>('websockets.middleware');
+		const middlewares = config('Websockets').middleware;
 
 		return middlewares.map(m => new m());
 	}
@@ -314,7 +319,7 @@ export class SocketConnection {
 	 *
 	 * @param {T} packet
 	 */
-	public sendPacket<T extends SocketPacket>(packet: T) {
+	public sendPacket<T extends SocketPacketContract>(packet: T) {
 		this.socket.send(packet.response());
 	}
 
@@ -324,7 +329,7 @@ export class SocketConnection {
 	 * @param {SocketEvents} event
 	 * @param data
 	 */
-	public send<T>(event: SocketEvents | string, data: T|any = {}) {
+	public send<T>(event: SocketEvents | string, data: T | any = {}) {
 		this.socket.send(
 			SocketPacket.create(event, data).response()
 		);
@@ -337,7 +342,7 @@ export class SocketConnection {
 	 * @param {SocketEvents | string} event
 	 * @param data
 	 */
-	public sendToChannel<T>(channel: string, event: SocketEvents | string, data: T|any) {
+	public sendToChannel<T>(channel: string, event: SocketEvents | string, data: T | any) {
 		this.socket.send(
 			SocketPacket.createForChannel(channel, event, data).response()
 		);
@@ -371,7 +376,7 @@ export class SocketConnection {
 	 *
 	 * @returns {boolean}
 	 */
-	didRespondToPing() {
+	public didRespondToPing() {
 		return this.isConnected;
 	}
 
@@ -391,7 +396,7 @@ export class SocketConnection {
 	 * @param {{new(): SocketChannelListener} | SocketChannelListener} channel
 	 * @returns {boolean}
 	 */
-	hasSubscription(channel: (new() => SocketChannelListener) | SocketChannelListener): boolean {
+	public hasSubscription(channel: (new() => SocketChannelListenerContract) | SocketChannelListener): boolean {
 		const channelInst = (channel instanceof SocketChannelListener) ? channel : new channel();
 
 		return this._subscribedChannels.has(channelInst.channelName());
@@ -403,8 +408,15 @@ export class SocketConnection {
 	 * @param {{new(): SocketChannelListener} | SocketChannelListener} channel
 	 * @returns {SocketChannelListener}
 	 */
-	getSubscription(channel: (new() => SocketChannelListener) | SocketChannelListener): SocketChannelListener {
-		const channelInst = (channel instanceof SocketChannelListener) ? channel : new channel();
+	public getSubscription(channel: ((new() => SocketChannelListenerContract) | SocketChannelListenerContract)): SocketChannelListenerContract {
+
+		let channelInst: SocketChannelListenerContract = null;
+
+		if (Classes.isInstantiated(channel)) {
+			channelInst = <SocketChannelListenerContract>channel;
+		} else {
+			channelInst = new (<SocketChannelListenerContractConstructor>channel)();
+		}
 
 		return this._subscribedChannels.get(channelInst.channelName());
 	}

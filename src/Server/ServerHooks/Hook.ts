@@ -1,8 +1,9 @@
 import {DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
-import Request from "fastify/lib/request.js";
 import Reply from "fastify/lib/reply.js";
-import {RequestPayload, HookHandlerDoneFunction,} from "fastify/types/hooks";
+import Request from "fastify/lib/request.js";
+import {RequestPayload} from "fastify/types/hooks";
 import {Log} from "../../Common";
+import {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
 
 export type FastifyHookName =
 	'onRequest'
@@ -27,12 +28,12 @@ export type FastifyHandlerHookMap = {
 	'onError': (request: FastifyRequest, response: FastifyReply, error: Error) => Promise<boolean>,
 }
 
-type HookRunnerArgs = { request: FastifyRequest, response: FastifyReply, done: DoneFuncWithErrOrRes, error?: Error, payload?: any }
+export type HookRunnerArgs = { request: FastifyRequest, response: FastifyReply, done: DoneFuncWithErrOrRes, error?: Error, payload?: any }
 export type HookHandlerArgs = { request: FastifyRequest, response: FastifyReply, error?: Error, payload?: any, done?: DoneFuncWithErrOrRes }
 
-export class Hook {
+export class Hook implements HookContract {
 
-	protected fastifyHookName(): FastifyHookName {
+	public fastifyHookName(): FastifyHookName {
 		return null;
 	}
 
@@ -48,7 +49,7 @@ export class Hook {
 		return true;
 	}
 
-	private hookHandler({request, response, done, error, payload}: HookRunnerArgs) {
+	public hookHandler({request, response, done, error, payload}: HookRunnerArgs) {
 		if (!this.isAsyncHook()) {
 			this.handle({request, response, payload, error, done});
 			return;
@@ -84,7 +85,7 @@ export class Hook {
 		Log.success('Successfully registered server hook: ' + this.constructor.name);
 	}
 
-	private getHookArgs(...args): HookRunnerArgs {
+	public getHookArgs(...args): HookRunnerArgs {
 		const handleObject: any = {};
 
 		for (let arg of args) {

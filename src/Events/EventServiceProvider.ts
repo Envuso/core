@@ -1,21 +1,23 @@
 import path from "path";
-import {App, config, ConfigRepository, ServiceProvider} from "../AppContainer";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {EventDispatcher} from "./EventDispatcher";
-import { EventListener } from "./EventListener";
+import {EventListener} from "./EventListener";
 import {EventManager} from "./EventManager";
 
 
 export class EventServiceProvider extends ServiceProvider {
 
-	public async register(app: App, config: ConfigRepository) {
+	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 		const dispatchers = await FileLoader.importModulesFrom<EventDispatcher>(
-			path.join(config.get('paths.eventDispatchers'), '**', '*.ts')
+			path.join(config.file('FilesystemPaths').eventDispatchers, '**', '*.ts')
 		);
 
 		const listeners = await FileLoader.importModulesFrom<EventListener>(
-			path.join(config.get('paths.eventListeners'), '**', '*.ts')
+			path.join(config.file('FilesystemPaths').eventListeners, '**', '*.ts')
 		);
 
 		const eventManager = new EventManager(
@@ -30,7 +32,7 @@ export class EventServiceProvider extends ServiceProvider {
 		});
 	}
 
-	public async boot(app: App, config: ConfigRepository) {
+	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 	}
 

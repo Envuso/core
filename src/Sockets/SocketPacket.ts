@@ -1,7 +1,8 @@
 import {classToPlain} from "class-transformer";
+import {SocketPacketContract} from "../Contracts/Sockets/SocketPacketContract";
 import {SocketEvents} from "./SocketEvents";
 
-export class SocketPacket {
+export class SocketPacket implements SocketPacketContract {
 
 	private channel: string | undefined = undefined;
 
@@ -27,7 +28,7 @@ export class SocketPacket {
 		return this;
 	}
 
-	static createFromReceived(data: any): SocketPacket {
+	static createFromReceived(data: any): SocketPacketContract {
 		const packet   = new SocketPacket();
 		packet.event   = data?.event;
 		packet.channel = data?.channel;

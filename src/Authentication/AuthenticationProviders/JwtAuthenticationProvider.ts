@@ -1,14 +1,16 @@
-import {ConfigRepository, resolve} from "../../AppContainer";
-import {Authenticatable, Hash, Log} from "../../Common";
-import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
-import {Request} from "../../Routing";
-import {AuthenticationProvider} from "../AuthenticationProvider";
+import { AuthenticationIdentifier } from 'Contracts/Authentication/UserProvider/AuthCredentials';
 import {sign, SignOptions, verify, VerifyOptions} from 'jsonwebtoken';
-import {UserProvider} from "../UserProvider/UserProvider";
+import {config, ConfigRepository, resolve} from "../../AppContainer";
+import {Log} from "../../Common";
+import {JwtAuthenticationProviderContract} from "../../Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
+import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
+import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import {AuthenticationProvider} from "../AuthenticationProvider";
 
 
-interface JwtAuthenticationConfig {
-	primaryIdentifier: AuthenticationIdentifier;
+export interface JwtAuthenticationConfig {
+	//primaryIdentifier: AuthenticationIdentifier;
 	authorizationHeaderPrefix: string;
 	jwtSigningOptions: SignOptions;
 	jwtVerifyOptions: VerifyOptions;
@@ -21,24 +23,26 @@ export interface VerifiedTokenInterface {
 	iss: string;
 }
 
-export class JwtAuthenticationProvider extends AuthenticationProvider {
+export class JwtAuthenticationProvider extends AuthenticationProvider implements JwtAuthenticationProviderContract {
 
-	private _config: JwtAuthenticationConfig;
-	private _appKey: string;
-	private _userProvider: UserProvider;
+	public _config: JwtAuthenticationConfig;
+	public _appKey: string;
+	public _userProvider: UserProviderContract;
 
-	constructor(userProvider: UserProvider) {
+	constructor(userProvider: UserProviderContract) {
 		super();
 		this._userProvider = userProvider;
 
-		this._appKey = resolve(ConfigRepository).get('app.appKey', null);
+		this._appKey = resolve(ConfigRepository).get('App').get('appKey')
 
 		if (!this._appKey) {
 			Log.warn('You are trying to use JWT Auth. But there is no app key defined in config(Config/App.ts), which is needed to sign Json Web Tokens.');
 			return;
 		}
 
-		this._config = resolve(ConfigRepository).get('app.auth', {
+		const authConf = config('Auth');
+
+		this._config = authConf.jwt ??  {
 			/**
 			 * The prefix used in authorization header checks
 			 */
@@ -59,7 +63,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 				ignoreExpiration : false,
 				algorithms       : ["HS256"],
 			} as VerifyOptions
-		});
+		};
 
 
 		if (!this._config?.authorizationHeaderPrefix) {
@@ -67,8 +71,8 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		}
 	}
 
-	public getAuthenticationInformation(request: Request) {
-		const authHeader = request.header('authorization');
+	public getAuthenticationInformation(request: RequestContract) {
+		const authHeader = request.getHeader<string>('authorization');
 
 		if (!authHeader) {
 			return null;
@@ -104,7 +108,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 		);
 	}
 
-	public async authoriseRequest<T>(request: Request): Promise<Authenticatable<T>> {
+	public async authoriseRequest<T>(request: RequestContract): Promise<AuthenticatableContract<T>> {
 		const token = this.getAuthenticationInformation(request);
 
 		if (!token) {
@@ -129,7 +133,9 @@ export class JwtAuthenticationProvider extends AuthenticationProvider {
 			return null;
 		}
 
-		return new Authenticatable().setUser(user.getUser()) as Authenticatable<T>;
+		return resolve<AuthenticatableContract<T>>('Authenticatable')
+			.setUser(user.getUser()) as AuthenticatableContract<T>;
+		//return new Authenticatable().setUser(user.getUser()) as AuthenticatableContract<T>;
 	}
 
 	public issueToken(id: string, additionalPayload?: any): string {

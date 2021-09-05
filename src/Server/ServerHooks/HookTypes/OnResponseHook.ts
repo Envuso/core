@@ -1,8 +1,9 @@
+import {HookHandlerContract} from "../../../Contracts/Server/ServerHooks/HookTypes/HookHandlerContract";
 import {FastifyHookName, Hook, HookHandlerArgs} from "../Hook";
 
-export class OnResponseHook extends Hook {
+export class OnResponseHook extends Hook implements HookHandlerContract {
 
-	protected fastifyHookName(): FastifyHookName {
+	public fastifyHookName(): FastifyHookName {
 		return 'onResponse';
 	}
 

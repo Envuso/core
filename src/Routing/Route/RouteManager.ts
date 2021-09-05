@@ -1,15 +1,15 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {ObjectId} from "mongodb";
-import {Log, METADATA} from "../../Common";
+import {METADATA} from "../../Common";
+import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import {RouteContract} from "../../Contracts/Routing/Route/RouteContract";
+import {RouteManagerContract} from "../../Contracts/Routing/Route/RouteManagerContract";
 import {Model} from "../../Database";
 import {InvalidObjectIdUsed} from "../../Database/Exceptions/InvalidObjectIdUsed";
 import {ModelNotFoundException} from "../../Database/Exceptions/ModelNotFoundException";
-import {RequestContext} from "../Context/RequestContext";
 import {MethodParameterDecorator} from "./RequestInjection";
-import {Route} from "./Route";
-import {param} from "./RouteDecorators";
 
-export class RouteManager {
+export class RouteManager implements RouteManagerContract {
 
 	/**
 	 * Reflect Metadata keys that we'll use for method parameter handling. We
@@ -40,7 +40,7 @@ export class RouteManager {
 	 * @param route
 	 * @param context
 	 */
-	public static async parametersForRoute(request: FastifyRequest, response: FastifyReply, route: Route, context: RequestContext) {
+	public static async parametersForRoute(request: FastifyRequest, response: FastifyReply, route: RouteContract, context: RequestContextContract) {
 
 		//TODO: Double check we actually need this, pretty sure that
 		//We figured out last night that, this was basically useless

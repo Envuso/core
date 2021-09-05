@@ -1,11 +1,19 @@
 import fs from "fs";
 import {ConfigRepository, resolve} from "../AppContainer";
 import {Str} from "../Common";
-import {DiskConfiguration, DisksList, DriverTypes, StorageConfiguration} from "../Config/Storage";
-import {StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "./StorageProviderContract";
+import {
+	DiskConfiguration,
+	DisksList,
+	DriverTypes,
+	StorageConfiguration,
+	StorageProviderContract,
+	StoragePutOptions,
+	UploadedFileInformation
+} from "./StorageProviderContract";
 import path from "path";
 import {pipeline} from "stream";
 import * as util from 'util';
+import {config} from './../AppContainer';
 
 const pump = util.promisify(pipeline);
 
@@ -36,21 +44,42 @@ export class Storage {
 	 * @returns {StorageProviderContract}
 	 */
 	static disk<T extends keyof DriverTypes, K extends keyof DisksList>(disk: K): StorageProviderContract {
-		const config = resolve(ConfigRepository).get<StorageConfiguration>('storage');
+		const storageConfig = config('Storage');
 
-		const selectedDisk = config.disks[disk] as DiskConfiguration<T>;
+		const selectedDisk = storageConfig.disks[disk] as DiskConfiguration<T>;
 
 		if (!selectedDisk) {
 			throw new Error('You specified an invalid disk: ' + disk);
 		}
 
-		const driver = config.drivers[selectedDisk.driver] as new (storageConfig: DiskConfiguration<T>) => StorageProviderContract;
+		const driver = storageConfig.drivers[selectedDisk.driver] as new (storageConfig: DiskConfiguration<T>) => StorageProviderContract;
 
 		if (!driver) {
 			throw new Error('You specified an invalid driver for this disk: ' + selectedDisk.driver);
 		}
 
 		return new driver(selectedDisk);
+	}
+
+	/**
+	 * Create a new storage disk on the fly to use it temporarily
+	 *
+	 * @param {object & {driver: keyof DriverTypes}} configuration
+	 * @return {StorageProviderContract}
+	 */
+	static onDemand<T extends keyof DriverTypes>(configuration: DiskConfiguration<T>): StorageProviderContract {
+		const config = resolve(ConfigRepository).get('Storage');
+
+		if (!configuration.driver) {
+			throw new Error('No driver specified in the configuration.');
+		}
+
+		if (!config.drivers[configuration.driver]) {
+			throw new Error('You specified an invalid driver, it does not exist in your Storage.ts config file.');
+		}
+
+		//@ts-ignore
+		return new (config.drivers[configuration.driver])(configuration);
 	}
 
 	//	/**
@@ -177,7 +206,7 @@ export class Storage {
 	 * @param stream
 	 */
 	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream): Promise<string> {
-		const tempPath = resolve(ConfigRepository).get<string>('paths.temp');
+		const tempPath = resolve(ConfigRepository).get('FilesystemPaths').get('temp');
 
 		await Storage.disk('temp').makeDirectory(path.join('storage', 'temp'));
 

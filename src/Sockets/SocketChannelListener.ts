@@ -1,12 +1,14 @@
 import {resolve} from "../AppContainer";
-import {Middleware} from "../Routing";
-import {SocketConnection} from "./SocketConnection";
-import {SocketPacket} from "./SocketPacket";
-import {ChannelInformation, SocketServer} from "./SocketServer";
+import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
+import {SocketChannelListenerContract} from "../Contracts/Sockets/SocketChannelListenerContract";
+import {SocketConnectionContract} from "../Contracts/Sockets/SocketConnectionContract";
+import {SocketPacketContract} from "../Contracts/Sockets/SocketPacketContract";
+import {ChannelInformation} from "../Contracts/Sockets/SocketServerContract";
+import {SocketServer} from "./SocketServer";
 
-export abstract class SocketChannelListener {
+export abstract class SocketChannelListener implements SocketChannelListenerContract {
 
-	protected channelInfo: ChannelInformation;
+	public channelInfo: ChannelInformation;
 
 	public setChannelInformation(channelInfo: ChannelInformation) {
 		this.channelInfo = channelInfo;
@@ -29,7 +31,7 @@ export abstract class SocketChannelListener {
 	 *
 	 * @returns {Middleware[]}
 	 */
-	abstract middlewares(): Middleware[];
+	public abstract middlewares(): MiddlewareContract[];
 
 	/**
 	 * The name of the channel
@@ -37,7 +39,7 @@ export abstract class SocketChannelListener {
 	 *
 	 * @returns {string}
 	 */
-	abstract channelName(): string;
+	public abstract channelName(): string;
 
 	/**
 	 * Determine if the socket connection can access the specified room
@@ -47,7 +49,7 @@ export abstract class SocketChannelListener {
 	 *
 	 * @returns {Promise<boolean>}
 	 */
-	abstract isAuthorised(connection: SocketConnection, user: any): Promise<boolean>;
+	public abstract isAuthorised(connection: SocketConnectionContract, user: any): Promise<boolean>;
 
 	// Socket events are handled dynamically... cannot really specify any type information
 	// So if you happen to look here, these are the available parameters.
@@ -61,7 +63,7 @@ export abstract class SocketChannelListener {
 	 * @param {string} event
 	 * @param data
 	 */
-	broadcast<T extends SocketPacket>(channel:string, event: string, data: T | any) {
+	public broadcast<T extends SocketPacketContract>(channel: string, event: string, data: T | any) {
 		resolve(SocketServer).broadcast<T>(this, channel, event, data);
 	}
 

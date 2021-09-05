@@ -12,6 +12,7 @@ export interface ControllerMetadata {
 	path: string;
 	target: any;
 	injectionParams?: any[];
+	modulePath?: any;
 }
 
 export interface HandlerDecorator {

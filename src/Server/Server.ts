@@ -1,32 +1,19 @@
-import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import fastify, {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
-import {FastifyCorsOptions} from "fastify-cors";
+import fastify, {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
 import {ConfigRepository, resolve} from "../AppContainer";
 import {Exception, Log} from "../Common";
-import {ControllerManager, Middleware, RequestContext, Response, UploadedFile} from "../Routing";
+import {ExceptionHandlerConstructorContract, ExceptionHandlerContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
+import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
+import {ResponseContract} from "../Contracts/Routing/Context/Response/ResponseContract";
+import {ErrorHandlerFn, ServerConfiguration, ServerContract} from "../Contracts/Server/ServerContract";
+import {HookContract} from "../Contracts/Server/ServerHooks/HookContract";
+import {RequestContext} from "../Routing/Context/RequestContext";
+import {ControllerManager} from "../Routing/Controller/ControllerManager";
 import {SocketServer} from "../Sockets/SocketServer";
-import {Hook} from "./ServerHooks";
-
-export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
-
-interface CorsConfiguration {
-	enabled: boolean;
-	options: FastifyCorsOptions
-}
 
 
-interface ServerConfiguration {
-	port: number;
-	middleware: (new () => Middleware)[]
-	cors: CorsConfiguration;
-	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
-	fastifyOptions: FastifyServerOptions;
-	responseSerialization: ClassTransformOptions;
-}
-
-export class Server {
+export class Server implements ServerContract {
 
 	/**
 	 * Our fastify instance for the server
@@ -44,7 +31,7 @@ export class Server {
 	 *
 	 * @private
 	 */
-	private _customErrorHandler: ErrorHandlerFn | null = null;
+	public _customErrorHandler: ErrorHandlerFn | null = null;
 
 	/**
 	 * Configuration from the Server.ts config file
@@ -52,7 +39,9 @@ export class Server {
 	 * @type {ServerConfiguration}
 	 * @private
 	 */
-	private _config: ServerConfiguration;
+	public _config: ServerConfiguration;
+
+	private _exceptionHandler: ExceptionHandlerConstructorContract = null;
 
 	/**
 	 * Initialise fastify, add all routes to the application and apply any middlewares
@@ -61,7 +50,12 @@ export class Server {
 		if (this._server)
 			throw new Error('Server has already been built');
 
-		this._config = resolve(ConfigRepository).get<ServerConfiguration>('server');
+		const config = resolve(ConfigRepository);
+
+		this._config    = config.file('Server');
+		const appConfig = config.file('App');
+
+		this._exceptionHandler = appConfig.exceptionHandler;
 
 		this._server = fastify(this._config.fastifyOptions);
 
@@ -83,7 +77,7 @@ export class Server {
 	 *
 	 * @private
 	 */
-	private registerControllers() {
+	public registerControllers() {
 
 		const controllers = ControllerManager.initiateControllers();
 
@@ -91,20 +85,26 @@ export class Server {
 			const routes = controller.routes;
 
 			for (let route of routes) {
-				const handler = route.getMiddlewareHandler();
+				const {before, after} = route.getMiddlewareHandlers(
+					this._config.middleware || []
+				);
+
 				this._server.route({
 					method       : route.getMethod(),
 					handler      : route.getHandlerFactory(),
 					url          : route.getPath(),
 					preHandler   : async function (req, res) {
-						if (handler) {
-							const context = RequestContext.get();
-
-							await handler(context);
+						if (before) {
+							await before(RequestContext.get());
+						}
+					},
+					onResponse   : async function (req, res) {
+						if (after) {
+							await after(RequestContext.get());
 						}
 					},
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
-						return await this.handleException(error, request, reply);
+						return await this.handleException(RequestContext.get(), error, request, reply);
 					}
 				});
 
@@ -115,7 +115,7 @@ export class Server {
 		}
 	}
 
-	public registerHooks(hooks: { new(): Hook }[]) {
+	public registerHooks(hooks: { new(): HookContract }[]) {
 		for (let hook of hooks) {
 			new hook().register(this._server);
 		}
@@ -126,7 +126,7 @@ export class Server {
 	 *
 	 * @private
 	 */
-	private registerPlugins() {
+	public registerPlugins() {
 
 		// We have to make sure the cors configuration aligns with the framework configuration.
 		if (this._config.cors.enabled) {
@@ -142,6 +142,11 @@ export class Server {
 			]);
 		}
 
+		this._config.fastifyPlugins.push([
+			require('fastify-formbody'),
+			{}
+		]);
+
 		this._config.fastifyPlugins.forEach(plugin => {
 			this._server.register(plugin[0], plugin[1]);
 		});
@@ -150,7 +155,7 @@ export class Server {
 	/**
 	 * Begin listening for connections
 	 */
-	async listen() {
+	public async listen() {
 
 		const socketServer = resolve(SocketServer);
 
@@ -167,21 +172,25 @@ export class Server {
 		this._customErrorHandler = handler;
 	}
 
-	private async handleException(error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+	public async handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+		const result = this._exceptionHandler.handle(context.request, error);
 
-		if (!this._customErrorHandler) {
-			const response = (error instanceof Exception) ? error.response : {
-				message : error.message,
-				code    : 500,
-			};
-			const code     = (error instanceof Exception) ? error.code : 500;
 
-			return reply.status(code).send(response);
-		}
+		return reply.status(result.code).send(result);
 
-		const response: Response = await this._customErrorHandler(error, request, reply);
+		/*if (!this._customErrorHandler) {
+		 const response = (error instanceof Exception) ? error.response : {
+		 message : error.message,
+		 code    : 500,
+		 };
+		 const code     = (error instanceof Exception) ? error.code : 500;
 
-		response.send();
+		 return reply.status(code).send(response);
+		 }
+
+		 const response: ResponseContract = await this._customErrorHandler(error, request, reply);
+
+		 response.send();*/
 	}
 
 }

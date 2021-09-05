@@ -135,6 +135,7 @@ export class LogService {
 		});
 
 		const cliTransport = new transports.Console({
+			level : 'error',
 			handleExceptions : true,
 			format           : combine(
 				errors({stack : true}),

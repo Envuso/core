@@ -1,10 +1,11 @@
 import path from "path";
 import {Str} from "../../Common";
 import fs from 'fs';
+import {FileDoesNotExistException} from "../Exceptions/FileDoesNotExistException";
 import {LocalStorageProviderConfiguration, StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
 
 export class LocalFileProvider extends StorageProviderContract {
-	private basePath: string;
+	public basePath: string;
 
 	constructor(config: LocalStorageProviderConfiguration) {
 		super();
@@ -73,6 +74,30 @@ export class LocalFileProvider extends StorageProviderContract {
 		});
 	}
 
+	public pathWithoutFileName(directory: string) {
+		return directory.substr(0, directory.lastIndexOf('/'));
+	}
+
+	public directoryExists(directory: string): Promise<boolean> {
+		directory = this.formatPath(directory);
+
+		return new Promise((resolve, reject) => {
+			fs.stat(this.pathWithoutFileName(directory), (error, stat) => {
+				if (error) {
+					if (error.code === 'ENOENT') {
+						return resolve(false);
+					}
+				}
+
+				if (!stat.isDirectory) {
+					return resolve(false);
+				}
+
+				return resolve(stat.isDirectory());
+			});
+		});
+	}
+
 	/**
 	 * Create a new directory
 	 *
@@ -80,14 +105,31 @@ export class LocalFileProvider extends StorageProviderContract {
 	 */
 	public makeDirectory(directory: string): Promise<boolean> {
 		directory = this.formatPath(directory);
-
 		return new Promise((resolve, reject) => {
 
-			if (!fs.existsSync(directory)) {
-				fs.mkdirSync(directory, {recursive : true});
-			}
+			this.directoryExists(directory).then(exists => {
+				const dirName = this.pathWithoutFileName(directory);
 
-			return resolve(fs.existsSync(directory));
+				fs.mkdir(dirName, {recursive : true}, (error, created) => {
+					if (error) {
+						return reject(error);
+					}
+
+					resolve(true);
+				});
+			});
+
+			//			fs.stat(directory, (error, exists) => {
+			//				if (error) {
+			//					return reject(error);
+			//				}
+			//
+			//				if (!exists) {
+			//
+			//				}
+			//
+			//				resolve(true);
+			//			});
 		});
 	}
 
@@ -119,13 +161,13 @@ export class LocalFileProvider extends StorageProviderContract {
 		key = this.formatPath(key);
 
 		return new Promise((resolve, reject) => {
-			const stat = fs.statSync(key);
+			fs.stat(key, (err, stat) => {
+				if (!stat || err) {
+					return resolve(false);
+				}
 
-			if (!stat) {
-				resolve(false);
-			}
-
-			resolve(stat.isFile());
+				resolve(true);
+			});
 		});
 	}
 
@@ -135,10 +177,56 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param location
 	 */
 	public get(location: string): Promise<string> {
-		location = this.formatPath(location);
+		return new Promise(async (resolve, reject) => {
+			if (!await this.fileExists(location)) {
+				reject(new FileDoesNotExistException(this.formatPath(location)));
 
+				return;
+			}
+
+			location = this.formatPath(location);
+
+			fs.readFile(location, {encoding : 'utf-8'}, (error, contents) => {
+				if (error) {
+					return reject(error);
+				}
+				return resolve(contents);
+			});
+		});
+	}
+
+	/**
+	 * Write a string into a file at the specified location
+	 *
+	 * @param {string} location
+	 * @param {string} contents
+	 * @return {Promise<UploadedFileInformation>}
+	 */
+	public write(location: string, contents: string): Promise<UploadedFileInformation> {
 		return new Promise((resolve, reject) => {
-			resolve(fs.readFileSync(location, {encoding : 'utf-8'}));
+			const storagePath = this.formatPath(location);
+
+			this.makeDirectory(storagePath).then(() => {
+				fs.writeFile(storagePath, contents, {encoding : 'utf-8'}, (error) => {
+					if (error) {
+						reject(error);
+						return;
+					}
+
+					const pathInfo = path.parse(storagePath);
+
+					resolve({
+						url          : location,
+						path         : storagePath,
+						originalName : `${pathInfo.name}.${pathInfo.ext}`
+					});
+				});
+			}).catch(error => {
+				//				console.error('file not found?????', error, dirPath);
+				//				console.log('write: ', `${pathInfo.dir}.${pathInfo.ext}`);
+
+				reject(error);
+			});
 		});
 	}
 
@@ -218,6 +306,11 @@ export class LocalFileProvider extends StorageProviderContract {
 	}
 
 	private formatPath(definedPath: string) {
+		if (definedPath.includes(this.basePath)) {
+			// Don't even
+			definedPath = definedPath.replace(this.basePath, '');
+		}
+
 		return path.resolve(path.join(this.basePath, definedPath));
 	}
 }

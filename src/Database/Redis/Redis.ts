@@ -1,14 +1,15 @@
 import {RedisClient} from 'redis';
 import {promisify} from "util";
 import {DateTime} from "../../Common";
+import {RedisContract} from "../../Contracts/Database/Redis/RedisContract";
 import {RedisClientInstance} from "./RedisClientInstance";
 
-let instance: Redis = null;
+let instance: RedisContract = null;
 
-export class Redis {
+export class Redis implements RedisContract {
 
-	private asyncOperations: { set: any; get: any; exists: any; del: any };
-	private client: RedisClient;
+	public asyncOperations: { set: any; get: any; exists: any; del: any };
+	public client: RedisClient;
 
 	constructor(client: RedisClient) {
 		if (instance) {
@@ -27,7 +28,7 @@ export class Redis {
 		instance = this;
 	}
 
-	public static getInstance(): Redis {
+	public static getInstance(): RedisContract {
 		return instance;
 	}
 

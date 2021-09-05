@@ -3,18 +3,15 @@ import {ObjectId} from "mongodb";
 import {Auth} from "../../../Authentication";
 import {Authorization} from "../../../Authorization/Authorization";
 import {EventManager} from "../../../Events";
-import {
-	body,
-	Controller,
-	controller,
-	DataTransferObject,
-	dto,
-	get, JwtAuthenticationMiddleware,
-	method,
-	middleware, post, query, request,
-	response,
-	session, user
-} from "../../../Routing";
+import {redirect, request, response, view} from "../../../Routing";
+import {Controller} from "../../../Routing/Controller/Controller";
+import {controller, get, method, post} from "../../../Routing/Controller/ControllerDecorators";
+import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
+import {middleware} from "../../../Routing/Middleware/MiddlewareDecorators";
+import {JwtAuthenticationMiddleware} from "../../../Routing/Middleware/Middlewares/JwtAuthenticationMiddleware";
+import {VerifyCsrfTokenMiddleware} from "../../../Routing/Middleware/Middlewares/VerifyCsrfTokenMiddleware";
+import {dto, query, body, user} from "../../../Routing/Route/RouteDecorators";
+import {session} from "../../../Session";
 import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
 import {User} from "../../Models/User";
 import {UserSocketListener} from "../Sockets/UserSocketListener";
@@ -26,15 +23,39 @@ class DTO extends DataTransferObject {
 	something: string;
 }
 
+/**
+ * @namespace TestingController
+ */
 
-//@middleware(new TestMiddleware())
+	//@middleware(new TestMiddleware())
 @controller('/testing')
 export class TestingController extends Controller {
 
+
+	@get('/rmb/userobject/:user')
+	async testRouteModelBinding(user: User) {
+		return response().json(user);
+	}
+
+	@middleware(new JwtAuthenticationMiddleware())
+	@post('/auth/userdecorator')
+	public async testUserDecorator(@user user: User, @dto() dt: DTO) {
+		return {user};
+	}
+
 	@get('/redirect')
 	async redirect(@query message: string) {
-		return response().redirect('https://google.com')
+		return response().redirect('https://google.com');
 	}
+
+	@get('/redirect/route')
+	async redirectToRoute(@query message: string) {
+		return redirect().route('TestingController.testQueryParamDecorator', {
+			message : 'Hello!',
+			yeet : 'fdsf'
+		});
+	}
+
 	@get('/decorator/param')
 	async testQueryParamDecorator(@query message: string) {
 		return message;
@@ -50,22 +71,28 @@ export class TestingController extends Controller {
 
 	@get('/cookie/test-encrypted')
 	async testCookieEncryption() {
-		console.log(response().cookieJar().get('hello-two'));
-		console.log(response().cookieJar().get('hello-two'));
+		console.log(response().cookieJar().get('hello'));
+
+		const signedCookie = response().cookieJar().get('hello-two');
+
+		console.log('Unsigned cookie value: ', signedCookie.getValue());
+		console.log('Unsigned cookie value2: ', signedCookie.getValue());
 
 		return true;
 	}
 
 	@get('/session/get')
 	async testSessionValue() {
-		return session().get('testvalue');
+		return {
+			value : session().store().get('testvalue')
+		};
 	}
 
 	@get('/session/set')
 	async testSettingSessionValue() {
 		const value = request('value');
 
-		session().put('testvalue', value);
+		session().store().put('testvalue', value);
 
 		return true;
 	}
@@ -80,9 +107,9 @@ export class TestingController extends Controller {
 
 	}
 
-	@get('/rmb/userobject/:user')
-	async testRouteModelBinding(user: User) {
-		return response().json(user);
+	@method(['DELETE', 'POST'], '/testget')
+	async testMethodsTwo(@dto() dt: DTO) {
+
 	}
 
 	@get('/rmb/userobject/obj/:user')
@@ -163,12 +190,6 @@ export class TestingController extends Controller {
 		return User.where({something : "randomtext"}).paginate(1);
 	}
 
-	@middleware(new JwtAuthenticationMiddleware())
-	@post('/auth/userdecorator')
-	public async testUserDecorator(@user user: User, @dto() dt: DTO) {
-		return {user};
-	}
-
 	@get()
 	async testQueryBuilderMethod() {
 		User.where({
@@ -209,7 +230,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy')
-	async testFailingUserPolicy(@user user : User) {
+	async testFailingUserPolicy(@user user: User) {
 
 		const otherUser = await User.create({});
 
@@ -221,7 +242,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/successful')
-	async testSuccessfulUserPolicy(@user user : User) {
+	async testSuccessfulUserPolicy(@user user: User) {
 		const result = await Authorization.can('deleteAccount', user);
 
 		return {result};
@@ -229,7 +250,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller')
-	async testFailingUserPolicyOnController(@user user : User) {
+	async testFailingUserPolicyOnController(@user user: User) {
 
 		const otherUser = await User.create({});
 
@@ -241,7 +262,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller/successful')
-	async testSuccessfulUserPolicyOnController(@user user : User) {
+	async testSuccessfulUserPolicyOnController(@user user: User) {
 		const result = await this.can('deleteAccount', user);
 
 		return {result};
@@ -249,7 +270,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller/user')
-	async testFailingUserPolicyOnUser(@user user : User) {
+	async testFailingUserPolicyOnUser(@user user: User) {
 
 		const otherUser = await User.create({});
 
@@ -261,7 +282,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller/user/successful')
-	async testSuccessfulUserPolicyOnUser(@user user : User) {
+	async testSuccessfulUserPolicyOnUser(@user user: User) {
 		const result = await user.can('deleteAccount', user);
 
 		return {result};
@@ -270,11 +291,61 @@ export class TestingController extends Controller {
 
 	@get('/events/dispatching')
 	async testDispatchingEvent() {
-		TestingEventDispatcher.dispatch('hello!')
+		TestingEventDispatcher.dispatch('hello!');
 		EventManager.dispatch('authed', ['wew, hi']);
 		EventManager.dispatch('TestingEventDispatcher', ['wew, hi']);
 
 		return {};
+	}
+
+	@get('/view')
+	async testRenderingView() {
+		return view('testing-view', {message : 'Hello!'});
+		//		return this.view('testing-view', {message : 'Hello!'})
+	}
+
+	@get('/view/flash')
+	async testRenderingViewWithFlash() {
+		return redirect()
+			.route('TestingController.testRenderingView')
+			.with('testing-flash', true)
+			.withInput({messageflashed:'wewt?'})
+	}
+
+	@middleware(new VerifyCsrfTokenMiddleware())
+	@post('/view/post')
+	async testRenderingViewPost() {
+		session().store().put('testing-post', true);
+		session().store().increment('testing-post-value', 1);
+
+		return response().redirect('http://127.0.0.1:3000/testing/view');
+	}
+
+	@get('/view/negotiated')
+	async testNegotiatedResponse() {
+		const data = {message : 'Hello!'};
+
+		return response().negotiated(
+			data,
+			{templatePath : 'testing-view', data}
+		);
+	}
+
+
+	@get('/view/404')
+	async test404Response() {
+		return response().notFound();
+	}
+
+
+	@get('/view/500')
+	async test500Response() {
+		return response().internalError();
+	}
+
+	@get('/testing/:item/:itemtwo/three/:four')
+	async testingRouteParams() {
+		return response().internalError();
 	}
 
 }

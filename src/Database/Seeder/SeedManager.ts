@@ -1,17 +1,17 @@
-
 import chalk from "chalk";
-import {Seeder} from "./Seeder";
+import {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
+import {SeedManagerContract} from "../../Contracts/Database/Seeder/SeedManagerContract";
 
-export class SeedManager {
+export class SeedManager implements SeedManagerContract {
 
-	public seeders: (new () => Seeder)[] = [];
+	public seeders: (new () => SeederContract)[] = [];
 
 	/**
 	 * Allow the user to register a seeder which will be run
 	 *
 	 * @param {T} seeder
 	 */
-	public registerSeeder<T extends new () => Seeder>(seeder: T) {
+	public registerSeeder<T extends new () => SeederContract>(seeder: T) {
 		this.seeders.push(seeder);
 	}
 

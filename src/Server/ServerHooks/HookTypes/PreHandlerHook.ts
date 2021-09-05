@@ -1,9 +1,10 @@
+import {HookHandlerContract} from "../../../Contracts/Server/ServerHooks/HookTypes/HookHandlerContract";
 import {FastifyHookName, Hook, HookHandlerArgs} from "../Hook";
 
 // Handled just before our controllers receive/process the request
-export class PreHandlerHook extends Hook {
+export class PreHandlerHook extends Hook implements HookHandlerContract {
 
-	protected fastifyHookName(): FastifyHookName {
+	public fastifyHookName(): FastifyHookName {
 		return 'preHandler';
 	}
 

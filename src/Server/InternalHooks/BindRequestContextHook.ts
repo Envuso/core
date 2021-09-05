@@ -1,4 +1,4 @@
-import {RequestContext} from "../../Routing";
+import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
 /**

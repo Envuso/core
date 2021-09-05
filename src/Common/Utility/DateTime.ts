@@ -1,19 +1,23 @@
 import dayjs, {ConfigType, Dayjs} from "dayjs";
 import duration from 'dayjs/plugin/duration';
-import utc from 'dayjs/plugin/utc';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import utc from 'dayjs/plugin/utc';
+import {DateJsOrDateTime, DateTimeContract} from "../../Contracts/Common/Utility/DateTimeContract";
 
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(relativeTime);
 
-type DateJsOrDateTime = string | number | Date | Dayjs | DateTime;
 
-export class DateTime {
-	private _date: dayjs.Dayjs;
+export class DateTime implements DateTimeContract {
+	public _date: dayjs.Dayjs;
 
-	constructor(date?: dayjs.ConfigType) {
-		this._date = dayjs(date);
+	constructor(date?: DateJsOrDateTime) {
+		if(date instanceof DateTime) {
+			this._date = date.get();
+		} else {
+			this._date = dayjs(date as dayjs.ConfigType);
+		}
 	}
 
 	/**
@@ -40,18 +44,18 @@ export class DateTime {
 	 * @param {dayjs.ConfigType} date
 	 * @returns {dayjs.Dayjs}
 	 */
-	static parse(date: dayjs.ConfigType): dayjs.Dayjs {
-		return new this(date)._date;
+	static parse(date: dayjs.ConfigType): DateTime {
+		return new this(date);
 	}
 
 	/**
 	 * Parse a date type and return a DateTime instance
 	 *
-	 *
 	 * @param {dayjs.ConfigType} date
-	 * @returns {dayjs.Dayjs}
+	 *
+	 * @returns {DateTimeContract}
 	 */
-	static create(date: dayjs.ConfigType): DateTime {
+	static create(date: dayjs.ConfigType): DateTimeContract {
 		return new this(date);
 	}
 
@@ -70,6 +74,20 @@ export class DateTime {
 	}
 
 	/**
+	 * Get the difference in seconds between now and x date.
+	 *
+	 * @param {DateJsOrDateTime} date
+	 * @returns {number}
+	 */
+	public diffInSeconds(date: DateJsOrDateTime) {
+		if (!(date instanceof DateTime)) {
+			date = new DateTime(date);
+		}
+
+		return this._date.diff(date.get(), 'seconds');
+	}
+
+	/**
 	 * Get the difference in minutes between now and x date.
 	 *
 	 * @param {DateJsOrDateTime} date
@@ -81,6 +99,20 @@ export class DateTime {
 		}
 
 		return this.now().get().diff(date.get(), 'minutes');
+	}
+
+	/**
+	 * Get the difference in minutes between now and x date.
+	 *
+	 * @param {DateJsOrDateTime} date
+	 * @returns {number}
+	 */
+	public diffInMinutes(date: DateJsOrDateTime) {
+		if (!(date instanceof DateTime)) {
+			date = new DateTime(date);
+		}
+
+		return this._date.diff(date.get(), 'minutes');
 	}
 
 	/**
@@ -98,6 +130,20 @@ export class DateTime {
 	}
 
 	/**
+	 * Get the difference in hours between now and x date.
+	 *
+	 * @param {DateJsOrDateTime} date
+	 * @returns {number}
+	 */
+	public diffInHours(date: DateJsOrDateTime) {
+		if (!(date instanceof DateTime)) {
+			date = new DateTime(date);
+		}
+
+		return this._date.diff(date.get(), 'hours');
+	}
+
+	/**
 	 * Get the difference in days between now and x date.
 	 *
 	 * @param {DateJsOrDateTime} date
@@ -109,6 +155,20 @@ export class DateTime {
 		}
 
 		return this.now().get().diff(date.get(), 'days');
+	}
+
+	/**
+	 * Get the difference in days between now and x date.
+	 *
+	 * @param {DateJsOrDateTime} date
+	 * @returns {number}
+	 */
+	public diffInDays(date: DateJsOrDateTime) {
+		if (!(date instanceof DateTime)) {
+			date = new DateTime(date);
+		}
+
+		return this._date.diff(date.get(), 'days');
 	}
 
 	/**
@@ -286,6 +346,10 @@ export class DateTime {
 
 	public daysInMonth(): number {
 		return this._date.daysInMonth();
+	}
+
+	public toTime(): number {
+		return this._date.toDate().getTime();
 	}
 
 	public toDate(): Date {

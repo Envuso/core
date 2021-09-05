@@ -12,6 +12,29 @@ export type LocalStorageProviderConfiguration = {
 	root: string;
 }
 
+
+export type DriverTypes = {
+	local: LocalStorageProviderConfiguration & { driver: 'local' },
+	s3: S3StorageProviderConfiguration & { driver: 's3' },
+	[key: string]: any
+};
+
+export type DiskConfiguration<T extends keyof DriverTypes> = DriverTypes[T]
+
+export type DisksList = {
+	[key: string]: (DiskConfiguration<'local'> | DiskConfiguration<'s3'>)
+}
+
+export type DriversList = {
+	[K in keyof DriverTypes]: new (storageConfig: DiskConfiguration<K>) => StorageProviderContract;
+}
+
+export interface StorageConfiguration {
+	defaultDisk: keyof DisksList;
+	disks: DisksList;
+	drivers: DriversList;
+}
+
 export interface UploadedFileInformation {
 	url: string;
 	path: string;
@@ -79,6 +102,15 @@ export abstract class StorageProviderContract {
 	 * @param location
 	 */
 	abstract get(location: string): Promise<string> ;
+
+	/**
+	 * Write a string into a file at the specified location
+	 *
+	 * @param {string} location
+	 * @param {string} contents
+	 * @return {Promise<UploadedFileInformation>}
+	 */
+	abstract write(location: string, contents: string): Promise<UploadedFileInformation>;
 
 	/**
 	 * Create a new file and put the contents

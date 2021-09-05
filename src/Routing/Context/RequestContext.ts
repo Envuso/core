@@ -1,37 +1,44 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {IncomingMessage} from "http";
 import {DependencyContainer} from "tsyringe";
-import {App, resolve} from "../../AppContainer";
-import {Authentication, SessionAuthenticationProvider} from "../../Authentication";
-import {Authenticatable, METADATA} from "../../Common";
-import {SocketConnection} from "../../Sockets/SocketConnection";
+import {App} from "../../AppContainer";
+import {Authenticatable} from "../../Authenticatable";
+import {METADATA} from "../../Common";
+import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import {ResponseContract} from "../../Contracts/Routing/Context/Response/ResponseContract";
+import {SessionContract} from "../../Contracts/Session/SessionContract";
+import {SocketConnectionContract} from "../../Contracts/Sockets/SocketConnectionContract";
+import {CookieJar} from "../../Cookies";
+import {Session} from "../../Session";
 import {Request} from "./Request/Request";
 import {RequestContextStore} from "./RequestContextStore";
 import {Response} from "./Response/Response";
-import {Session} from "./Session";
 
-export class RequestContext {
+export class RequestContext implements RequestContextContract {
 
-	request: Request   = null;
-	response: Response = null;
+	public request: RequestContract = null;
 
-	container: DependencyContainer;
+	public response: ResponseContract = null;
 
-	user: Authenticatable<any>;
+	public container: DependencyContainer;
 
-	session: Session = null;
+	public user: AuthenticatableContract<any>;
 
-	socket: SocketConnection = null;
+	public session: SessionContract = null;
+
+	public socket: SocketConnectionContract = null;
 
 	constructor(
 		request?: FastifyRequest | IncomingMessage,
 		response?: FastifyReply,
-		socket?: SocketConnection
+		socket?: SocketConnectionContract
 	) {
 		if (request)
-			this.request = new Request(request);
+			this.request = new Request(this, request);
 		if (response)
-			this.response = new Response(response);
+			this.response = new Response(this, response);
 		if (socket)
 			this.socket = socket;
 	}
@@ -40,12 +47,11 @@ export class RequestContext {
 	 * Set any cookies from the request into the cookie jar
 	 * If we're using cookie based sessions, prepare our session
 	 */
-	async initiateForRequest() {
-		this.response.cookieJar().setCookies(this.request.fastifyRequest);
+	public async initiateForRequest() {
+		const cookieJar = (new CookieJar().setCookies(this.request.fastifyRequest));
 
-		if (resolve(Authentication).isUsingProvider(SessionAuthenticationProvider)) {
-			this.session = await Session.prepare(this.response.cookieJar());
-		}
+		this.response.setCookieJar(cookieJar);
+		this.request.setCookieJar(cookieJar);
 	}
 
 	/**
@@ -54,14 +60,14 @@ export class RequestContext {
 	 *
 	 * @param done
 	 */
-	bindToFastify(done) {
+	public bindToFastify(done) {
 		this.container = App.getInstance().container().createChildContainer();
 
 		// We bind the context to the current request, so it's obtainable
 		// throughout the lifecycle of this request, this isn't bound to
 		// our wrapper request class, only the original fastify request
 		const request = this.request.fastifyRequest;
-		if(!request){
+		if (!request) {
 			done();
 
 			return;
@@ -74,7 +80,7 @@ export class RequestContext {
 		RequestContextStore.getInstance().bind(this.request.fastifyRequest, done);
 	}
 
-	bindToSockets(done) {
+	public bindToSockets(done) {
 		this.container = App.getInstance().container().createChildContainer();
 
 		// We bind the context to the current request, so it's obtainable
@@ -91,14 +97,14 @@ export class RequestContext {
 	 * Get the current request context.
 	 * This will return an instance of this class.
 	 */
-	static get(): RequestContext {
+	static get(): RequestContextContract {
 		return RequestContextStore.getInstance().context();
 	}
 
 	/**
 	 * Return the Fastify Request wrapper
 	 */
-	static request(): Request {
+	static request(): RequestContract {
 		return this.get().request;
 	}
 
@@ -106,7 +112,7 @@ export class RequestContext {
 	 * Return the Fastify Reply wrapper, this implements our
 	 * own helper methods to make things a little easier
 	 */
-	static response(): Response {
+	static response(): ResponseContract {
 		return this.get()?.response;
 	}
 
@@ -122,11 +128,20 @@ export class RequestContext {
 	}
 
 	/**
+	 * Check if we have a session configured
+	 *
+	 * @return {boolean}
+	 */
+	public hasSession() {
+		return this.session !== null;
+	}
+
+	/**
 	 * Return the session instance
 	 *
-	 * @returns {Session}
+	 * @returns {SessionContract}
 	 */
-	static session(): Session {
+	static session(): SessionContract {
 		return this.get().session;
 	}
 
@@ -134,13 +149,29 @@ export class RequestContext {
 	 * Set the currently authed user on the context(this will essentially authorise this user)
 	 * @param user
 	 */
-	public setUser<T>(user: Authenticatable<T>) {
+	public setUser<T>(user: AuthenticatableContract<T>) {
 		//	const authedUser = new Authenticatable().setUser(user) as Authenticatable<T>;
 
-		this.container.register<Authenticatable<T>>(
+		this.container.register<AuthenticatableContract<T>>(
 			Authenticatable, {useValue : user}
 		);
 
 		this.user = user;
 	}
+
+	/**
+	 * A session will be initiated via middleware when we receive a request
+	 * {@see /Session/Middleware/StartSessionMiddleware.ts}
+	 *
+	 * @param {SessionContract} session
+	 *
+	 * @returns {RequestContextContract}
+	 */
+	public setSession(session: SessionContract): RequestContextContract {
+		this.session = session;
+
+		return this;
+	}
+
 }
+

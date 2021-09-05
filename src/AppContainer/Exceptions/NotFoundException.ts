@@ -1,6 +1,5 @@
 
-import {StatusCodes} from "http-status-codes";
-import {Exception} from "../../Common";
+import {Exception, StatusCodes} from "../../Common";
 
 export class NotFoundException extends Exception {
 

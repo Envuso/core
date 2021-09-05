@@ -1,19 +1,20 @@
-import {SocketConnection} from "./SocketConnection";
-import {SocketPacket} from "./SocketPacket";
+import {SocketConnectionContract} from "../Contracts/Sockets/SocketConnectionContract";
+import {SocketListenerContract} from "../Contracts/Sockets/SocketListenerContract";
+import {SocketPacketContract} from "../Contracts/Sockets/SocketPacketContract";
 
-export abstract class SocketListener {
+export abstract class SocketListener implements SocketListenerContract {
 
 	/**
 	 * The event name to listen
 	 *
 	 * @returns {string}
 	 */
-	abstract eventName(): string;
+	public abstract eventName(): string;
 
 	/**
 	 * Handle the received socket event
 	 *
 	 * @returns {Promise<any>}
 	 */
-	abstract handle(connection: SocketConnection, user: any, packet: SocketPacket): Promise<any>;
+	public abstract handle(connection: SocketConnectionContract, user: any, packet: SocketPacketContract): Promise<any>;
 }
