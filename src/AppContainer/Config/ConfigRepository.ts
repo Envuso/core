@@ -1,9 +1,8 @@
-import get from "lodash.get";
 import has from "lodash.has";
 import set from "lodash.set";
 import {injectable} from "tsyringe";
 import {ConfigRepositoryContract} from "../../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {Config, ConfigHelperKeys} from "../../Meta/Configuration";
+import {Config} from "../../Meta/Configuration";
 
 //const {Config, ConfigHelperKeys} = require("../../Meta/Configuration");
 
