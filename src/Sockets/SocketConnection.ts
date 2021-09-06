@@ -5,7 +5,6 @@ import {config, resolve} from "../AppContainer";
 import {Auth} from "../Authentication";
 import {Classes, Log, Str} from "../Common";
 import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import {SocketChannelListenerContract, SocketChannelListenerContractConstructor} from "../Contracts/Sockets/SocketChannelListenerContract";
 import {SocketConnectionContract} from "../Contracts/Sockets/SocketConnectionContract";
 import {SocketListenerContract} from "../Contracts/Sockets/SocketListenerContract";
@@ -276,7 +275,7 @@ export class SocketConnection implements SocketConnectionContract {
 	 * @returns {Middleware[]}
 	 */
 	public getGlobalSocketMiddlewares() {
-		const middlewares = config('Websockets').middleware;
+		const middlewares = config().get<string, any>('Websockets.middleware');
 
 		return middlewares.map(m => new m());
 	}
@@ -306,8 +305,8 @@ export class SocketConnection implements SocketConnectionContract {
 
 		// Assign the connection id to the request
 		// So we can track it more efficiently
-		this.request.userId       = this.userId;
-		this.request.connectionId = this.id;
+		(this.request as any).userId       = this.userId;
+		(this.request as any).connectionId = this.id;
 
 		this.bindListeners();
 

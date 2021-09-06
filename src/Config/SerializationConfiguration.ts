@@ -4,7 +4,7 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 import {DataTransferObjectSerialization} from "../Routing";
 
 
-export class SerializationConfiguration extends ConfigurationCredentials {
+export default class SerializationConfiguration extends ConfigurationCredentials {
 
 	/**
 	 * When a data transfer object is used with the @dto()

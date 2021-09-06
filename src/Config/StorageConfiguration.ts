@@ -1,10 +1,11 @@
 import path from "path";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
+import Environment from "../AppContainer/Config/Environment";
 import {DisksList, DriversList, LocalFileProvider} from "../Storage";
 import {S3Provider} from "../Storage";
 import {StorageConfiguration as StorageConfig} from './../Storage/StorageProviderContract';
 
-export class StorageConfiguration extends ConfigurationCredentials implements StorageConfig {
+export default class StorageConfiguration extends ConfigurationCredentials implements StorageConfig {
 
 	/**
 	 * The default storage provider to use on the request() helper
@@ -15,12 +16,12 @@ export class StorageConfiguration extends ConfigurationCredentials implements St
 	disks: DisksList = {
 		s3      : {
 			driver      : 's3',
-			bucket      : process.env.SPACES_BUCKET,
-			url         : process.env.SPACES_URL,
-			endpoint    : process.env.SPACES_ENDPOINT,
+			bucket      : Environment.get('SPACES_BUCKET'),
+			url         : Environment.get('SPACES_URL'),
+			endpoint    : Environment.get('SPACES_ENDPOINT'),
 			credentials : {
-				accessKeyId     : process.env.SPACES_KEY,
-				secretAccessKey : process.env.SPACES_SECRET,
+				accessKeyId     : Environment.get('SPACES_KEY'),
+				secretAccessKey : Environment.get('SPACES_SECRET'),
 			}
 		},
 		temp    : {

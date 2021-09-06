@@ -1,5 +1,5 @@
 import {injectable} from "tsyringe";
-import {ConfigRepository} from "../AppContainer";
+import {config, ConfigRepository} from "../AppContainer";
 import {Log} from "../Common";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {AuthenticationContract} from "../Contracts/Authentication/AuthenticationContract";
@@ -35,7 +35,7 @@ export class Authentication implements AuthenticationContract {
 
 	public setAuthenticationProviders(config: ConfigRepositoryContract) {
 
-		let providers = config.get('Auth').get('authenticationProviders', [JwtAuthenticationProvider]);
+		let providers = config.get<string, any>('Auth.authenticationProviders', [JwtAuthenticationProvider]);
 
 		if (!providers || !providers?.length) {
 			throw new Error('No authentication providers are configured.');
@@ -53,7 +53,7 @@ export class Authentication implements AuthenticationContract {
 	}
 
 	public setUserProvider(config: ConfigRepositoryContract) {
-		const userProvider = config.get('Auth').get('userProvider', BaseUserProvider);
+		const userProvider = config.get<string, any>('Auth.userProvider', BaseUserProvider);
 
 		if (!userProvider) {
 			throw new Error('Authentication: No user provider specified in configuration.');

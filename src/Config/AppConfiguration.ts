@@ -1,3 +1,4 @@
+import Environment from "../AppContainer/Config/Environment";
 import {ApplicationConfiguration} from "../Contracts/AppContainer/AppContract";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {EncryptionServiceProvider} from "../";
@@ -15,9 +16,9 @@ import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
 
 
-export class AppConfiguration extends ConfigurationCredentials implements ApplicationConfiguration {
+export default  class AppConfiguration extends ConfigurationCredentials implements ApplicationConfiguration {
 
-	environment: string = this.env.NODE_ENV;
+	environment: string = Environment.getEnv();
 
 	appKey: string = '1234';
 

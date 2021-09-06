@@ -3,6 +3,7 @@ import {ConfigMetaGenerator, ControllerMetaGenerator, ModuleMetaGenerator, Prepa
 import {config as configDotEnv} from 'dotenv';
 import {config, resolve} from "../AppContainer";
 import {Log} from "../Common";
+import Configuration from "../Config/Configuration";
 import {SeedManager} from "../Database";
 import {Envuso} from "../Envuso";
 
@@ -18,7 +19,8 @@ const yargs = require("yargs");
 const runFrameworkLogic = (dev: boolean = false, logic: () => Promise<void>) => {
 	const {Config} = dev ? require('./../Config') : require('../../../../dist/Config');
 
-	envuso.initiateWithoutServing(Config)
+	Configuration.initiate()
+		.then(() => envuso.initiateWithoutServing())
 		.then(() => logic())
 		.then(() => process.exit())
 		.catch(error => {
@@ -34,7 +36,7 @@ export const run = (dev: boolean = false) => {
 		},
 		(argv) => {
 			runFrameworkLogic(dev, async () => {
-				const seederClass = config('Database').seeder;
+				const seederClass = config().get<string, any>('Database.seeder');
 				if (seederClass) {
 					const seeder = new seederClass();
 

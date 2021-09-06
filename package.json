@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-next.3",
+  "version": "2.0.0-next.8",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -46,6 +46,7 @@
     "csrf": "^3.1.0",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
+    "dotenv-expand": "^5.1.0",
     "edge.js": "^5.3.1",
     "fastify": "^3.14.1",
     "fastify-cors": "^5.2.0",

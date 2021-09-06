@@ -37,7 +37,7 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 		context.response.setCookieJar(cookieJar);
 		context.request.setCookieJar(cookieJar);
 
-		const sessionConfig = config('Session');
+		const sessionConfig = config().get<string, any>('Session');
 
 		if (!sessionConfig.cookie.encrypted) {
 			return;

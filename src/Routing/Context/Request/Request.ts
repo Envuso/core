@@ -199,7 +199,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	getSessionId(): string | null {
 		const cookie = this.cookieJar().get<string>(
-			config('Session')?.sessionCookie?.name ?? 'id'
+			config().get<string, any>('Session.sessionCookie.name', 'id')
 		);
 
 		if (!cookie) {

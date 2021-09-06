@@ -3,7 +3,7 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import {JwtAuthenticationMiddleware} from "../Routing/Middleware/Middlewares/JwtAuthenticationMiddleware";
 
-export class WebsocketsConfiguration extends ConfigurationCredentials {
+export default class WebsocketsConfiguration extends ConfigurationCredentials {
 
 	/**
 	 * Disable the websocket implementation

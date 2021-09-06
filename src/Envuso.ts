@@ -23,19 +23,18 @@ export class Envuso implements EnvusoContract {
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	public async boot(config: object) {
-		await this.initiateWithoutServing(config);
+	public async boot() {
+		await this.initiateWithoutServing();
 	}
 
 	/**
 	 * There is certain cases where we need to boot the framework, but not run the web server
 	 * Instead of calling prepare(), we can call this method
 	 *
-	 * @param {object} config
 	 * @returns {Promise<void>}
 	 */
-	public async initiateWithoutServing(config: object) {
-		await App.bootInstance({config : config});
+	public async initiateWithoutServing() {
+		await App.bootInstance();
 
 		await App.getInstance().loadServiceProviders();
 

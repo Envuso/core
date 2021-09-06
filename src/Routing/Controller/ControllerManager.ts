@@ -14,6 +14,8 @@ export interface ControllerAndRoutes {
 
 export class ControllerManager {
 
+	public static routesList: { [key: string]: string } = {};
+
 	/**
 	 * Store the metadata for this controller instance on Reflect
 	 * so we can access the path registered for it, anywhere.

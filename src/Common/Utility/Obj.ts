@@ -189,7 +189,7 @@ export class Obj {
 	 * Contributed by https://github.com/73cn0109y
 	 * Commit was lost during mono-repo merge :(
 	 */
-	static toBoolean(value: any): boolean | null {
+	static toBoolean(value: any, convertNumbers = false): boolean | null {
 		if (typeof value === 'boolean') {
 			return value;
 		}
@@ -207,6 +207,22 @@ export class Obj {
 		}
 
 		return null;
+	}
+
+	static isBoolean(value: any): boolean | null {
+		if (typeof value === 'boolean') {
+			return value;
+		}
+
+		if (typeof value === 'string') {
+			value = value.trim().toLowerCase();
+		}
+
+		if (value === 'true' || value === 'false') {
+			return true;
+		}
+
+		return false;
 	}
 
 }

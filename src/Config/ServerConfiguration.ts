@@ -8,7 +8,7 @@ import {InjectViewGlobals} from "../Routing/Views/InjectViewGlobals";
 import {StartSessionMiddleware} from "../Session/Middleware/StartSessionMiddleware";
 
 
-export class ServerConfiguration extends ConfigurationCredentials implements ServerConfig {
+export default class ServerConfiguration extends ConfigurationCredentials implements ServerConfig {
 
 	/**
 	 * The port that fastify will listen on

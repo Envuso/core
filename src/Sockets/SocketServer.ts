@@ -62,7 +62,7 @@ export class SocketServer implements SocketServerContract {
 	 */
 	public async prepareEventListeners() {
 		const socketListeners = await FileLoader.importModulesFrom<SocketChannelListener | SocketListener>(
-			path.join(config().get('FilesystemPaths').get('socketListeners'), '**', '*.ts')
+			path.join(config().get<string, any>('Paths.socketListeners'), '**', '*.ts')
 		);
 
 		for (let socketListener of socketListeners) {

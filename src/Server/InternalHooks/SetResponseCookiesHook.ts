@@ -27,11 +27,11 @@ export class SetResponseCookiesHook extends OnSendHook {
 			context.response.cookieJar().put(
 				context.session.getCookieName(),
 				context.session.getId(),
-				config('Session').cookie.encrypted
+				config().get<string, any>('Session.cookie.encrypted')
 			);
 		}
 
-		const useCookieEncryption = config('Session').cookie.encrypted;
+		const useCookieEncryption = config().get<string, any>('Session.cookie.encrypted');
 
 		const cookies = context.response.cookieJar().all();
 

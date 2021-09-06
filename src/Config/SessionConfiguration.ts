@@ -5,7 +5,7 @@ import {FileSessionDriver} from "../Session/Drivers/FileSessionDriver";
 import {SessionStorageDriver} from "../Session/Drivers/SessionStorageDriver";
 
 
-export class SessionConfiguration extends ConfigurationCredentials implements SessionConfig {
+export default class SessionConfiguration extends ConfigurationCredentials implements SessionConfig {
 
 	/**
 	 * All cookies are stored by default with this configuration

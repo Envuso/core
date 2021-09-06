@@ -12,7 +12,7 @@ import {SeedManager} from "./Seeder/SeedManager";
 export class DatabaseServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-		const mongoConfig = config.get('Database').get('mongo');
+		const mongoConfig = config.get<string, any>('Database.mongo');
 		const client      = new MongoClient(mongoConfig.url, mongoConfig.clientOptions);
 		const connection  = await client.connect();
 
@@ -20,12 +20,12 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		app.container().register(SeedManager, {useValue : new SeedManager()});
 
 
-		await this.loadModels(app, config, config.get('FilesystemPaths').get('models'));
+		await this.loadModels(app, config, config.get<string, any>('Paths.models'));
 	}
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		// Initiate the connection to redis and prep the client for usage
-		new RedisClientInstance(config.get('Database').get('redis'));
+		new RedisClientInstance(config.get<string, any>('Database.redis'));
 	}
 
 	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {
@@ -33,7 +33,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			path.join(modulePath, '**', '*.ts')
 		);
 		const client  = app.resolve(MongoClient);
-		const dbName  = config.get('Database').get('mongo').name;
+		const dbName  = config.get<string, any>('Database.mongo.name');
 
 		for (let module of modules) {
 			const collection = client.db(dbName).collection<typeof module.instance>(

@@ -15,7 +15,7 @@ export class RouteServiceProvider extends ServiceProvider {
 		app.container().register('ViewManager', {useFactory : () => new ViewManager()});
 
 		const controllers = await FileLoader.importModulesFrom(
-			path.join(config.get('FilesystemPaths').get('controllers'), '**', '*.ts')
+			path.join(config.get<string, any>('Paths.controllers'), '**', '*.ts')
 		);
 
 		const controllerMeta: any = {};

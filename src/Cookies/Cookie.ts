@@ -53,7 +53,7 @@ export class Cookie<T> implements CookieContract<T> {
 
 	private static setDefaultSettings() {
 		if (!Cookie.defaultCookieSettings) {
-			Cookie.defaultCookieSettings = config("Session").cookie;
+			Cookie.defaultCookieSettings = config().get<string, any>("Session.cookie");
 		}
 	}
 

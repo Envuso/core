@@ -2,7 +2,7 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 import {OAuthProviders} from "../OAuthProvider/OAuthService";
 
 
-export class ServicesConfiguration extends ConfigurationCredentials {
+export default class ServicesConfiguration extends ConfigurationCredentials {
 
 	oauthProviders: OAuthProviders = {
 

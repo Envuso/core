@@ -52,8 +52,8 @@ export class Server implements ServerContract {
 
 		const config = resolve(ConfigRepository);
 
-		this._config    = config.file('Server');
-		const appConfig = config.file('App');
+		this._config    = config.get<string, any>('Server');
+		const appConfig = config.get<string, any>('App');
 
 		this._exceptionHandler = appConfig.exceptionHandler;
 
@@ -85,6 +85,9 @@ export class Server implements ServerContract {
 			const routes = controller.routes;
 
 			for (let route of routes) {
+
+				ControllerManager.routesList[`${controller.controllerName}.${route.getMethodName()}`] = route.getPath()
+
 				const {before, after} = route.getMiddlewareHandlers(
 					this._config.middleware || []
 				);

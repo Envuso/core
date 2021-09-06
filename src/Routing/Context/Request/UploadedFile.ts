@@ -112,7 +112,7 @@ export class UploadedFile implements UploadedFileContract {
 	 * Get the absolute path of the temporary file
 	 */
 	public getTempFilePath(): string {
-		const tempPath = resolve(ConfigRepository).get('FilesystemPaths').get('temp');
+		const tempPath = resolve(ConfigRepository).get<string, any>('Paths.temp');
 
 		return path.join(tempPath, this.tempFileName);
 	}

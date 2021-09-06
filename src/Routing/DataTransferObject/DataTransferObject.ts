@@ -27,7 +27,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 	private __validationErrors?: { [key: string]: string } = null;
 
 	constructor() {
-		this.__options = config('Serialization').dataTransferObjects ?? {
+		this.__options = config('Serialization.dataTransferObjects', {
 			requestSerializationOptions : {
 				strategy        : 'exposeAll',
 				excludePrefixes : ['__']
@@ -37,7 +37,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 				forbidUnknownValues : true,
 				enableDebugMessages : true,
 			}
-		};
+		});
 	}
 
 	/**

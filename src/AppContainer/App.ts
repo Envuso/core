@@ -1,6 +1,4 @@
-//import "reflect-metadata";
 import {Log} from '../Common';
-import path from 'path';
 import {container} from "tsyringe";
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import constructor from "tsyringe/dist/typings/types/constructor";
@@ -8,6 +6,7 @@ import DependencyContainer from "tsyringe/dist/typings/types/dependency-containe
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {ConfigRepository} from "./Config/ConfigRepository";
+import ConfigurationFile from "./Config/ConfigurationFile";
 import {FailedToBindException} from "./Exceptions/FailedToBindException";
 import {ServiceProvider} from "./ServiceProvider";
 
@@ -63,13 +62,11 @@ export class App implements AppContract {
 	 * Boot up the App and bind our Config
 	 * Once called, we'll be able to access the app instance via {@see getInstance()}
 	 */
-	static async bootInstance(config: BaseConfiguration): Promise<App> {
+	static async bootInstance(): Promise<App> {
 		if (instance)
 			return instance;
 
 		const app = new App();
-
-		app._baseConfiguration = config;
 
 		await app.boot();
 
@@ -154,26 +151,7 @@ export class App implements AppContract {
 
 		const configRepository = this._container.resolve(ConfigRepository);
 
-		//		const cwd   = process.cwd();
-		//		const paths = {
-		//			root             : cwd,
-		//			src              : path.join(cwd, 'src'),
-		//			config           : path.join(cwd, 'Config', 'index.js'),
-		//			controllers      : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
-		//			socketListeners  : path.join(cwd, 'src', 'App', 'Http', 'Sockets'),
-		//			eventDispatchers : path.join(cwd, 'src', 'App', 'Events', 'Dispatchers'),
-		//			eventListeners   : path.join(cwd, 'src', 'App', 'Events', 'Listeners'),
-		//			providers        : path.join(cwd, 'src', 'App', 'Providers'),
-		//			models           : path.join(cwd, 'src', 'App', 'Models'),
-		//			storage          : path.join(cwd, 'storage'),
-		//			temp             : path.join(cwd, 'storage', 'temp'),
-		//			views            : path.join(cwd, 'src', 'Resources', 'Views'),
-		//			assets           : path.join(cwd, 'src', 'Resources', 'Assets'),
-		//		};
-
-		configRepository.loadConfigFrom(this._baseConfiguration.config);
-
-		//		configRepository.set('paths', paths);
+		configRepository.loadConfigFrom(ConfigurationFile.getConfigurationFiles());
 	}
 
 	/**
@@ -183,7 +161,7 @@ export class App implements AppContract {
 		type Provider = (constructor<ServiceProvider>)
 		const configRepository = this.resolve(ConfigRepository);
 
-		const appConfig = configRepository.file("App");
+		const appConfig = configRepository.file<string, { providers: (new () => ServiceProvider)[] }>("App");
 
 		if (!appConfig) {
 			throw new Error('No service providers found.');

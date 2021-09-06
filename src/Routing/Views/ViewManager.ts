@@ -8,7 +8,7 @@ export class ViewManager implements ViewManagerContract {
 	public edge: Edge;
 
 	constructor() {
-		this.edge = edge.mount(config('FilesystemPaths').views);
+		this.edge = edge.mount(config().get<string, any>('Paths.views'));
 	}
 
 	public injectViewGlobal(globalName: string, handler: (...args) => any | Promise<any>) {

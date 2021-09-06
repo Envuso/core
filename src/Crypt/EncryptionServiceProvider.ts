@@ -9,7 +9,7 @@ import {Encryption} from "./Encryption";
 export class EncryptionServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-		if (!config.get('App').has('appKey')) {
+		if (!config.get('App.appKey')) {
 			Log.warn('There is no app key specified in the config(Config/App.ts). Encryption will not work without this.');
 			return;
 		}
@@ -20,7 +20,7 @@ export class EncryptionServiceProvider extends ServiceProvider {
 		//			}
 		//		});
 
-		app.container().register(Encryption, {useValue : new Encryption(config.get('App').get('appKey'))});
+		app.container().register(Encryption, {useValue : new Encryption(config.get('App.appKey'))});
 	}
 
 	public async boot() {

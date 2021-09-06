@@ -2,7 +2,7 @@ import * as path from "path";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 
 
-export class FilesystemPathsConfiguration extends ConfigurationCredentials {
+export default class FilesystemPathsConfiguration extends ConfigurationCredentials {
 	public root: string             = process.cwd();
 	public src: string              = path.join(this.root, 'src');
 	//	public config: string           = path.join(this.root, 'Config', 'index.js');

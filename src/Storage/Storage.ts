@@ -44,7 +44,7 @@ export class Storage {
 	 * @returns {StorageProviderContract}
 	 */
 	static disk<T extends keyof DriverTypes, K extends keyof DisksList>(disk: K): StorageProviderContract {
-		const storageConfig = config('Storage');
+		const storageConfig = config().get<string, any>('Storage');
 
 		const selectedDisk = storageConfig.disks[disk] as DiskConfiguration<T>;
 
@@ -68,7 +68,7 @@ export class Storage {
 	 * @return {StorageProviderContract}
 	 */
 	static onDemand<T extends keyof DriverTypes>(configuration: DiskConfiguration<T>): StorageProviderContract {
-		const config = resolve(ConfigRepository).get('Storage');
+		const config = resolve(ConfigRepository).get<string, any>('Storage');
 
 		if (!configuration.driver) {
 			throw new Error('No driver specified in the configuration.');
@@ -206,7 +206,7 @@ export class Storage {
 	 * @param stream
 	 */
 	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream): Promise<string> {
-		const tempPath = resolve(ConfigRepository).get('FilesystemPaths').get('temp');
+		const tempPath = resolve(ConfigRepository).get<string, any>('Paths.temp');
 
 		await Storage.disk('temp').makeDirectory(path.join('storage', 'temp'));
 

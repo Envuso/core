@@ -1,4 +1,5 @@
 import {config} from "../../AppContainer";
+import Environment from "../../AppContainer/Config/Environment";
 
 export enum StatusCodeTextType {
 	'Continue'                        = 100,
@@ -242,7 +243,7 @@ function canRenderViewForException(code: number): boolean {
 }
 
 function renderableExceptionData(code: number, error: Error): { title: string, code: number, message: string, stack: string, error: string } {
-	const isDev = config('App').isDev();
+	const isDev = Environment.isDev();
 
 	const err = {
 		message : error?.toString() ?? null,

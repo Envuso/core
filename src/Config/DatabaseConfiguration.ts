@@ -5,7 +5,7 @@ import {
 	RedisConnectionConfiguration
 } from './../Contracts/Configuration/DatabaseConfigurationContracts';
 
-export class DatabaseConfiguration extends ConfigurationCredentials implements DbConfig {
+export default class DatabaseConfiguration extends ConfigurationCredentials implements DbConfig {
 
 	mongo: MongoConnectionConfiguration = {
 		name          : 'test',

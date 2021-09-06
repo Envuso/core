@@ -1,6 +1,6 @@
 import {FastifyReply} from "fastify";
 import {StatusCodes} from "../../../../Common";
-import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
+//import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
 import {RequestResponseContextContract} from "../RequestResponseContextContract";
 import {RedirectResponseContract} from "./RedirectResponseContract";
 
@@ -61,9 +61,7 @@ export interface ResponseContract extends RequestResponseContextContract {
 	 * @param attributes
 	 * @return {RedirectResponseContract}
 	 */
-	route<T extends keyof ApplicationRouteAttributeObject>(
-		routeStr: T, attributes?: Partial<ApplicationRouteAttributeObject[T]> | any
-	): RedirectResponseContract;
+	route<T extends string>(routeStr: T, attributes?: any): RedirectResponseContract;
 
 	/**
 	 * Send a not found response

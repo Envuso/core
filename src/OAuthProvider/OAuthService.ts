@@ -38,7 +38,7 @@ export class OAuthService {
 
 	static forService(serviceName: string): OAuthService {
 		return new OAuthService(
-			config('Services').oauthProviders,
+			config().get<string, any>('Services.oauthProviders'),
 			serviceName
 		);
 	}

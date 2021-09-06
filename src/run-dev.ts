@@ -1,18 +1,17 @@
 import "reflect-metadata";
 
 import path from "path";
-import {config} from 'dotenv';
+import Environment from './AppContainer/Config/Environment';
+Environment.load(path.join(__dirname, '..', '.env'));
 
-config({path : path.join(__dirname, '..', '.env')});
-
-import {Config} from "./Meta/Configuration";
+import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
 import {Log} from "./Common";
 
-
 const envuso = new Envuso();
 
-envuso.boot(Config)
+Configuration.initiate()
+	.then(() => envuso.boot())
 	.then(() => envuso.serve())
 	.catch(error => {
 		Log.error(error);

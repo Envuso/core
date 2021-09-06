@@ -121,7 +121,7 @@ export class Session implements SessionContract {
 	 * @returns {string}
 	 */
 	public getCookieName(): string {
-		return config('Session')?.sessionCookie?.name ?? 'id';
+		return config().get<string, any>('Session.sessionCookie.name' , 'id');
 	}
 
 	/**

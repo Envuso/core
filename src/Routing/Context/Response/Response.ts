@@ -6,7 +6,7 @@ import {RequestContextContract} from "../../../Contracts/Routing/Context/Request
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {ResponseContract} from "../../../Contracts/Routing/Context/Response/ResponseContract";
 import {ViewManagerContract} from "../../../Contracts/Routing/Views/ViewManagerContract";
-import {ApplicationRouteAttributeObject} from "../../../Meta/ApplicationRouteMeta";
+//import {ApplicationRouteAttributeObject} from "../../../Meta/ApplicationRouteMeta";
 import {ViewManager} from "../../Views/ViewManager";
 import {RequestResponseContext} from "../RequestResponseContext";
 
@@ -148,9 +148,7 @@ export class Response extends RequestResponseContext implements ResponseContract
 	 * @param attributes
 	 * @return {RedirectResponseContract}
 	 */
-	public route<T extends keyof ApplicationRouteAttributeObject>(
-		routeStr: T, attributes?: Partial<ApplicationRouteAttributeObject[T]> | any
-	): RedirectResponseContract {
+	public route<T extends string>(routeStr: T, attributes?: any): RedirectResponseContract {
 		return this.redirectResponse().route(routeStr, attributes);
 	}
 

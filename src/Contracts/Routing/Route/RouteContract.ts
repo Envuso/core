@@ -48,4 +48,6 @@ export interface RouteContract {
 	 * @private
 	 */
 	getMiddlewareHandlers(globalMiddleware: (new () => MiddlewareContract)[]): RouteMiddlewareHandlers;
+
+	getMethodName(): string;
 }

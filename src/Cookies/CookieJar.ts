@@ -17,8 +17,8 @@ export class CookieJar implements CookieJarContract {
 	constructor() {
 		const configRepository = resolve(ConfigRepository);
 
-		this._config = configRepository.get('Session');
-		this._secret = configRepository.get('App').get('appKey');
+		this._config = configRepository.get<string, any>('Session');
+		this._secret = configRepository.get<string, any>('App.appKey');
 	}
 
 	/**

@@ -9,7 +9,7 @@ export class StartSessionMiddleware extends Middleware {
 	public async handle(context: RequestContextContract): Promise<any> {
 		const sessionManager = resolve<SessionManagerContract>('SessionManager');
 		const session        = sessionManager.driver();
-		const cookieName     = config('Session').sessionCookie.name;
+		const cookieName     = config().get<string, any>('Session.sessionCookie.name');
 		let sessionId        = null;
 
 		if (!context.request.cookieJar().has(cookieName)) {

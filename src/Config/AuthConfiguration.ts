@@ -3,7 +3,7 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 import {JwtAuthenticationProvider, ModelUserProvider, SessionAuthenticationProvider} from "../Authentication";
 import {AuthenticationIdentifier} from "../Contracts/Authentication/UserProvider/AuthCredentials";
 
-export class AuthConfiguration extends ConfigurationCredentials {
+export default class AuthConfiguration extends ConfigurationCredentials {
 
 	userModel = 'User';
 

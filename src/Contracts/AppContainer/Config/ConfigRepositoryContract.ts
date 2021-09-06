@@ -1,5 +1,3 @@
-import {Config, ConfigHelperKeys} from "../../../Meta/Configuration";
-
 export interface ConfigRepositoryContract {
 	_config: any;
 
@@ -20,12 +18,9 @@ export interface ConfigRepositoryContract {
 	 * @param key
 	 * @param _default
 	 */
-	//get<T>(key: string, _default?: any): T;
-	//	get<T extends keyof ConfigHelperKeys>(key: T|string, _default?: any): ConfigHelperKeys[T];
-	//get<T>(key: string, _default?: any): T;
-	get<T extends keyof (typeof Config)>(file: T): (typeof Config)[T];
+	get<T extends string, R extends any>(key: T, _default?:any): R;
 
-	file<T extends keyof (typeof Config)>(file: T): (typeof Config)[T];
+	file<T extends string, R extends any>(file: T, _default?:any): R;
 
 	/**
 	 * Set a Config on the repository

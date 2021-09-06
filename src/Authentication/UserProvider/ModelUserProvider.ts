@@ -13,7 +13,7 @@ export class ModelUserProvider extends UserProvider implements UserProviderContr
 	}
 
 	private getUserModel<T>(): ModelContractConstructor<T> {
-		const userModelName: string = resolve(ConfigRepository).get('Auth').get('userModel');
+		const userModelName: string = resolve(ConfigRepository).get<string, any>('Auth.userModel');
 
 		return resolve(userModelName + 'Model');
 	}
@@ -49,7 +49,7 @@ export class ModelUserProvider extends UserProvider implements UserProviderContr
 
 		const userModel = this.getUserModel<T>();
 
-		const primaryIdentifier = resolve(ConfigRepository).get('Auth').get('primaryIdentifier');
+		const primaryIdentifier = resolve(ConfigRepository).get<string, any>('Auth.primaryIdentifier');
 
 		const filter              = {};
 		filter[primaryIdentifier] = identifier;
@@ -65,7 +65,7 @@ export class ModelUserProvider extends UserProvider implements UserProviderContr
 	}
 
 	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<AuthenticatableContract<T>> {
-		const primaryIdentifier = resolve(ConfigRepository).get('Auth').get('primaryIdentifier');
+		const primaryIdentifier = resolve(ConfigRepository).get<string, any>('Auth.primaryIdentifier');
 
 		let user = await this.userForIdentifier(
 			credentials[primaryIdentifier] as AuthenticationIdentifier

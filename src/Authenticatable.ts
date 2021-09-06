@@ -57,7 +57,7 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 	}
 
 	public toJSON() {
-		const options = config('Server').responseSerialization as ClassTransformOptions;
+		const options = config<any>('Server').responseSerialization as ClassTransformOptions;
 
 		const obj = classToPlainFromExist(
 			this._user ? this._user : this,

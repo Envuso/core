@@ -1,4 +1,5 @@
 import {config} from "../../AppContainer";
+import Environment from "../../AppContainer/Config/Environment";
 import {ExceptionHandlerContract} from "../../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {getReasonPhrase, StatusCodes} from "../Http";
@@ -51,7 +52,8 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 	};
 
 	public static handle(request: RequestContract, exception: Exception | Error): ExceptionResponse {
-		const isDev            = config('App').isDev();
+		const isDev            = Environment.isDev();
+		
 		const exceptionHandler = new ExceptionHandler();
 
 		if (!(exception instanceof Exception)) {
@@ -75,7 +77,7 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 	}
 
 	public process(request: RequestContract, exception: Exception): ExceptionResponse | null {
-		const isDev = config('App').isDev();
+		const isDev = Environment.isDev();
 
 		if (!this.shouldHandle(exception)) {
 			return {
@@ -109,7 +111,7 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 	}
 
 	public handleViewResponse(request: RequestContract, exception: Exception): ExceptionResponse {
-		const isDev = config('App').isDev();
+		const isDev = Environment.isDev();
 
 		const err = {
 			title   : 'Uh oh, something went wrong.',

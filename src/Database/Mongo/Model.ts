@@ -396,7 +396,7 @@ export class Model<M> implements ModelContract<M> {
 	 * that any @Exclude() properties etc are taken care of.
 	 */
 	public toJSON() {
-		const options = config('Server').responseSerialization as ClassTransformOptions;
+		const options = config().get<string, any>('Server').responseSerialization as ClassTransformOptions;
 
 		return classToPlainFromExist(
 			this,

@@ -1,10 +1,9 @@
 import has from "lodash.has";
 import set from "lodash.set";
+import get from "lodash.get";
 import {injectable} from "tsyringe";
 import {ConfigRepositoryContract} from "../../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {Config} from "../../Meta/Configuration";
-
-//const {Config, ConfigHelperKeys} = require("../../Meta/Configuration");
+import {ConfigFile} from "./ConfigurationFile";
 
 @injectable()
 export class ConfigRepository implements ConfigRepositoryContract {
@@ -16,6 +15,8 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 */
 	public _config: any;
 
+	private static pendingConfigurationFiles = [];
+
 	/**
 	 * Load all available Configuration
 	 *
@@ -25,39 +26,45 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 *
 	 * @private
 	 */
-	public loadConfigFrom(config: any) {
-		this._config = config;
+	public loadConfigFrom(configFiles: ConfigFile[]) {
+		const configObject = {};
+
+		for (let configFile of configFiles) {
+			configObject[configFile.name.toLowerCase()] = configFile.resolved;
+		}
+
+		this._config = configObject;
 	}
 
 	/**
 	 * Get a Config value by key
 	 *
-	 * @param file
+	 * @param key
+	 * @param _default
 	 */
-	//	public get<T>(key: string, _default?: any): T;
-	//	public get<T extends keyof ConfigHelperKeys>(key: T, _default?: any): T extends keyof ConfigHelperKeys ? ConfigHelperKeys[T] : T;
-	//	public get<T extends (keyof ConfigHelperKeys | string)>(key: T | string, _default: any = null): T extends keyof ConfigHelperKeys ? ConfigHelperKeys[T] : T {
-	public get<T extends keyof (typeof Config)>(file: T): (typeof Config)[T] {
-		//		return get(this._config, key, _default);
-		//return this._config[key] as T ?? _default;
-		return this.file(file);
+	public get<T extends string, R extends any>(key: T, _default: any = null): R {
+		if (key.includes('.')) {
+			const parts = key.split('.');
+			parts[0]    = parts[0].toString().toLowerCase();
+
+			key = parts.join('.') as T;
+		} else {
+			key = key.toLowerCase() as T;
+		}
+
+		return get(this._config, key) ?? _default;
 	}
 
 	/**
 	 * Get a config file
 	 *
 	 * @param {T} file
+	 * @param _default
 	 * @return {typeof Config[T]}
 	 */
-	public file<T extends keyof (typeof Config)>(file: T): (typeof Config)[T] {
-		return Config[file];
+	public file<T extends string, R extends any>(file: T, _default: any = null): R {
+		return this._config[file.toLowerCase()] ?? _default;
 	};
-
-	//	function config<T extends keyof ConfigHelperKeys>(key?: T): ConfigHelperKeys[T] {
-	//		return get(Config, key);
-	//	}
-	//
-	//	const session = config("Session");
 
 	/**
 	 * Set a Config on the repository
@@ -128,4 +135,6 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	public reset() {
 		this._config = {};
 	}
+
+
 }

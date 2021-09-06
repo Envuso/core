@@ -242,4 +242,8 @@ export class Route implements RouteContract {
 
 		return [301, 302, 303, 307, 308].includes(response.statusCode);
 	}
+
+	public getMethodName(): string {
+		return this.methodMeta.key;
+	}
 }

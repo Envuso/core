@@ -1,4 +1,4 @@
-import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
+//import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
 
 export interface RedirectResponseContract {
 	/**
@@ -8,13 +8,11 @@ export interface RedirectResponseContract {
 	 * @param attributes
 	 * @return {RedirectResponseContract}
 	 */
-	route<T extends string>(
-		routeStr: T, attributes?: object
-	): RedirectResponseContract;
+	route<T extends string>(routeStr: T, attributes?: any): RedirectResponseContract;
 
-	route<T extends keyof ApplicationRouteAttributeObject>(
-		routeStr: T, attributes?: Partial<ApplicationRouteAttributeObject[T]> | any
-	): RedirectResponseContract;
+//	route<T extends keyof ApplicationRouteAttributeObject>(
+//		routeStr: T, attributes?: Partial<ApplicationRouteAttributeObject[T]> | any
+//	): RedirectResponseContract;
 
 	/**
 	 * Redirect away from the site to somewhere external (google.com for ex)
