@@ -8,13 +8,11 @@ import {App} from "./App";
 export const resolve = <T>(identifier: constructor<T> | string): T => App.getInstance().resolve<T>(identifier);
 export const app     = (): AppContract => App.getInstance();
 
-//<T extends (keyof ConfigHelperKeys|string)>(key: T | string, _default: any = null): T extends keyof ConfigHelperKeys ? ConfigHelperKeys[T] : T {
-
 function config(): ConfigRepositoryContract;
 function config<T extends any>(key: string, _default?:any): T;
 function config<T extends any>(key?: string, _default?:any): T | ConfigRepositoryContract {
 	if (key) {
-		return App.getInstance().config().file(key, _default);
+		return App.getInstance().config().get(key, _default);
 	}
 
 	return App.getInstance().config();

@@ -31,6 +31,12 @@ export interface RequestContract extends RequestResponseContextContract {
 	url(): string;
 
 	/**
+	 * Returns the path of the request, for example, imagine:
+	 * https://example.com/testing/route. This method will return /testing/route
+	 */
+	path(): string;
+
+	/**
 	 * The method of the incoming request, GET, PUT etc
 	 */
 	method(): HTTPMethods;

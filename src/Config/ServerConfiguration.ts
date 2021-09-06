@@ -4,9 +4,9 @@ import {FastifyCorsOptions} from "fastify-cors";
 import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {ServerConfiguration as ServerConfig} from "../Contracts/Server/ServerContract";
+import {InertiaMiddleware} from "../Packages/Inertia/Middleware/InertiaMiddleware";
 import {InjectViewGlobals} from "../Routing/Views/InjectViewGlobals";
 import {StartSessionMiddleware} from "../Session/Middleware/StartSessionMiddleware";
-
 
 export default class ServerConfiguration extends ConfigurationCredentials implements ServerConfig {
 
@@ -21,6 +21,7 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	middleware = [
 		StartSessionMiddleware,
 		InjectViewGlobals,
+		InertiaMiddleware,
 	];
 
 	/**
@@ -48,7 +49,7 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	 */
 	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]> = [
 		[FastifyMultipart, {} as FastifyMultipartOptions],
-		[require('fastify-helmet'), {contentSecurityPolicy : false}]
+		[require('fastify-helmet'), {contentSecurityPolicy : false}],
 	];
 
 	/**

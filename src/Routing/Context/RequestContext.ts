@@ -11,6 +11,8 @@ import {ResponseContract} from "../../Contracts/Routing/Context/Response/Respons
 import {SessionContract} from "../../Contracts/Session/SessionContract";
 import {SocketConnectionContract} from "../../Contracts/Sockets/SocketConnectionContract";
 import {CookieJar} from "../../Cookies";
+import {InertiaRequestContract} from "../../Packages/Inertia/Contracts/InertiaRequestContract";
+import {InertiaRequest} from "../../Packages/Inertia/InertiaRequest";
 import {Session} from "../../Session";
 import {Request} from "./Request/Request";
 import {RequestContextStore} from "./RequestContextStore";
@@ -30,13 +32,21 @@ export class RequestContext implements RequestContextContract {
 
 	public socket: SocketConnectionContract = null;
 
+	public inertia: InertiaRequestContract = null;
+
+	private additional: { [key: string]: any } = {};
+
 	constructor(
 		request?: FastifyRequest | IncomingMessage,
 		response?: FastifyReply,
 		socket?: SocketConnectionContract
 	) {
-		if (request)
+		if (request) {
 			this.request = new Request(this, request);
+
+			if (!(request instanceof IncomingMessage))
+				this.inertia = new InertiaRequest(this, request);
+		}
 		if (response)
 			this.response = new Response(this, response);
 		if (socket)
@@ -171,6 +181,30 @@ export class RequestContext implements RequestContextContract {
 		this.session = session;
 
 		return this;
+	}
+
+	/**
+	 * Set an additional value on the request context
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @return {RequestContextContract}
+	 */
+	public setAdditional(key: string, value: any): RequestContextContract {
+		this.additional[key] = value;
+
+		return this;
+	}
+
+	/**
+	 * Get an additional value from the request context.
+	 *
+	 * @param {string} key
+	 * @param _default
+	 * @return {T}
+	 */
+	public getAdditional<T extends any>(key: string, _default: any = null): T {
+		return this.additional[key] ?? _default;
 	}
 
 }

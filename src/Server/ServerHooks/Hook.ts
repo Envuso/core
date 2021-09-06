@@ -2,6 +2,7 @@ import {DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest} fro
 import Reply from "fastify/lib/reply.js";
 import Request from "fastify/lib/request.js";
 import {RequestPayload} from "fastify/types/hooks";
+import {config} from "../../AppContainer";
 import {Log} from "../../Common";
 import {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
 
@@ -82,7 +83,9 @@ export class Hook implements HookContract {
 				}
 		);
 
-		Log.success('Successfully registered server hook: ' + this.constructor.name);
+		if (config('app.logging.serverHooks', false)) {
+			Log.success('Successfully registered server hook: ' + this.constructor.name);
+		}
 	}
 
 	public getHookArgs(...args): HookRunnerArgs {

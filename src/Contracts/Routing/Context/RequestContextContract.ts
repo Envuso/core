@@ -1,4 +1,5 @@
 import {DependencyContainer} from "tsyringe";
+import {InertiaRequestContract} from "../../../Packages/Inertia/Contracts/InertiaRequestContract";
 import {AuthenticatableContract} from "../../Authentication/UserProvider/AuthenticatableContract";
 import {SessionContract} from "../../Session/SessionContract";
 import {SocketConnectionContract} from "../../Sockets/SocketConnectionContract";
@@ -12,6 +13,7 @@ export interface RequestContextContract {
 	user: AuthenticatableContract<any>;
 	session: SessionContract;
 	socket: SocketConnectionContract;
+	inertia: InertiaRequestContract;
 
 	/**
 	 * Set any cookies from the request into the cookie jar
@@ -46,5 +48,23 @@ export interface RequestContextContract {
 	 * @returns {RequestContextContract}
 	 */
 	setSession(session: SessionContract): RequestContextContract;
+
+	/**
+	 * Set an additional value on the request context
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @return {RequestContextContract}
+	 */
+	setAdditional(key: string, value: any): RequestContextContract;
+
+	/**
+	 * Get an additional value from the request context.
+	 *
+	 * @param {string} key
+	 * @param _default
+	 * @return {T}
+	 */
+	getAdditional<T extends any>(key: string, _default?: any): T;
 
 }

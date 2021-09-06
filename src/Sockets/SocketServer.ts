@@ -80,6 +80,7 @@ export class SocketServer implements SocketServerContract {
 					useClass : socketListener.instance
 				});
 
+				if (config('app.logging.socketChannels', false))
 				Log.info('Imported Socket Channel Listener: ' + socketListener.name);
 			}
 
@@ -94,6 +95,7 @@ export class SocketServer implements SocketServerContract {
 					useClass : socketListener.instance
 				});
 
+				if (config('app.logging.socketChannels', false))
 				Log.info('Imported Socket Listener: ' + socketListener.name);
 			}
 

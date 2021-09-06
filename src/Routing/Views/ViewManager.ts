@@ -1,4 +1,5 @@
 import edge from 'edge.js';
+import {TagContract} from "edge.js/build/src/Contracts";
 import {Edge} from "edge.js/build/src/Edge";
 import {config} from "../../AppContainer";
 import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
@@ -11,8 +12,12 @@ export class ViewManager implements ViewManagerContract {
 		this.edge = edge.mount(config().get<string, any>('Paths.views'));
 	}
 
-	public injectViewGlobal(globalName: string, handler: (...args) => any | Promise<any>) {
+	public registerGlobal(globalName: string, handler: (...args) => any | Promise<any>) {
 		this.edge.global(globalName, (...args) => handler(...args));
+	}
+
+	public registerTag(handler: TagContract) {
+		this.edge.registerTag(handler);
 	}
 
 	/**
@@ -24,9 +29,7 @@ export class ViewManager implements ViewManagerContract {
 	 * @return {string}
 	 */
 	public render(templatePath: string, data?: any): string {
-		return edge.renderSync(
-			templatePath, data
-		);
+		return edge.renderSync(templatePath, data);
 	}
 
 }

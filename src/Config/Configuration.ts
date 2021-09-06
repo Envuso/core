@@ -13,6 +13,8 @@ export default class Configuration extends ConfigurationFile {
 		this.add('session', import("./SessionConfiguration"));
 		this.add('storage', import("./StorageConfiguration"));
 		this.add('websockets', import("./WebsocketsConfiguration"));
+		this.add('inertia', import("./InertiaConfiguration"));
+		this.add('static', import("./StaticAssetConfiguration"));
 	}
 
 }

@@ -1,9 +1,10 @@
 import {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
-import {App} from "../../AppContainer";
-import {Log, METADATA, StatusCodes} from "../../Common";
+import {App, config} from "../../AppContainer";
+import {Obj, Log, METADATA, StatusCodes} from "../../Common";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {MiddlewareContract} from "../../Contracts/Routing/Middleware/MiddlewareContract";
 import {RouteContract, RouteMiddlewareHandlers} from "../../Contracts/Routing/Route/RouteContract";
+import {InertiaResponse} from "../../Packages/Inertia/InertiaResponse";
 import {RequestContext} from "../Context/RequestContext";
 import {RedirectResponse} from "../Context/Response/RedirectResponse";
 import {Responsable} from "../Context/Response/Responsable";
@@ -92,7 +93,6 @@ export class Route implements RouteContract {
 				this.controllerMeta.controller.target
 			);
 
-
 			const routeMethod   = controller[this.methodMeta.key].bind(controller);
 			const routeResponse = await routeMethod(...parameters);
 
@@ -105,7 +105,8 @@ export class Route implements RouteContract {
 				return;
 			}
 
-			Route.getResponseResult(routeResponse);
+
+			await Route.getResponseResult(routeResponse);
 		};
 	}
 
@@ -139,7 +140,7 @@ export class Route implements RouteContract {
 	 * @param controllerResponse
 	 * @private
 	 */
-	static getResponseResult(controllerResponse: Response | RedirectResponse | any) {
+	static async getResponseResult(controllerResponse: Response | RedirectResponse | any) {
 		const response = RequestContext.response();
 
 		if (controllerResponse === undefined || controllerResponse === null) {
@@ -159,6 +160,10 @@ export class Route implements RouteContract {
 			).send();
 		}
 
+		if (controllerResponse instanceof InertiaResponse) {
+			return await controllerResponse.sendResponse();
+		}
+
 		const isResponseOrRedirect = (controllerResponse instanceof Response) || (controllerResponse instanceof RedirectResponse);
 
 		if (!isResponseOrRedirect) {
@@ -172,16 +177,15 @@ export class Route implements RouteContract {
 			return response.fastifyReply.redirect(controllerResponse.getRedirectUrl());
 		}
 
-
-		if (response.data === null || response.data === undefined) {
-			response.data = {};
-		}
+		//		if (response.data === null || response.data === undefined) {
+		//			response.data = {};
+		//		}
 
 		if (controllerResponse.data === null || controllerResponse.data === undefined) {
 			controllerResponse.data = {};
 		}
 
-		return controllerResponse.send();
+		controllerResponse.send();
 	}
 
 	/**
@@ -205,9 +209,11 @@ export class Route implements RouteContract {
 			...(methodMiddlewareMeta?.middlewares || []),
 		];
 
-		middlewares.forEach(mw => {
-			Log.info(mw.constructor.name + ' was loaded for ' + this.getPath());
-		});
+		if (config('app.logging.middleware', false)) {
+			middlewares.forEach(mw => {
+				Log.info(mw.constructor.name + ' was loaded for ' + this.getPath());
+			});
+		}
 
 		return {
 			before : async (context: RequestContextContract) => {

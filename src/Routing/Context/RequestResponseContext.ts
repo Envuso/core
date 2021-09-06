@@ -110,11 +110,11 @@ export class RequestResponseContext implements RequestResponseContextContract {
 	 *
 	 * @returns {string}
 	 */
-	public getHeader<T>(header: keyof IncomingHttpHeaders): T | null {
-		const headerValue = this._headers.get(header.toString());
+	public getHeader<T>(header: keyof IncomingHttpHeaders, _default:any = null): T | null {
+		const headerValue = this._headers.get(header.toString(), _default);
 
 		if (!headerValue) {
-			return null;
+			return _default;
 		}
 
 		return headerValue as unknown as T;
@@ -200,7 +200,7 @@ export class RequestResponseContext implements RequestResponseContextContract {
 
 		return new ObjectContainer(headers, {
 			convertAllKeysToLowerCase   : true,
-			convertAllValuesToLowerCase : true,
+			convertAllValuesToLowerCase : false,
 		});
 	}
 

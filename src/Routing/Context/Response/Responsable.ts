@@ -1,3 +1,3 @@
-export interface Responsable{
-	toResponse():object;
+export interface Responsable {
+	toResponse(): object;
 }

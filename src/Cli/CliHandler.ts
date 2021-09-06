@@ -1,23 +1,22 @@
 import "reflect-metadata";
-import {ConfigMetaGenerator, ControllerMetaGenerator, ModuleMetaGenerator, PrepareCompilerTask, Program} from "@envuso/compiler";
-import {config as configDotEnv} from 'dotenv';
+import Environment from './../AppContainer/Config/Environment';
+import {ConfigMetaGenerator, ControllerMetaGenerator, GenerateTypesFile, ModuleMetaGenerator, Program} from "@envuso/compiler";
 import {config, resolve} from "../AppContainer";
 import {Log} from "../Common";
-import Configuration from "../Config/Configuration";
 import {SeedManager} from "../Database";
 import {Envuso} from "../Envuso";
 
 
+Environment.load();
 Log.disable();
-
-configDotEnv();
 
 const envuso = new Envuso();
 
 const yargs = require("yargs");
 
 const runFrameworkLogic = (dev: boolean = false, logic: () => Promise<void>) => {
-	const {Config} = dev ? require('./../Config') : require('../../../../dist/Config');
+
+	const Configuration = dev ? require('./../Config/Configuration') : require('../../../../dist/Config/Configuration');
 
 	Configuration.initiate()
 		.then(() => envuso.initiateWithoutServing())
@@ -60,7 +59,7 @@ export const run = (dev: boolean = false) => {
 		async (argv) => {
 			await Program.loadConfiguration();
 			await Program.setup([
-				PrepareCompilerTask,
+				GenerateTypesFile,
 				ConfigMetaGenerator,
 				ControllerMetaGenerator,
 				ModuleMetaGenerator,

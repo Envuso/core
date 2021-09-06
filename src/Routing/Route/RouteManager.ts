@@ -11,6 +11,7 @@ import {MethodParameterDecorator} from "./RequestInjection";
 
 export class RouteManager implements RouteManagerContract {
 
+
 	/**
 	 * Reflect Metadata keys that we'll use for method parameter handling. We
 	 * basically iterate through these to see if they're applied to the method

@@ -15,11 +15,21 @@ export interface MetaGeneratorConfiguration {
 	fileName?: string;
 }
 
+export type LogTypes = {
+	middleware?: boolean;
+	routes?: boolean;
+	controllers?: boolean;
+	providers?: boolean;
+	serverHooks?: boolean;
+	socketChannels?: boolean;
+}
+
 export interface ApplicationConfiguration {
 	environment: string;
 	appKey: string;
 	providers: (new () => ServiceProviderContract)[];
-	exceptionHandler : ExceptionHandlerConstructorContract,
+	exceptionHandler: ExceptionHandlerConstructorContract,
+	logging: LogTypes;
 }
 
 export interface AppContract {

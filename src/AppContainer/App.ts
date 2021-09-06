@@ -8,6 +8,7 @@ import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigR
 import {ConfigRepository} from "./Config/ConfigRepository";
 import ConfigurationFile from "./Config/ConfigurationFile";
 import {FailedToBindException} from "./Exceptions/FailedToBindException";
+import {config} from "./index";
 import {ServiceProvider} from "./ServiceProvider";
 
 let instance: App | null = null;
@@ -174,7 +175,9 @@ export class App implements AppContract {
 
 			await provider.register(this, this.resolve(ConfigRepository));
 
-			Log.info('Provider registered: ' + provider.constructor.name);
+			if (config('app.logging.providers', false)) {
+				Log.info('Provider registered: ' + provider.constructor.name);
+			}
 		}
 
 		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
@@ -183,7 +186,9 @@ export class App implements AppContract {
 
 			await provider.boot(this, this.resolve(ConfigRepository));
 
-			Log.info('Service provider booted: ' + provider.constructor.name);
+			if (config('app.logging.providers', false)) {
+				Log.info('Service provider booted: ' + provider.constructor.name);
+			}
 		}
 	}
 

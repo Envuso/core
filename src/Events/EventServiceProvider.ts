@@ -11,9 +11,6 @@ import {EventManager} from "./EventManager";
 export class EventServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-
-		const conf = config.get('Paths.eventDispatchers');
-
 		const dispatchers = await FileLoader.importModulesFrom<EventDispatcher>(
 			path.join(config.get('Paths.eventDispatchers'), '**', '*.ts')
 		);

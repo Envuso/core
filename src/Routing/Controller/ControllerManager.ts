@@ -17,6 +17,15 @@ export class ControllerManager {
 	public static routesList: { [key: string]: string } = {};
 
 	/**
+	 * We'll store an array of all paths that are registered as controller routes
+	 * This isn't great, but the whole routing/controller management logic needs a refactor
+	 *
+	 * @type {string[]}
+	 * @private
+	 */
+	private static routePathsRegistered: string[] = [];
+
+	/**
 	 * Store the metadata for this controller instance on Reflect
 	 * so we can access the path registered for it, anywhere.
 	 *
@@ -66,11 +75,17 @@ export class ControllerManager {
 		const routes: ControllerAndRoutes[] = [];
 
 		for (let controller of controllers) {
-			routes.push({
+			const controllerRoutes = {
 				controller     : controller,
 				controllerName : controller.name,
 				routes         : this.getRoutesForController(controller)
-			});
+			};
+
+			routes.push(controllerRoutes);
+
+			for (let route of controllerRoutes.routes) {
+				this.routePathsRegistered.push(route.getPath());
+			}
 		}
 
 		return routes;
@@ -110,4 +125,24 @@ export class ControllerManager {
 
 		return routes;
 	}
+
+	/**
+	 * Get a list of all registered paths.
+	 *
+	 * @returns {string[]}
+	 */
+	public static getRoutePaths(): string[] {
+		return this.routePathsRegistered;
+	}
+
+	/**
+	 * Check if the specific path is already registered
+	 *
+	 * @param {string} path
+	 * @returns {boolean}
+	 */
+	public static hasPathRegistered(path: string): boolean {
+		return this.routePathsRegistered.includes(path);
+	}
+
 }

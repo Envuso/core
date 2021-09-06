@@ -225,6 +225,39 @@ export class Obj {
 		return false;
 	}
 
+	public static filter<T extends object>(obj: any, filterMethod: (value, key?: any) => boolean): Partial<T> {
+		const filteredObj: Partial<T> = {};
+
+		for (let key in obj) {
+			if (!filterMethod(obj[key], key)) {
+				continue;
+			}
+
+			filteredObj[key] = obj[key];
+		}
+
+		return filteredObj;
+	}
+
+	public static map<T extends object>(obj: any, mapMethod: (value) => any): Partial<T> {
+		const newObj: Partial<T> = {};
+
+		for (let key in obj) {
+			newObj[key] = mapMethod(obj[key]);
+		}
+
+		return newObj;
+	}
+
+	//https://stackoverflow.com/a/45762727/15727015
+	public static isNativePromise(value: any): boolean {
+		return value && typeof value.constructor === "function" &&
+			Function.prototype.toString.call(value.constructor).replace(/\(.*\)/, "()")
+			=== Function.prototype.toString.call(/*native object*/Function)
+				.replace("Function", "Promise") // replacing Identifier
+				.replace(/\(.*\)/, "()"); // removing possible FormalParameterList
+	}
+
 }
 
 export default Obj;

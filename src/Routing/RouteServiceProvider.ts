@@ -3,16 +3,19 @@ import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader, Log} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {AssetManager} from "./StaticAssets/AssetManager";
 import {ViewManager} from "./Views/ViewManager";
 
 export class RouteServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-
+		app.container().register('ViewManager', {useFactory : () => new ViewManager()});
+		app.container().register('AssetManager', {useFactory : () => new AssetManager()});
 	}
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-		app.container().register('ViewManager', {useFactory : () => new ViewManager()});
+
+		await app.container().resolve<AssetManager>('AssetManager').load();
 
 		const controllers = await FileLoader.importModulesFrom(
 			path.join(config.get<string, any>('Paths.controllers'), '**', '*.ts')
@@ -36,11 +39,15 @@ export class RouteServiceProvider extends ServiceProvider {
 			}, 'Controllers');
 
 			//			app.container().register(controller.instance.prototype, {useValue : controller.instance});
-			Log.info('Imported controller: ' + controller.name);
+
+			if (config.get('app.logging.controllers', false)) {
+				Log.info('Imported controller: ' + controller.name);
+			}
 
 		}
 
 		app.container().register('controller.meta', {useValue : controllerMeta});
+
 	}
 
 }

@@ -71,6 +71,14 @@ export class Request extends RequestResponseContext implements RequestContract {
 	}
 
 	/**
+	 * Returns the path of the request, for example, imagine:
+	 * https://example.com/testing/route. This method will return /testing/route
+	 */
+	path(): string {
+		return !(this._request instanceof IncomingMessage) ? this._request.routerPath : null;
+	}
+
+	/**
 	 * The method of the incoming request, GET, PUT etc
 	 */
 	method(): HTTPMethods {
@@ -219,6 +227,9 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 * @return {boolean}
 	 */
 	public isJson(): boolean {
+		if (!this._headers.has('Content-Type')) {
+			return false;
+		}
 		return (this._headers.get('Content-Type') as string).contains(['/json', '+json']);
 	}
 

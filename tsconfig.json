@@ -50,6 +50,7 @@
     "packages/**/*"
   ],
   "include": [
+    "src/App/**/*",
     "src/AppContainer/**/*",
     "src/Authentication/**/*",
     "src/Authorization/**/*",

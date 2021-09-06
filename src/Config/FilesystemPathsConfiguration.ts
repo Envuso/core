@@ -5,7 +5,6 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 export default class FilesystemPathsConfiguration extends ConfigurationCredentials {
 	public root: string             = process.cwd();
 	public src: string              = path.join(this.root, 'src');
-	//	public config: string           = path.join(this.root, 'Config', 'index.js');
 	public controllers: string      = path.join(this.root, 'src', 'App', 'Http', 'Controllers');
 	public middleware: string       = path.join(this.root, 'src', 'App', 'Http', 'Middleware');
 	public socketListeners: string  = path.join(this.root, 'src', 'App', 'Http', 'Sockets');

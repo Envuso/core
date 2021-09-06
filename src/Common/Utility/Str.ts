@@ -85,12 +85,12 @@ String.prototype.isEmpty = function (): boolean {
 
 String.prototype.contains = function (values: string[]) {
 	for (let value of values) {
-		if (!this.includes(value)) {
-			return false;
+		if (this.includes(value)) {
+			return true;
 		}
 	}
 
-	return true;
+	return false;
 };
 
 String.prototype.capitalize = function () {

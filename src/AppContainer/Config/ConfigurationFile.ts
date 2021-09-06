@@ -1,4 +1,5 @@
 import {Log} from "../../Common";
+import {config} from "../index";
 import {ConfigurationCredentials} from "./ConfigurationCredentials";
 
 export type ConfigFile = {
@@ -27,8 +28,6 @@ export default class ConfigurationFile {
 			const conf = Object.values((await pendingConfigurationFile.config)).shift() as (new () => ConfigurationCredentials);
 
 			pendingConfigurationFile.resolved = new conf();
-
-			Log.info(`Loaded config: ${pendingConfigurationFile.resolved.constructor.name}`);
 		}
 	}
 

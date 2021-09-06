@@ -1,7 +1,7 @@
 import fastify, {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
-import {ConfigRepository, resolve} from "../AppContainer";
+import {config, ConfigRepository, resolve} from "../AppContainer";
 import {Exception, Log} from "../Common";
 import {ExceptionHandlerConstructorContract, ExceptionHandlerContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
@@ -10,6 +10,7 @@ import {ErrorHandlerFn, ServerConfiguration, ServerContract} from "../Contracts/
 import {HookContract} from "../Contracts/Server/ServerHooks/HookContract";
 import {RequestContext} from "../Routing/Context/RequestContext";
 import {ControllerManager} from "../Routing/Controller/ControllerManager";
+import {AssetManager} from "../Routing/StaticAssets/AssetManager";
 import {SocketServer} from "../Sockets/SocketServer";
 
 
@@ -69,6 +70,8 @@ export class Server implements ServerContract {
 
 		this.registerControllers();
 
+		resolve(AssetManager).registerAssetPaths(this._server);
+
 		return this._server;
 	}
 
@@ -86,7 +89,7 @@ export class Server implements ServerContract {
 
 			for (let route of routes) {
 
-				ControllerManager.routesList[`${controller.controllerName}.${route.getMethodName()}`] = route.getPath()
+				ControllerManager.routesList[`${controller.controllerName}.${route.getMethodName()}`] = route.getPath();
 
 				const {before, after} = route.getMiddlewareHandlers(
 					this._config.middleware || []
@@ -113,7 +116,10 @@ export class Server implements ServerContract {
 
 				const controllerName = ((controller?.controller as any)?.name ?? controller.controller.constructor.name);
 
-				Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
+				if (config('app.logging.routes', false)) {
+					Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
+				}
+
 			}
 		}
 	}

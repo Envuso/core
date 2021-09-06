@@ -74,27 +74,6 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 */
 	public set(key: string, value: any) {
 		set(this._config, key, value);
-		//		const constructedConfig = {};
-		//
-		//		if(key.includes('.')){
-		//			const keys = key.split('.');
-		//
-		//			let currentConfig = this._config;
-		//			for (let key of keys) {
-		//				if(!currentConfig[key]){
-		//					constructedConfig[key] = {};
-		//					currentConfig[key] = {};
-		//				}
-		//
-		//
-		//			}
-		//		}
-		//
-		//		constructedConfig[key] = value;
-		//
-		//		const configToSet = {...dotnotate(constructedConfig), ...constructedConfig};
-		//
-		//		this._config = {...this._config, ...configToSet};
 	}
 
 	/**
@@ -129,7 +108,6 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 */
 	public has(key: string): boolean {
 		return has(this._config, key);
-		//		return !!this._config[key];
 	}
 
 	public reset() {

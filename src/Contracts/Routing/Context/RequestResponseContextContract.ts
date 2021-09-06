@@ -58,9 +58,10 @@ export interface RequestResponseContextContract {
 	 *
 	 * @param {IncomingHttpHeaders} header
 	 *
+	 * @param _default
 	 * @returns {string}
 	 */
-	getHeader<T>(header: keyof IncomingHttpHeaders): T | null;
+	getHeader<T>(header: keyof IncomingHttpHeaders, _default?:any): T | null;
 
 	/**
 	 * Apply a header to the request or response, this applies directly to the fastify request/response
