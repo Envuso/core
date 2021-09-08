@@ -62,7 +62,7 @@ export default class Environment {
 	}
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 *
 	 * @returns {boolean}
@@ -74,7 +74,7 @@ export default class Environment {
 	}
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 *
 	 * @returns {boolean}

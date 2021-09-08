@@ -5,7 +5,7 @@ import pick from "lodash.pick";
 export class Obj {
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 */
 	static isNullOrUndefined(value: any): boolean {
@@ -13,7 +13,7 @@ export class Obj {
 	}
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 */
 	static isEmpty(value: any): boolean {
@@ -25,11 +25,11 @@ export class Obj {
 	}
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 */
 	static isNumber(value: any, tryCast: boolean = true): boolean {
-		if (typeof value === 'number') {
+		if (typeof value === "number") {
 			return true;
 		}
 
@@ -40,8 +40,15 @@ export class Obj {
 		return !isNaN(+value);
 	}
 
+	public static isObject(obj: any): boolean {
+		return (!Obj.isNullOrUndefined(obj) &&
+			typeof obj === "object" &&
+			obj instanceof Object &&
+			!Array.isArray(obj));
+	}
+
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 */
 	public static has(obj: any, property: any, includePropertyChain: boolean = false): boolean {
@@ -186,7 +193,7 @@ export class Obj {
 	}
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 */
 	static toBoolean(value: any, convertNumbers = false): boolean | null {
@@ -254,10 +261,9 @@ export class Obj {
 		return value && typeof value.constructor === "function" &&
 			Function.prototype.toString.call(value.constructor).replace(/\(.*\)/, "()")
 			=== Function.prototype.toString.call(/*native object*/Function)
-				.replace("Function", "Promise") // replacing Identifier
-				.replace(/\(.*\)/, "()"); // removing possible FormalParameterList
+			            .replace("Function", "Promise") // replacing Identifier
+			            .replace(/\(.*\)/, "()"); // removing possible FormalParameterList
 	}
-
 }
 
 export default Obj;

@@ -152,7 +152,7 @@ export class FileLoader {
 					forRunEnvironment : pathForEnv
 				});
 			} catch (error) {
-				Log.error(error.toString(), {error : error});
+				Log.error(error);
 			}
 		}
 
@@ -198,7 +198,7 @@ export class FileLoader {
 				});
 
 			} catch (error) {
-				Log.error(error.toString(), {error : error});
+				Log.error(error);
 			}
 		}
 
