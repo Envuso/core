@@ -19,7 +19,7 @@ Log.error("[Error] Just a message");
 Log.error(new Error("[Error] Just an error!"));
 Log.error("[Error] A message", new Error("and an error!"));
 Log.exception("[Exception] Just a message");
-Log.exception(new Error("[Exception] Just an error"));
+Log.label('Server').exception(new Error("[Exception] Just an error"));
 Log.exception("[Exception] A message", new Error("and an error"));
 Log.label("custom").info("[Info] label");
 Log.label("multiple", "args").info("[Info] label");
