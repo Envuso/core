@@ -3,6 +3,7 @@ import {resolve} from "../AppContainer";
 import {Authentication} from "../Authentication";
 import {Classes} from "../Common";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
+import {ModelDecoratorMeta} from "../Database";
 import {PolicyNotFound} from "./Exceptions/PolicyNotFound";
 import {PolicyPermissionNotFound} from "./Exceptions/PolicyPermissionNotFound";
 
@@ -13,7 +14,7 @@ export class Authorization {
 
 	public static getPolicyForModel<T extends ModelConstructorOrInstantiatedModel>(model: T) {
 		const policyConstructor = Reflect.getMetadata(
-			'authorization-policy', Classes.getConstructor(model)
+			ModelDecoratorMeta.AUTHORIZATION_POLICY_REF, Classes.getConstructor(model)
 		);
 
 		if (!policyConstructor) {

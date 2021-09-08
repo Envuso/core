@@ -202,4 +202,10 @@ export class Server implements ServerContract {
 		 response.send();*/
 	}
 
+	public unload() {
+		this._server = null;
+		this._config = null;
+		this._exceptionHandler = null;
+		this._customErrorHandler = null;
+	}
 }

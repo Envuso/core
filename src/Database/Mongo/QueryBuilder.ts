@@ -1,10 +1,11 @@
 import {Cursor, FilterQuery, FindOneOptions, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult, WithoutProjection} from "mongodb";
+import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {ClassType, Ref} from "../index";
+import {ClassType, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref} from "../index";
+import {getModelCollectionName} from "../ModelHelpers";
 import {hydrateModel} from "../Serialization/Serializer";
-//import {Model} from "./Model";
 import {Paginator} from "./Paginator";
 
 export class QueryBuilder<T> implements QueryBuilderContract<T> {
@@ -13,6 +14,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * When we call any internal mongo methods to query a collection
 	 * we'll store it's instance here so that we can use chaining.
 	 *
+	 * @template T
 	 * @private
 	 */
 	public _builderResult: Cursor<T>;
@@ -20,6 +22,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	/**
 	 * An instance of the model to use for interaction
 	 *
+	 * @template T
 	 * @type {ModelContract<T>}
 	 * @private
 	 */
@@ -58,13 +61,24 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 */
 	public _limit: number = null;
 
+	private readonly _hasOneRelations: ModelRelationMeta[]  = [];
+	private readonly _hasManyRelations: ModelRelationMeta[] = [];
+
 	constructor(model: ModelContract<T>) {
 		this._model = model;
+
+		this._hasOneRelations  = this._model.getMeta<ModelRelationMeta[]>(
+			ModelDecoratorMeta.HAS_ONE_RELATION, []
+		);
+		this._hasManyRelations = this._model.getMeta<ModelRelationMeta[]>(
+			ModelDecoratorMeta.HAS_MANY_RELATION, []
+		);
 	}
 
 	/**
 	 * Similar to using collection.find()
 	 *
+	 * @template M
 	 * @param attributes
 	 */
 	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T> {
@@ -73,6 +87,37 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		return this;
 	}
 
+	/**
+	 * Allows us to do a query for an item that exists in the array.
+	 * For example, we have documents with usernames, jane, bill, bob.
+	 *
+	 * We can do .whereIn('username', ['jane', 'bill'])
+	 *
+	 * {@see QueryBuilder}
+	 *
+	 * @param key
+	 * @param values
+	 */
+	public whereIn<F extends (keyof T)>(
+		key: F, values: T[F][]
+	): QueryBuilderContract<T> {
+		this._collectionFilter = {
+			...this._collectionFilter,
+			[key] : {$in : values},
+		};
+
+		return this;
+	}
+
+	/**
+	 * Only run the specified query when the condition returns true
+	 *
+	 * @template T
+	 * @template M
+	 * @param {boolean | (() => boolean)} condition
+	 * @param {FilterQuery<M | T> | Partial<M | T>} attributes
+	 * @returns {QueryBuilderContract<T>}
+	 */
 	public when<M>(
 		condition: boolean | (() => boolean),
 		attributes: FilterQuery<M | T> | Partial<M | T>
@@ -91,10 +136,10 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	/**
 	 * Allows us to specify any model refs to load in this query
 	 *
+	 * @template T
 	 * @param refsToLoad
 	 */
-	public with(...refsToLoad: (keyof T)[]): QueryBuilderContract<T> {
-
+	public oldWith(...refsToLoad: (keyof T)[]): QueryBuilderContract<T> {
 		const refs = Reflect.getMetadata('mongo:refs', this._model) || {};
 
 		for (let ref of refsToLoad) {
@@ -130,8 +175,123 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	}
 
 	/**
+	 * Allows us to specify any model relations to load on this query
+	 *
+	 * @template T
+	 * @param relations
+	 */
+	public with(...relations: (keyof ModelProps<T>)[]): QueryBuilderContract<T> {
+		const relationsMeta = this.relations();
+
+		for (let relation of relations) {
+
+			const meta = relationsMeta[relation as string];
+
+			if (!this.isRelation(relation as string) || !meta) {
+				Log.warn(`You're trying to load a relation that is not defined as one. `);
+				Log.warn(`Attempted relation key is: ${relation}. `);
+				const relationKeys = [...this._hasOneRelations, ...this._hasManyRelations].map(
+					r => `${r.propertyKey}(${r.type})`
+				).join(', ');
+				Log.warn(`Defined relations are: ${relationKeys}`);
+				continue;
+			}
+
+			if (meta.type === ModelRelationType.HAS_ONE) {
+				/**
+				 * The only way i could figure out aggregation for one to one
+				 *
+				 * We load the related collection items by local key to foreign key
+				 * in to a "temporary" key on the document
+				 *
+				 * We then add a new field for the desired relation name with
+				 * the first item from the temporary document field
+				 *
+				 * Then we remove the temporary array. I don't think it's great...
+				 * but I'm honestly not sure about the performance impacts.
+				 *
+				 * Anything is better than nothing at this point.
+				 */
+				this._collectionAggregation.push(...[
+					{
+						$lookup : {
+							from         : getModelCollectionName(meta.relatedModel),
+							localField   : meta.localKey,
+							foreignField : meta.foreignKey,
+							as           : meta.propertyKey + 'Temp'
+						},
+					},
+					{
+						$addFields : {
+							[meta.propertyKey] : {
+								'$first' : `$${meta.propertyKey}Temp`
+							}
+						},
+					},
+					{
+						$unset   : [`${meta.propertyKey}Temp`]
+					}
+				]);
+			}
+
+
+			if (meta.type === ModelRelationType.HAS_MANY) {
+				/**
+				 * Basically the same as a MySQL join
+				 */
+				this._collectionAggregation.push({
+					$lookup    : {
+						from         : getModelCollectionName(meta.relatedModel),
+						localField   : meta.localKey,
+						foreignField : meta.foreignKey,
+						as           : meta.propertyKey
+					},
+				});
+			}
+		}
+
+		return this;
+	}
+
+	/**
+	 * Check if a property on the model is part of a relationship
+	 *
+	 * @param {string} key
+	 * @param {ModelRelationType} type
+	 * @returns {boolean}
+	 */
+	public isRelation(key: string, type?: ModelRelationType): boolean {
+		const relations = [...this._hasManyRelations, ...this._hasOneRelations];
+
+		return relations.some(relation => {
+			if (type) {
+				return relation.propertyKey === key && relation.type === type;
+			}
+
+			return relation.propertyKey === key;
+		});
+	}
+
+	/**
+	 * Get an object of all relations on this model as an object
+	 * Key is the relation property, value is the meta registered
+	 *
+	 * @returns {ModelRelationMeta[]}
+	 */
+	public relations(): { [key: string]: ModelRelationMeta } {
+		const relations = {};
+
+		for (let modelRelationMeta of [...this._hasOneRelations, ...this._hasManyRelations]) {
+			relations[modelRelationMeta.propertyKey] = modelRelationMeta;
+		}
+
+		return relations;
+	}
+
+	/**
 	 * Allows us to specify an order of descending, which is applied to the cursor
 	 *
+	 * @template T
 	 * @param key
 	 */
 	public orderByDesc(key: keyof T | string): this {
@@ -146,6 +306,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	/**
 	 * Allows us to specify an order of ascending, which is applied to the cursor
 	 *
+	 * @template T
 	 * @param key
 	 */
 	public orderByAsc(key: keyof T | string): this {
@@ -159,6 +320,9 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 	/**
 	 * Get the first result in the mongo Cursor
+	 *
+	 * @template T
+	 * @returns {Promise<T>}
 	 */
 	public async first(): Promise<T> {
 		await this.resolveFilter();
@@ -180,6 +344,9 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 	/**
 	 * Get all items from the collection that match the query
+	 *
+	 * @template T
+	 * @returns {Promise<T[]>}
 	 */
 	public async get(): Promise<T[]> {
 		const cursor = await this.resolveFilter();
@@ -198,6 +365,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * You can specify {returnMongoResponse : true} in the options to return the mongo result
 	 * of this operation, otherwise, this method will return true/false if it succeeded or failed.
 	 *
+	 * @template T
 	 * @param attributes
 	 * @param options
 	 * @return boolean | UpdateWriteOpResult
@@ -223,6 +391,9 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 	/**
 	 * Get an instance of the underlying mongo cursor
+	 *
+	 * @template T
+	 * @returns {Promise<Cursor<T>>}
 	 */
 	public async cursor(): Promise<Cursor<T>> {
 		return this._builderResult;

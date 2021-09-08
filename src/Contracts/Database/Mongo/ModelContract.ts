@@ -1,5 +1,5 @@
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
-import {QueryBuilder} from "../../../Database";
+import {ModelDecoratorMeta, QueryBuilder} from "../../../Database";
 import {PaginatorContract} from "./PaginatorContract";
 import {QueryBuilderContract} from "./QueryBuilderContract";
 
@@ -9,66 +9,66 @@ export interface ModelContractConstructor<M> {
 	where<T extends ModelContract<any>>(
 		this: new() => T,
 		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilderContract<T>
+	): QueryBuilderContract<T>;
 
 	query<T extends ModelContract<any>>(
 		this: new() => T,
-	): QueryBuilderContract<T>
+	): QueryBuilderContract<T>;
 
 	when<T extends ModelContract<any>>(
 		this: new() => T,
 		condition: boolean | (() => boolean),
 		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilderContract<T>
+	): QueryBuilderContract<T>;
 
 	findOne<T extends ModelContract<any>>(
 		this: new() => T,
 		query: FilterQuery<T | { _id: any }>
-	): Promise<T | null>
+	): Promise<T | null>;
 
 	get<T extends ModelContract<any>>(
 		this: new() => T,
 		query?: FilterQuery<T | { _id: any }>,
 		options?: WithoutProjection<FindOneOptions<T>>
-	): Promise<T[]>
+	): Promise<T[]>;
 
-	count(): Promise<number>
+	count(): Promise<number>;
 
 	paginate<T extends ModelContract<any>>(
 		this: new() => T,
 		limit: number
-	): Promise<PaginatorContract<T>>
+	): Promise<PaginatorContract<T>>;
 
 	with<T extends ModelContract<any>>(
 		this: new() => T,
 		...refs: (keyof T)[]
-	): QueryBuilderContract<T>
+	): QueryBuilderContract<T>;
 
 	find<T extends ModelContract<any>>(
 		this: new() => T,
 		key: string | ObjectId,
 		field?: keyof T | '_id'
-	): Promise<T>
+	): Promise<T>;
 
 	orderByDesc<T extends ModelContract<any>>(
 		this: new() => T,
 		key: keyof T
-	): QueryBuilderContract<T>
+	): QueryBuilderContract<T>;
 
 	orderByAsc<T extends ModelContract<any>>(
 		this: new() => T,
 		key: keyof T
-	): QueryBuilderContract<T>
+	): QueryBuilderContract<T>;
 
 	exists<T extends ModelContract<any>>(
 		this: new() => T,
 		query: FilterQuery<T>
-	)
+	);
 
 	create<T extends ModelContract<any>>(
 		this: new() => T,
 		attributes: Partial<T>
-	): Promise<T>
+	): Promise<T>;
 }
 
 export interface ModelContract<M> {
@@ -148,4 +148,13 @@ export interface ModelContract<M> {
 	toJSON(): Record<string, any>;
 
 	getMongoAtomicOperators(): string[];
+
+	/**
+	 * Make it a tad cleaner to get meta from this model
+	 *
+	 * @param {ModelDecoratorMeta} metaKey
+	 * @param _default
+	 * @returns {T}
+	 */
+	getMeta<T>(metaKey: ModelDecoratorMeta, _default?:any): T;
 }

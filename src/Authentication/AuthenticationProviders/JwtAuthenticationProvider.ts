@@ -135,7 +135,6 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 
 		return resolve<AuthenticatableContract<T>>('Authenticatable')
 			.setUser(user.getUser()) as AuthenticatableContract<T>;
-		//return new Authenticatable().setUser(user.getUser()) as AuthenticatableContract<T>;
 	}
 
 	public issueToken(id: string, additionalPayload?: any): string {

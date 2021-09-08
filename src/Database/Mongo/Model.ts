@@ -1,11 +1,15 @@
+import {ModelMetadata} from "aws-sdk/clients/lookoutvision";
 import {config, resolve} from "../../AppContainer";
 import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
+import {Obj} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
+import {ModelProps} from "../index";
+import {ModelDecoratorMeta} from "../ModelDecorators";
 import {convertEntityObjectIds, dehydrateModel, getModelObjectIds, hydrateModel} from "../Serialization/Serializer";
 import {QueryBuilder} from "./QueryBuilder";
 
@@ -31,14 +35,14 @@ export class Model<M> implements ModelContract<M> {
 	 * Access the underlying mongo collection for this model
 	 */
 	public collection(): Collection<M> {
-		return resolve<Collection<M>>(this.constructor.name + 'Model');
+		return resolve<Collection<M>>(this.constructor.name + 'ModelCollection');
 	}
 
 	/**
 	 * Get an instance of the mongo repository
 	 */
 	static getCollection<T extends Model<any>>(this: new() => T): Collection<T> {
-		return resolve<Collection<T>>(this.name + 'Model');
+		return resolve<Collection<T>>(this.name + 'ModelCollection');
 	}
 
 	/**
@@ -63,6 +67,31 @@ export class Model<M> implements ModelContract<M> {
 		attributes: FilterQuery<T> | Partial<T>
 	): QueryBuilderContract<T> {
 		return new this().queryBuilder().where<T>(attributes);
+	}
+
+	/**
+	 * Allows us to do a query for an item that exists in the array.
+	 * For example, we have documents with usernames, jane, bill, bob.
+	 *
+	 * We can do .whereIn('username', ['jane', 'bill'])
+	 *
+	 * {@see QueryBuilder}
+	 *
+	 * @param key
+	 * @param values
+	 */
+	whereIn<F extends (keyof M)>(
+		key: F, values: M[F][]
+	): QueryBuilderContract<M> {
+		return this.queryBuilder().whereIn(key, values);
+	}
+
+	static whereIn<T extends Model<any>, F extends (keyof T)>(
+		this: new() => T,
+		key: F,
+		values: T[F][]
+	): QueryBuilderContract<T> {
+		return new this().whereIn(key, values);
 	}
 
 	static query<T extends Model<any>>(
@@ -131,19 +160,6 @@ export class Model<M> implements ModelContract<M> {
 		limit: number = 20
 	): Promise<PaginatorContract<T>> {
 		return new this().queryBuilder().paginate(limit);
-	}
-
-	/**
-	 * Allows us to efficiently load relationships
-	 * one to many
-	 *
-	 * @param refs
-	 */
-	static with<T extends Model<any>>(
-		this: new() => T,
-		...refs: (keyof T)[]
-	): QueryBuilderContract<T> {
-		return new this().queryBuilder().with(...refs);
 	}
 
 	/**
@@ -221,7 +237,9 @@ export class Model<M> implements ModelContract<M> {
 	): Promise<T> {
 		const collection = new this().collection();
 
-		const createdEntIty = await collection.insertOne(attributes);
+		const createdEntIty = await collection.insertOne(
+			dehydrateModel(hydrateModel(attributes, this))
+		);
 
 		const newEntity = await collection.findOne({
 			_id : createdEntIty.insertedId
@@ -371,6 +389,48 @@ export class Model<M> implements ModelContract<M> {
 		return !!response.result.ok;
 	}
 
+	/**
+	 * Insert many created models(documents) into the collection
+	 *
+	 * We can pass multiple model instances, or raw objects.
+	 *
+	 * Example:
+	 *
+	 * const bruce = new User()
+	 * bruce.username = 'bruce';
+	 * const sally = new User()
+	 * sally.username = 'sally';
+	 * docs = [bruce, sally]
+	 *
+	 * is the same as:
+	 *
+	 * docs = [{username:'bruce'}, {username:'sally'}]
+	 *
+	 * @param {T[] | Partial<T>[]} models
+	 * @returns {Promise<{success: boolean, ids: ObjectId[]}>}
+	 */
+	public static async insertMany<T extends Model<any>>(
+		this: new() => T,
+		models: T[] | Partial<T>[]
+	): Promise<{ success: boolean, ids: ObjectId[] }> {
+		const formattedModels = models.map(model => {
+			if (!(model instanceof this)) {
+				model = hydrateModel(model, this);
+			}
+
+			return dehydrateModel(model);
+		});
+
+		const result = await new this().collection().insertMany(formattedModels);
+
+		const wasSuccessful = result.result.ok && (result.result.n === formattedModels.length);
+
+		return {
+			success : wasSuccessful,
+			ids     : Object.values(result.insertedIds),
+		};
+	}
+
 	public mongoResponse(): any {
 		return this._recentMongoResponse;
 	}
@@ -405,6 +465,10 @@ export class Model<M> implements ModelContract<M> {
 		);
 	}
 
+	public toBSON() {
+		return dehydrateModel(this);
+	}
+
 	public getMongoAtomicOperators() {
 		return [
 			"$currentDate",
@@ -423,6 +487,17 @@ export class Model<M> implements ModelContract<M> {
 			"$pullAll",
 			"$bit",
 		];
+	}
+
+	/**
+	 * Make it a tad cleaner to get meta from this model
+	 *
+	 * @param {ModelDecoratorMeta} metaKey
+	 * @param _default
+	 * @returns {T}
+	 */
+	public getMeta<T>(metaKey: ModelDecoratorMeta, _default: any = null): T {
+		return (Reflect.getMetadata(metaKey, this) ?? _default) as T;
 	}
 
 }

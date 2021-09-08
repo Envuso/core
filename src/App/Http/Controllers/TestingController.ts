@@ -210,8 +210,6 @@ export class TestingController extends Controller {
 
 		User.count();
 
-		User.with('something').where({something : 'lel'});
-
 		User.find('lele', 'something');
 
 		User.orderByDesc('something');

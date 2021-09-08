@@ -81,16 +81,30 @@ export class Envuso implements EnvusoContract {
 	}
 
 	/**
+	 *
+	 * @returns {Promise<void>}
+	 */
+	public async initialise() {
+		this._server = resolve<Server>(Server);
+		await this._server.initialise();
+	}
+
+	/**
 	 * This will initialise all of the server
 	 * Bind your custom exception handler and begin listening for connections.
 	 */
 	public async serve() {
-		this._server = resolve<Server>(Server);
-
-		await this._server.initialise();
+		await this.initialise();
 
 		this._server.registerHooks(this._serverHooks);
 
 		await this._server.listen();
+	}
+
+	public async unload() {
+		this._server.unload();
+		await App.getInstance().unload();
+		this._app    = null;
+		this._server = null;
 	}
 }

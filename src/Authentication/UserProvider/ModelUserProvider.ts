@@ -15,7 +15,7 @@ export class ModelUserProvider extends UserProvider implements UserProviderContr
 	private getUserModel<T>(): ModelContractConstructor<T> {
 		const userModelName: string = resolve(ConfigRepository).get<string, any>('Auth.userModel');
 
-		return resolve(userModelName + 'Model');
+		return resolve(`Model:${userModelName}`);
 	}
 
 	/**

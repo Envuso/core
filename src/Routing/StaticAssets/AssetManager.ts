@@ -2,7 +2,9 @@ import {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import fs from "fs";
 import {glob} from "glob";
 import * as path from "path";
+import {URL} from "url";
 import * as util from "util";
+import {debug} from "winston";
 import {ConfigRepository, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
@@ -73,15 +75,7 @@ export class AssetManager {
 	public registerAssetPaths(server: FastifyInstance) {
 		this.loadConfiguration();
 
-		const viewManager = resolve<ViewManagerContract>('ViewManager');
-		viewManager.registerGlobal('asset', (asset) => {
-			const relativeAsset = path.join(this.assetDir, asset);
-
-			if (!AssetManager.assetPaths.includes(relativeAsset)) {
-				throw new Error(`The asset ${asset} that you're trying to load does not exist in your assets directory(${this.assetPath}). This is what we're looking for: ${relativeAsset}`);
-			}
-			return relativeAsset;
-		});
+		this.registerAssetViewHelper();
 
 		for (let assetPath of AssetManager.assetPaths) {
 			if (ControllerManager.hasPathRegistered(assetPath)) {
@@ -123,4 +117,49 @@ export class AssetManager {
 	}
 
 
+	private registerAssetViewHelper() {
+		const viewManager = resolve<ViewManagerContract>('ViewManager');
+
+		viewManager.registerGlobal('mix', (asset) => {
+			let relativeAsset = path.join(this.assetDir, asset);
+
+			let hotFileContents = null;
+			if (fs.existsSync(path.join(this.assetPath, 'hot'))) {
+				hotFileContents = fs.readFileSync(path.join(this.assetPath, 'hot'), {encoding : 'utf-8'}).trim();
+			}
+
+			let mixManifest   = null;
+			try {
+				mixManifest = JSON.parse(fs.readFileSync(path.join(this.assetPath, 'mix-manifest.json'), {encoding : 'utf-8'}));
+			} catch (error) {
+				// Probably a file does not exist error...
+			}
+
+			const assetVersionedName = mixManifest[relativeAsset.replace(this.assetDir, '')] ?? null;
+			if (assetVersionedName) {
+				if (hotFileContents !== null) {
+					return (new URL(assetVersionedName, hotFileContents)).toString();
+				}
+
+				return path.join(this.assetDir, assetVersionedName);
+			}
+
+
+			if (!AssetManager.assetPaths.includes(relativeAsset)) {
+				throw new Error(`The asset ${asset} that you're trying to load does not exist in your assets directory(${this.assetPath}). This is what we're looking for: ${relativeAsset}`);
+			}
+
+			return relativeAsset;
+		});
+
+		viewManager.registerGlobal('asset', (asset) => {
+			let relativeAsset = path.join(this.assetDir, asset);
+
+			if (!AssetManager.assetPaths.includes(relativeAsset)) {
+				throw new Error(`The asset ${asset} that you're trying to load does not exist in your assets directory(${this.assetPath}). This is what we're looking for: ${relativeAsset}`);
+			}
+
+			return relativeAsset;
+		});
+	}
 }

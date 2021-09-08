@@ -1,4 +1,5 @@
 import {Cursor, FilterQuery, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult} from "mongodb";
+import {ModelProps, ModelRelationMeta, ModelRelationType} from "../../../Database";
 import {ModelContract} from "./ModelContract";
 import {PaginatorContract} from "./PaginatorContract";
 
@@ -7,6 +8,9 @@ export interface CollectionOrder {
 	key: string,
 }
 
+/**
+ * @template T
+ */
 export interface QueryBuilderContract<T> {
 	_builderResult: Cursor<T>;
 	_model: ModelContract<T>;
@@ -23,17 +27,48 @@ export interface QueryBuilderContract<T> {
 	 */
 	where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T>;
 
+	/**
+	 * Allows us to do a query for an item that exists in the array.
+	 * For example, we have documents with usernames, jane, bill, bob.
+	 *
+	 * We can do .whereIn('username', ['jane', 'bill'])
+	 *
+	 * @param key
+	 * @param values
+	 */
+	whereIn<F extends (keyof T)>(
+		key: F, values: T[F][]
+	): QueryBuilderContract<T>;
+
 	when<M>(
 		condition: boolean | (() => boolean),
 		attributes: FilterQuery<M | T> | Partial<M | T>
 	): QueryBuilderContract<T>;
 
 	/**
-	 * Allows us to specify any model refs to load in this query
+	 * Check if a property on the model is part of a relationship
 	 *
-	 * @param refsToLoad
+	 * @param {string} key
+	 * @param {ModelRelationType} type
+	 * @returns {boolean}
 	 */
-	with(...refsToLoad: (keyof T)[]): QueryBuilderContract<T>;
+	isRelation(key: string, type?: ModelRelationType): boolean;
+
+	/**
+	 * Get an object of all relations on this model as an object
+	 * Key is the relation property, value is the meta registered
+	 *
+	 * @returns {ModelRelationMeta[]}
+	 */
+	relations(): {[key:string]:ModelRelationMeta}
+
+	/**
+	 * Allows us to specify any model relations to load on this query
+	 *
+	 * @template T
+	 * @param relations
+	 */
+	with(...relations: (keyof ModelProps<T>)[]): QueryBuilderContract<T>;
 
 	/**
 	 * Allows us to specify an order of descending, which is applied to the cursor

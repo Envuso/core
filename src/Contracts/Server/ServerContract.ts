@@ -58,4 +58,6 @@ export interface ServerContract {
 	setErrorHandling(handler: ErrorHandlerFn): void;
 
 	handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply): Promise<FastifyReply>;
+
+	unload();
 }

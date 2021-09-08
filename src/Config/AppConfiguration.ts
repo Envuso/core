@@ -40,12 +40,12 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 	exceptionHandler: ExceptionHandlerConstructorContract = ExceptionHandler;
 
 	logging = {
-		middleware: false,
-		routes: false,
-		controllers: false,
-		providers: false,
-		serverHooks: false,
-		socketChannels: false,
+		middleware: true,
+		routes: true,
+		controllers: true,
+		providers: true,
+		serverHooks: true,
+		socketChannels: true,
 	};
 
 	isDev() {

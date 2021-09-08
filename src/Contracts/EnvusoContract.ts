@@ -38,9 +38,13 @@ export interface EnvusoContract {
 	 */
 	addExceptionHandler(handler: ErrorHandlerFn): void;
 
+	initialise(): Promise<void>;
+
 	/**
 	 * This will initialise all of the server
 	 * Bind your custom exception handler and begin listening for connections.
 	 */
 	serve(): Promise<void>;
+
+	unload(): Promise<void>;
 }

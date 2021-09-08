@@ -1,7 +1,7 @@
 import {classToPlain, plainToClass} from "class-transformer";
 import {ObjectId} from 'mongodb';
 import {Log} from "../../Common";
-import {ClassType, ModelObjectId, Ref} from "../index";
+import {ClassType, ModelDecoratorMeta, ModelObjectId, Ref} from "../index";
 
 export function dehydrateModel<T>(entity: T): Object {
 	if (!entity)
@@ -87,12 +87,16 @@ export function convertEntityObjectIds<T>(entity: T, plain: any): Object {
 			continue;
 		}
 
-		modelObjectIds[objectIdField.name] = new ObjectId(plain[objectIdField.name]);
+		try {
+			modelObjectIds[objectIdField.name] = new ObjectId(plain[objectIdField.name]);
+		} catch (error) {
+			console.error('Failed to create new object id for field: ' + objectIdField.name, error);
+		}
 	}
 
 	return modelObjectIds;
 }
 
 export function getModelObjectIds(entity: any): ModelObjectId[] {
-	return Reflect.getMetadata('mongo:objectId', entity) || [];
+	return Reflect.getMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, entity) || [];
 }

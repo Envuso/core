@@ -1,5 +1,7 @@
 import {TypeOptions} from "class-transformer";
 import {CollationDocument, FilterQuery} from "mongodb";
+import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
+import {Model} from "./Mongo/Model";
 
 export * from './DatabaseServiceProvider';
 export * from './Mongo/Model';
@@ -19,6 +21,17 @@ export declare type ClassType<T> = {
 
 //(type?: TypeHelpOptions) => Function, options?: TypeOptions
 export type TypeFunction = (type?: TypeOptions) => ClassType<any>;
+
+
+type ModelPropertyNames<T> = {
+	[K in keyof T]: T[K] extends Function ? never : K;
+}[keyof T];
+
+type ModelPropertiesOnly<T> = {
+	[P in ModelPropertyNames<T>]: T[P] extends object ? ModelProps<T[P]> : T[P]
+};
+export type ModelProps<T> = ModelPropertiesOnly<T>;
+
 
 /**
  * Options passed to mongodb.createIndexes
@@ -90,4 +103,19 @@ export interface RepositoryOptions {
 	 * overrides database name in connection string
 	 */
 	databaseName?: string;
+}
+
+export enum ModelRelationType {
+	HAS_MANY = 'has-many',
+	HAS_ONE  = 'has-one',
+}
+
+export interface ModelRelationMeta {
+	// This is the property on the model that the relation
+	// data will be applied to when loaded.
+	propertyKey: string;
+	relatedModel: ModelContract<any> | string,
+	foreignKey?: string;
+	localKey?: string;
+	type: ModelRelationType;
 }

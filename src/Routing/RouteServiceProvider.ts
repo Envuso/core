@@ -17,8 +17,8 @@ export class RouteServiceProvider extends ServiceProvider {
 
 		await app.container().resolve<AssetManager>('AssetManager').load();
 
-		const controllers = await FileLoader.importModulesFrom(
-			path.join(config.get<string, any>('Paths.controllers'), '**', '*.ts')
+		const controllers = await FileLoader.importClassesOfTypeFrom(
+			path.join(config.get<string, any>('Paths.controllers'), '**', '*.ts'), 'Controller'
 		);
 
 		const controllerMeta: any = {};

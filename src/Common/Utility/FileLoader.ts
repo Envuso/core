@@ -1,16 +1,17 @@
 import {glob} from "glob";
 import path from 'path';
 import {Log} from "../Logger/Log";
+import {Classes} from "./Classes";
 
-interface FormatPathInformation {
+export interface FormatPathInformation {
 	//When running in ts-node, we can use a .ts file extension
 	forTsNode: string; // 'ts';
 	//When running in production/compiled code(for example, with webpack) it will be .js
 	forNode: string; //'js';
 }
 
-interface ImportedModule<T> {
-	instance: new () => T;
+export interface ImportedModule<T> {
+	instance: new (...args: any[]) => T;
 	name: any;
 	originalPath: string;
 	forRunEnvironment: string;
@@ -31,7 +32,7 @@ export class FileLoader {
 			return true;
 		}
 
-		if(process.env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID){
+		if (process.env.NODE_ENV === 'test' && process.env.JEST_WORKER_ID) {
 			return true;
 		}
 
@@ -158,4 +159,49 @@ export class FileLoader {
 		return modules;
 	}
 
+	/**
+	 * Basically the same as {@see importModulesFrom} except... when we cannot load a
+	 * module, it won't error. We'll also check if the class extends another class type.
+	 *
+	 * This fixes issues where we can define a class that isn't a model inside /src/App/Models
+	 * for example, also where we can define interfaces in there.
+	 *
+	 * @param {string} path
+	 * @param {string} type
+	 * @returns {Promise<ImportedModule<T>[]>}
+	 */
+	static async importClassesOfTypeFrom<T>(path: string, type: string): Promise<ImportedModule<T>[]> {
+		const files   = this.filesInPath(path);
+		const modules = [];
+
+		for (let path of files) {
+			const pathForEnv = this.formatPathForRunEnvironment(path);
+			try {
+				const module = await import(pathForEnv);
+
+				const moduleInstanceKey = Object.keys(module).shift() || null;
+				if (!moduleInstanceKey) {
+					continue;
+				}
+
+				const instance = module[moduleInstanceKey];
+
+				if (!Classes.checkIfExtends(instance, type, 5)) {
+					continue;
+				}
+
+				modules.push({
+					instance          : instance,
+					name              : instance.name,
+					originalPath      : path,
+					forRunEnvironment : pathForEnv
+				});
+
+			} catch (error) {
+				Log.error(error.toString(), {error : error});
+			}
+		}
+
+		return modules;
+	}
 }

@@ -1,7 +1,6 @@
 import {MongoClient} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
-import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
@@ -19,7 +18,6 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		app.container().register(MongoClient, {useValue : connection});
 		app.container().register(SeedManager, {useValue : new SeedManager()});
 
-
 		await this.loadModels(app, config, config.get<string, any>('Paths.models'));
 	}
 
@@ -29,20 +27,27 @@ export class DatabaseServiceProvider extends ServiceProvider {
 	}
 
 	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {
-		const modules = await FileLoader.importModulesFrom(
-			path.join(modulePath, '**', '*.ts')
+
+		const modules = await FileLoader.importClassesOfTypeFrom(
+			path.join(modulePath, '**', '*.ts'), 'Model'
 		);
-		const client  = app.resolve(MongoClient);
-		const dbName  = config.get<string, any>('Database.mongo.name');
+
+		const client = app.resolve(MongoClient);
+		const dbName = config.get<string, any>('Database.mongo.name');
 
 		for (let module of modules) {
 			const collection = client.db(dbName).collection<typeof module.instance>(
 				pluralize(module.name.toLowerCase())
 			);
 
-			app.container().register(module.name + 'Model', {
+			app.container().register(module.name + 'ModelCollection', {
 				useValue : collection
 			});
+
+			// Ehhhhh we'll register it to the container in two ways
+			const binding = {useValue : module.instance};
+			app.container().register(`Model:${module.name}`,binding);
+			app.container().register(`Model:${pluralize(module.name.toLowerCase())}`,binding);
 		}
 	}
 }

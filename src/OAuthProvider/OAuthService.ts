@@ -1,5 +1,5 @@
 import axios from "axios";
-import path from "node:path";
+import path from "path";
 import qs from "querystring";
 import {injectable} from "tsyringe";
 import {config} from "../AppContainer";

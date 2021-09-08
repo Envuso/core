@@ -24,19 +24,26 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 	}
 
 	public sendSocketChannelEvent(channel: new () => SocketChannelListenerContract, eventName: SocketEvents | string, data: any) {
+		const userId = (this?._user?._id ?? (this as any)._id).toString();
+
 		resolve(SocketServer).sendToUserViaChannel(
-			(this as any)._id.toString(), channel, eventName, data
+			userId, channel, eventName, data
 		);
 	}
 
 	public sendSocketEvent(eventName: SocketEvents | string, data: any) {
-		resolve(SocketServer).sendToUser(this._user._id.toString(), eventName, data);
+		const userId = (this?._user?._id ?? (this as any)._id).toString();
+
+		resolve(SocketServer).sendToUser(userId, eventName, data);
 	}
 
 	public setUser(user: any): AuthenticatableContract<T> {
-		if (user instanceof Authenticatable) {
+		if (this._user && (user instanceof Authenticatable) && user._user) {
 			user = user._user;
 		}
+//		if (user instanceof Authenticatable && !this._user) {
+//			user = user._user;
+//		}
 
 		Object.assign(this, user);
 		this._user = user;

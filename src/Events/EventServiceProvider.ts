@@ -11,12 +11,12 @@ import {EventManager} from "./EventManager";
 export class EventServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-		const dispatchers = await FileLoader.importModulesFrom<EventDispatcher>(
-			path.join(config.get('Paths.eventDispatchers'), '**', '*.ts')
+		const dispatchers = await FileLoader.importClassesOfTypeFrom<EventDispatcher>(
+			path.join(config.get('Paths.eventDispatchers'), '**', '*.ts'), 'EventDispatcher'
 		);
 
-		const listeners = await FileLoader.importModulesFrom<EventListener>(
-			path.join(config.get('Paths.eventListeners'), '**', '*.ts')
+		const listeners = await FileLoader.importClassesOfTypeFrom<EventListener>(
+			path.join(config.get('Paths.eventListeners'), '**', '*.ts'), 'EventListener'
 		);
 
 		const eventManager = new EventManager(
@@ -26,9 +26,7 @@ export class EventServiceProvider extends ServiceProvider {
 
 		eventManager.prepare();
 
-		app.container().register(EventManager, {
-			useFactory : () => eventManager
-		});
+		app.container().register(EventManager, {useFactory : () => eventManager});
 	}
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {

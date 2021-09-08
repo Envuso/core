@@ -1,22 +1,16 @@
 import "reflect-metadata";
 import {ObjectId} from "mongodb";
+import {Book} from "../App/Models/Book";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
 import {Str} from "../Common";
-import {Config} from "../Config";
+import {Arr} from "../Common/Utility/Arr";
 import {Server} from "../Server/Server";
+import {bootApp, unloadApp} from "./preptests";
 
 
-const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
-	await app.container().resolve(Server).initialise();
-
-};
-
-beforeAll(() => {
-	return bootApp();
-});
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 
 describe('models', () => {
@@ -170,7 +164,7 @@ describe('models', () => {
 
 		const json = res.json();
 
-		expect(json.data).toBeDefined()
+		expect(json.data).toBeDefined();
 		expect(res).toBeDefined();
 
 	});
@@ -190,14 +184,14 @@ describe('models', () => {
 
 		const json = res.json();
 
-		expect(json.data).toBeDefined()
+		expect(json.data).toBeDefined();
 		expect(res).toBeDefined();
 
 	});
 
 	test('saving a model with multiple @id tags', async () => {
-		const user = new User();
-		user.someUserId = '1234';
+		const user      = new User();
+		user.someUserId = '612a174610a40c9afced1136';
 		await user.save();
 
 		expect(user.someUserId).toBeInstanceOf(ObjectId);
@@ -222,6 +216,140 @@ describe('models', () => {
 		expect(countTwo).toBeGreaterThan(0);
 	});
 
+	test('using where in', async () => {
+		const results    = await User.whereIn('something', ['hello']).get();
+		const resultsTwo = await User.whereIn('something', ['hello', 'reee']).get();
+
+		expect(Arr.unique(results.map(r => r.something))).toHaveLength(1);
+		expect(Arr.unique(resultsTwo.map(r => r.something))).toHaveLength(2);
+	});
+
+	test('circular reference issue with regular mongo query', async () => {
+
+		const users = await User.where({something : 'new hello'}).get();
+
+		const q = await User.getCollection().updateMany({
+			something : 'new hello',
+		}, {
+			$set : {something : 'newer hello'}
+		});
+
+	});
+
+	test('all object id values to be okay after toBSON() serialization', async () => {
+
+		const user = await User.create({
+			something  : 'sdjdask',
+			someUserId : new ObjectId('6137cb8fb7c3be2ee73fc6f0'),
+		});
+
+		expect(user._id).toBeInstanceOf(ObjectId);
+		expect(user.someUserId).toBeInstanceOf(ObjectId);
+
+		const userTwoTest = await User.create({
+			something  : 'sdjdask',
+			someUserId : '6137cb8fb7c3be2ee73fc6f0',
+		});
+
+		expect(userTwoTest._id).toBeInstanceOf(ObjectId);
+		expect(userTwoTest.someUserId).toBeInstanceOf(ObjectId);
+
+	});
+
+	test('insert many query', async () => {
+
+		let insertResults = await User.insertMany([
+			{something : 'yeeteriono'},
+			{something : 'yeeteriono numbah two'},
+		]);
+
+		expect(insertResults.success).toBe(true);
+		expect(insertResults.ids).toHaveLength(2);
+
+
+		const bruce     = new User();
+		bruce.something = 'bruce';
+
+		const sally     = new User();
+		sally.something = 'sally';
+
+		insertResults = await User.insertMany([bruce, sally]);
+
+		expect(insertResults.success).toBe(true);
+		expect(insertResults.ids).toHaveLength(2);
+
+
+	});
+
+	test('has many relationship', async () => {
+
+		const bruce = await User.create({name : 'bruce'});
+
+		await Book.insertMany([
+			{userId : bruce._id, title : 'One of bruce\'s books'},
+			{userId : bruce._id, title : 'Another one of bruce\'s books'},
+		]);
+
+		const bruceWithBooks = await User.query()
+			.where({_id : bruce._id})
+			.with('books')
+			.first();
+
+		expect(bruceWithBooks.books).toHaveLength(2);
+		expect(bruceWithBooks.books[0]).toBeInstanceOf(Book);
+
+
+		debugger;
+
+	});
+
+	test('has many relation with multiple models at once', async () => {
+
+		await User.insertMany([
+			{name : 'Bruce one'},
+			{name : 'Bruce two'},
+		]);
+
+		const bruceOne = await User.find('Bruce one', 'name');
+		const bruceTwo = await User.find('Bruce two', 'name');
+
+
+		await Book.insertMany([
+			{userId : bruceOne._id, title : `Book 1 from bruceOne`},
+			{userId : bruceOne._id, title : `Book 2 from bruceOne`},
+			{userId : bruceTwo._id, title : `Book 1 from bruceTwo`},
+			{userId : bruceTwo._id, title : `Book 2 from bruceTwo`},
+		]);
+
+		const brucesWithBooks = await User.query()
+			.whereIn('name', ['Bruce one', 'Bruce two'])
+			.with('books')
+			.get();
+
+		expect(brucesWithBooks[0].books).toBeDefined();
+		expect(brucesWithBooks[0].books).toBeArray();
+		expect(brucesWithBooks[0].books[0]).toBeInstanceOf(Book);
+
+	});
+
+	test('has one relationship', async () => {
+
+		const bruce = await User.create({name : 'bruce'});
+
+		await Book.insertMany([
+			{userId : bruce._id, title : 'One of bruce\'s books'},
+			{userId : bruce._id, title : 'Another one of bruce\'s books'},
+		]);
+
+		const bruceWithBooks = await User.query()
+			.where({_id : bruce._id})
+			.with('books')
+			.first();
+
+		expect(bruceWithBooks.book).toBeDefined();
+		expect(bruceWithBooks.book).toBeObject();
+		expect(bruceWithBooks.book).toBeInstanceOf(Book);
+	});
 
 
 });

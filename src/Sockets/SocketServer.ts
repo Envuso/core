@@ -18,7 +18,6 @@ import {SocketEvents} from "./SocketEvents";
 import {SocketListener} from "./SocketListener";
 
 
-
 @injectable()
 export class SocketServer implements SocketServerContract {
 
@@ -61,9 +60,13 @@ export class SocketServer implements SocketServerContract {
 	 * @returns {Promise<void>}
 	 */
 	public async prepareEventListeners() {
-		const socketListeners = await FileLoader.importModulesFrom<SocketChannelListener | SocketListener>(
-			path.join(config().get<string, any>('Paths.socketListeners'), '**', '*.ts')
-		);
+		const listenerPath = path.join(config().get<string, any>('Paths.socketListeners'), '**', '*.ts');
+
+		const socketListeners = [
+			...await FileLoader.importClassesOfTypeFrom<SocketChannelListener>(listenerPath, 'SocketChannelListener'),
+			...await FileLoader.importClassesOfTypeFrom<SocketListener>(listenerPath, 'SocketListener'),
+
+		];
 
 		for (let socketListener of socketListeners) {
 
@@ -77,11 +80,12 @@ export class SocketServer implements SocketServerContract {
 				// Bind the event listener to the container, then we can use di
 				// to inject any services when the listener is used.
 				app().container().register('ws:channel:' + socketListenerInstance.channelName(), {
+					//@ts-ignore
 					useClass : socketListener.instance
 				});
 
 				if (config('app.logging.socketChannels', false))
-				Log.info('Imported Socket Channel Listener: ' + socketListener.name);
+					Log.info('Imported Socket Channel Listener: ' + socketListener.name);
 			}
 
 			if (socketListenerInstance instanceof SocketListener) {
@@ -92,11 +96,12 @@ export class SocketServer implements SocketServerContract {
 				// Bind the event listener to the container, then we can use di
 				// to inject any services when the listener is used.
 				app().container().register('ws:listener:' + socketListenerInstance.eventName(), {
+					//@ts-ignore
 					useClass : socketListener.instance
 				});
 
 				if (config('app.logging.socketChannels', false))
-				Log.info('Imported Socket Listener: ' + socketListener.name);
+					Log.info('Imported Socket Listener: ' + socketListener.name);
 			}
 
 

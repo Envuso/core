@@ -2,21 +2,14 @@ import "reflect-metadata";
 import {User} from "../App/Models/User";
 import {UserPolicy} from "../App/Policies/UserPolicy";
 import {App} from "../AppContainer";
-import {Config} from "../Config";
+import {ModelDecoratorMeta} from "../Database";
 import {Server} from "../Server/Server";
+import {bootApp, unloadApp} from "./preptests";
 
 
-const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
-	await app.container().resolve(Server).initialise();
 
-};
-
-beforeAll(() => {
-	return bootApp();
-});
-
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 describe('model policies', () => {
 
@@ -24,7 +17,7 @@ describe('model policies', () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
 
-		const meta = Reflect.getMetadata('authorization-policy', User);
+		const meta = Reflect.getMetadata(ModelDecoratorMeta.AUTHORIZATION_POLICY_REF, User);
 
 		expect(meta).toEqual(UserPolicy);
 	});

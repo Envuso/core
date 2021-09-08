@@ -207,9 +207,7 @@ export class SocketConnection implements SocketConnectionContract {
 
 		listener.setChannelInformation(channelInfo);
 
-		const canSubscribe = await listener.isAuthorised(
-			this, this.user
-		);
+		const canSubscribe = await listener.isAuthorised(this, this.user);
 
 		if (canSubscribe) {
 			this._subscribedChannels.set(channelInfo.channelName, listener);
