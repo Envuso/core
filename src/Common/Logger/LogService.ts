@@ -57,6 +57,9 @@ export class LogService {
 	}
 
 	private createInstance() {
+		const fileTransport = this.createFileTransport();
+		const consoleTransport = this.createConsoleTransport();
+
 		this.logInstance = createLogger({
 			levels            : {
 				debug   : 0,
@@ -69,12 +72,12 @@ export class LogService {
 			exitOnError       : false,
 			handleExceptions  : false,
 			exceptionHandlers : [
-				this.createFileTransport(),
-				this.createConsoleTransport(),
+				fileTransport,
+				consoleTransport,
 			],
 			transports        : [
-				this.createFileTransport(),
-				this.createConsoleTransport(),
+				fileTransport,
+				consoleTransport,
 			],
 		});
 	}
