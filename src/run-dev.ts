@@ -7,12 +7,20 @@ Environment.load(path.join(__dirname, "..", ".env"));
 import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
 import {Log} from "./Common";
+import {Queue} from "./Queue/Queue";
+import {ImplementedJob, JobSerializableData} from "./Queue/ImplementedJob";
 
 const envuso = new Envuso();
 
 Configuration.initiate()
              .then(() => envuso.boot())
              .then(() => envuso.serve())
+             .then(() => {
+	             const data = new JobSerializableData();
+	             data.someString = "wtf";
+
+	             Queue.dispatch(new ImplementedJob(data));
+             })
              .catch(error => {
 	             Log.error(error);
 	             console.trace(error);
