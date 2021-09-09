@@ -71,6 +71,13 @@ export interface AppContract {
 	loadServiceProviders(): Promise<void>;
 
 	/**
+	 * Will run the "unload" method on all registered service providers
+	 *
+	 * @returns {Promise<void>}
+	 */
+	unloadServiceProviders(): Promise<void>;
+
+	/**
 	 * Get the app config repository a little easier
 	 */
 	config(): ConfigRepositoryContract;

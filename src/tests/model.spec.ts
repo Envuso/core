@@ -4,15 +4,21 @@ import {Book} from "../App/Models/Book";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
 import {Str, Obj, Arr} from "../Common";
+import {Database} from "../Database";
 import {Server} from "../Server/Server";
 import {bootApp, unloadApp} from "./preptests";
 import 'jest-extended';
 
-beforeAll(() => bootApp());
-afterAll(() => unloadApp());
-
 
 describe('models', () => {
+
+	beforeAll(() => bootApp());
+
+	afterAll(async () => {
+		await Database.dropCollection('users');
+		await Database.dropCollection('books');
+		await unloadApp(true);
+	});
 
 	test('model can use be initiated', async () => {
 
@@ -20,6 +26,8 @@ describe('models', () => {
 		m.something = 'lel';
 
 		expect(m).toBeInstanceOf(User);
+
+		console.log('Ran test');
 	});
 
 	test('model can be saved', async () => {
@@ -296,10 +304,6 @@ describe('models', () => {
 
 		expect(bruceWithBooks.books).toHaveLength(2);
 		expect(bruceWithBooks.books[0]).toBeInstanceOf(Book);
-
-
-		debugger;
-
 	});
 
 	test('has many relation with multiple models at once', async () => {
@@ -342,12 +346,12 @@ describe('models', () => {
 
 		const bruceWithBooks = await User.query()
 			.where({_id : bruce._id})
-			.with('books')
+			.with('hasOneBook')
 			.first();
 
-		expect(bruceWithBooks.book).toBeDefined();
-		expect(bruceWithBooks.book).toBeObject();
-		expect(bruceWithBooks.book).toBeInstanceOf(Book);
+		expect(bruceWithBooks.hasOneBook).toBeDefined();
+		expect(bruceWithBooks.hasOneBook).toBeObject();
+		expect(bruceWithBooks.hasOneBook).toBeInstanceOf(Book);
 	});
 
 	test('load with has one/many relationship', async () => {
@@ -359,11 +363,11 @@ describe('models', () => {
 			{userId : bruce._id, title : 'Another one of bruce\'s books'},
 		]);
 
-		await bruce.load('books', 'book');
+		await bruce.load('books', 'hasOneBook');
 
-		expect(bruce.book).toBeDefined();
-		expect(bruce.book).toBeObject();
-		expect(bruce.book).toBeInstanceOf(Book);
+		expect(bruce.hasOneBook).toBeDefined();
+		expect(bruce.hasOneBook).toBeObject();
+		expect(bruce.hasOneBook).toBeInstanceOf(Book);
 
 		expect(bruce.books).toHaveLength(2);
 		expect(bruce.books[0]).toBeInstanceOf(Book);
@@ -371,12 +375,21 @@ describe('models', () => {
 
 	test('belongs to relationship', async () => {
 
-		const bruce = await User.query()
-			.where({_id : new ObjectId('61380068ed3c2649a49858fc')})
-			.with('book')
+		const bruce = await User.create({name : 'bruce'});
+		const book  = await Book.create({userId : bruce._id, title : 'One of bruce\'s books'});
+
+		bruce.bookId = book._id;
+		await bruce.save();
+
+		const bruceWithBooks = await User.query()
+			.where({_id : bruce._id})
+			.with('belongsToOneBook')
 			.first();
 
-		debugger;
+		expect(bruceWithBooks.belongsToOneBook).toBeDefined();
+		expect(bruceWithBooks.belongsToOneBook).toBeObject();
+		expect(bruceWithBooks.belongsToOneBook).toBeInstanceOf(Book);
+
 	});
 
 	test('where all in query', async () => {

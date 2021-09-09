@@ -103,17 +103,12 @@ export class App implements AppContract {
 		}
 
 		if (result instanceof ServiceProvider) {
-			this._container.register(
-				'ServiceProvider', {useValue : result}
-			);
+			this._container.register('ServiceProvider', {useValue : result});
 
 			return;
 		}
 
-		this._container.register(
-			bindAs ?? result.constructor.name,
-			{useValue : result}
-		);
+		this._container.register(bindAs ?? result.constructor.name, {useValue : result});
 	}
 
 	/**
@@ -193,6 +188,25 @@ export class App implements AppContract {
 	}
 
 	/**
+	 * Will run the "unload" method on all registered service providers
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async unloadServiceProviders() {
+
+		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
+
+		for (let provider of serviceProviders) {
+
+			await provider.unload(this, this.resolve(ConfigRepository));
+
+			if (config('app.logging.providers', false)) {
+				Log.info('Service provider unloaded: ' + provider.constructor.name);
+			}
+		}
+	}
+
+	/**
 	 * Get the app config repository a little easier
 	 */
 	config(): ConfigRepository {
@@ -217,6 +231,9 @@ export class App implements AppContract {
 	 * The reason this exists is so that when writing tests, you can start from a clean slate.
 	 */
 	async unload() {
+
+		await this.unloadServiceProviders();
+
 		this._booted = false;
 		instance     = null;
 

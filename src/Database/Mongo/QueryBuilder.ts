@@ -3,8 +3,7 @@ import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {ClassType, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref, SingleModelProp} from "../index";
-import {getModelCollectionName} from "../ModelHelpers";
+import {ClassType, Database, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref, SingleModelProp} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Paginator} from "./Paginator";
 
@@ -63,18 +62,18 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 */
 	public _limit: number = null;
 
-	private readonly _hasOneRelations: ModelRelationMeta[]  = [];
-	private readonly _hasManyRelations: ModelRelationMeta[] = [];
+	private readonly _hasOneRelations: ModelRelationMeta[]        = [];
+	private readonly _hasManyRelations: ModelRelationMeta[]       = [];
+	private readonly _belongsToRelations: ModelRelationMeta[]     = [];
+	private readonly _belongsToManyRelations: ModelRelationMeta[] = [];
 
 	constructor(model: ModelContract<T>) {
 		this._model = model;
 
-		this._hasOneRelations  = this._model.getMeta<ModelRelationMeta[]>(
-			ModelDecoratorMeta.HAS_ONE_RELATION, []
-		);
-		this._hasManyRelations = this._model.getMeta<ModelRelationMeta[]>(
-			ModelDecoratorMeta.HAS_MANY_RELATION, []
-		);
+		this._hasOneRelations        = this.getRelationMeta(ModelDecoratorMeta.HAS_ONE_RELATION);
+		this._hasManyRelations       = this.getRelationMeta(ModelDecoratorMeta.HAS_MANY_RELATION);
+		this._belongsToRelations     = this.getRelationMeta(ModelDecoratorMeta.BELONGS_TO_RELATION);
+		this._belongsToManyRelations = this.getRelationMeta(ModelDecoratorMeta.BELONGS_TO_MANY_RELATION);
 	}
 
 	/**
@@ -286,10 +285,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			if (!this.isRelation(relation as string) || !meta) {
 				Log.warn(`You're trying to load a relation that is not defined as one. `);
 				Log.warn(`Attempted relation key is: ${relation}. `);
-				const relationKeys = [...this._hasOneRelations, ...this._hasManyRelations].map(
-					r => `${r.propertyKey}(${r.type})`
-				).join(', ');
-				Log.warn(`Defined relations are: ${relationKeys}`);
+				Log.warn(`Defined relations are: ${this.joinedRelationsArray().map(r => `${r.propertyKey}(${r.type})`).join(', ')}`);
 				continue;
 			}
 
@@ -306,7 +302,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				this._collectionAggregation.push(...[
 					{
 						$lookup : {
-							from         : getModelCollectionName(meta.relatedModel),
+							from         : Database.getModelCollectionName(meta.relatedModel),
 							localField   : meta.localKey,
 							foreignField : meta.foreignKey,
 							as           : meta.propertyKey
@@ -322,26 +318,29 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				]);
 			}
 
-//			if(meta.type === ModelRelationType.BELONGS_TO) {
-//
-//				this._collectionAggregation.push(...[
-//					{
-//						$lookup : {
-//							from         : getModelCollectionName(meta.relatedModel),
-//							localField   : meta.localKey,
-//							foreignField : meta.foreignKey,
-//							as           : meta.propertyKey
-//						},
-//					},
-//					{
-//						$addFields : {
-//							[meta.propertyKey] : {
-//								'$first' : `$${meta.propertyKey}`
-//							}
-//						},
-//					}
-//				]);
-//			}
+			/**
+			 * This is basically the same as above... except we swap the values around...
+			 */
+			if (meta.type === ModelRelationType.BELONGS_TO) {
+
+				this._collectionAggregation.push(...[
+					{
+						$lookup : {
+							from         : Database.getModelCollectionName(meta.relatedModel),
+							localField   : meta.foreignKey,
+							foreignField : meta.localKey,
+							as           : meta.propertyKey
+						},
+					},
+					{
+						$addFields : {
+							[meta.propertyKey] : {
+								'$first' : `$${meta.propertyKey}`
+							}
+						},
+					}
+				]);
+			}
 
 			if (meta.type === ModelRelationType.HAS_MANY) {
 				/**
@@ -349,7 +348,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				 */
 				this._collectionAggregation.push({
 					$lookup : {
-						from         : getModelCollectionName(meta.relatedModel),
+						from         : Database.getModelCollectionName(meta.relatedModel),
 						localField   : meta.localKey,
 						foreignField : meta.foreignKey,
 						as           : meta.propertyKey
@@ -357,8 +356,15 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				});
 			}
 
-			if(meta.type === ModelRelationType.BELONGS_TO_MANY) {
-
+			if (meta.type === ModelRelationType.BELONGS_TO_MANY) {
+				this._collectionAggregation.push({
+					$lookup : {
+						from         : Database.getModelCollectionName(meta.relatedModel),
+						localField   : meta.foreignKey,
+						foreignField : meta.localKey,
+						as           : meta.propertyKey
+					},
+				});
 			}
 
 		}
@@ -402,15 +408,22 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @returns {boolean}
 	 */
 	public isRelation(key: string, type?: ModelRelationType): boolean {
-		const relations = [...this._hasManyRelations, ...this._hasOneRelations];
-
-		return relations.some(relation => {
+		return this.joinedRelationsArray().some(relation => {
 			if (type) {
 				return relation.propertyKey === key && relation.type === type;
 			}
 
 			return relation.propertyKey === key;
 		});
+	}
+
+	private joinedRelationsArray(): ModelRelationMeta[] {
+		return [
+			...this._hasOneRelations,
+			...this._hasManyRelations,
+			...this._belongsToRelations,
+			...this._belongsToManyRelations
+		];
 	}
 
 	/**
@@ -422,7 +435,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	public relations(): { [key: string]: ModelRelationMeta } {
 		const relations = {};
 
-		for (let modelRelationMeta of [...this._hasOneRelations, ...this._hasManyRelations]) {
+		for (let modelRelationMeta of [...this._hasOneRelations, ...this._hasManyRelations, ...this._belongsToRelations, ...this._belongsToManyRelations]) {
 			relations[modelRelationMeta.propertyKey] = modelRelationMeta;
 		}
 
@@ -662,6 +675,17 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			case "<=":
 				return "$lte";
 		}
+	}
+
+	/**
+	 * Just makes the implementing code more consistent/shorter
+	 *
+	 * @param {ModelDecoratorMeta} decoratorType
+	 * @returns {ModelRelationMeta[]}
+	 * @private
+	 */
+	private getRelationMeta(decoratorType: ModelDecoratorMeta): ModelRelationMeta[] {
+		return this._model.getMeta<ModelRelationMeta[]>(decoratorType, []);
 	}
 
 	/**

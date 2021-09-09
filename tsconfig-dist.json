@@ -25,6 +25,7 @@
     "src/Packages/**/*",
     "src/Routing/**/*",
     "src/Security/**/*",
+    "src/Session/**/*",
     "src/Server/**/*",
     "src/Sockets/**/*",
     "src/Storage/**/*.ts",

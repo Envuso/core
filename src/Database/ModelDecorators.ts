@@ -1,9 +1,8 @@
 import {classToPlain, plainToClass, Transform} from "class-transformer";
 import {ObjectId} from "mongodb";
 import pluralize from "pluralize";
-import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
-import {ClassType, Model, ModelObjectId, ModelRelationMeta, ModelRelationType, Nested, Ref} from "./index";
-import {getModelFromContainer} from "./ModelHelpers";
+import {DecoratorHelpers} from "../Common";
+import {ClassType, Model, ModelObjectId, Nested, Ref} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
@@ -20,11 +19,6 @@ function addRef(name: string, ref: Ref, target: any) {
 	Reflect.defineMetadata('mongo:refs', refs, target);
 }
 
-function pushToMetadata(metadataKey: string, values: any[], target: any) {
-	const data: any[] = Reflect.getMetadata(metadataKey, target) || [];
-	Reflect.defineMetadata(metadataKey, data.concat(values), target);
-}
-
 function isNotPrimitive(targetType: ClassType<any>, propertyKey: string) {
 	if (targetType === ObjectId || targetType === String || targetType === Number || targetType === Boolean) {
 		throw new Error(`property '${propertyKey}' cannot have nested type '${targetType}'`);
@@ -35,8 +29,6 @@ export function nested(typeFunction: any) {
 	return function (target: any, propertyKey: string) {
 		const targetType = Reflect.getMetadata('design:type', target, propertyKey);
 		isNotPrimitive(targetType, propertyKey);
-
-		//		Type(() => typeFunction)(target, propertyKey);
 
 		Transform((val) => {
 			if (!val.value) {
@@ -62,7 +54,7 @@ export function nested(typeFunction: any) {
 		}, {toPlainOnly : true})(target, propertyKey);
 
 
-		pushToMetadata('mongo:nested', [{name : propertyKey, typeFunction, array : targetType === Array} as Nested], target);
+		DecoratorHelpers.pushToMetadata('mongo:nested', [{name : propertyKey, typeFunction, array : targetType === Array} as Nested], target);
 	};
 }
 
@@ -121,7 +113,7 @@ export function ids(target: any, propertyKey: string) {
 
 	isNotPrimitive(target, propertyKey);
 
-	pushToMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, [
+	DecoratorHelpers.pushToMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, [
 		{name : propertyKey} as ModelObjectId
 	], target);
 
@@ -150,13 +142,12 @@ export function ids(target: any, propertyKey: string) {
  * @param {string} propertyKey
  */
 export function id(target: any, propertyKey: string) {
-	pushToMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, [
+	DecoratorHelpers.pushToMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, [
 		{name : propertyKey} as ModelObjectId
 	], target);
 
 	Transform(({value}) => new ObjectId(value), {toClassOnly : true})(target, propertyKey);
 	Transform(({value}) => value.toString(), {toPlainOnly : true})(target, propertyKey);
-
 }
 
 /**
@@ -173,112 +164,6 @@ export function policy(policy: ClassType<any>) {
 		if (constructor.prototype.constructor.name !== 'Model') {
 			Reflect.defineMetadata(ModelDecoratorMeta.AUTHORIZATION_POLICY_REF, policy, constructor.prototype);
 		}
-	};
-}
-
-function handleRelationshipTransforms(relatedModel: (new () => ModelContract<any>) | string, target: any, propertyKey: string) {
-	// When serializing object to class, convert the object to our model instance
-	Transform(({value}) => {
-		if (!value) return null;
-		return plainToClass(getModelFromContainer(relatedModel), value);
-	}, {toClassOnly : true})(target, propertyKey);
-
-	// When de-serializing from class to object, convert the model class to an object
-	Transform(({value}) => {
-		if (!value) return null;
-		return classToPlain(value);
-	}, {toPlainOnly : true})(target, propertyKey);
-}
-
-/**
- * If we're defining a relation on our user model. For example... A user has an address.
- *
- * We'd have our user collection, "users" and addresses, "addresses"
- *
- * Our foreign key would be the user's id on our addresses collection, imagine the document:
- * {id: 1, address : "magic road", userId: 42}
- *
- * Now imagine our user document:
- * {id: 42, name: "Bruce"}
- *
- * This links our address to the user, via the address
- * userId key, to the user document via the id key
- *
- * In this case, userId is our "foreignKey" on addresses and
- * localKey is our "id" on users.
- *
- * @param {ModelContract<any> | string} relatedModel
- * @param {string} foreignKey
- * @param {string} localKey
- * @returns {(target: any, propertyKey: string) => void}
- */
-export function hasOne(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
-	return function (target: any, propertyKey: string) {
-		pushToMetadata(ModelDecoratorMeta.HAS_ONE_RELATION, [
-			{
-				propertyKey,
-				relatedModel,
-				foreignKey,
-				localKey,
-				type : ModelRelationType.HAS_ONE
-			} as ModelRelationMeta
-		], target);
-		handleRelationshipTransforms(relatedModel, target, propertyKey);
-	};
-}
-
-/**
- *
- * If we're defining a relation on our user model. For example... A user has multiple addresses.
- *
- * We'd have our user collection, "users" and addresses, "addresses"
- *
- * Our foreign key would be the user's id on our addresses collection, imagine the documents:
- * {id: 1, address : "magic road", userId: 42}
- * {id: 2, address : "another magic road", userId: 42}
- *
- * Now imagine our user document:
- * {id: 42, name: "Bruce"}
- *
- * This links our address to the user, via the address
- * userId key, to the user document via the id key
- *
- * With hasMany we'd now return all of the address documents that have the userId of 42
- *
- * In this case, userId is our "foreignKey" on addresses and
- * localKey is our "id" on users.
- *
- * @param {{new(): ModelContract<any>} | string} relatedModel
- * @param {string} foreignKey
- * @param {string} localKey
- * @returns {(target: any, propertyKey: string) => void}
- */
-export function hasMany(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
-	return function (target: any, propertyKey: string) {
-		pushToMetadata(
-			ModelDecoratorMeta.HAS_MANY_RELATION,
-			[{
-				propertyKey,
-				relatedModel,
-				foreignKey,
-				localKey,
-				type : ModelRelationType.HAS_MANY
-			} as ModelRelationMeta],
-			target
-		);
-		handleRelationshipTransforms(relatedModel, target, propertyKey);
-	};
-}
-
-export function belongsTo(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
-	return function (target: any, propertyKey: string) {
-		pushToMetadata(
-			ModelDecoratorMeta.HAS_ONE_RELATION,
-			[{propertyKey, relatedModel, foreignKey, localKey, type : ModelRelationType.HAS_ONE} as ModelRelationMeta],
-			target
-		);
-
-		handleRelationshipTransforms(relatedModel, target, propertyKey);
 	};
 }
 

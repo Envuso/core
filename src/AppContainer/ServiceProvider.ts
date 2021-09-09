@@ -16,4 +16,16 @@ export abstract class ServiceProvider implements ServiceProviderContract {
 	 */
 	public abstract boot(app: AppContract, config: ConfigRepositoryContract): Promise<void>;
 
+	/**
+	 * This method will be run when the server is unloading
+	 * Typically in tests, or other cases.
+	 *
+	 * This is typically a way to "clean-up" what your service-provider registered
+	 *
+	 * @param {AppContract} app
+	 * @param {ConfigRepositoryContract} config
+	 */
+	public unload(app: AppContract, config: ConfigRepositoryContract) {
+
+	}
 }

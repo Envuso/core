@@ -14,13 +14,13 @@ export class User extends Authenticatable<User> {
 	@id
 	someUserId: ObjectId | string;
 
-//	@hasOne(Book, 'userId', '_id')
-//	book?: Book;
+	//	@hasOne(Book, 'userId', '_id')
+	//	book?: Book;
 
 	@hasMany(Book, 'userId', '_id')
 	books?: Book;
 
-	someCount : number = 1;
+	someCount: number = 1;
 
 	email: string;
 
@@ -33,8 +33,13 @@ export class User extends Authenticatable<User> {
 	@Exclude()
 	password: string;
 
+	@hasOne(Book, 'userId', '_id')
+	hasOneBook: Book;
 
-	@belongsTo('Book', '_id', 'bookId')
-	book: Book;
+	@id
+	bookId: ObjectId;
+
+	@belongsTo(Book, 'bookId', '_id')
+	belongsToOneBook: Book;
 
 }

@@ -9,8 +9,8 @@ export class RedisClientInstance {
 	private _client: RedisClient | null;
 	private _config: RedisConnectionConfiguration;
 
-	constructor(config : any) {
-		if(instance) return;
+	constructor(config: any) {
+		if (instance) return;
 
 		const defaultConfiguration = {
 			enabled : false,
@@ -70,5 +70,23 @@ export class RedisClientInstance {
 	 */
 	static client(): RedisClient {
 		return this.get()._client;
+	}
+
+	/**
+	 * Quit the redis client connection
+	 *
+	 * @returns {Promise<unknown>}
+	 */
+	public static async shutdown() {
+		return new Promise((resolve, reject) => {
+			this.client().quit((err: Error | null, reply: any) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+
+				resolve(true);
+			});
+		});
 	}
 }

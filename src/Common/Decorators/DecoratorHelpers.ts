@@ -93,5 +93,20 @@ export class DecoratorHelpers {
 		return params;
 	}
 
-
+	/**
+	 * When we have some metadata defined which is an array of objects
+	 * We always end up pulling the array, checking if it exists...
+	 * If it doesn't, create an empty array, push the new object
+	 * to it then finally, set the updated metadata again.
+	 *
+	 * This method solves that problem.
+	 *
+	 * @param {string} metadataKey
+	 * @param {any[]} values
+	 * @param target
+	 */
+	static pushToMetadata(metadataKey: string, values: any[], target: any) {
+		const data: any[] = Reflect.getMetadata(metadataKey, target) || [];
+		Reflect.defineMetadata(metadataKey, data.concat(values), target);
+	}
 }

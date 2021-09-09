@@ -185,7 +185,10 @@ export class Server implements ServerContract {
 		 response.send();*/
 	}
 
-	public unload() {
+	public async unload() {
+		if(this._server) {
+			await this._server.close();
+		}
 		this._server             = null;
 		this._config             = null;
 		this._exceptionHandler   = null;

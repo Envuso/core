@@ -58,6 +58,7 @@
     "src/Security/**/*",
     "src/Server/**/*",
     "src/Sockets/**/*",
+    "src/Session/**/*",
     "src/Storage/**/*.ts",
     "src/Authenticatable.ts",
     "src/Envuso.ts",
