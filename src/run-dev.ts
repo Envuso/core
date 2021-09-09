@@ -6,7 +6,7 @@ Environment.load(path.join(__dirname, "..", ".env"));
 
 import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
-import {Log} from "./Common";
+import {DateTime, Log} from "./Common";
 import {ImplementedJob} from "./Queue/ImplementedJob";
 
 const envuso = new Envuso();
@@ -16,7 +16,8 @@ Configuration.initiate()
              .then(() => envuso.serve())
              .then(async () => {
 	             for (let i = 0; i < 10; i++) {
-		             new ImplementedJob(i + 1).dispatch();
+		             new ImplementedJob(i + 1).delay(DateTime.now().addSeconds(Math.floor(Math.random() * 10)))
+		                                      .dispatch();
 	             }
              })
              .catch(error => {

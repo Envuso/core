@@ -1,7 +1,7 @@
 import {Job} from "./Job";
 import {App} from "../AppContainer";
 import Redis from "../Redis/Redis";
-import {Log, FileLoader} from "../Common";
+import {Log, FileLoader, DateTime} from "../Common";
 import {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
 
 let instance: Queue = null;
@@ -61,12 +61,13 @@ export class Queue {
 		}
 	}
 
-	public static async dispatch(job: Job) {
-		await Redis.zAdd("queue", Date.now(), job.serialize());
+	public static async dispatch(job: Job, delayUntil?: DateTime) {
+		const runAt = new Date(delayUntil?.toTime() ?? Date.now());
+		await Redis.zAdd("queue", runAt.getTime(), job.serialize());
 
 		const {namespace} = Reflect.getMetadata("job", job.constructor);
 
-		Log.label("Queue").info(`Queued: ${namespace.split(":")[0]}`);
+		Log.label("Queue").info(`Queued: ${namespace.split(":")[0]} (${runAt})`);
 	}
 
 	private async hydrateJob(filePath: string, jobClassName: string, data: string): Promise<Job> {
