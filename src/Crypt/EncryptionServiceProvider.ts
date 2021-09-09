@@ -3,6 +3,7 @@ import {Log} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {Encryption} from "./Encryption";
+import {RabbitEncryption} from "./RabbitEncryption";
 
 export class EncryptionServiceProvider extends ServiceProvider {
 
@@ -19,6 +20,7 @@ export class EncryptionServiceProvider extends ServiceProvider {
 		//		});
 
 		app.container().register(Encryption, {useValue : new Encryption(config.get('App.appKey'))});
+		app.container().register(RabbitEncryption, {useValue : RabbitEncryption.createInstance(config.get('App.appKey'))});
 	}
 
 	public async boot() {

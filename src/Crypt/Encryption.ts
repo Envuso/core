@@ -5,7 +5,8 @@ export class Encryption implements EncryptionContract {
 	private static instance: Encryption = null;
 
 	public key: string;
-	public service: SimpleCrypto;
+
+	private service: SimpleCrypto;
 
 	constructor(key: string, customInstance: boolean = false) {
 		if (!customInstance) {

@@ -1,8 +1,6 @@
-import SimpleCrypto from "simple-crypto-js";
 
 export interface EncryptionContract {
 	key: string;
-	service: SimpleCrypto;
 
 	/**
 	 * Encrypt some content and returns a string
@@ -10,6 +8,7 @@ export interface EncryptionContract {
 	 * @param content
 	 * @returns {string}
 	 */
+	encrypt(content: string): string;
 	encrypt(content: any): string;
 
 	/**
@@ -19,6 +18,7 @@ export interface EncryptionContract {
 	 * @param {string} content
 	 * @returns {T}
 	 */
+	decrypt<T extends string>(content: string): T;
 	decrypt<T>(content: string): T;
 
 	/**

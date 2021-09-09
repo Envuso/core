@@ -21,6 +21,8 @@ class DTO extends DataTransferObject {
 	@IsString()
 	@MinLength(1)
 	something: string;
+
+
 }
 
 /**
