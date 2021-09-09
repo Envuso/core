@@ -1,17 +1,15 @@
-import {User} from "../App/Models/User";
-import {DataTransferObject} from "../Routing";
-import {job, Job} from "./Job";
+import {Job} from "./Job";
 import {Queueable} from "./Queueable";
-
-export class JobSerializableData extends DataTransferObject {
-	user: User;
-	someString: string;
-}
+import {Log} from "../Common";
+import {job} from "./JobDecorators";
 
 @job
-export class ImplementedJob extends Job<JobSerializableData> implements Queueable {
-
-	async handle() {
+export class ImplementedJob extends Job implements Queueable {
+	constructor(public userId: number, public isAdmin: boolean = false) {
+		super();
 	}
 
+	async handle() {
+		Log.info("Implemented Job: " + this.userId + ", isAdmin: " + this.isAdmin);
+	}
 }

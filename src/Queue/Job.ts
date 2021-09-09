@@ -1,17 +1,15 @@
-import {DataTransferObject} from "../Routing";
-import {Classes, Exception} from "../Common";
-import path from "path";
+import {classToPlain, plainToClass} from "class-transformer";
+import {Exception} from "../Common";
 import {BaseQueueable} from "./Queueable";
+import {Queue} from "./Queue";
 
-export class Job<T extends DataTransferObject> implements BaseQueueable {
-	public data: T = null;
-
-	constructor(data: T) {
-		this.data = data;
-	}
-
+export class Job implements BaseQueueable {
 	handle(): Promise<void> {
 		throw new Exception("Bruh, implement handle()");
+	}
+
+	dispatch() {
+		Queue.dispatch(this);
 	}
 
 	serialize() {
@@ -19,20 +17,11 @@ export class Job<T extends DataTransferObject> implements BaseQueueable {
 
 		return JSON.stringify({
 			t: `${namespace}:${this.constructor.name}`,
-			d: this.data.toResponse(),
+			d: classToPlain(this, {enableImplicitConversion: true}),
 		});
 	}
 
 	public static deserialize(rawData: string) {
-		// return new this(rawData);
+		return plainToClass(this, rawData, {enableImplicitConversion: true});
 	}
-}
-
-export function job(constructor: Function) {
-	const {file} = Classes.getModulePathFromConstructor(constructor as any);
-	const namespace = path.relative(process.cwd(), file);
-
-	Reflect.defineMetadata("job", {
-		namespace,
-	}, constructor);
 }

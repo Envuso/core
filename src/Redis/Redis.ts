@@ -150,6 +150,24 @@ export class Redis {
 	public async has(key: string): Promise<boolean> {
 		return await this.client.exists(key) === 1;
 	}
+
+	public static zAdd(key: string, score: number, value: string): Promise<boolean> {
+		return this.getInstance().zAdd(key, score, value);
+	}
+
+	public async zAdd(key: string, score: number, value: string): Promise<boolean> {
+		Log.label("Redis").debug("zAdd", key, score, value);
+		return await this.client.zadd(key, score, value) === 1;
+	}
+
+	public static zRangeByScore(key: string, min: string | number, max: string | number, ...args: any): Promise<string[]> {
+		return this.getInstance().zRangeByScore(key, min, max, ...args);
+	}
+
+	public zRangeByScore(key: string, min: string | number, max: string | number, ...args: any): Promise<string[]> {
+		Log.label("Redis").debug("zRangeByScore", key, min, max, ...args);
+		return this.client.zrangebyscore(key, min, max, ...args);
+	}
 }
 
 export default Redis;
