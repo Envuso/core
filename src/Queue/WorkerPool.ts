@@ -59,7 +59,7 @@ export class WorkerPool {
 			this.onWorkerFreed();
 		});
 		worker.on("error", error => {
-			Log.label("WorkerPool").error(error);
+			Log.label("WorkerPool").exception('Something broken', error);
 
 			this.workers.splice(this.workers.indexOf(worker), 1);
 			this.createWorker();

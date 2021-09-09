@@ -5,6 +5,7 @@ import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import Redis from "../Redis/Redis";
 import {SeedManager} from "./Seeder/SeedManager";
 
 export class DatabaseServiceProvider extends ServiceProvider {
@@ -64,6 +65,6 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 		}
 
-		await RedisClientInstance.shutdown();
+		await Redis.shutdown();
 	}
 }

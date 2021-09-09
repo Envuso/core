@@ -12,14 +12,14 @@ import {ImplementedJob} from "./Queue/ImplementedJob";
 const envuso = new Envuso();
 
 Configuration.initiate()
-             .then(() => envuso.boot())
-             .then(() => envuso.serve())
+	.then(() => envuso.boot())
+	.then(() => envuso.serve())
 	.then(async () => {
-		for (let i = 0; i < 10000; i++) {
+		for (let i = 0; i < 50; i++) {
 			new ImplementedJob(i + 1).dispatch();
 		}
 	})
-			 .catch(error => Log.exception(error));
+	.catch(error => Log.exception(error));
 
 //envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {
 //	Log.exception('Server error: ', exception);

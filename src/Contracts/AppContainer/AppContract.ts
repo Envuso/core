@@ -68,7 +68,7 @@ export interface AppContract {
 	/**
 	 * Will load all service providers from the app config
 	 */
-	loadServiceProviders(): Promise<void>;
+	loadServiceProviders(isForQueueWorker?: boolean): Promise<void>;
 
 	/**
 	 * Will run the "unload" method on all registered service providers
