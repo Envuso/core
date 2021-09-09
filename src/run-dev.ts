@@ -1,24 +1,21 @@
 import "reflect-metadata";
 
 import path from "path";
-import {User} from "./App/Models/User";
-import Environment from './AppContainer/Config/Environment';
+import Environment from "./AppContainer/Config/Environment";
 
-Environment.load(path.join(__dirname, '..', '.env'));
+Environment.load(path.join(__dirname, "..", ".env"));
 
 import Configuration from "./Config/Configuration";
-import {Envuso} from "./Envuso";
-import {DecoratorHelpers, DESIGN_META, Log} from "./Common";
+import { Envuso } from "./Envuso";
+import { Log } from "./Common";
 
 const envuso = new Envuso();
 
 Configuration.initiate()
 	.then(() => envuso.boot())
 	.then(() => envuso.serve())
-	.catch(error => {
-		Log.error(error);
-		console.trace(error);
-	});
+	.catch(error => Log.exception(error));
+
 //envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {
 //	Log.exception('Server error: ', exception);
 //
@@ -48,4 +45,3 @@ Configuration.initiate()
 //		exception,
 //	);
 //});
-

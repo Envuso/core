@@ -1,181 +1,207 @@
 import chalk from "chalk";
-import {createLogger, format, Logger, transports} from "winston";
+import {createLogger, format, transports, Logger} from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
+import {Str} from "../Utility/Str";
 
-const {combine, timestamp, label, prettyPrint, printf, colorize, cli, ms, errors} = format;
-
-
-let instance = null;
+const {combine, timestamp, printf, ms, errors} = format;
 
 export class LogService {
+	private static instance: LogService;
+	private logInstance: Logger;
+	private colors: Object = {
+		warn    : {
+			level   : chalk.bgYellow.whiteBright.bold,
+			message : chalk.yellow,
+		},
+		error   : {
+			level   : chalk.bgRed.whiteBright.bold,
+			message : chalk.red,
+		},
+		success : {
+			level   : chalk.bgGreen.whiteBright.bold,
+			message : chalk.green,
+		},
+		info    : {
+			level   : chalk.bgBlue.whiteBright.bold,
+			message : chalk.blue,
+		},
+		debug   : {
+			level   : chalk.bgGray.whiteBright.bold,
+			message : chalk.white,
+		},
+	};
 
-	loggerInstance: Logger = null;
+	constructor() {
+		LogService.instance = this;
 
-	create() {
-		const rotateFile = new DailyRotateFile({
-			dirname       : "./storage/logs",
-			filename      : "%DATE%-app.log",
-			level         : "error",
-			format        : combine(
-				format.timestamp({format : 'M/D HH:mm:ss.SSS'}),
-				format.ms(),
-				printf(({level, message, label, ms, timestamp, ...metadata}) => {
-					if (ms) {
-						if (ms.replace("ms", "").replace("+", "").replace("s", "") > 100) {
-							ms = `${ms}`;
-						} else {
-							ms = `${ms}`;
-						}
-					}
-					let msg = `[${timestamp}][${level} ${ms}] : ${message}`;
+		this.createInstance();
+	}
 
-					if (metadata && Object.keys(metadata).length) {
-						try {
-							msg += '\n';
-							msg += JSON.stringify(metadata, null, "    ");
-						} catch (error) {
+	static get(): LogService {
+		if (!this.instance) {
+			new LogService();
+		}
 
-						}
-					}
+		return this.instance;
+	}
 
-					return msg;
-				})
-			),
-			zippedArchive : true,
-			maxSize       : "20m",
-			maxFiles      : "14d"
+	log(level, message, labels = [], ...args) {
+		this.logInstance.log({
+			level,
+			message,
+			meta : {
+				labels,
+				args,
+			},
 		});
+	}
 
-		const myFormat = printf(({level, message, label, ms, timestamp, ...metadata}) => {
-			if (ms) {
-				if (ms.replace("ms", "").replace("+", "").replace("s", "") > 100) {
-					ms = chalk.redBright`${ms}`;
-				} else {
-					ms = chalk.greenBright`${ms}`;
-				}
-			}
+	private createInstance() {
+		const fileTransport    = this.createFileTransport();
+		const consoleTransport = this.createConsoleTransport();
 
-			timestamp = chalk.gray(`[${timestamp}]`);
-
-			let levelColor   = chalk.white;
-			let messageColor = chalk.white;
-
-			switch (level) {
-				case 'log':
-					levelColor = chalk.bgGray.whiteBright.bold;
-					break;
-				case 'warn':
-					levelColor = chalk.bgYellow.whiteBright.bold;
-					break;
-				case 'error':
-					levelColor = chalk.bgRed.whiteBright.bold;
-					break;
-				case 'success':
-					levelColor = chalk.bgGreen.whiteBright.bold;
-					break;
-				case 'info':
-					levelColor = chalk.bgBlue.whiteBright.bold;
-					break;
-			}
-			switch (level) {
-				case 'log':
-					messageColor = chalk.gray;
-					break;
-				case 'warn':
-					messageColor = chalk.yellow;
-					break;
-				case 'error':
-					messageColor = chalk.red;
-					break;
-				case 'success':
-					messageColor = chalk.green;
-					break;
-				case 'info':
-					messageColor = chalk.blue;
-					break;
-			}
-
-			level           = levelColor` ${level.toUpperCase()} `;
-			const levelWrap = chalk.gray`${level}`;
-			message         = messageColor`${message}`;
-
-
-			if (metadata.error) {
-
-				let errorMessage = chalk.redBright((metadata.error.stack ?? metadata.error).toString());
-
-				//take the first line, we want to make this red :D
-				//				if (errorMessage.includes('\n')) {
-				//					const lines = errorMessage.split('\n');
-				//					lines[0]    = chalk.redBright(lines[0]);
-				//
-				//					errorMessage = lines.join('\n');
-				//				}
-
-				message += errorMessage;
-				message += `\n`;
-
-				delete metadata.error;
-			}
-
-			let msg = `${timestamp} ${levelWrap} ${message} ${ms}`;
-
-
-			if (metadata && Object.keys(metadata).length) {
-				try {
-					msg += '\n';
-					msg += JSON.stringify(metadata, null, "    ");
-				} catch (error) {
-
-				}
-			}
-
-
-			return msg;
-		});
-
-		const cliTransport = new transports.Console({
-			level : 'error',
-			handleExceptions : true,
-			format           : combine(
-				errors({stack : true}),
-				format.timestamp({format : 'HH:mm:ss'}),
-				ms(),
-				myFormat,
-				//format.align(),
-			),
-		});
-
-		this.loggerInstance = createLogger({
+		this.logInstance = createLogger({
 			levels            : {
 				debug   : 0,
 				success : 1,
 				info    : 2,
 				warn    : 3,
-				error   : 4
+				error   : 4,
 			},
-			level             : 'error',
+			level             : "error",
 			exitOnError       : false,
 			handleExceptions  : false,
 			exceptionHandlers : [
-				cliTransport,
-				rotateFile
+				fileTransport,
+				consoleTransport,
 			],
 			transports        : [
-				cliTransport,
-				rotateFile
-			]
+				fileTransport,
+				consoleTransport,
+			],
 		});
 	}
 
-	static get(): Logger {
-		if (instance) return instance.loggerInstance;
+	private createConsoleTransport() {
+		return new transports.Console({
+			level            : "error",
+			handleExceptions : true,
+			format           : combine(
+				errors({stack : true}),
+				timestamp({format : "HH:mm:ss"}),
+				ms(),
+				printf(this.formatMessage.bind(this)),
+				// align()
+			),
+		});
+	}
 
-		const logger = new LogService();
-		logger.create();
+	private createFileTransport() {
+		return new DailyRotateFile({
+			dirname       : "./storage/logs",
+			filename      : "%DATE%-app.log",
+			level         : "error",
+			format        : combine(
+				timestamp({format : "YYYY-MM-DDTHH:mm:ss.SSSZ"}), // ISO Format
+				ms(),
+				printf(this.formatSimpleMessage.bind(this)),
+			),
+			zippedArchive : true,
+			maxSize       : "20m",
+			maxFiles      : "14d",
+		});
+	}
 
-		instance = logger;
+	private formatMessage({level, stack, message, ms, timestamp, meta}) {
+		const color = this.colors[level];
 
-		return instance.loggerInstance;
+		timestamp = chalk.grey(`[${timestamp}]`);
+		level     = color.level(` ${level.toUpperCase()} `);
+
+		const levelWrap    = chalk.grey(level);
+		const labels       = (meta.labels.length > 0 ? "[" + meta.labels.join("] [") + "]" : "");
+		let messagePostfix = "";
+
+		// If you call Log.error(Error, Error), the Error in the 2nd argument will not be displayed.
+		if (!stack && meta.args[0] instanceof Error) {
+			// If Log.error is called with Log.error(string, Error), then we append the stack from the error onto the message
+			stack = meta.args.shift().stack;
+		}
+
+		// Use a slightly different format when an Error is logged so it's a little nicer 🙂
+		if (stack) {
+			// Take the first line of the stack (the message) and make it pop 😎
+			stack          = stack.split("\n");
+			message        = (labels + " " + color.message(stack.shift())).trim();
+			messagePostfix = stack.join("\n");
+		} else {
+			message = (labels + " " + color.message(message)).trim();
+		}
+
+		// Ensure any optional arguments passed in to the log function are kept even if we're outputting an Error
+		messagePostfix += meta.args.map(arg => JSON.stringify(arg, null, 4)).join(" ");
+
+		if (!Str.isEmpty(messagePostfix)) {
+			messagePostfix = "\n" + messagePostfix;
+		}
+
+		return `${timestamp} ${levelWrap} ${message} ${this.formatMs(ms)}${messagePostfix}`;
+	}
+
+	private formatMs(msString: string) {
+		const char = msString.slice(0, 1);
+		const ms   = Number(msString.slice(1).replace('ms', ''));
+
+		let formatted = `${char}${ms}ms`;
+
+		switch (true) {
+			case ms >= 250:
+				formatted = chalk.red.bold(formatted);
+				break;
+			case ms >= 100:
+				formatted = chalk.yellow.bold(formatted);
+				break;
+			default:
+				formatted = chalk.green.bold(formatted);
+				break;
+		}
+
+		return formatted;
+	}
+
+	/**
+	 * Same as the formatMessage function but doesn't have any of the color stuff.
+	 *
+	 */
+	private formatSimpleMessage({level, stack, message, ms, timestamp, meta}) {
+		const labels       = (meta.labels.length > 0 ? "[" + meta.labels.join("] [") + "]" : "");
+		let messagePostfix = "";
+
+		// If you call Log.error(Error, Error), the Error in the 2nd argument will not be displayed.
+		if (!stack && meta.args[0] instanceof Error) {
+			// If Log.error is called with Log.error(string, Error), then we append the stack from the error onto the message
+			stack = meta.args.shift().stack;
+		}
+
+		// Use a slightly different format when an Error is logged so it's a little nicer 🙂
+		if (stack) {
+			// Take the first line of the stack (the message) and make it pop 😎
+			stack          = stack.split("\n");
+			message        = (labels + " " + stack.shift()).trim();
+			messagePostfix = stack.join("\n");
+		} else {
+			message = (labels + " " + message).trim();
+		}
+
+		// Ensure any optional arguments passed in to the log function are kept even if we're outputting an Error
+		messagePostfix += meta.args.map(arg => JSON.stringify(arg, null, 4)).join(" ");
+
+		if (!Str.isEmpty(messagePostfix)) {
+			messagePostfix = "\n" + messagePostfix;
+		}
+
+		return `${timestamp} ${level} ${message} ${this.formatMs(ms)}${messagePostfix}`;
 	}
 }
+
+export default LogService;
