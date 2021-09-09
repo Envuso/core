@@ -369,6 +369,16 @@ describe('models', () => {
 		expect(bruce.books[0]).toBeInstanceOf(Book);
 	});
 
+	test('belongs to relationship', async () => {
+
+		const bruce = await User.query()
+			.where({_id : new ObjectId('61380068ed3c2649a49858fc')})
+			.with('book')
+			.first();
+
+		debugger;
+	});
+
 	test('where all in query', async () => {
 
 		const bruce = await User.create({name : 'bruce'});
@@ -407,7 +417,7 @@ describe('models', () => {
 
 	test('exists/doesntExist', async () => {
 
-		const existing = await User.query().exists('name').first();
+		const existing    = await User.query().exists('name').first();
 		const nonExisting = await User.query().exists('somethingRandomNonExisting').first();
 
 		expect(existing).toBeTruthy();
@@ -415,11 +425,11 @@ describe('models', () => {
 	});
 
 	test('delete ', async () => {
-		const bruce = await User.create({name : 'bruce'});
+		const bruce    = await User.create({name : 'bruce'});
 		const bruceTwo = await User.create({name : 'bruce'});
 
 		expect(await bruce.delete()).toBeTruthy();
-		expect(await User.query().where({_id:bruceTwo._id}).delete()).toBeTruthy();
+		expect(await User.query().where({_id : bruceTwo._id}).delete()).toBeTruthy();
 	});
 
 

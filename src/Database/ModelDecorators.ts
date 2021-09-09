@@ -8,6 +8,8 @@ import {getModelFromContainer} from "./ModelHelpers";
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
 	HAS_MANY_RELATION        = 'envuso:model:relation:has-many',
+	BELONGS_TO_RELATION      = 'envuso:model:relation:belongs-to',
+	BELONGS_TO_MANY_RELATION = 'envuso:model:relation:belongs-to-many',
 	MODEL_OBJECT_ID          = 'envuso:model-object-id',
 	AUTHORIZATION_POLICY_REF = 'envuso:authorization-policy',
 }
@@ -174,6 +176,20 @@ export function policy(policy: ClassType<any>) {
 	};
 }
 
+function handleRelationshipTransforms(relatedModel: (new () => ModelContract<any>) | string, target: any, propertyKey: string) {
+	// When serializing object to class, convert the object to our model instance
+	Transform(({value}) => {
+		if (!value) return null;
+		return plainToClass(getModelFromContainer(relatedModel), value);
+	}, {toClassOnly : true})(target, propertyKey);
+
+	// When de-serializing from class to object, convert the model class to an object
+	Transform(({value}) => {
+		if (!value) return null;
+		return classToPlain(value);
+	}, {toPlainOnly : true})(target, propertyKey);
+}
+
 /**
  * If we're defining a relation on our user model. For example... A user has an address.
  *
@@ -207,19 +223,7 @@ export function hasOne(relatedModel: (new () => ModelContract<any>) | string, fo
 				type : ModelRelationType.HAS_ONE
 			} as ModelRelationMeta
 		], target);
-
-
-		// When serializing object to class, convert the object to our model instance
-		Transform(({value}) => {
-			if (!value) return null;
-			return plainToClass(getModelFromContainer(relatedModel), value);
-		}, {toClassOnly : true})(target, propertyKey);
-
-		// When de-serializing from class to object, convert the model class to an object
-		Transform(({value}) => {
-			if (!value) return null;
-			return classToPlain(value);
-		}, {toPlainOnly : true})(target, propertyKey);
+		handleRelationshipTransforms(relatedModel, target, propertyKey);
 	};
 }
 
@@ -251,28 +255,30 @@ export function hasOne(relatedModel: (new () => ModelContract<any>) | string, fo
  */
 export function hasMany(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
 	return function (target: any, propertyKey: string) {
-		pushToMetadata(ModelDecoratorMeta.HAS_MANY_RELATION, [
-			{
+		pushToMetadata(
+			ModelDecoratorMeta.HAS_MANY_RELATION,
+			[{
 				propertyKey,
 				relatedModel,
 				foreignKey,
 				localKey,
 				type : ModelRelationType.HAS_MANY
-			} as ModelRelationMeta
-		], target);
+			} as ModelRelationMeta],
+			target
+		);
+		handleRelationshipTransforms(relatedModel, target, propertyKey);
+	};
+}
 
+export function belongsTo(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
+	return function (target: any, propertyKey: string) {
+		pushToMetadata(
+			ModelDecoratorMeta.HAS_ONE_RELATION,
+			[{propertyKey, relatedModel, foreignKey, localKey, type : ModelRelationType.HAS_ONE} as ModelRelationMeta],
+			target
+		);
 
-		// When serializing objects to classes, convert the object to our model instances
-		Transform(({value}) => {
-			if (!value) return null;
-			return plainToClass(getModelFromContainer(relatedModel), value);
-		}, {toClassOnly : true})(target, propertyKey);
-
-		// When de-serializing from classes to objects, convert the model classes to an objects
-		Transform(({value}) => {
-			if (!value) return null;
-			return classToPlain(value);
-		}, {toPlainOnly : true})(target, propertyKey);
+		handleRelationshipTransforms(relatedModel, target, propertyKey);
 	};
 }
 

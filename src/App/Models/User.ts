@@ -1,7 +1,7 @@
 import {Exclude} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
-import {hasMany, hasOne, id, policy} from "../../Database";
+import {belongsTo, hasMany, hasOne, id, policy} from "../../Database";
 import {UserPolicy} from "../Policies/UserPolicy";
 import {Book} from "./Book";
 
@@ -14,8 +14,8 @@ export class User extends Authenticatable<User> {
 	@id
 	someUserId: ObjectId | string;
 
-	@hasOne(Book, 'userId', '_id')
-	book?: Book;
+//	@hasOne(Book, 'userId', '_id')
+//	book?: Book;
 
 	@hasMany(Book, 'userId', '_id')
 	books?: Book;
@@ -32,5 +32,9 @@ export class User extends Authenticatable<User> {
 
 	@Exclude()
 	password: string;
+
+
+	@belongsTo('Book', '_id', 'bookId')
+	book: Book;
 
 }

@@ -77,7 +77,6 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		);
 	}
 
-
 	/**
 	 * Similar to using collection.find()
 	 *
@@ -299,15 +298,10 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				 * The only way i could figure out aggregation for one to one
 				 *
 				 * We load the related collection items by local key to foreign key
-				 * in to a "temporary" key on the document
+				 * this will technically give us multiple sub docs on that key...
 				 *
-				 * We then add a new field for the desired relation name with
-				 * the first item from the temporary document field
-				 *
-				 * Then we remove the temporary array. I don't think it's great...
-				 * but I'm honestly not sure about the performance impacts.
-				 *
-				 * Anything is better than nothing at this point.
+				 * However, by using $addFields $first to the query, it'll
+				 * pick the first document from that array and set it there.
 				 */
 				this._collectionAggregation.push(...[
 					{
@@ -315,21 +309,39 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 							from         : getModelCollectionName(meta.relatedModel),
 							localField   : meta.localKey,
 							foreignField : meta.foreignKey,
-							as           : meta.propertyKey + 'Temp'
+							as           : meta.propertyKey
 						},
 					},
 					{
 						$addFields : {
 							[meta.propertyKey] : {
-								'$first' : `$${meta.propertyKey}Temp`
+								'$first' : `$${meta.propertyKey}`
 							}
 						},
-					},
-					{
-						$unset : [`${meta.propertyKey}Temp`]
 					}
 				]);
 			}
+
+//			if(meta.type === ModelRelationType.BELONGS_TO) {
+//
+//				this._collectionAggregation.push(...[
+//					{
+//						$lookup : {
+//							from         : getModelCollectionName(meta.relatedModel),
+//							localField   : meta.localKey,
+//							foreignField : meta.foreignKey,
+//							as           : meta.propertyKey
+//						},
+//					},
+//					{
+//						$addFields : {
+//							[meta.propertyKey] : {
+//								'$first' : `$${meta.propertyKey}`
+//							}
+//						},
+//					}
+//				]);
+//			}
 
 			if (meta.type === ModelRelationType.HAS_MANY) {
 				/**
@@ -344,6 +356,11 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 					},
 				});
 			}
+
+			if(meta.type === ModelRelationType.BELONGS_TO_MANY) {
+
+			}
+
 		}
 
 		return this;

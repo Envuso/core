@@ -106,8 +106,10 @@ export interface RepositoryOptions {
 }
 
 export enum ModelRelationType {
-	HAS_MANY = 'has-many',
-	HAS_ONE  = 'has-one',
+	HAS_MANY        = 'has-many',
+	HAS_ONE         = 'has-one',
+	BELONGS_TO      = 'belongs-to',
+	BELONGS_TO_MANY = 'belongs-to-many',
 }
 
 export interface ModelRelationMeta {
