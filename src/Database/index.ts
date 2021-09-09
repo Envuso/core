@@ -8,8 +8,8 @@ export * from './Mongo/Model';
 export * from './Mongo/QueryBuilder';
 export * from './ModelDecorators';
 //export * from './Exceptions/InvalidRefSpecified';
-export * from './Serialization/Serializer';
-export * from './Redis/Redis';
+export * from "./Serialization/Serializer";
+export * from "../Redis/Redis";
 
 export * from './Seeder/DatabaseSeeder';
 export * from './Seeder/Seeder';

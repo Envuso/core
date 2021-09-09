@@ -5,8 +5,9 @@ export default class Configuration extends ConfigurationFile {
 	load() {
 		this.add('app', import("./AppConfiguration"));
 		this.add('auth', import("./AuthConfiguration"));
-		this.add('database', import("./DatabaseConfiguration"));
-		this.add('paths', import("./FilesystemPathsConfiguration"));
+		this.add("database", import("./DatabaseConfiguration"));
+		this.add("redis", import("./RedisConfiguration"));
+		this.add("paths", import("./FilesystemPathsConfiguration"));
 		this.add('serialization', import("./SerializationConfiguration"));
 		this.add('server', import("./ServerConfiguration"));
 		this.add('services', import("./ServicesConfiguration"));

@@ -15,6 +15,7 @@ import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
+import {RedisServiceProvider} from "../Redis/RedisServiceProvider";
 
 
 export default class AppConfiguration extends ConfigurationCredentials implements ApplicationConfiguration {
@@ -28,6 +29,7 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		SessionServiceProvider,
 		EventServiceProvider,
 		DatabaseServiceProvider,
+		RedisServiceProvider,
 		EncryptionServiceProvider,
 		AuthenticationServiceProvider,
 		AuthorizationServiceProvider,

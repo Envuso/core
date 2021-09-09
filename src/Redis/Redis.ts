@@ -1,44 +1,49 @@
-import {RedisClient} from 'redis';
-import {promisify} from "util";
-import {DateTime} from "../../Common";
-import {RedisContract} from "../../Contracts/Database/Redis/RedisContract";
-import {RedisClientInstance} from "./RedisClientInstance";
+import RedisClient, {Redis as IRedis, RedisOptions} from "ioredis";
+import {Log, DateTime} from "../Common";
+import Obj from "../Common/Utility/Obj";
 
-let instance: RedisContract = null;
+let instance: Redis = null;
 
-export class Redis implements RedisContract {
+export class Redis {
+	private readonly config: RedisOptions;
+	private client: IRedis;
 
-	public asyncOperations: { set: any; get: any; exists: any; del: any };
-	public client: RedisClient;
-
-	constructor(client: RedisClient) {
+	constructor(config: RedisOptions) {
 		if (instance) {
 			return instance;
 		}
 
-		this.client = client;
-
-		this.asyncOperations = {
-			set    : promisify(this.client.set).bind(this.client),
-			get    : promisify(this.client.get).bind(this.client),
-			del    : promisify(this.client.del).bind(this.client),
-			exists : promisify(this.client.exists).bind(this.client),
-		};
-
+		this.config = config;
 		instance = this;
 	}
 
-	public static getInstance(): RedisContract {
+	public connect() {
+		if (this.client) {
+			return;
+		}
+
+		this.client = new RedisClient(this.config);
+		this.client.on("error", (error) => Log.exception("Redis Error:", error));
+	}
+
+	public static getInstance(): Redis {
 		return instance;
 	}
 
 	/**
-	 * Get the underlying redis client
+	 * Set a value using promises rather than callbacks
 	 *
-	 * @returns {RedisClient}
+	 * We JSON.stringify the value so that hopefully you
+	 * will get the same type returned.
+	 *
+	 * @param {string} key
+	 * @param {any} value
+	 * @param {DateTime|undefined} ttl | A datetime instance of a date in the future when this key should expire.
+	 *
+	 * @returns {Promise<boolean>}
 	 */
-	public static client(): RedisClient {
-		return this.getInstance().client;
+	public static set(key: string, value: any, ttl?: DateTime): Promise<boolean> {
+		return this.getInstance().set(key, value, ttl);
 	}
 
 	/**
@@ -53,39 +58,19 @@ export class Redis implements RedisContract {
 	 *
 	 * @returns {Promise<boolean>}
 	 */
-	public static put(key: string, value: any, ttl?: DateTime): Promise<boolean> {
-		return this.getInstance().put(key, value, ttl);
-	}
-
-	/**
-	 * Set a value using promises rather than callbacks
-	 *
-	 * We JSON.stringify the value so that hopefully you
-	 * will get the same type returned.
-	 *
-	 * @param {string} key
-	 * @param {any} value
-	 * @param {DateTime|undefined} ttl | A datetime instance of a date in the future when this key should expire.
-	 *
-	 * @returns {Promise<boolean>}
-	 */
-	public async put(key: string, value: any, ttl?: DateTime): Promise<boolean> {
-		if (!RedisClientInstance.isEnabled()) {
-			return;
-		}
-
-		const redisValue = JSON.stringify({value : value});
+	public async set(key: string, value: any, ttl?: DateTime): Promise<boolean> {
+		const redisValue = JSON.stringify({value: value});
 
 		if (ttl !== undefined) {
-			return await this.asyncOperations.set(
+			return await this.client.set(
 				key, redisValue,
-				'EX', DateTime.diffInSeconds(ttl)
-			) === 'OK';
+				"EX", DateTime.diffInSeconds(ttl),
+			) === "OK";
 		}
 
-		return await this.asyncOperations.set(
-			key, redisValue
-		) === 'OK';
+		return await this.client.set(
+			key, redisValue,
+		) === "OK";
 	}
 
 	/**
@@ -99,7 +84,7 @@ export class Redis implements RedisContract {
 	 *
 	 * @returns {Promise<T>}
 	 */
-	public static async get<T>(key: string, _default: any = null): Promise<T> {
+	public static get<T>(key: string, _default: any = null): Promise<T> {
 		return this.getInstance().get(key, _default);
 	}
 
@@ -115,19 +100,15 @@ export class Redis implements RedisContract {
 	 * @returns {Promise<T>}
 	 */
 	public async get<T>(key: string, _default: any = null): Promise<T> {
-		if (!RedisClientInstance.isEnabled()) {
-			return null;
-		}
+		const rawValue = await this.client.get(key);
 
-		let value = await this.asyncOperations.get(key);
-
-		if (value === undefined || value === null) {
+		if (Obj.isNullOrUndefined(rawValue)) {
 			return _default;
 		}
 
-		value = JSON.parse(value);
+		const {value} = JSON.parse(rawValue);
 
-		return value.value;
+		return value;
 	}
 
 	/**
@@ -147,11 +128,7 @@ export class Redis implements RedisContract {
 	 * @returns {Promise<boolean>}
 	 */
 	public async remove(key: string): Promise<boolean> {
-		if (!RedisClientInstance.isEnabled()) {
-			return;
-		}
-
-		return (await this.asyncOperations.del(key)) === 1;
+		return (await this.client.del(key)) === 1;
 	}
 
 	/**
@@ -171,11 +148,8 @@ export class Redis implements RedisContract {
 	 * @returns {Promise<boolean>}
 	 */
 	public async has(key: string): Promise<boolean> {
-		if (!RedisClientInstance.isEnabled()) {
-			return;
-		}
-
-		return await this.asyncOperations.exists(key) === 1;
+		return await this.client.exists(key) === 1;
 	}
-
 }
+
+export default Redis;
