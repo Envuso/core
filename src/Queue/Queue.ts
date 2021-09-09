@@ -25,62 +25,60 @@ export class Queue {
 	}
 
 	public async run() {
-		Log.label("Queue").debug("Is App Booted? " + App.isBooted());
 		while (App.isBooted()) {
-			Log.label("Queue").debug("Queue run");
-			// const job = await this.hydrateJob("");
-			// await job.handle();
+			// Get list of Jobs that should be run now
+			// result - [ [error, results[]], [error, numRemoved] ]
+			const [jobsToRun, _] = await Redis.getInstance().getClient()
+			                                  .multi()
+			                                  .zrangebyscore("queue", 0, Date.now())
+			                                  .zremrangebyscore("queue", 0, Date.now())
+			                                  .exec();
 
-			Log.label("Queue").debug("Fetch Jobs...");
-			const jobsToRun = await Redis.zRangeByScore("queue", "-inf", Date.now(), `LIMIT 0 ${this.config.jobsPerBatch}`);
-			Log.label("Queue").debug("Jobs Fetched:", jobsToRun);
+			for (const jobData of jobsToRun[1]) {
+				try {
+					// Start the timer before the log because JSON parsing actually takes time,
+					const jobStart = Date.now();
+					const {t: namespace, d: data} = JSON.parse(jobData);
+					const [jobFilePath, jobClassName] = namespace.split(":");
 
-			await new Promise(resolve => setTimeout(resolve, 1_000));
+					// but we don't have the namespace until it's been parsed...
+					Log.label("Queue").info(`Processing: ${jobFilePath}`);
+
+					const job = await this.hydrateJob(jobFilePath, jobClassName, data);
+
+					await job.handle();
+
+					Log.label("Queue").info(`Processed: ${jobFilePath} (${Date.now() - jobStart}ms)`);
+				} catch (error) {
+					Log.label("Queue").error(error);
+
+					// TODO: Retry failed Jobs
+					// TODO: Have Job say if it should be retried
+				}
+			}
+
+			await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
 		}
 	}
 
-	public static dispatch(job: Job) {
-		return Redis.zAdd("queue", this.getInstance().getInsertScore(), job.serialize())
-		            .then(result => {
-			            Log.label("Queue").debug("Job Added Successfully");
+	public static async dispatch(job: Job) {
+		await Redis.zAdd("queue", Date.now(), job.serialize());
 
-			            return result;
-		            });
+		const {namespace} = Reflect.getMetadata("job", job.constructor);
+
+		Log.label("Queue").info(`Queued: ${namespace.split(":")[0]}`);
 	}
 
-	private async hydrateJob(rawData: string): Promise<Job> {
-		const {t: namespace, d: data} = JSON.parse(rawData);
-		const [jobFilePath, jobClassName] = namespace.split(":");
-		const modules = await FileLoader.importModulesFrom(jobFilePath);
+	private async hydrateJob(filePath: string, jobClassName: string, data: string): Promise<Job> {
+		const modules = await FileLoader.importModulesFrom(filePath);
 		const jobModule = modules.find(module => module.name === jobClassName);
 
 		if (!jobModule) {
-			throw new Error(`Could not load Job with namespace "${namespace}"`);
+			throw new Error(`Could not load Job with namespace "${filePath}:${jobClassName}"`);
 		}
 
 		const job = jobModule.instance as typeof Job;
 
 		return job.deserialize(data);
-	}
-
-	/**
-	 * Used to get a non-overlapping key
-	 *
-	 * @private
-	 */
-	private getInsertScore() {
-		let score = Date.now();
-
-		if (this.latestInsertScores.includes(score)) {
-			score = this.latestInsertScores[0] + 1;
-		}
-
-		// Keep only 5 keys
-		this.latestInsertScores.unshift(score);
-		this.latestInsertScores = this.latestInsertScores.splice(0, 5);
-
-		Log.label("Queue").debug("Scores:", this.latestInsertScores);
-
-		return score;
 	}
 }

@@ -14,8 +14,10 @@ const envuso = new Envuso();
 Configuration.initiate()
              .then(() => envuso.boot())
              .then(() => envuso.serve())
-             .then(() => {
-	             new ImplementedJob(1).dispatch();
+             .then(async () => {
+	             for (let i = 0; i < 10; i++) {
+		             new ImplementedJob(i + 1).dispatch();
+	             }
              })
              .catch(error => {
 	             Log.error(error);

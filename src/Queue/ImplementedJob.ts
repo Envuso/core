@@ -1,6 +1,5 @@
 import {Job} from "./Job";
 import {Queueable} from "./Queueable";
-import {Log} from "../Common";
 import {job} from "./JobDecorators";
 
 @job
@@ -10,6 +9,7 @@ export class ImplementedJob extends Job implements Queueable {
 	}
 
 	async handle() {
-		Log.info("Implemented Job: " + this.userId + ", isAdmin: " + this.isAdmin);
+		await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 2000) + 1000));
+		// Log.info("Implemented Job: " + this.userId + ", isAdmin: " + this.isAdmin);
 	}
 }

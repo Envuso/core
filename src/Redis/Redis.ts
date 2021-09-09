@@ -26,6 +26,10 @@ export class Redis {
 		this.client.on("error", (error) => Log.exception("Redis Error:", error));
 	}
 
+	public getClient() {
+		return this.client;
+	}
+
 	public static getInstance(): Redis {
 		return instance;
 	}
@@ -156,17 +160,7 @@ export class Redis {
 	}
 
 	public async zAdd(key: string, score: number, value: string): Promise<boolean> {
-		Log.label("Redis").debug("zAdd", key, score, value);
 		return await this.client.zadd(key, score, value) === 1;
-	}
-
-	public static zRangeByScore(key: string, min: string | number, max: string | number, ...args: any): Promise<string[]> {
-		return this.getInstance().zRangeByScore(key, min, max, ...args);
-	}
-
-	public zRangeByScore(key: string, min: string | number, max: string | number, ...args: any): Promise<string[]> {
-		Log.label("Redis").debug("zRangeByScore", key, min, max, ...args);
-		return this.client.zrangebyscore(key, min, max, ...args);
 	}
 }
 

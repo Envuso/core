@@ -1,3 +1,3 @@
 export interface QueueConfiguration {
-	jobsPerBatch: number;
+	waitTimeMs: number;
 }
