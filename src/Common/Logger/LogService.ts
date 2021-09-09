@@ -57,7 +57,7 @@ export class LogService {
 	}
 
 	private createInstance() {
-		const fileTransport = this.createFileTransport();
+		const fileTransport    = this.createFileTransport();
 		const consoleTransport = this.createConsoleTransport();
 
 		this.logInstance = createLogger({
