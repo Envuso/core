@@ -121,8 +121,6 @@ export default class Environment {
 
 			if (Obj.isBoolean(this.environment[key])) {
 				this.environment[key] = Boolean(this.environment[key]);
-
-				continue;
 			}
 		}
 

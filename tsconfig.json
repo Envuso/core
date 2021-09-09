@@ -46,8 +46,6 @@
   "exclude": [
     "node_modules",
     "dist/**/*",
-    "Framework/**/*",
-    "packages/**/*"
   ],
   "include": [
     "src/App/**/*",
@@ -70,7 +68,8 @@
     "src/Sockets/**/*",
     "src/Storage/**/*.ts",
     "src/Authenticatable.ts",
-    "src/Envuso.ts.ts",
+    "src/Envuso.ts",
+    "src/tests/**/*.ts",
     "src/run-dev.ts",
     "src/index.ts"
   ]

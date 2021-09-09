@@ -12,12 +12,9 @@ export class StartSessionMiddleware extends Middleware {
 		const cookieName     = config().get<string, any>('Session.sessionCookie.name');
 		let sessionId        = null;
 
-		if (!context.request.cookieJar().has(cookieName)) {
-			console.log('No session cookie on request.');
-		} else {
+		if (context.request.cookieJar().has(cookieName)) {
 			sessionId = context.request.cookieJar().get(cookieName).getValue() as string;
 		}
-
 
 		context.setSession(await session.create(sessionId));
 	}

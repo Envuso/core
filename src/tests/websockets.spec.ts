@@ -21,8 +21,6 @@ describe('Websocket channels', () => {
 		await client.usingJwt(token).connect();
 
 		client.listen('hello', (data) => {
-			u.sendSocketEvent('hello', 'again');
-
 			Log.info('KEKW')
 		});
 
@@ -38,7 +36,7 @@ describe('Websocket channels', () => {
 				}
 
 				u.sendSocketEvent('hello', 'again');
-				u.sendSocketEvent('hello', 'again');
+
 				setTimeout(() => resolve(true), 10000);
 			});
 		});

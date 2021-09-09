@@ -13,7 +13,6 @@ import {SocketConnectionContract} from "../../Contracts/Sockets/SocketConnection
 import {CookieJar} from "../../Cookies";
 import {InertiaRequestContract} from "../../Packages/Inertia/Contracts/InertiaRequestContract";
 import {InertiaRequest} from "../../Packages/Inertia/InertiaRequest";
-import {Session} from "../../Session";
 import {Request} from "./Request/Request";
 import {RequestContextStore} from "./RequestContextStore";
 import {Response} from "./Response/Response";

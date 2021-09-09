@@ -1,4 +1,5 @@
-import pluralize, {isPlural, isSingular, plural, singular} from "pluralize";
+import {isPlural, isSingular, plural, singular} from "pluralize";
+import SimpleCrypto from "simple-crypto-js";
 import Obj from "./Obj";
 
 
@@ -47,6 +48,10 @@ export class Str {
 	 */
 	static isEmpty(value: any): boolean {
 		return (Obj.isNullOrUndefined(value) || String(value).trim().length === 0);
+	}
+
+	static randomWords(amount: number): string[] {
+		return SimpleCrypto.generateRandomWordArray(amount);
 	}
 }
 

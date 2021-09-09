@@ -126,6 +126,7 @@ export interface SocketConnectionContract {
 	/**
 	 * Send a custom created socket packet on this connection
 	 *
+	 * @template T
 	 * @param {T} packet
 	 */
 	sendPacket<T extends SocketPacketContract>(packet: T): void;

@@ -1,4 +1,3 @@
-import {ResponseContract} from "../../../Contracts/Routing/Context/Response/ResponseContract";
 import {InertiaResponse} from "../InertiaResponse";
 
 export interface InertiaPageData {

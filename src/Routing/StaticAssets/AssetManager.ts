@@ -4,12 +4,11 @@ import {glob} from "glob";
 import * as path from "path";
 import {URL} from "url";
 import * as util from "util";
-import {debug} from "winston";
 import {ConfigRepository, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
-import {ControllerManager} from "../Controller/ControllerManager";
 import mime from 'mime';
+import {Routing} from "../Route/Routing";
 
 const globPromise = util.promisify(glob);
 
@@ -78,7 +77,7 @@ export class AssetManager {
 		this.registerAssetViewHelper();
 
 		for (let assetPath of AssetManager.assetPaths) {
-			if (ControllerManager.hasPathRegistered(assetPath)) {
+			if (Routing.get().hasPathRegistered(assetPath)) {
 				Log.error('Cannot register public asset path `' + assetPath + '` because this is registered as a controller path.');
 				continue;
 			}

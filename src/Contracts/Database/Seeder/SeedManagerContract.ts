@@ -6,6 +6,7 @@ export interface SeedManagerContract {
 	/**
 	 * Allow the user to register a seeder which will be run
 	 *
+	 * @template T
 	 * @param {T} seeder
 	 */
 	registerSeeder<T extends new () => SeederContract>(seeder: T): void;

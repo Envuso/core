@@ -57,6 +57,7 @@ export interface RequestContract extends RequestResponseContextContract {
 	/**
 	 * Get all body/query inputs as one object
 	 *
+	 * @template T
 	 * @return {T}
 	 */
 	all<T extends object>(): T;

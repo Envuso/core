@@ -2,20 +2,13 @@ import "reflect-metadata";
 import {FastifyRequest} from "fastify";
 import {App, ConfigRepository} from "../AppContainer";
 import {Authenticatable} from "../Authenticatable";
-import {Auth, Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider, VerifiedTokenInterface} from "../Authentication";
-import {Config} from "../Config";
+import {Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider, VerifiedTokenInterface} from "../Authentication";
 import {request, Request, RequestContext} from "../Routing";
 
+import {bootApp, unloadApp} from "./preptests";
 
-const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
-};
-
-const unloadApp = async function () {
-	App.getInstance().container().reset();
-	await App.getInstance().unload();
-};
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 beforeEach(() => {
 	return bootApp();

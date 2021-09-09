@@ -1,7 +1,6 @@
-import {RouteHelper} from "../../../Common";
+import {Url} from "../../../Common/Utility/Url";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
-//import {ApplicationRouteAttributeObject} from "../../../Meta/ApplicationRouteMeta";
 import {session} from "../../../Session";
 
 export class RedirectResponse implements RedirectResponseContract {
@@ -23,12 +22,12 @@ export class RedirectResponse implements RedirectResponseContract {
 	/**
 	 * Redirect to an internal application route
 	 *
-	 * @param {T} routeStr
+	 * @param {T} controllerAndMethod
 	 * @param attributes
 	 * @return {RedirectResponseContract}
 	 */
-	public route<T extends string>(routeStr: T, attributes?: any): RedirectResponseContract {
-		this.redirectTo = RouteHelper.urlFor<T>(routeStr, attributes);
+	public route<T extends string>(controllerAndMethod: T, attributes?: any): RedirectResponseContract {
+		this.redirectTo = Url.routeUrl<T>(controllerAndMethod, attributes);
 
 		return this;
 	}

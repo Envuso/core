@@ -39,7 +39,7 @@ export interface ServerContract {
 	 *
 	 * @private
 	 */
-	registerControllers(): void;
+	registerRoutes(): void;
 
 	registerHooks(hooks: { new(): HookContract }[]): void;
 

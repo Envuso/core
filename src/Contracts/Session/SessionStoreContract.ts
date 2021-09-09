@@ -10,6 +10,7 @@ export interface SessionStoreContract {
 	/**
 	 * Get values from the store by their key
 	 *
+	 * @template T
 	 * @param {string[]} keys
 	 * @return {Partial<T>}
 	 */
@@ -42,6 +43,7 @@ export interface SessionStoreContract {
 	/**
 	 * Get an item from the store
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param _default
 	 * @return {T}
@@ -51,6 +53,7 @@ export interface SessionStoreContract {
 	/**
 	 * Get an item from the store by it's key and remove it.
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param _default
 	 * @return {T}
@@ -165,15 +168,17 @@ export interface SessionStoreContract {
 	/**
 	 * Get an item from the old input values
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param _default
-	 * @return {unknown}
+	 * @return {T[]}
 	 */
 	getOldInput<T extends any>(key?: string, _default?: any): T[];
 
 	/**
 	 * Remove an item from the session and return it's value
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @return {T}
 	 */

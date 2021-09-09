@@ -1,7 +1,6 @@
 import {TypeOptions} from "class-transformer";
 import {CollationDocument, FilterQuery} from "mongodb";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
-import {Model} from "./Mongo/Model";
 
 export * from './DatabaseServiceProvider';
 export * from './Mongo/Model';
@@ -31,7 +30,8 @@ type ModelPropertiesOnly<T> = {
 	[P in ModelPropertyNames<T>]: T[P] extends object ? ModelProps<T[P]> : T[P]
 };
 export type ModelProps<T> = ModelPropertiesOnly<T>;
-
+export type ArrayOfModelProps<T> = (keyof ModelProps<T>)[];
+export type SingleModelProp<T> = keyof ModelProps<T>;
 
 /**
  * Options passed to mongodb.createIndexes

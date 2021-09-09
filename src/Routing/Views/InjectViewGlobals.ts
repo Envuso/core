@@ -1,17 +1,16 @@
-import {config, resolve} from "../../AppContainer";
+import {resolve} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
-import {RouteHelper} from "../../Common";
+import {Url} from "../../Common/Utility/Url";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
-//import {ApplicationRouteAttributeObject} from "../../Meta/ApplicationRouteMeta";
 import {Middleware} from "../Middleware/Middleware";
 
 export class InjectViewGlobals extends Middleware {
 
 	public async handle(context: RequestContextContract): Promise<any> {
 		const viewManager = resolve<ViewManagerContract>('ViewManager');
-		viewManager.registerGlobal(
-			'route', <T extends string>(routeStr: T, attributes?: any) => RouteHelper.urlFor(routeStr, attributes)
+		viewManager.registerGlobal('route',
+			<T extends string>(controllerAndMethod: T, attributes?: any) => Url.routeUrl(controllerAndMethod, attributes)
 		);
 		viewManager.registerGlobal(
 			'old', (key?: string, _default: any = null) => context.request.old(key, _default)

@@ -1,10 +1,8 @@
-import {ModelMetadata} from "aws-sdk/clients/lookoutvision";
 import {config, resolve} from "../../AppContainer";
 import {classToPlainFromExist, Exclude} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
 import pluralize from 'pluralize';
-import {Obj} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
@@ -53,6 +51,29 @@ export class Model<M> implements ModelContract<M> {
 	}
 
 	/**
+	 * Load the specified relations just for this model
+	 *
+	 * @param {keyof ModelProps<M>} relations
+	 * @returns {Promise<this>}
+	 */
+	public async load(...relations: (keyof ModelProps<M>)[]): Promise<this> {
+		const result = await this.queryBuilder()
+			.where({_id : this.getModelId()})
+			.with(...relations)
+			.first();
+
+		for (let relation of relations) {
+			if (!result[relation]) {
+				continue;
+			}
+
+			(this as any)[relation] = result[relation];
+		}
+
+		return this;
+	}
+
+	/**
 	 * Get an instance of query builder, similar to using collection.find()
 	 * But... our query builder returns a couple of helper methods, first(), get()
 	 *
@@ -61,11 +82,10 @@ export class Model<M> implements ModelContract<M> {
 	 * {@see QueryBuilder}
 	 *
 	 * @param attributes
+	 * @param key
+	 * @param value
 	 */
-	static where<T extends Model<any>>(
-		this: new() => T,
-		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilderContract<T> {
+	static where<T extends Model<any>>(this: new() => T, attributes: FilterQuery<T> | Partial<T>, key?: string, value?: any): QueryBuilderContract<T> {
 		return new this().queryBuilder().where<T>(attributes);
 	}
 
@@ -80,9 +100,7 @@ export class Model<M> implements ModelContract<M> {
 	 * @param key
 	 * @param values
 	 */
-	whereIn<F extends (keyof M)>(
-		key: F, values: M[F][]
-	): QueryBuilderContract<M> {
+	whereIn<F extends (keyof M)>(key: F, values: M[F][]): QueryBuilderContract<M> {
 		return this.queryBuilder().whereIn(key, values);
 	}
 

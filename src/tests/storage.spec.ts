@@ -148,7 +148,7 @@ describe('s3 storage', () => {
 
 		expect(response.url).toContain(directoryName);
 
-		const url = await Storage.disk('s3').url(directoryName);
+		const url = Storage.disk('s3').url(directoryName);
 		expect(url).toEqual(response.url);
 
 		const deleted = await Storage.disk('s3').remove(directoryName);

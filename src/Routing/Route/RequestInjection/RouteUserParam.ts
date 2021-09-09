@@ -2,7 +2,6 @@ import {FastifyReply, FastifyRequest} from "fastify";
 import {resolve} from "../../../AppContainer";
 import {Authentication} from "../../../Authentication";
 import {DecoratorHelpers, METADATA} from "../../../Common";
-import {RequestContext} from "../../Context/RequestContext";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteUserParam extends MethodParameterDecorator {

@@ -1,4 +1,3 @@
-import { AuthenticationIdentifier } from 'Contracts/Authentication/UserProvider/AuthCredentials';
 import {sign, SignOptions, verify, VerifyOptions} from 'jsonwebtoken';
 import {config, ConfigRepository, resolve} from "../../AppContainer";
 import {Log} from "../../Common";

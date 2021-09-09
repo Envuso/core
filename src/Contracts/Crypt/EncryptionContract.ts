@@ -15,6 +15,7 @@ export interface EncryptionContract {
 	/**
 	 * Decrypts some content back to it's original form
 	 *
+	 * @template T
 	 * @param {string} content
 	 * @returns {T}
 	 */

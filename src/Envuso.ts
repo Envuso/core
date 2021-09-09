@@ -46,11 +46,8 @@ export class Envuso implements EnvusoContract {
 			ProcessUploadedFilesHook,
 			SetResponseCookiesHook,
 			SaveSessionHook,
-			//HandleErrorHook
+			// HandleErrorHook
 		);
-
-		//		await FrameworkModuleMetaGenerator.generate();
-		//		await RouteMetaGenerator.generate();
 
 		Log.success('Envuso is booted!');
 	}
@@ -102,7 +99,9 @@ export class Envuso implements EnvusoContract {
 	}
 
 	public async unload() {
-		this._server.unload();
+		if (this._server)
+			this._server.unload();
+
 		await App.getInstance().unload();
 		this._app    = null;
 		this._server = null;

@@ -1,5 +1,5 @@
 import {Cursor, FilterQuery, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult} from "mongodb";
-import {ModelProps, ModelRelationMeta, ModelRelationType} from "../../../Database";
+import {ModelProps, ModelRelationMeta, ModelRelationType, QueryOperator, SingleModelProp} from "../../../Database";
 import {ModelContract} from "./ModelContract";
 import {PaginatorContract} from "./PaginatorContract";
 
@@ -23,15 +23,52 @@ export interface QueryBuilderContract<T> {
 	/**
 	 * Similar to using collection.find()
 	 *
+	 * In mongo terms, this is doing .find({key : value}}
+	 *
+	 * @param key
+	 * @param value
+	 */
+	where<M>(key: SingleModelProp<T>, value: any): QueryBuilderContract<T>;
+
+	/**
+	 * Similar to using collection.find()
+	 *
+	 * In mongo terms, this is doing .find({amount : {$gt : 10}}
+	 * If you're doing .where('amount', '>', 10);
+	 *
+	 * @param key
+	 * @param operator
+	 * @param value
+	 */
+	where<M>(key: SingleModelProp<T>, operator: QueryOperator, value: any): QueryBuilderContract<T>;
+
+	/**
+	 * Similar to using collection.find()
+	 *
+	 * In mongo terms, this is doing .find({object})
+	 *
 	 * @param attributes
 	 */
 	where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T>;
 
 	/**
-	 * Allows us to do a query for an item that exists in the array.
-	 * For example, we have documents with usernames, jane, bill, bob.
+	 * Similar to using collection.find()
+	 * Handles all of the above overloads
 	 *
-	 * We can do .whereIn('username', ['jane', 'bill'])
+	 * @param attributes
+	 */
+	where<M>(attributes: (FilterQuery<M | T> | Partial<M | T>) | SingleModelProp<T>, operator?: QueryOperator, value?: any): QueryBuilderContract<T>;
+
+	/**
+	 * Imagine we have users like
+	 * {username: 'jane'}
+	 * {username: 'bill'}
+	 * {username: 'bob'}
+	 *
+	 * If we do whereIn('username', ['jane', 'bil']), this will return
+	 *
+	 * {username: 'jane'}
+	 * {username: 'bill'}
 	 *
 	 * @param key
 	 * @param values
@@ -40,6 +77,34 @@ export interface QueryBuilderContract<T> {
 		key: F, values: T[F][]
 	): QueryBuilderContract<T>;
 
+	/**
+	 * Imagine if we have some book documents like:
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 * {book: 'book name', tags: ['action']}
+	 *
+	 * If we do whereAllIn('tags', ['action']), this will return
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 * {book: 'book name', tags: ['action']}
+	 *
+	 * If we now do whereAllIn('tags', ['action', 'rpg']), this will return
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 *
+	 * It will search for a document with an array, containing the specific values
+	 *
+	 * @param key
+	 * @param values
+	 */
+	whereAllIn<F extends (keyof T)>(key: F, values: string[]): QueryBuilderContract<T>;
+
+	/**
+	 * Only run the specified query when the condition returns true
+	 *
+	 * @template T
+	 * @template M
+	 * @param {boolean | (() => boolean)} condition
+	 * @param {FilterQuery<M | T> | Partial<M | T>} attributes
+	 * @returns {QueryBuilderContract<T>}
+	 */
 	when<M>(
 		condition: boolean | (() => boolean),
 		attributes: FilterQuery<M | T> | Partial<M | T>
@@ -60,7 +125,7 @@ export interface QueryBuilderContract<T> {
 	 *
 	 * @returns {ModelRelationMeta[]}
 	 */
-	relations(): {[key:string]:ModelRelationMeta}
+	relations(): { [key: string]: ModelRelationMeta };
 
 	/**
 	 * Allows us to specify any model relations to load on this query
@@ -69,6 +134,25 @@ export interface QueryBuilderContract<T> {
 	 * @param relations
 	 */
 	with(...relations: (keyof ModelProps<T>)[]): QueryBuilderContract<T>;
+
+	/**
+	 * Add a clause to ensure a key exists or doesnt exist on a document
+	 *
+	 * @template T
+	 * @param {SingleModelProp<T>} key
+	 * @param {boolean} existState
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	exists(key: SingleModelProp<T>|string, existState?: boolean): QueryBuilderContract<T>;
+
+	/**
+	 * Uses {@see exists}
+	 *
+	 * @template T
+	 * @param {SingleModelProp<T>} key
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	doesntExist(key: SingleModelProp<T>|string): QueryBuilderContract<T>;
 
 	/**
 	 * Allows us to specify an order of descending, which is applied to the cursor

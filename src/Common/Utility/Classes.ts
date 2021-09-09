@@ -1,5 +1,5 @@
 import {CallSite} from "./Classes.types";
-import Constructable = jest.Constructable;
+
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -147,20 +147,6 @@ export class Classes {
 		}
 
 		return projModules;
-	}
-
-	public static getModulePathFromConstructor(cstr: new () => any) {
-		const callSites     = this.getCallsites();
-		const callSitePaths = this.getCallsites().map(f => f.getFileName());
-
-		const result = callSites.find(c => {
-			return c.getFileName().includes(cstr.name);
-		});
-
-		return {
-			file          : result.getFileName(),
-			isConstructor : result.isConstructor()
-		};
 	}
 
 }

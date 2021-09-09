@@ -3,25 +3,13 @@ import {constructor} from "tsyringe/dist/typings/types";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {App} from "../AppContainer/App";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
-import {Config} from "../Config";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 
-async function boot() {
-	if(App.isBooted()){
-		await App.getInstance().unload();
-	}
+import {bootApp, unloadApp} from "./preptests";
 
-	await App.bootInstance({
-		config : Config
-	});
-}
-
-
-beforeEach(done => {
-	return boot().then(done());
-});
-
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 describe('test app binding', () => {
 

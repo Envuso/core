@@ -89,6 +89,18 @@ export class Arr {
 		return true;
 	};
 
+	/**
+	 * Take a random amount of the items from the array up to the specified max
+	 *
+	 * @param {any[]} arr
+	 * @param {number} max
+	 * @returns {any[]}
+	 */
+	public static takeRandom(arr: any[], max: number) {
+		const rand = Maths.randomInt(0, max);
+
+		return arr.slice(0, rand);
+	}
 }
 
 //declare global {

@@ -1,6 +1,5 @@
 import "reflect-metadata";
 
-import {plainToClass} from "class-transformer";
 import {IsString, MinLength} from "class-validator";
 import * as fs from "fs";
 import * as path from "path";
@@ -8,54 +7,30 @@ import {TestingController} from "../App/Http/Controllers/TestingController";
 import {User} from "../App/Models/User";
 import {App} from "../AppContainer";
 import {Authentication} from "../Authentication";
-import {Config} from "../Config";
 import {
 	Controller,
 	controller,
-	ControllerManager,
 	DataTransferObject,
 	DtoValidationException,
 	get,
 	middleware,
 	Middleware,
 } from "../Routing";
+import {Routing} from "../Routing/Route/Routing";
 import {Server} from "../Server/Server";
+import 'jest-extended';
+import {bootApp, unloadApp} from "./preptests";
 
-
-const bootApp = async function () {
-
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
-
-	await app.container().resolve(Server).initialise();
-};
-
-beforeAll(() => {
-	return bootApp();
-});
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 describe('test route service provider', () => {
 
-	//	test('route service provider loads controllers', async () => {
-	//		const app = App.getInstance();
-	//
-	//		const controllerInst = app.resolve(TestingController);
-	//
-	//		expect(controllerInst).toBeTruthy();
-	//	});
+	test('route service provider loads controllers', async () => {
+		const app            = App.getInstance();
+		const controllerInst = app.resolve(TestingController);
 
-	//	test('initiating controllers', async () => {
-	//		const app = App.getInstance();
-	//
-	//		expect(
-	//			ControllerManager.getRoutesForController(app.resolve(TestingController))
-	//		).toBeDefined();
-	//	});
-
-	test('test initiating controllers with no methods', async () => {
-		const app = App.getInstance();
-
-		expect(ControllerManager.initiateControllers()).toBeDefined();
+		expect(controllerInst).toBeTruthy();
 	});
 
 	test('making request to endpoint using methods & data transfer object', async () => {
@@ -87,19 +62,16 @@ describe('test route service provider', () => {
 			}
 		});
 
-		expect(res.statusCode).toEqual(500);
+		expect(res.statusCode).toEqual(422);
 
 	});
 
 	test('controller has path metadata defined', async () => {
-		const app = App.getInstance();
-
+		const app        = App.getInstance();
 		const controller = app.resolve(TestingController);
-
 		expect(controller).toBeDefined();
 
-		const meta = ControllerManager.getMeta(controller.constructor);
-		//		const meta = controller.getMeta();
+		const meta = Routing.get().getControllerMeta(controller.constructor);
 
 		expect(meta.controller.path).toEqual('/testing');
 	});
@@ -115,16 +87,17 @@ describe('test route service provider', () => {
 
 		}
 
-		app.bind(() => {
-			return GetController;
-		}, 'Controllers');
+		app.bind(() => GetController, 'Controllers');
 
 		const getController = app.resolve(GetController);
-
-		expect(ControllerManager.initiateControllers()).toBeDefined();
 		expect(getController).toBeDefined();
 
-		const meta = ControllerManager.getMeta(getController.constructor);
+		Routing.initiate();
+
+		expect(Routing.get().getControllers()).toBeArray();
+		expect(Routing.get().getControllers().length).toBeGreaterThan(1);
+
+		const meta = Routing.get().getControllerMeta(getController.constructor);
 
 		expect(meta.controller.path).toEqual('/test');
 
@@ -144,22 +117,16 @@ describe('test route service provider', () => {
 		@middleware(new TestMiddleware())
 		@controller('/test')
 		class GetController extends Controller {
-
 			@get('/get')
 			getMethod() {}
-
 		}
 
-		app.bind(() => {
-			return GetController;
-		}, 'Controllers');
+		app.bind(() => GetController, 'Controllers');
 
 		const getController = app.resolve(GetController);
-
 		expect(getController).toBeDefined();
 
-		const meta = ControllerManager.getMeta(getController.constructor);
-		//		const meta = getController.getMeta();
+		const meta = Routing.get().getControllerMeta(getController.constructor);
 
 		expect(meta.controller.path).toEqual('/test');
 		expect(meta.methods[0].path).toEqual('/get');
@@ -175,16 +142,20 @@ describe('test route service provider', () => {
 	test('data transfer object validates', async () => {
 
 		class TestDTO extends DataTransferObject {
-
 			@MinLength(1)
 			@IsString()
 			property: string;
-
 		}
 
-		const dto = plainToClass(TestDTO, {property : ''});
+		try {
 
-		expect(() => dto.validate()).toThrow(DtoValidationException);
+			await TestDTO.handleControllerBinding({property : ''}, true);
+		} catch (error) {
+			if (error instanceof DtoValidationException) {
+				expect(() => true).toBeTruthy();
+			}
+		}
+
 
 	});
 	test('hitting route with global middleware', async () => {
@@ -409,8 +380,8 @@ describe('test route service provider', () => {
 
 		const body = JSON.parse(res.body);
 
-		expect(body.errors.something).toEqual('something must be longer than or equal to 1 characters');
-		expect(res.statusCode).toEqual(500);
+		expect(body.data.something).toEqual('something must be longer than or equal to 1 characters');
+		expect(res.statusCode).toEqual(422);
 
 	});
 

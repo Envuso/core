@@ -39,13 +39,23 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 
 	exceptionHandler: ExceptionHandlerConstructorContract = ExceptionHandler;
 
+	/**
+	 * The base url which will be used for constructing urls everywhere inside the application
+	 *
+	 * This should be where your application is running, locally or in production and accessible.
+	 *
+	 * @type {string}
+	 */
+	url: string = Environment.get('APP_URL', 'http://127.0.0.1' + Environment.get('PORT', 3000));
+
 	logging = {
-		middleware: true,
-		routes: true,
-		controllers: true,
-		providers: true,
-		serverHooks: true,
-		socketChannels: true,
+		middleware        : true,
+		routes            : true,
+		controllers       : true,
+		providers         : true,
+		serverHooks       : true,
+		socketInformation : false,
+		socketChannels    : true,
 	};
 
 	isDev() {

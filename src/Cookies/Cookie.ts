@@ -1,4 +1,3 @@
-import * as crypto from "crypto";
 import {config} from "../AppContainer";
 import {DateTime} from "../Common";
 import {DateTimeContract} from "../Contracts/Common/Utility/DateTimeContract";
@@ -37,14 +36,7 @@ export class Cookie<T> implements CookieContract<T> {
 
 
 	private static createFromHeader(name: string, value: any): Cookie<any> {
-		const cookie = Cookie.create<string>(name, value.toString());
-
-//		if (Cookie.containsSignedCookiePrefix(value.toString())) {
-//			cookie.signCookie();
-//			cookie.value = cookie.getUnsignedValue();
-//		}
-
-		return cookie;
+		return Cookie.create<string>(name, value.toString());
 	}
 
 	public isValid(value: any): boolean {

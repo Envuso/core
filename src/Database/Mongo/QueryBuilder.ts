@@ -3,10 +3,12 @@ import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {ClassType, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref} from "../index";
+import {ClassType, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref, SingleModelProp} from "../index";
 import {getModelCollectionName} from "../ModelHelpers";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Paginator} from "./Paginator";
+
+export type QueryOperator = "==" | "=" | "!==" | "!=" | ">" | ">=" | "<>" | "<" | "<="
 
 export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
@@ -75,35 +77,130 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		);
 	}
 
+
 	/**
 	 * Similar to using collection.find()
 	 *
-	 * @template M
+	 * In mongo terms, this is doing .find({key : value}}
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public where<M>(key: SingleModelProp<T>, value: any): QueryBuilderContract<T>;
+	/**
+	 * Similar to using collection.find()
+	 *
+	 * In mongo terms, this is doing .find({amount : {$gt : 10}}
+	 * If you're doing .where('amount', '>', 10);
+	 *
+	 * @param key
+	 * @param operator
+	 * @param value
+	 */
+	public where<M>(key: SingleModelProp<T>, operator: QueryOperator, value: any): QueryBuilderContract<T>;
+	/**
+	 * Similar to using collection.find()
+	 *
+	 * In mongo terms, this is doing .find({object})
+	 *
 	 * @param attributes
 	 */
-	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T> {
-		this._collectionFilter = {...this._collectionFilter, ...attributes};
+	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T>;
+	/**
+	 * Similar to using collection.find()
+	 * Handles all of the above overloads
+	 *
+	 * @param attributes
+	 */
+	public where<M>(attributes: (FilterQuery<M | T> | Partial<M | T>) | SingleModelProp<T>, operator?: QueryOperator, value?: any): QueryBuilderContract<T> {
+		const totalArgs = arguments.length;
+
+		// If there's only one arg, we're passing a mongo query object
+		// Ex: {name: 'bruce'}
+		if (totalArgs === 1) {
+			this._collectionFilter = {
+				...this._collectionFilter,
+				...(attributes as (FilterQuery<M | T> | Partial<M | T>))
+			};
+
+			return this;
+		}
+
+		// If there's only two args, we're passing key/value
+		// Ex: where('name', 'bruce');
+		if (totalArgs === 2) {
+			this._collectionFilter = {
+				...this._collectionFilter,
+				...({[(attributes as any) as string] : operator})
+			};
+
+			return this;
+		}
+
+		// If there's three args, we're passing key, operator and value
+		// Ex: where('quantity', '>', 3);
+		if (totalArgs === 3) {
+			this._collectionFilter = {
+				...this._collectionFilter,
+				...(
+					{
+						[(attributes as any) as string] : {
+							[this.parseQueryOperator(operator)] : value
+						}
+					}
+				)
+			};
+
+			return this;
+		}
 
 		return this;
 	}
 
 	/**
-	 * Allows us to do a query for an item that exists in the array.
-	 * For example, we have documents with usernames, jane, bill, bob.
+	 * Imagine we have users like
+	 * {username: 'jane'}
+	 * {username: 'bill'}
+	 * {username: 'bob'}
 	 *
-	 * We can do .whereIn('username', ['jane', 'bill'])
+	 * If we do whereIn('username', ['jane', 'bil']), this will return
 	 *
-	 * {@see QueryBuilder}
+	 * {username: 'jane'}
+	 * {username: 'bill'}
 	 *
 	 * @param key
 	 * @param values
 	 */
-	public whereIn<F extends (keyof T)>(
-		key: F, values: T[F][]
-	): QueryBuilderContract<T> {
+	public whereIn<F extends (keyof T)>(key: F, values: T[F][]): QueryBuilderContract<T> {
 		this._collectionFilter = {
 			...this._collectionFilter,
 			[key] : {$in : values},
+		};
+
+		return this;
+	}
+
+	/**
+	 * Imagine if we have some book documents like:
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 * {book: 'book name', tags: ['action']}
+	 *
+	 * If we do whereAllIn('tags', ['action']), this will return
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 * {book: 'book name', tags: ['action']}
+	 *
+	 * If we now do whereAllIn('tags', ['action', 'rpg']), this will return
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 *
+	 * It will search for a document with an array, containing the specific values
+	 *
+	 * @param key
+	 * @param values
+	 */
+	public whereAllIn<F extends (keyof T)>(key: F, values: string[]): QueryBuilderContract<T> {
+		this._collectionFilter = {
+			...this._collectionFilter,
+			[key] : {$all : values},
 		};
 
 		return this;
@@ -229,18 +326,17 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 						},
 					},
 					{
-						$unset   : [`${meta.propertyKey}Temp`]
+						$unset : [`${meta.propertyKey}Temp`]
 					}
 				]);
 			}
-
 
 			if (meta.type === ModelRelationType.HAS_MANY) {
 				/**
 				 * Basically the same as a MySQL join
 				 */
 				this._collectionAggregation.push({
-					$lookup    : {
+					$lookup : {
 						from         : getModelCollectionName(meta.relatedModel),
 						localField   : meta.localKey,
 						foreignField : meta.foreignKey,
@@ -251,6 +347,34 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		}
 
 		return this;
+	}
+
+	/**
+	 * Add a clause to ensure a key exists or doesnt exist on a document
+	 *
+	 * @template T
+	 * @param {SingleModelProp<T>} key
+	 * @param {boolean} existState
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public exists(key: SingleModelProp<T>, existState: boolean = true): QueryBuilderContract<T> {
+		this._collectionFilter = {
+			...this._collectionFilter,
+			...{[key] : {$exists : existState}}
+		};
+
+		return this;
+	}
+
+	/**
+	 * Uses {@see exists}
+	 *
+	 * @template T
+	 * @param {SingleModelProp<T>} key
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public doesntExist(key: SingleModelProp<T>): QueryBuilderContract<T> {
+		return this.exists(key, false);
 	}
 
 	/**
@@ -496,6 +620,31 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 	public get collectionFilter() {
 		return this._collectionFilter;
+	}
+
+	/**
+	 * Convert a regular comparison operator to mongoDB's version
+	 * @param {QueryOperator} operator
+	 * @returns {string}
+	 */
+	public parseQueryOperator(operator: QueryOperator) {
+		switch (operator) {
+			case "==":
+			case "=":
+				return "$eq";
+			case "!==":
+			case "!=":
+			case "<>":
+				return "$ne";
+			case ">":
+				return "$gt";
+			case ">=":
+				return "$gte";
+			case "<":
+				return "$lt";
+			case "<=":
+				return "$lte";
+		}
 	}
 
 	/**

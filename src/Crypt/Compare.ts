@@ -4,7 +4,7 @@
 // https://github.com/nodejs/node/issues/3043
 // https://github.com/nodejs/node/pull/3073
 
-var crypto = require('crypto');
+const crypto = require('crypto');
 
 const bufferEqual = (a, b) => {
 	if (a.length !== b.length) {
@@ -15,7 +15,7 @@ const bufferEqual = (a, b) => {
 	if (crypto.timingSafeEqual) {
 		return crypto.timingSafeEqual(a, b);
 	}
-	for (var i = 0; i < a.length; i++) {
+	for (let i = 0; i < a.length; i++) {
 		if (a[i] !== b[i]) {
 			return false;
 		}

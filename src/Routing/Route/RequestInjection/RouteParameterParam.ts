@@ -1,6 +1,5 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
-import {param} from "../RouteDecorators";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteParameterParam extends MethodParameterDecorator {

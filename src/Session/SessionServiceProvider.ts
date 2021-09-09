@@ -1,7 +1,6 @@
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {SessionConfiguration} from "../Contracts/Session/Types";
 import {SessionManager} from "./SessionManager";
 
 export class SessionServiceProvider extends ServiceProvider {

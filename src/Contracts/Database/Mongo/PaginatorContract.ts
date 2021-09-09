@@ -13,6 +13,7 @@ export interface PaginatorContract<T> {
 	/**
 	 * Get the results of the paginated request
 	 *
+	 * @template T
 	 * @returns {Promise<Paginator<T>>}
 	 */
 	getResults(): Promise<this>;
@@ -56,6 +57,7 @@ export interface PaginatorContract<T> {
 	/**
 	 * Get the response of the paginator
 	 *
+	 * @template T
 	 * @returns {PaginatedResponse<T>}
 	 */
 	getResponse(): PaginatedResponse<T>;

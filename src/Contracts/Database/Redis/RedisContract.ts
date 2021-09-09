@@ -29,6 +29,7 @@ export interface RedisContract {
 	 * @param {string} key
 	 * @param {null} _default
 	 *
+	 * @template T
 	 * @returns {Promise<T>}
 	 */
 	get<T>(key: string, _default: any): Promise<T>;

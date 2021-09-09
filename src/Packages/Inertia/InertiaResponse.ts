@@ -73,6 +73,7 @@ export class InertiaResponse {
 	 * Resolve the async props if there are any
 	 * Then we'll finally send off the response as the correct type
 	 *
+	 * @template FastifyReply
 	 * @returns {Promise<FastifyReply>}
 	 */
 	async sendResponse() {

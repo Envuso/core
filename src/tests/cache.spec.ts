@@ -1,15 +1,9 @@
 import "reflect-metadata";
-import {App} from "../AppContainer";
 import {Cache} from "../Cache";
-import {Config} from "../Config";
-
-
-const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
-};
+import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 
 describe('cache', () => {

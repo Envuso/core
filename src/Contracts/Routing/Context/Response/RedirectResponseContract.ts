@@ -4,15 +4,12 @@ export interface RedirectResponseContract {
 	/**
 	 * Redirect to an internal application route
 	 *
-	 * @param {T} routeStr
+	 * @template T
+	 * @param {T} controllerAndMethod
 	 * @param attributes
 	 * @return {RedirectResponseContract}
 	 */
-	route<T extends string>(routeStr: T, attributes?: any): RedirectResponseContract;
-
-//	route<T extends keyof ApplicationRouteAttributeObject>(
-//		routeStr: T, attributes?: Partial<ApplicationRouteAttributeObject[T]> | any
-//	): RedirectResponseContract;
+	route<T extends string>(controllerAndMethod: T, attributes?: any): RedirectResponseContract;
 
 	/**
 	 * Redirect away from the site to somewhere external (google.com for ex)

@@ -29,15 +29,9 @@ export class InertiaMiddleware extends Middleware {
 	}
 
 	private needsForceUpdate(context: RequestContextContract) {
-		if (
-			context.request.method() === 'GET' &&
+		return context.request.method() === 'GET' &&
 			context.request.hasHeader('x-inertia') &&
-			context.request.getHeader('x-inertia-version') !== context.inertia.getVersion()
-		) {
-			return true;
-		}
-
-		return false;
+			context.request.getHeader('x-inertia-version') !== context.inertia.getVersion();
 	}
 
 	private getVersionUpdateResponse(context: RequestContextContract) {

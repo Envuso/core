@@ -258,6 +258,33 @@ export class Obj {
 				.replace(/\(.*\)/, "()"); // removing possible FormalParameterList
 	}
 
+	/**
+	 * Create an array of the same object as many times as needed
+	 *
+	 * Kind of makes life a little easier to create multiple objects for tests and such
+	 *
+	 * @param {object} baseObject
+	 * @param {number} amount
+	 * @param {(value) => object} mapper
+	 * @param {boolean} includeIndexInObject
+	 * @param {string} indexKey
+	 * @returns {any[]}
+	 */
+	public static createMany(baseObject: object, amount: number, mapper: (value) => object, includeIndexInObject: boolean = false, indexKey: string = 'index') {
+		const arr = [];
+		for (let i = 0; i < amount; i++) {
+			const newObj = baseObject;
+
+			if (includeIndexInObject) {
+				newObj[indexKey] = i;
+			}
+
+			arr.push(mapper(newObj));
+		}
+
+		return arr;
+	}
+
 }
 
 export default Obj;
