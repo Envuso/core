@@ -8,6 +8,7 @@ import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
 import {DateTime, Log} from "./Common";
 import {ImplementedJob} from "./Queue/ImplementedJob";
+import Redis from "./Redis/Redis";
 
 const envuso = new Envuso();
 
@@ -15,7 +16,7 @@ Configuration.initiate()
              .then(() => envuso.boot())
              .then(() => envuso.serve())
              .then(async () => {
-	             for (let i = 0; i < 10000; i++) {
+	             for (let i = 0; i < 1000; i++) {
 		             new ImplementedJob(i + 1).dispatch();
 	             }
              })

@@ -2,7 +2,6 @@ import {Worker} from "worker_threads";
 import {FileLoader, Log} from "../Common";
 
 let instance: WorkerPool = null;
-let firstStart: number = null;
 
 export class WorkerPool {
 	private readonly workers: Worker[] = [];
@@ -34,15 +33,8 @@ export class WorkerPool {
 	}
 
 	runTask(jobData: string) {
-		if (!firstStart) {
-			firstStart = Date.now();
-		}
-
 		if (this.freeWorkers.length === 0) {
 			this.tasks.push(jobData);
-
-			Log.label("WorkerPool").warn(`Pool saturated (+${this.tasks.length})`);
-
 			return;
 		}
 
@@ -52,7 +44,17 @@ export class WorkerPool {
 	}
 
 	private createWorker() {
-		const worker = new Worker(FileLoader.formatPathForRunEnvironment("./src/Queue/Worker.ts"));
+		let worker: Worker;
+
+		if (FileLoader.isTypescript()) {
+			// For use whilst developing
+			worker = new Worker(
+				`const path=require('path');require('ts-node/register');require(path.join(process.cwd(), 'src', 'Queue', 'Worker.ts'));`,
+				{eval: true},
+			);
+		} else {
+			worker = new Worker(FileLoader.formatPathForRunEnvironment("./src/Queue/Worker.ts"));
+		}
 
 		worker.on("message", result => {
 			this.freeWorkers.push(worker);
@@ -74,8 +76,6 @@ export class WorkerPool {
 	private onWorkerFreed() {
 		if (this.tasks.length > 0 && this.freeWorkers.length > 0) {
 			this.runTask(this.tasks.shift());
-		} else if (this.freeWorkers.length === this.workers.length) {
-			console.log(`All done in ${Date.now() - firstStart}ms :)`);
 		}
 	}
 }

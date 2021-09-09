@@ -1,9 +1,7 @@
 import "reflect-metadata";
 import {parentPort} from "worker_threads";
-import {FileLoader} from "../Common";
+import {FileLoader, Log} from "../Common";
 import {Job} from "./Job";
-
-console.log("Worker Booted");
 
 parentPort.on("message", async jobData => {
 	// Start the timer before the log because JSON parsing actually takes time,
@@ -12,13 +10,13 @@ parentPort.on("message", async jobData => {
 	const [jobFilePath, jobClassName] = namespace.split(":");
 
 	// but we don't have the namespace until it's been parsed...
-	// Log.label("QueueWorker").info(`Processing: ${jobFilePath}`);
+	Log.label("QueueWorker").info(`Processing: ${jobFilePath}`);
 
 	const job = await hydrateJob(jobFilePath, jobClassName, data);
 
 	await job.handle();
 
-	// Log.label("QueueWorker").info(`Processed: ${jobFilePath} (${Date.now() - jobStart}ms)`);
+	Log.label("QueueWorker").info(`Processed: ${jobFilePath} (${Date.now() - jobStart}ms)`);
 
 	parentPort.postMessage(true);
 });

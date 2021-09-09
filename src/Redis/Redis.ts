@@ -4,9 +4,13 @@ import Obj from "../Common/Utility/Obj";
 
 let instance: Redis = null;
 
+interface ExtRedis extends IRedis {
+	popQueueWithLimit(key: string, min: number | string, max: number | string, limit: number): Promise<any>;
+}
+
 export class Redis {
 	private readonly config: RedisOptions;
-	private client: IRedis;
+	private client: ExtRedis;
 
 	constructor(config: RedisOptions) {
 		if (instance) {
@@ -22,6 +26,7 @@ export class Redis {
 			return;
 		}
 
+		// @ts-ignore
 		this.client = new RedisClient(this.config);
 		this.client.on("error", (error) => Log.exception("Redis Error:", error));
 	}
