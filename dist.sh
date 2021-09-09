@@ -16,7 +16,7 @@ npm version prerelease --preid=next --no-git-tag-version
 
 git add .
 git commit -m ":package: $commitMessage"
-git push origin main
+git push origin next
 
 echo "› Committed and pushed changes"
 
