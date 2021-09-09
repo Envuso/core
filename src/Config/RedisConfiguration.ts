@@ -6,4 +6,5 @@ export default class RedisConfiguration extends ConfigurationCredentials impleme
 	port = 6379;
 	password = null;
 	db = 0;
+	keyPrefix = "envuso-";
 }
