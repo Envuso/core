@@ -7,24 +7,36 @@ Environment.load(path.join(__dirname, "..", ".env"));
 import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
 import {Log} from "./Common";
+import {JobSerializableData} from "./Queue/JobSerializableData";
 import {Queue} from "./Queue/Queue";
-import {ImplementedJob, JobSerializableData} from "./Queue/ImplementedJob";
+import {ImplementedJob} from "./Queue/ImplementedJob";
 
 const envuso = new Envuso();
 
+
+
 Configuration.initiate()
              .then(() => envuso.boot())
-             .then(() => envuso.serve())
-             .then(() => {
-	             const data = new JobSerializableData();
-	             data.someString = "wtf";
+	.then(() => {
+		try {
 
-	             Queue.dispatch(new ImplementedJob(data));
-             })
-             .catch(error => {
-	             Log.error(error);
-	             console.trace(error);
-             });
+			const data = new JobSerializableData();
+			data.someString = "wtf";
+
+			Queue.dispatch(new ImplementedJob('fuckign ree', 69, data));
+		} catch(error) {
+			console.error(error);
+		}
+	})
+
+//             .then(() => envuso.serve())
+//             .then(() => {
+//
+//             })
+//             .catch(error => {
+//	             Log.error(error.toString(), error);
+//	             console.trace(error);
+//             });
 //envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {
 //	Log.exception('Server error: ', exception);
 //

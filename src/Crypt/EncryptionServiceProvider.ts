@@ -1,5 +1,3 @@
-import SimpleCrypto from "simple-crypto-js";
-import {DependencyContainer} from "tsyringe";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {Log} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";

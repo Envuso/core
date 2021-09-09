@@ -1,14 +1,12 @@
 import {Job} from "./Job";
 import {DataTransferObject} from "../Routing";
-import {FileLoader} from "../Common";
+import {DecoratorHelpers, FileLoader} from "../Common";
 
 export class Queue {
 
 	public static dispatch(job: Job<DataTransferObject>) {
 		const serialized = job.serialize();
 		const raw = JSON.parse(serialized);
-
-		console.log(serialized);
 
 		(async function () {
 			const [jobFilePath, jobClassName] = raw.t.split(":");
@@ -20,7 +18,9 @@ export class Queue {
 			}
 
 			const job = jobModule.instance as typeof Job;
+
 			const instance = job.deserialize(raw.d);
+
 		})();
 	}
 
