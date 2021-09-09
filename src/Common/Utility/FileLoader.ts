@@ -119,11 +119,12 @@ export class FileLoader {
 		if (!isTS)
 			pathInformation.base = pathInformation.base.replace(
 				`${pathInformation.name}.${extensions.forTsNode}`,
-				`${pathInformation.name}.${extensions.forNode}`
+				`${pathInformation.name}.${extensions.forNode}`,
 			);
 
-		if (!isTS && pathInformation.dir.includes('/src/')) {
-			pathInformation.dir = pathInformation.dir.replace('/src/', '/dist/');
+		if (!isTS && (pathInformation.dir.includes("/src/") || pathInformation.dir.includes("\\src\\"))) {
+			pathInformation.dir = pathInformation.dir.replace("/src/", "/dist/")
+			                                     .replace("\\src\\", "\\dist\\");
 		}
 
 		return path.format(pathInformation);

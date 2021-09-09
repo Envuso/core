@@ -1,13 +1,13 @@
 import {Job} from "./Job";
 import {App} from "../AppContainer";
 import Redis from "../Redis/Redis";
-import {Log, FileLoader, DateTime} from "../Common";
+import {Log, DateTime} from "../Common";
 import {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
+import {WorkerPool} from "./WorkerPool";
 
 let instance: Queue = null;
 
 export class Queue {
-	private latestInsertScores: number[] = [];
 	private config: QueueConfiguration;
 
 	constructor(config: QueueConfiguration) {
@@ -26,6 +26,12 @@ export class Queue {
 
 	public async run() {
 		while (App.isBooted()) {
+			// Worker Pool is still processing a batch of Jobs
+			if (!WorkerPool.getInstance().hasCapacity()) {
+				await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
+				continue;
+			}
+
 			// Get list of Jobs that should be run now
 			// result - [ [error, results[]], [error, numRemoved] ]
 			const [jobsToRun, _] = await Redis.getInstance().getClient()
@@ -36,19 +42,7 @@ export class Queue {
 
 			for (const jobData of jobsToRun[1]) {
 				try {
-					// Start the timer before the log because JSON parsing actually takes time,
-					const jobStart = Date.now();
-					const {t: namespace, d: data} = JSON.parse(jobData);
-					const [jobFilePath, jobClassName] = namespace.split(":");
-
-					// but we don't have the namespace until it's been parsed...
-					Log.label("Queue").info(`Processing: ${jobFilePath}`);
-
-					const job = await this.hydrateJob(jobFilePath, jobClassName, data);
-
-					await job.handle();
-
-					Log.label("Queue").info(`Processed: ${jobFilePath} (${Date.now() - jobStart}ms)`);
+					WorkerPool.getInstance().runTask(jobData);
 				} catch (error) {
 					Log.label("Queue").error(error);
 
@@ -68,18 +62,5 @@ export class Queue {
 		const {namespace} = Reflect.getMetadata("job", job.constructor);
 
 		Log.label("Queue").info(`Queued: ${namespace.split(":")[0]} (${runAt})`);
-	}
-
-	private async hydrateJob(filePath: string, jobClassName: string, data: string): Promise<Job> {
-		const modules = await FileLoader.importModulesFrom(filePath);
-		const jobModule = modules.find(module => module.name === jobClassName);
-
-		if (!jobModule) {
-			throw new Error(`Could not load Job with namespace "${filePath}:${jobClassName}"`);
-		}
-
-		const job = jobModule.instance as typeof Job;
-
-		return job.deserialize(data);
 	}
 }

@@ -69,6 +69,7 @@
     "src/Server/**/*",
     "src/Sockets/**/*",
     "src/Storage/**/*.ts",
+    "src/Queue/**/*.ts",
     "src/Authenticatable.ts",
     "src/Envuso.ts.ts",
     "src/run-dev.ts",

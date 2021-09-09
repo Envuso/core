@@ -15,9 +15,8 @@ Configuration.initiate()
              .then(() => envuso.boot())
              .then(() => envuso.serve())
              .then(async () => {
-	             for (let i = 0; i < 10; i++) {
-		             new ImplementedJob(i + 1).delay(DateTime.now().addSeconds(Math.floor(Math.random() * 10)))
-		                                      .dispatch();
+	             for (let i = 0; i < 10000; i++) {
+		             new ImplementedJob(i + 1).dispatch();
 	             }
              })
              .catch(error => {
