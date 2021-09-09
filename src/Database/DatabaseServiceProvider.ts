@@ -5,7 +5,6 @@ import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {RedisClientInstance} from "./Redis/RedisClientInstance";
 import {SeedManager} from "./Seeder/SeedManager";
 
 export class DatabaseServiceProvider extends ServiceProvider {
@@ -23,7 +22,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		// Initiate the connection to redis and prep the client for usage
-		new RedisClientInstance(config.get<string, any>('Database.redis'));
+		// new RedisClientInstance(config.get<string, any>('Database.redis'));
 	}
 
 	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {

@@ -60,6 +60,7 @@
     "src/Sockets/**/*",
     "src/Session/**/*",
     "src/Storage/**/*.ts",
+    "src/Queue/**/*.ts",
     "src/Authenticatable.ts",
     "src/Envuso.ts",
     "src/tests/**/*.ts",
