@@ -1,9 +1,6 @@
 
-echo "› Removing /dist directory"
-rm -R dist
-
 echo "› Building..."
-yarn build
+yarn build:dist
 
 echo "› What did you change in this update?"
 read commitMessage
@@ -12,12 +9,10 @@ if [ "$(git status --porcelain | wc -l)" -eq "0" ]; then
   echo "› 🟢 Git repo is clean."
 else
   echo "› Repo is dirty, committing changes"
-  git add .
-  git commit -m ":package: $commitMessage"
 fi
 
 echo "› Incrementing version"
-npm version patch
+npm version prerelease --preid=next --no-git-tag-version
 
 git add .
 git commit -m ":package: $commitMessage"
@@ -25,9 +20,10 @@ git push origin main
 
 echo "› Committed and pushed changes"
 
+cp .bin/cli-prod dist/ecli
 cp package.json dist/package.json
 
-echo "› Copied package.json to /dist"
+echo "› Copied package.json & ecli to /dist"
 
 cd dist || exit
 

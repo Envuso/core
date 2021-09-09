@@ -64,6 +64,7 @@ export class Log {
 		this.log("warn", message, ...args);
 	}
 
+	error(message: string, ...args);
 	error(message: string | Error, error?: Error, ...args) {
 		if (error instanceof Error) {
 			args.unshift(error);
@@ -73,6 +74,7 @@ export class Log {
 		this.log("error", message, ...args);
 	}
 
+	static error(message: string, ...args);
 	static error(message: string | Error, error?: Error, ...args) {
 		if (error instanceof Error) {
 			args.unshift(error);

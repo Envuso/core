@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import {Rabbit} from "crypto-js";
-import {User} from "../App/Models/User";
 import {resolve} from "../AppContainer";
 import {Encryption} from "../Crypt";
 import {RabbitEncryption} from "../Crypt/RabbitEncryption";
+import SimpleCrypto from "../Crypt/SimpleCryptoJS";
 import {bootApp, unloadApp} from "./preptests";
 import 'jest-extended';
 

@@ -1,5 +1,5 @@
-import SimpleCrypto from "simple-crypto-js";
 import {EncryptionContract} from "../Contracts/Crypt/EncryptionContract";
+import SimpleCrypto from './SimpleCryptoJS'
 
 export class Encryption implements EncryptionContract {
 	private static instance: Encryption = null;

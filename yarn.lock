@@ -4244,11 +4244,6 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-crypto-js@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.0.0.tgz#2904ab2677a9d042856a2ea2ef80de92e4a36dcc"
-  integrity sha512-bzHZN8Pn+gS7DQA6n+iUmBfl0hO5DJq++QP3U6uTucDtk/0iGpXd/Gg7CGR0p8tJhofJyaKoWBuJI4eAO00BBg==
-
 crypto-js@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
@@ -9549,13 +9544,6 @@ signal-exit@^3.0.0, signal-exit@^3.0.2, signal-exit@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.3.tgz#a1410c2edd8f077b08b4e253c8eacfcaf057461c"
   integrity sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
-
-simple-crypto-js@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/simple-crypto-js/-/simple-crypto-js-3.0.0.tgz#31ae53c291f1ca819d2c5f9fcdb2125ea0614713"
-  integrity sha512-5eSn5RTK+05iHFCkeCzhDuZY5Ek/rpws4k7oEpB7e3YxMBnJAEm/sN1FbWn/duiZgnIsDSuyti5pQr9oq12pyg==
-  dependencies:
-    crypto-js "^4.0.0"
 
 simple-swizzle@^0.2.2:
   version "0.2.2"

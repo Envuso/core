@@ -1,5 +1,5 @@
 import {isPlural, isSingular, plural, singular} from "pluralize";
-import SimpleCrypto from "simple-crypto-js";
+import SimpleCrypto from "../../Crypt/SimpleCryptoJS";
 import Obj from "./Obj";
 
 
@@ -51,7 +51,7 @@ export class Str {
 	}
 
 	static randomWords(amount: number): string[] {
-		return SimpleCrypto.generateRandomWordArray(amount);
+		return SimpleCrypto.generateRandomWordArray(amount).words.map(w => w.toString());
 	}
 }
 

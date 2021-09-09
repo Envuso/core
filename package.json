@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-next.16",
+  "version": "2.0.0-next.17",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -9,17 +9,15 @@
     "front:watch": "npx mix watch",
     "watch": "node --require ts-node/register ./Compiler.ts",
     "build": "tsc -b --clean && tsc -b",
+    "build:dist": "tsc --build tsconfig-dist.json --clean && tsc --build tsconfig-dist.json",
     "build-commit-version": "yarn build && git add . && git commit -m \":package: Build before versioning\" && npm version prerelease --preid=alpha",
     "commit-files-for-publish": "cp package.json dist && cp readme.md dist && git add . && git commit -m \":package: Build and Increased version\"",
-    "prep": "yarn build-commit-version && yarn commit-files-for-publish",
-    "link": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn link",
-    "dist": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn publish",
-    "preparereeee": "npm run build && npm version prerelease --preid=alpha",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --roots src",
+    "prep-old": "yarn build-commit-version && yarn commit-files-for-publish",
+    "link-old": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn link",
+    "dist-old": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn publish",
     "serve": "nodemon dist/run-dev.js",
     "dev": "ts-node-dev --respawn --rs --transpile-only src/run-dev.ts --ignore-watch src/Meta/**/*.ts, src/Meta/**/*.json",
-    "devo": "ts-node src/run-dev.ts",
-    "push": "yarn build && cp package.json dist/package.json && cd dist && yalc push"
+    "devo": "ts-node src/run-dev.ts"
   },
   "bin": {
     "ecli": "./ecli"
@@ -69,7 +67,6 @@
     "read-chunk": "^3.2.0",
     "redis": "^3.1.2",
     "reflect-metadata": "^0.1.10",
-    "simple-crypto-js": "^3.0.0",
     "ts-node": "^10.2.1",
     "ts-node-dev": "^1.1.8",
     "tslog": "^3.2.1",
