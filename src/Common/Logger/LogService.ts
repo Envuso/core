@@ -119,27 +119,27 @@ export class LogService {
 		level     = color.level(` ${level.toUpperCase()} `);
 
 		const levelWrap    = chalk.grey(level);
-		const labels       = (meta.labels.length > 0 ? "[" + meta.labels.join("] [") + "]" : "");
+		const labels       = (meta?.labels?.length > 0 ? "[" + meta.labels.join("] [") + "]" : "");
 		let messagePostfix = "";
 
 		// If you call Log.error(Error, Error), the Error in the 2nd argument will not be displayed.
-		if (!stack && meta.args[0] instanceof Error) {
+		if (!stack && meta?.args[0] instanceof Error) {
 			// If Log.error is called with Log.error(string, Error), then we append the stack from the error onto the message
-			stack = meta.args.shift().stack;
+			stack = meta?.args?.shift()?.stack;
 		}
 
 		// Use a slightly different format when an Error is logged so it's a little nicer 🙂
 		if (stack) {
 			// Take the first line of the stack (the message) and make it pop 😎
-			stack          = stack.split("\n");
+			stack          = stack?.split("\n");
 			message        = (labels + " " + color.message(stack.shift())).trim();
-			messagePostfix = stack.join("\n");
+			messagePostfix = stack?.join("\n");
 		} else {
 			message = (labels + " " + color.message(message)).trim();
 		}
 
 		// Ensure any optional arguments passed in to the log function are kept even if we're outputting an Error
-		messagePostfix += meta.args.map(arg => JSON.stringify(arg, null, 4)).join(" ");
+		messagePostfix += meta?.args?.map(arg => JSON.stringify(arg, null, 4)).join(" ");
 
 		if (!Str.isEmpty(messagePostfix)) {
 			messagePostfix = "\n" + messagePostfix;
@@ -174,27 +174,27 @@ export class LogService {
 	 *
 	 */
 	private formatSimpleMessage({level, stack, message, ms, timestamp, meta}) {
-		const labels       = (meta.labels.length > 0 ? "[" + meta.labels.join("] [") + "]" : "");
+		const labels       = (meta?.labels?.length > 0 ? "[" + meta?.labels?.join("] [") + "]" : "");
 		let messagePostfix = "";
 
 		// If you call Log.error(Error, Error), the Error in the 2nd argument will not be displayed.
-		if (!stack && meta.args[0] instanceof Error) {
+		if (!stack && meta?.args[0] instanceof Error) {
 			// If Log.error is called with Log.error(string, Error), then we append the stack from the error onto the message
-			stack = meta.args.shift().stack;
+			stack = meta?.args?.shift()?.stack;
 		}
 
 		// Use a slightly different format when an Error is logged so it's a little nicer 🙂
 		if (stack) {
 			// Take the first line of the stack (the message) and make it pop 😎
 			stack          = stack.split("\n");
-			message        = (labels + " " + stack.shift()).trim();
+			message        = (labels + " " + stack?.shift())?.trim();
 			messagePostfix = stack.join("\n");
 		} else {
 			message = (labels + " " + message).trim();
 		}
 
 		// Ensure any optional arguments passed in to the log function are kept even if we're outputting an Error
-		messagePostfix += meta.args.map(arg => JSON.stringify(arg, null, 4)).join(" ");
+		messagePostfix += meta?.args?.map(arg => JSON.stringify(arg, null, 4)).join(" ");
 
 		if (!Str.isEmpty(messagePostfix)) {
 			messagePostfix = "\n" + messagePostfix;

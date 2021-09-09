@@ -1,7 +1,7 @@
 import {IncomingMessage} from "http";
 import querystring from "querystring";
 import WebSocket from "ws";
-import {config, resolve} from "../AppContainer";
+import {app, config, resolve} from "../AppContainer";
 import {Auth} from "../Authentication";
 import {Classes, Log, Str} from "../Common";
 import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
@@ -204,7 +204,16 @@ export class SocketConnection implements SocketConnectionContract {
 	public async _onChannelSubscribeRequest({channel}) {
 		const channelInfo = parseSocketChannelName(channel);
 
-		const listener = resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
+		const container = app().container();
+
+		if(!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
+			if (config('app.logging.socketInformation'))
+				Log.error('Listener not found.... ', channelInfo);
+
+			return;
+		}
+
+		const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
 		if (!listener) {
 			if (config('app.logging.socketInformation'))
@@ -237,7 +246,16 @@ export class SocketConnection implements SocketConnectionContract {
 	public async _onChannelUnsubscribeRequest({channel}) {
 		const channelInfo = parseSocketChannelName(channel);
 
-		const listener = resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
+		const container = app().container();
+
+		if(!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
+			if (config('app.logging.socketInformation'))
+				Log.error('Listener not found.... ', channelInfo);
+
+			return;
+		}
+
+		const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
 		if (!listener) {
 			console.error('Listener not found.... ', channelInfo);
