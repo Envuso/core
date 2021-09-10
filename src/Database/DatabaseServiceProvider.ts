@@ -1,11 +1,10 @@
-import {MongoClient, MongoError} from "mongodb";
+import {MongoClient} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import Redis from "../Redis/Redis";
 import {SeedManager} from "./Seeder/SeedManager";
 
 export class DatabaseServiceProvider extends ServiceProvider {
@@ -64,7 +63,5 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			}
 
 		}
-
-		await Redis.shutdown();
 	}
 }

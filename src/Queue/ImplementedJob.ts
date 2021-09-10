@@ -12,11 +12,11 @@ export class ImplementedJob extends Job implements Queueable {
 
 	async handle() {
 		const regularEncryption = resolve(Encryption);
-		console.time("SimpleCrypto");
+//		console.time("SimpleCrypto");
 		for (let i = 0; i < 100; i++) {
 			const encrypted = regularEncryption.encrypt('hello world');
 			const decrypted = regularEncryption.decrypt(encrypted);
 		}
-		console.timeEnd("SimpleCrypto");
+		//		console.timeEnd("SimpleCrypto");
 	}
 }

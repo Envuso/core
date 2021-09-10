@@ -16,7 +16,7 @@ Configuration.initiate()
 	.then(() => envuso.boot())
 	.then(() => envuso.serve())
 	.then(async () => {
-		for (let i = 0; i < 50; i++) {
+		for (let i = 0; i < 5; i++) {
 			new ImplementedJob(i + 1).dispatch();
 		}
 	})

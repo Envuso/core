@@ -1,17 +1,16 @@
+import EventEmitter from "events";
 import {Worker} from "worker_threads";
 import {FileLoader, Log} from "../Common";
 
 let instance: WorkerPool = null;
+const kWorkerReady       = Symbol('kWorkerReady');
 
-export class WorkerPool {
-	private readonly workers: Worker[] = [];
+export class WorkerPool extends EventEmitter {
+	private readonly workers: Worker[]     = [];
 	private readonly freeWorkers: Worker[] = [];
-	private readonly tasks: string[] = [];
 
 	constructor() {
-		if (instance) {
-			return instance;
-		}
+		super();
 
 		instance = this;
 
@@ -28,19 +27,24 @@ export class WorkerPool {
 		return instance;
 	}
 
-	public hasCapacity() {
-		return this.freeWorkers.length > 0 && this.tasks.length === 0;
+	public getCapacity() {
+		return this.freeWorkers.length;
+	}
+
+	public static getCapacity() {
+		return this.getInstance().getCapacity();
 	}
 
 	runTask(jobData: string) {
 		if (this.freeWorkers.length === 0) {
-			this.tasks.push(jobData);
-			return;
+			return false;
 		}
 
 		const worker = this.freeWorkers.shift();
 
 		worker.postMessage(jobData);
+
+		return true;
 	}
 
 	private createWorker() {
@@ -50,32 +54,36 @@ export class WorkerPool {
 			// For use whilst developing
 			worker = new Worker(
 				`const path=require('path');require('ts-node/register');require(path.join(process.cwd(), 'src', 'Queue', 'Worker.ts'));`,
-				{eval: true},
+				{eval : true},
 			);
 		} else {
 			worker = new Worker(FileLoader.formatPathForRunEnvironment("./src/Queue/Worker.ts"));
 		}
 
 		worker.on("message", result => {
-			this.freeWorkers.push(worker);
-			this.onWorkerFreed();
+			if (result === '$$ready$$' && !worker[kWorkerReady]) {
+				worker[kWorkerReady] = kWorkerReady;
+			}
+
+			this.emit('worker:freed', worker);
 		});
 		worker.on("error", error => {
 			Log.label("WorkerPool").exception('Something broken', error);
+
+			this.emit('worker:error', worker, error);
 
 			this.workers.splice(this.workers.indexOf(worker), 1);
 			this.createWorker();
 		});
 
 		this.workers.push(worker);
-		this.freeWorkers.push(worker);
 
-		this.onWorkerFreed();
+		this.emit('worker:created', worker);
 	}
 
-	private onWorkerFreed() {
-		if (this.tasks.length > 0 && this.freeWorkers.length > 0) {
-			this.runTask(this.tasks.shift());
-		}
+	public freeWorker(worker: Worker) {
+		Log.label('WorkerPool').debug('Free Worker');
+
+		this.freeWorkers.push(worker);
 	}
 }

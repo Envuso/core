@@ -1,3 +1,4 @@
+import {Worker} from "worker_threads";
 import {Job} from "./Job";
 import {App} from "../AppContainer";
 import Redis from "../Redis/Redis";
@@ -9,7 +10,6 @@ let instance: Queue = null;
 
 export class Queue {
 	private config: QueueConfiguration;
-	private saturationLogged: boolean = false;
 
 	constructor(config: QueueConfiguration) {
 		if (instance) {
@@ -19,6 +19,8 @@ export class Queue {
 		this.config = config;
 
 		instance = this;
+
+		WorkerPool.getInstance().on('worker:freed', this.onWorkerFreed.bind(this));
 	}
 
 	static getInstance() {
@@ -30,27 +32,25 @@ export class Queue {
 
 		while (App.isBooted()) {
 			// Worker Pool is still processing a batch of Jobs
-			if (!WorkerPool.getInstance().hasCapacity()) {
-				// Hacky solution to stop log spam when process large batch of Jobs
-				if (!this.saturationLogged) {
-					this.saturationLogged = true;
-					Log.label("Queue").warn("Worker pool is saturated! Waiting for free workers.");
-				}
-
-				await new Promise(resolve => setTimeout(resolve, this.config.emptyWaitTimeMs));
+			if (WorkerPool.getCapacity() === 0) {
+				Log.label("Queue").debug("Waiting for free workers...");
+				await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
 				continue;
 			}
 
-			this.saturationLogged = false;
-
 			// Get list of Jobs that should be run now
-			const [jobsToRun, hasMore] = await Redis.getInstance().getClient()
-			                                        .popQueueWithLimit("queue", "-inf", Date.now(), 4);
+			const jobsToRun = await Redis.getInstance().getClient()
+				.popQueueWithLimit("queue", "-inf", Date.now(), WorkerPool.getCapacity());
 
 			for (const jobData of jobsToRun) {
 				try {
-					// TODO: Check if WorkerPool is saturated and put the Jobs back on the Queue
-					WorkerPool.getInstance().runTask(jobData);
+					const result = WorkerPool.getInstance().runTask(jobData);
+
+					// WorkerPool is full, pop it back on the Queue
+					if (!result) {
+						// Should we follow retry logic here and add some delay?
+						await Redis.zAdd('queue', Date.now(), jobData);
+					}
 				} catch (error) {
 					Log.label("Queue").error(error);
 
@@ -59,8 +59,7 @@ export class Queue {
 				}
 			}
 
-			// Use the shorted wait period when there are more Jobs waiting to be processed
-			await new Promise(resolve => setTimeout(resolve, hasMore ? this.config.fullWaitTimeMs : this.config.emptyWaitTimeMs));
+			await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
 		}
 	}
 
@@ -76,13 +75,25 @@ export class Queue {
 	private async registerCommands() {
 		// Allows us to get a limited number of items (limit) withing a range (min/max) whilst also removing them from Redis
 		// Command: popQueueWithLimit envuso-queue -inf Date.now() 5
-		// Return: [jobsArray, hasMore]
-		// jobsArray - Array of serialized Jobs
-		// hasMore - Will be 1 if there are more Jobs ready to be processed. nil otherwise.
+		// Return: string[] - Array of serialized Jobs
 		await Redis.getInstance().getClient()
-		           .defineCommand("popQueueWithLimit", {
-			           numberOfKeys: 1,
-			           lua         : `local jobs = redis.call('zrangebyscore', KEYS[1], ARGV[1], ARGV[2], 'limit', 0, ARGV[3] + 1) local jobCount = table.getn(jobs) if (jobCount > 0) then redis.call('zremrangebyrank', KEYS[1], 0, math.min(ARGV[3] - 1, 4)) end local hasMore = jobCount > tonumber(ARGV[3]) return {jobs, hasMore}`,
-		           });
+			.defineCommand("popQueueWithLimit", {
+				numberOfKeys : 1,
+				lua          : `local jobs = redis.call('zrangebyscore', KEYS[1], ARGV[1], ARGV[2], 'limit', 0, ARGV[3]) local jobCount = table.getn(jobs) if (jobCount > 0) then redis.call('zremrangebyrank', KEYS[1], 0, jobCount - 1) end return jobs`,
+			});
+	}
+
+	private async onWorkerFreed(worker: Worker) {
+		const jobsToRun = await Redis.getInstance().getClient()
+			.popQueueWithLimit("queue", "-inf", Date.now(), 1);
+
+		console.log(jobsToRun);
+
+		if (jobsToRun.length === 1) {
+			// Bypass the checks done via WorkerPool.runTask as the Worker has indicated they're free and is requesting another Job.
+			worker.postMessage(jobsToRun[0]);
+		} else {
+			WorkerPool.getInstance().freeWorker(worker);
+		}
 	}
 }
