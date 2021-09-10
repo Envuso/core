@@ -61,6 +61,7 @@ export interface RequestContextContract {
 	/**
 	 * Get an additional value from the request context.
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param _default
 	 * @return {T}

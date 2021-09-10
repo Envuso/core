@@ -13,17 +13,15 @@ import Redis from "./Redis/Redis";
 const envuso = new Envuso();
 
 Configuration.initiate()
-             .then(() => envuso.boot())
-             .then(() => envuso.serve())
-             .then(async () => {
-	             for (let i = 0; i < 1000; i++) {
-		             new ImplementedJob(i + 1).dispatch();
-	             }
-             })
-             .catch(error => {
-	             Log.error(error);
-	             console.trace(error);
-             });
+	.then(() => envuso.boot())
+	.then(() => envuso.serve())
+	.then(async () => {
+		for (let i = 0; i < 50; i++) {
+			new ImplementedJob(i + 1).dispatch();
+		}
+	})
+	.catch(error => Log.exception(error));
+
 //envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {
 //	Log.exception('Server error: ', exception);
 //

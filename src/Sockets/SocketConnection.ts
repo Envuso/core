@@ -1,7 +1,7 @@
 import {IncomingMessage} from "http";
 import querystring from "querystring";
 import WebSocket from "ws";
-import {config, resolve} from "../AppContainer";
+import {app, config, resolve} from "../AppContainer";
 import {Auth} from "../Authentication";
 import {Classes, Log, Str} from "../Common";
 import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
@@ -49,7 +49,8 @@ export class SocketConnection implements SocketConnectionContract {
 	 */
 	public bindListeners() {
 
-		Log.info(`Socket connected - id: ${this.id} - userId: ${this.userId}`);
+		if (config('app.logging.socketInformation'))
+			Log.info(`Socket connected - id: ${this.id} - userId: ${this.userId}`);
 
 		this.socket.on("message", this._handlePacket.bind(this));
 		this.socket.on("close", this._onClose.bind(this));
@@ -125,7 +126,8 @@ export class SocketConnection implements SocketConnectionContract {
 		const listener = resolve<SocketListenerContract>(channelInformation.containerListenerName);
 
 		if (!listener) {
-			Log.warn('Received socket event: ' + channelInformation.channelName + '... but no event listener is defined for this event.');
+			if (config('app.logging.socketInformation'))
+				Log.warn('Received socket event: ' + channelInformation.channelName + '... but no event listener is defined for this event.');
 
 			return;
 		}
@@ -139,7 +141,8 @@ export class SocketConnection implements SocketConnectionContract {
 		const listener = resolve<SocketChannelListenerContract>(channelInformation.containerListenerName);
 
 		if (!this.hasSubscription(listener)) {
-			Log.warn("Someone sent a message to a channel that they're not subscribed to...", channelInformation);
+			if (config('app.logging.socketInformation'))
+				Log.warn("Someone sent a message to a channel that they're not subscribed to...", channelInformation);
 
 			return;
 		}
@@ -149,7 +152,8 @@ export class SocketConnection implements SocketConnectionContract {
 		}
 
 		if (!listener[packet.getEvent()]) {
-			Log.warn('Trying to use event name that is not registered: ' + packet.getEvent());
+			if (config('app.logging.socketInformation'))
+				Log.warn('Trying to use event name that is not registered: ' + packet.getEvent());
 
 			return;
 		}
@@ -164,7 +168,8 @@ export class SocketConnection implements SocketConnectionContract {
 	 * @private
 	 */
 	public _onPong(data) {
-		Log.info(`Socket pong from: ${this.id} userId: ${this.userId}`);
+		if (config('app.logging.socketInformation'))
+			Log.info(`Socket pong from: ${this.id} userId: ${this.userId}`);
 
 		this.isConnected = true;
 	}
@@ -179,7 +184,8 @@ export class SocketConnection implements SocketConnectionContract {
 	 */
 	public async _onClose(code, reason) {
 		this.disconnect(reason);
-		Log.info('Socket closed...', {code, reason});
+		if (config('app.logging.socketInformation'))
+			Log.info('Socket closed...', {code, reason});
 	}
 
 	/**
@@ -198,10 +204,20 @@ export class SocketConnection implements SocketConnectionContract {
 	public async _onChannelSubscribeRequest({channel}) {
 		const channelInfo = parseSocketChannelName(channel);
 
-		const listener = resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
+		const container = app().container();
+
+		if(!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
+			if (config('app.logging.socketInformation'))
+				Log.error('Listener not found.... ', channelInfo);
+
+			return;
+		}
+
+		const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
 		if (!listener) {
-			console.error('Listener not found.... ', channelInfo);
+			if (config('app.logging.socketInformation'))
+				Log.error('Listener not found.... ', channelInfo);
 			return;
 		}
 
@@ -230,7 +246,16 @@ export class SocketConnection implements SocketConnectionContract {
 	public async _onChannelUnsubscribeRequest({channel}) {
 		const channelInfo = parseSocketChannelName(channel);
 
-		const listener = resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
+		const container = app().container();
+
+		if(!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
+			if (config('app.logging.socketInformation'))
+				Log.error('Listener not found.... ', channelInfo);
+
+			return;
+		}
+
+		const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
 		if (!listener) {
 			console.error('Listener not found.... ', channelInfo);
@@ -353,7 +378,8 @@ export class SocketConnection implements SocketConnectionContract {
 	public disconnect(disconnectReason: string) {
 		this.socket.terminate();
 		this._onDisconnectCallback(this.userId, this.id);
-		Log.info('Socket disconnected: ' + disconnectReason, {id : this.id});
+		if (config('app.logging.socketInformation'))
+			Log.info('Socket disconnected: ' + disconnectReason, {id : this.id});
 	}
 
 	/**

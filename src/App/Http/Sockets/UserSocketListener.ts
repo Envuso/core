@@ -1,7 +1,6 @@
 import {JwtAuthenticationMiddleware, Middleware} from "../../../Routing";
 import {injectable} from "tsyringe";
 import {Log} from "../../../Common";
-import {AuthenticationContract} from "../../../Contracts/Authentication/AuthenticationContract";
 import {SocketConnectionContract} from "../../../Contracts/Sockets/SocketConnectionContract";
 import {SocketChannelListener} from "../../../Sockets/SocketChannelListener";
 import {SocketPacket} from "../../../Sockets/SocketPacket";
@@ -11,7 +10,7 @@ import {User} from "../../Models/User";
 export class UserSocketListener extends SocketChannelListener {
 
 	public middlewares(): Middleware[] {
-		return [];
+		return [new JwtAuthenticationMiddleware()];
 	}
 
 	public channelName(): string {

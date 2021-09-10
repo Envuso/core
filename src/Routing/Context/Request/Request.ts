@@ -2,7 +2,6 @@ import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
 import {config} from "../../../AppContainer";
-import {Authenticatable} from "../../../Authenticatable";
 import {Obj} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";

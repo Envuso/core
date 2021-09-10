@@ -32,6 +32,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 	/**
 	 * Get the results of the paginated request
 	 *
+	 * @template T
 	 * @returns {Promise<Paginator<T>>}
 	 */
 	public async getResults(): Promise<this> {
@@ -160,6 +161,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 	/**
 	 * Get the response of the paginator
 	 *
+	 * @template T
 	 * @returns {PaginatedResponse<T>}
 	 */
 	public getResponse(): PaginatedResponse<T> {

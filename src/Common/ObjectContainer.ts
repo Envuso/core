@@ -74,6 +74,7 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	 * Do we have the key in the object?
 	 * We can optionally pass a value to also compare. This will check if the key exists and if it's value is x
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param {T|undefined} value
 	 * @return {boolean}
@@ -84,6 +85,7 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	 * Do we have the key in the object?
 	 * We can optionally pass a value to also compare. This will check if the key exists and if it's value is x
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param {T|undefined} value
 	 * @return {boolean}
@@ -106,6 +108,7 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	/**
 	 * Get the value from the container by it's key
 	 *
+	 * @template T
 	 * @param {string} key
 	 * @param _default
 	 * @return {T}
@@ -191,6 +194,7 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	/**
 	 * Get all items from the container
 	 *
+	 * @template T
 	 * @return {ObjectContainerObject<T>}
 	 */
 	public items(): ObjectContainerObject<T> {
@@ -200,6 +204,7 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	/**
 	 * Same as {@link items}, just feels more convenient to use
 	 *
+	 * @template T
 	 * @return {ObjectContainerObject<T>}
 	 */
 	public all(): ObjectContainerObject<T> {
@@ -218,6 +223,7 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	/**
 	 * Get all values, without their keys as an array
 	 *
+	 * @template T
 	 * @return {T[]}
 	 */
 	public values(): T[] {
@@ -243,8 +249,8 @@ export class ObjectContainer<T> implements ObjectContainerContract<T> {
 	/**
 	 * Reset the store and populate it with key->value items
 	 *
+	 * @template T
 	 * @param {object} values
-	 *
 	 * @return {ObjectContainer<T>}
 	 */
 	public populate(values: { [key: string]: any }): ObjectContainerContract<T> {

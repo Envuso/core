@@ -1,5 +1,5 @@
 import {CallSite} from "./Classes.types";
-import Constructable = jest.Constructable;
+
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 

@@ -1,4 +1,3 @@
-import {config} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
 import {ExceptionHandlerContract} from "../../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
@@ -53,7 +52,7 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 
 	public static handle(request: RequestContract, exception: Exception | Error): ExceptionResponse {
 		const isDev            = Environment.isDev();
-		
+
 		const exceptionHandler = new ExceptionHandler();
 
 		if (!(exception instanceof Exception)) {

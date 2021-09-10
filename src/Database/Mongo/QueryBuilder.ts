@@ -3,10 +3,11 @@ import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {ClassType, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref} from "../index";
-import {getModelCollectionName} from "../ModelHelpers";
+import {ClassType, Database, ModelDecoratorMeta, ModelProps, ModelRelationMeta, ModelRelationType, Ref, SingleModelProp} from "../index";
 import {hydrateModel} from "../Serialization/Serializer";
 import {Paginator} from "./Paginator";
+
+export type QueryOperator = "==" | "=" | "!==" | "!=" | ">" | ">=" | "<>" | "<" | "<="
 
 export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
@@ -61,49 +62,143 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 */
 	public _limit: number = null;
 
-	private readonly _hasOneRelations: ModelRelationMeta[]  = [];
-	private readonly _hasManyRelations: ModelRelationMeta[] = [];
+	private readonly _hasOneRelations: ModelRelationMeta[]        = [];
+	private readonly _hasManyRelations: ModelRelationMeta[]       = [];
+	private readonly _belongsToRelations: ModelRelationMeta[]     = [];
+	private readonly _belongsToManyRelations: ModelRelationMeta[] = [];
 
 	constructor(model: ModelContract<T>) {
 		this._model = model;
 
-		this._hasOneRelations  = this._model.getMeta<ModelRelationMeta[]>(
-			ModelDecoratorMeta.HAS_ONE_RELATION, []
-		);
-		this._hasManyRelations = this._model.getMeta<ModelRelationMeta[]>(
-			ModelDecoratorMeta.HAS_MANY_RELATION, []
-		);
+		this._hasOneRelations        = this.getRelationMeta(ModelDecoratorMeta.HAS_ONE_RELATION);
+		this._hasManyRelations       = this.getRelationMeta(ModelDecoratorMeta.HAS_MANY_RELATION);
+		this._belongsToRelations     = this.getRelationMeta(ModelDecoratorMeta.BELONGS_TO_RELATION);
+		this._belongsToManyRelations = this.getRelationMeta(ModelDecoratorMeta.BELONGS_TO_MANY_RELATION);
 	}
 
 	/**
 	 * Similar to using collection.find()
 	 *
-	 * @template M
+	 * In mongo terms, this is doing .find({key : value}}
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public where<M>(key: SingleModelProp<T>, value: any): QueryBuilderContract<T>;
+	/**
+	 * Similar to using collection.find()
+	 *
+	 * In mongo terms, this is doing .find({amount : {$gt : 10}}
+	 * If you're doing .where('amount', '>', 10);
+	 *
+	 * @param key
+	 * @param operator
+	 * @param value
+	 */
+	public where<M>(key: SingleModelProp<T>, operator: QueryOperator, value: any): QueryBuilderContract<T>;
+	/**
+	 * Similar to using collection.find()
+	 *
+	 * In mongo terms, this is doing .find({object})
+	 *
 	 * @param attributes
 	 */
-	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T> {
-		this._collectionFilter = {...this._collectionFilter, ...attributes};
+	public where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T>;
+	/**
+	 * Similar to using collection.find()
+	 * Handles all of the above overloads
+	 *
+	 * @param attributes
+	 */
+	public where<M>(attributes: (FilterQuery<M | T> | Partial<M | T>) | SingleModelProp<T>, operator?: QueryOperator, value?: any): QueryBuilderContract<T> {
+		const totalArgs = arguments.length;
+
+		// If there's only one arg, we're passing a mongo query object
+		// Ex: {name: 'bruce'}
+		if (totalArgs === 1) {
+			this._collectionFilter = {
+				...this._collectionFilter,
+				...(attributes as (FilterQuery<M | T> | Partial<M | T>))
+			};
+
+			return this;
+		}
+
+		// If there's only two args, we're passing key/value
+		// Ex: where('name', 'bruce');
+		if (totalArgs === 2) {
+			this._collectionFilter = {
+				...this._collectionFilter,
+				...({[(attributes as any) as string] : operator})
+			};
+
+			return this;
+		}
+
+		// If there's three args, we're passing key, operator and value
+		// Ex: where('quantity', '>', 3);
+		if (totalArgs === 3) {
+			this._collectionFilter = {
+				...this._collectionFilter,
+				...(
+					{
+						[(attributes as any) as string] : {
+							[this.parseQueryOperator(operator)] : value
+						}
+					}
+				)
+			};
+
+			return this;
+		}
 
 		return this;
 	}
 
 	/**
-	 * Allows us to do a query for an item that exists in the array.
-	 * For example, we have documents with usernames, jane, bill, bob.
+	 * Imagine we have users like
+	 * {username: 'jane'}
+	 * {username: 'bill'}
+	 * {username: 'bob'}
 	 *
-	 * We can do .whereIn('username', ['jane', 'bill'])
+	 * If we do whereIn('username', ['jane', 'bil']), this will return
 	 *
-	 * {@see QueryBuilder}
+	 * {username: 'jane'}
+	 * {username: 'bill'}
 	 *
 	 * @param key
 	 * @param values
 	 */
-	public whereIn<F extends (keyof T)>(
-		key: F, values: T[F][]
-	): QueryBuilderContract<T> {
+	public whereIn<F extends (keyof T)>(key: F, values: T[F][]): QueryBuilderContract<T> {
 		this._collectionFilter = {
 			...this._collectionFilter,
 			[key] : {$in : values},
+		};
+
+		return this;
+	}
+
+	/**
+	 * Imagine if we have some book documents like:
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 * {book: 'book name', tags: ['action']}
+	 *
+	 * If we do whereAllIn('tags', ['action']), this will return
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 * {book: 'book name', tags: ['action']}
+	 *
+	 * If we now do whereAllIn('tags', ['action', 'rpg']), this will return
+	 * {book: 'book name', tags: ['action', 'rpg']}
+	 *
+	 * It will search for a document with an array, containing the specific values
+	 *
+	 * @param key
+	 * @param values
+	 */
+	public whereAllIn<F extends (keyof T)>(key: F, values: string[]): QueryBuilderContract<T> {
+		this._collectionFilter = {
+			...this._collectionFilter,
+			[key] : {$all : values},
 		};
 
 		return this;
@@ -190,10 +285,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			if (!this.isRelation(relation as string) || !meta) {
 				Log.warn(`You're trying to load a relation that is not defined as one. `);
 				Log.warn(`Attempted relation key is: ${relation}. `);
-				const relationKeys = [...this._hasOneRelations, ...this._hasManyRelations].map(
-					r => `${r.propertyKey}(${r.type})`
-				).join(', ');
-				Log.warn(`Defined relations are: ${relationKeys}`);
+				Log.warn(`Defined relations are: ${this.joinedRelationsArray().map(r => `${r.propertyKey}(${r.type})`).join(', ')}`);
 				continue;
 			}
 
@@ -202,55 +294,110 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				 * The only way i could figure out aggregation for one to one
 				 *
 				 * We load the related collection items by local key to foreign key
-				 * in to a "temporary" key on the document
+				 * this will technically give us multiple sub docs on that key...
 				 *
-				 * We then add a new field for the desired relation name with
-				 * the first item from the temporary document field
-				 *
-				 * Then we remove the temporary array. I don't think it's great...
-				 * but I'm honestly not sure about the performance impacts.
-				 *
-				 * Anything is better than nothing at this point.
+				 * However, by using $addFields $first to the query, it'll
+				 * pick the first document from that array and set it there.
 				 */
 				this._collectionAggregation.push(...[
 					{
 						$lookup : {
-							from         : getModelCollectionName(meta.relatedModel),
+							from         : Database.getModelCollectionName(meta.relatedModel),
 							localField   : meta.localKey,
 							foreignField : meta.foreignKey,
-							as           : meta.propertyKey + 'Temp'
+							as           : meta.propertyKey
 						},
 					},
 					{
 						$addFields : {
 							[meta.propertyKey] : {
-								'$first' : `$${meta.propertyKey}Temp`
+								'$first' : `$${meta.propertyKey}`
 							}
 						},
-					},
-					{
-						$unset   : [`${meta.propertyKey}Temp`]
 					}
 				]);
 			}
 
+			/**
+			 * This is basically the same as above... except we swap the values around...
+			 */
+			if (meta.type === ModelRelationType.BELONGS_TO) {
+
+				this._collectionAggregation.push(...[
+					{
+						$lookup : {
+							from         : Database.getModelCollectionName(meta.relatedModel),
+							localField   : meta.foreignKey,
+							foreignField : meta.localKey,
+							as           : meta.propertyKey
+						},
+					},
+					{
+						$addFields : {
+							[meta.propertyKey] : {
+								'$first' : `$${meta.propertyKey}`
+							}
+						},
+					}
+				]);
+			}
 
 			if (meta.type === ModelRelationType.HAS_MANY) {
 				/**
 				 * Basically the same as a MySQL join
 				 */
 				this._collectionAggregation.push({
-					$lookup    : {
-						from         : getModelCollectionName(meta.relatedModel),
+					$lookup : {
+						from         : Database.getModelCollectionName(meta.relatedModel),
 						localField   : meta.localKey,
 						foreignField : meta.foreignKey,
 						as           : meta.propertyKey
 					},
 				});
 			}
+
+			if (meta.type === ModelRelationType.BELONGS_TO_MANY) {
+				this._collectionAggregation.push({
+					$lookup : {
+						from         : Database.getModelCollectionName(meta.relatedModel),
+						localField   : meta.foreignKey,
+						foreignField : meta.localKey,
+						as           : meta.propertyKey
+					},
+				});
+			}
+
 		}
 
 		return this;
+	}
+
+	/**
+	 * Add a clause to ensure a key exists or doesnt exist on a document
+	 *
+	 * @template T
+	 * @param {SingleModelProp<T>} key
+	 * @param {boolean} existState
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public exists(key: SingleModelProp<T>, existState: boolean = true): QueryBuilderContract<T> {
+		this._collectionFilter = {
+			...this._collectionFilter,
+			...{[key] : {$exists : existState}}
+		};
+
+		return this;
+	}
+
+	/**
+	 * Uses {@see exists}
+	 *
+	 * @template T
+	 * @param {SingleModelProp<T>} key
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public doesntExist(key: SingleModelProp<T>): QueryBuilderContract<T> {
+		return this.exists(key, false);
 	}
 
 	/**
@@ -261,15 +408,22 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @returns {boolean}
 	 */
 	public isRelation(key: string, type?: ModelRelationType): boolean {
-		const relations = [...this._hasManyRelations, ...this._hasOneRelations];
-
-		return relations.some(relation => {
+		return this.joinedRelationsArray().some(relation => {
 			if (type) {
 				return relation.propertyKey === key && relation.type === type;
 			}
 
 			return relation.propertyKey === key;
 		});
+	}
+
+	private joinedRelationsArray(): ModelRelationMeta[] {
+		return [
+			...this._hasOneRelations,
+			...this._hasManyRelations,
+			...this._belongsToRelations,
+			...this._belongsToManyRelations
+		];
 	}
 
 	/**
@@ -281,7 +435,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	public relations(): { [key: string]: ModelRelationMeta } {
 		const relations = {};
 
-		for (let modelRelationMeta of [...this._hasOneRelations, ...this._hasManyRelations]) {
+		for (let modelRelationMeta of [...this._hasOneRelations, ...this._hasManyRelations, ...this._belongsToRelations, ...this._belongsToManyRelations]) {
 			relations[modelRelationMeta.propertyKey] = modelRelationMeta;
 		}
 
@@ -496,6 +650,42 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 	public get collectionFilter() {
 		return this._collectionFilter;
+	}
+
+	/**
+	 * Convert a regular comparison operator to mongoDB's version
+	 * @param {QueryOperator} operator
+	 * @returns {string}
+	 */
+	public parseQueryOperator(operator: QueryOperator) {
+		switch (operator) {
+			case "==":
+			case "=":
+				return "$eq";
+			case "!==":
+			case "!=":
+			case "<>":
+				return "$ne";
+			case ">":
+				return "$gt";
+			case ">=":
+				return "$gte";
+			case "<":
+				return "$lt";
+			case "<=":
+				return "$lte";
+		}
+	}
+
+	/**
+	 * Just makes the implementing code more consistent/shorter
+	 *
+	 * @param {ModelDecoratorMeta} decoratorType
+	 * @returns {ModelRelationMeta[]}
+	 * @private
+	 */
+	private getRelationMeta(decoratorType: ModelDecoratorMeta): ModelRelationMeta[] {
+		return this._model.getMeta<ModelRelationMeta[]>(decoratorType, []);
 	}
 
 	/**

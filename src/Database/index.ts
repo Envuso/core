@@ -1,16 +1,11 @@
-import {TypeOptions} from "class-transformer";
-import {CollationDocument, FilterQuery} from "mongodb";
-import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
-import {Model} from "./Mongo/Model";
-
 export * from './DatabaseServiceProvider';
+export * from './Database';
 export * from './Mongo/Model';
 export * from './Mongo/QueryBuilder';
 export * from './ModelDecorators';
-//export * from './Exceptions/InvalidRefSpecified';
+export * from './ModelRelationshipDecorators';
 export * from "./Serialization/Serializer";
 export * from "../Redis/Redis";
-
 export * from './Seeder/DatabaseSeeder';
 export * from './Seeder/Seeder';
 export * from './Seeder/SeedManager';
@@ -18,9 +13,6 @@ export * from './Seeder/SeedManager';
 export declare type ClassType<T> = {
 	new(...args: any[]): T;
 };
-
-//(type?: TypeHelpOptions) => Function, options?: TypeOptions
-export type TypeFunction = (type?: TypeOptions) => ClassType<any>;
 
 
 type ModelPropertyNames<T> = {
@@ -31,48 +23,8 @@ type ModelPropertiesOnly<T> = {
 	[P in ModelPropertyNames<T>]: T[P] extends object ? ModelProps<T[P]> : T[P]
 };
 export type ModelProps<T> = ModelPropertiesOnly<T>;
-
-
-/**
- * Options passed to mongodb.createIndexes
- * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#createIndexes and http://docs.mongodb.org/manual/reference/command/createIndexes/
- */
-export interface IndexOptions<T> extends SimpleIndexOptions<T> {
-	key: { [key in keyof T]?: number | string };
-	name: string;
-}
-
-/**
- * This must be identical (with a few stricter fields) to IndexSpecification from mongodb, but without 'key' field.
- * It would be great it we could just extend that interface but without that field.
- *
- * Options passed to mongodb.createIndexes
- * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#createIndexes and http://docs.mongodb.org/manual/reference/command/createIndexes/
- */
-export interface SimpleIndexOptions<T> {
-	name?: string;
-	background?: boolean;
-	unique?: boolean;
-
-	// stricter
-	partialFilterExpression?: FilterQuery<T>;
-
-	sparse?: boolean;
-	expireAfterSeconds?: number;
-	storageEngine?: object;
-
-	// stricter
-	weights?: { [key in keyof T]?: number };
-	default_language?: string;
-	language_override?: string;
-	textIndexVersion?: number;
-	"2dsphereIndexVersion"?: number;
-	bits?: number;
-	min?: number;
-	max?: number;
-	bucketSize?: number;
-	collation?: CollationDocument;
-}
+export type ArrayOfModelProps<T> = (keyof ModelProps<T>)[];
+export type SingleModelProp<T> = keyof ModelProps<T>;
 
 export interface Nested {
 	name: string;
@@ -105,17 +57,4 @@ export interface RepositoryOptions {
 	databaseName?: string;
 }
 
-export enum ModelRelationType {
-	HAS_MANY = 'has-many',
-	HAS_ONE  = 'has-one',
-}
 
-export interface ModelRelationMeta {
-	// This is the property on the model that the relation
-	// data will be applied to when loaded.
-	propertyKey: string;
-	relatedModel: ModelContract<any> | string,
-	foreignKey?: string;
-	localKey?: string;
-	type: ModelRelationType;
-}

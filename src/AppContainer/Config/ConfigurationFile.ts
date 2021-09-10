@@ -1,5 +1,3 @@
-import {Log} from "../../Common";
-import {config} from "../index";
 import {ConfigurationCredentials} from "./ConfigurationCredentials";
 
 export type ConfigFile = {

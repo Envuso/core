@@ -1,6 +1,6 @@
-import {classToPlain, deserialize, Exclude, plainToClass, plainToClassFromExist, serialize} from "class-transformer";
+import {classToPlain, Exclude, plainToClassFromExist} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
-import {validateOrReject, ValidationError} from "class-validator";
+import {validateOrReject} from "class-validator";
 import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
@@ -49,6 +49,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 			await validateOrReject(this, this.getValidationOptions());
 		} catch (error) {
 			Log.warn(error);
+
 			if (Array.isArray(error)) {
 				const validationErrorsFormatted = {};
 
@@ -58,6 +59,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 
 				this.__validationErrors = validationErrorsFormatted;
 			}
+
 		}
 
 		if (this.failed()) {
@@ -102,6 +104,10 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 	 * Did the validation fail?
 	 */
 	public failed(): boolean {
+		if(!this.__validationErrors) {
+			return false;
+		}
+
 		return Object.keys(this.__validationErrors).length > 0;
 	}
 

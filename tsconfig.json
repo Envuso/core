@@ -29,25 +29,15 @@
     "paths": {
       "class-transformer": [
         "./../node_modules/class-transformer"
-      ],
-      "@configuration" : [
-        "Meta/Configuration.ts"
       ]
     },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "resolveJsonModule": true,
-    "plugins": [
-      {
-        "name": "../Compiler/plugin"
-      }
-    ]
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules",
-    "dist/**/*",
-    "Framework/**/*",
-    "packages/**/*"
+    "dist/**/*"
   ],
   "include": [
     "src/App/**/*",
@@ -68,10 +58,12 @@
     "src/Security/**/*",
     "src/Server/**/*",
     "src/Sockets/**/*",
+    "src/Session/**/*",
     "src/Storage/**/*.ts",
     "src/Queue/**/*.ts",
     "src/Authenticatable.ts",
-    "src/Envuso.ts.ts",
+    "src/Envuso.ts",
+    "src/tests/**/*.ts",
     "src/run-dev.ts",
     "src/index.ts"
   ]

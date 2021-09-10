@@ -1,4 +1,3 @@
-import {config} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
 
 export enum StatusCodeTextType {

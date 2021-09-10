@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "./preptests";
 import {Cache} from "../Cache";
 import {bootApp, unloadApp} from "./preptests";

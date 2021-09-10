@@ -152,6 +152,7 @@ export interface ModelContract<M> {
 	/**
 	 * Make it a tad cleaner to get meta from this model
 	 *
+	 * @template T
 	 * @param {ModelDecoratorMeta} metaKey
 	 * @param _default
 	 * @returns {T}

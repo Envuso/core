@@ -3,13 +3,12 @@ import {FastifyError} from "fastify-error";
 import middie from "middie";
 import {config, ConfigRepository, resolve} from "../AppContainer";
 import {Exception, Log} from "../Common";
-import {ExceptionHandlerConstructorContract, ExceptionHandlerContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
+import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
-import {ResponseContract} from "../Contracts/Routing/Context/Response/ResponseContract";
 import {ErrorHandlerFn, ServerConfiguration, ServerContract} from "../Contracts/Server/ServerContract";
 import {HookContract} from "../Contracts/Server/ServerHooks/HookContract";
 import {RequestContext} from "../Routing/Context/RequestContext";
-import {ControllerManager} from "../Routing/Controller/ControllerManager";
+import {Routing} from "../Routing/Route/Routing";
 import {AssetManager} from "../Routing/StaticAssets/AssetManager";
 import {SocketServer} from "../Sockets/SocketServer";
 
@@ -68,7 +67,7 @@ export class Server implements ServerContract {
 			response.code(404).send({message : "Not found"});
 		});
 
-		this.registerControllers();
+		this.registerRoutes();
 
 		resolve(AssetManager).registerAssetPaths(this._server);
 
@@ -80,43 +79,27 @@ export class Server implements ServerContract {
 	 *
 	 * @private
 	 */
-	public registerControllers() {
+	public registerRoutes() {
+		Routing.initiate();
 
-		const controllers = ControllerManager.initiateControllers();
+		const controllers = Routing.get().getControllers();
 
 		for (let controller of controllers) {
 			const routes = controller.routes;
 
 			for (let route of routes) {
 
-				ControllerManager.routesList[`${controller.controllerName}.${route.getMethodName()}`] = route.getPath();
-
-				const {before, after} = route.getMiddlewareHandlers(
-					this._config.middleware || []
-				);
-
 				this._server.route({
-					method       : route.getMethod(),
-					handler      : route.getHandlerFactory(),
-					url          : route.getPath(),
-					preHandler   : async function (req, res) {
-						if (before) {
-							await before(RequestContext.get());
-						}
-					},
-					onResponse   : async function (req, res) {
-						if (after) {
-							await after(RequestContext.get());
-						}
-					},
+					...route.getFastifyRouteBinding(this._config.middleware || []),
+
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
 						return await this.handleException(RequestContext.get(), error, request, reply);
 					}
 				});
 
-				const controllerName = ((controller?.controller as any)?.name ?? controller.controller.constructor.name);
-
 				if (config('app.logging.routes', false)) {
+					const controllerName = ((controller?.controller as any)?.name ?? controller.controller.constructor.name);
+
 					Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
 				}
 
@@ -202,10 +185,13 @@ export class Server implements ServerContract {
 		 response.send();*/
 	}
 
-	public unload() {
-		this._server = null;
-		this._config = null;
-		this._exceptionHandler = null;
+	public async unload() {
+		if(this._server) {
+			await this._server.close();
+		}
+		this._server             = null;
+		this._config             = null;
+		this._exceptionHandler   = null;
 		this._customErrorHandler = null;
 	}
 }

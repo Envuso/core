@@ -57,6 +57,7 @@ export interface ResponseContract extends RequestResponseContextContract {
 	/**
 	 * Send a redirect response to an internal application route
 	 *
+	 * @template T
 	 * @param {T} routeStr
 	 * @param attributes
 	 * @return {RedirectResponseContract}

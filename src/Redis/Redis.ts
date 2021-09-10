@@ -18,7 +18,7 @@ export class Redis {
 		}
 
 		this.config = config;
-		instance = this;
+		instance    = this;
 	}
 
 	public connect() {
@@ -68,7 +68,7 @@ export class Redis {
 	 * @returns {Promise<boolean>}
 	 */
 	public async set(key: string, value: any, ttl?: DateTime): Promise<boolean> {
-		const redisValue = JSON.stringify({value: value});
+		const redisValue = JSON.stringify({value : value});
 
 		if (ttl !== undefined) {
 			return await this.client.set(
@@ -166,6 +166,10 @@ export class Redis {
 
 	public async zAdd(key: string, score: number, value: string): Promise<boolean> {
 		return await this.client.zadd(key, score, value) === 1;
+	}
+
+	public static shutdown() {
+		return this.getInstance().client.shutdown("SAVE");
 	}
 }
 

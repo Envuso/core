@@ -1,10 +1,11 @@
-import {MongoClient} from "mongodb";
+import {MongoClient, MongoError} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import Redis from "../Redis/Redis";
 import {SeedManager} from "./Seeder/SeedManager";
 
 export class DatabaseServiceProvider extends ServiceProvider {
@@ -45,8 +46,25 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 			// Ehhhhh we'll register it to the container in two ways
 			const binding = {useValue : module.instance};
-			app.container().register(`Model:${module.name}`,binding);
-			app.container().register(`Model:${pluralize(module.name.toLowerCase())}`,binding);
+			app.container().register(`Model:${module.name}`, binding);
+			app.container().register(`Model:${pluralize(module.name.toLowerCase())}`, binding);
 		}
+	}
+
+	public async unload(app: AppContract, config: ConfigRepositoryContract) {
+		const mongoClient = app.container().resolve(MongoClient);
+
+		if (mongoClient) {
+			try {
+				await mongoClient.close(true);
+
+				console.log('Successfully closed mongo client connection.');
+			} catch (error) {
+				console.error('Failed to close mongo client connection', error);
+			}
+
+		}
+
+		await Redis.shutdown();
 	}
 }

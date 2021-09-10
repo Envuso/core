@@ -6,21 +6,28 @@ import 'jest-extended';
 Environment.load(path.join(__dirname, '..', '..', '.env'));
 
 import Configuration from "../Config/Configuration";
+import {Database} from "../Database";
 import {Envuso} from "../Envuso";
 
 let envuso: Envuso = null;
 
-export const bootApp = async function () {
+export const bootApp = async function (serve: boolean = true) {
 	envuso = new Envuso();
 	await Configuration.initiate();
 	await envuso.boot();
-	await envuso.serve();
+	if (serve) {
+		await envuso.serve();
+	}
 };
 
 
-export const unloadApp = async function () {
+export const unloadApp = async function (exitOnFinish: boolean = false) {
 	await envuso.unload();
 	envuso = null;
+
+	if (exitOnFinish)
+		process.exit(0);
 };
+
 
 export const envusoTestService = envuso;

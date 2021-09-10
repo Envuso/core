@@ -1,6 +1,6 @@
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
-import {ExceptionHandlerConstructorContract, ExceptionHandlerContract} from "../Common/Exception/ExceptionHandlerContract";
+import {ExceptionHandlerConstructorContract} from "../Common/Exception/ExceptionHandlerContract";
 import {ConfigRepositoryContract} from "./Config/ConfigRepositoryContract";
 import {ServiceProviderContract} from "./ServiceProviderContract";
 
@@ -21,12 +21,14 @@ export type LogTypes = {
 	controllers?: boolean;
 	providers?: boolean;
 	serverHooks?: boolean;
+	socketInformation?: boolean;
 	socketChannels?: boolean;
 }
 
 export interface ApplicationConfiguration {
 	environment: string;
 	appKey: string;
+	url: string;
 	providers: (new () => ServiceProviderContract)[];
 	exceptionHandler: ExceptionHandlerConstructorContract,
 	logging: LogTypes;
@@ -66,7 +68,14 @@ export interface AppContract {
 	/**
 	 * Will load all service providers from the app config
 	 */
-	loadServiceProviders(): Promise<void>;
+	loadServiceProviders(isForQueueWorker?: boolean): Promise<void>;
+
+	/**
+	 * Will run the "unload" method on all registered service providers
+	 *
+	 * @returns {Promise<void>}
+	 */
+	unloadServiceProviders(): Promise<void>;
 
 	/**
 	 * Get the app config repository a little easier

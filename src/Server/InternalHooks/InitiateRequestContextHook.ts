@@ -1,7 +1,7 @@
 import {config} from "../../AppContainer";
 import {Cookie, CookieJar} from "../../Cookies";
 import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
-import {Encryption} from "../../Crypt";
+import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
@@ -47,10 +47,10 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 
 		for (let cookie of cookies) {
 			try {
-				const value = Encryption.decrypt<string>(cookie.value);
+				const value = RabbitEncryption.decrypt<string>(cookie.value);
 
 				const isValid = value.indexOf(
-					CookieValuePrefix.create(cookie.name, Encryption.getKey())
+					CookieValuePrefix.create(cookie.name, RabbitEncryption.getKey())
 				) === 0;
 
 				cookie.value = isValid ? CookieValuePrefix.remove(value) : null;

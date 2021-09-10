@@ -36,14 +36,11 @@ export class RouteQueryParam extends MethodParameterDecorator {
 	}
 
 	public canBind(target: Function, param: any, parameterIndex: number) {
-
 		if (parameterIndex !== this.paramIndex) {
 			return false;
 		}
 
-		const res = this.expectedParamType === param;
-		return res;
-//		return this instanceof RouteQueryParam;
+		return this.expectedParamType === param;
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply) {

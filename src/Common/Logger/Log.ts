@@ -1,8 +1,10 @@
+import {Logger} from "tslog";
 import LogService from "./LogService";
 
 export class Log {
 	private static enabled: boolean = true;
-	private labels: Set<string> = new Set();
+	private labels: Set<string>     = new Set();
+	private static errorLogHandler  = null;
 
 	static isLoggingDisabled(): boolean {
 		return this.enabled === false;
@@ -62,28 +64,34 @@ export class Log {
 		this.log("warn", message, ...args);
 	}
 
+	error(message: string, ...args);
 	error(message: string | Error, error?: Error, ...args) {
 		if (error instanceof Error) {
 			args.unshift(error);
 		}
 
+		Log.errorLogger().error(error, message);
 		this.log("error", message, ...args);
 	}
 
+	static error(message: string, ...args);
 	static error(message: string | Error, error?: Error, ...args) {
 		if (error instanceof Error) {
 			args.unshift(error);
 		}
 
+		this.errorLogger().error(error, message);
 		this.log("error", message, ...args);
 	}
 
 	exception(message: string | Error, error?: Error) {
-		this.error(message, error);
+		Log.exception(message, error);
+		this.log("error", message, error);
 	}
 
 	static exception(message: string | Error, error?: Error) {
-		this.error(message, error);
+		this.errorLogger().error(message, error);
+		this.log("error", message, error);
 	}
 
 	info(message: string | Error, ...args) {
@@ -100,6 +108,25 @@ export class Log {
 
 	static debug(message, ...args) {
 		this.log("debug", message, ...args);
+	}
+
+	static errorLogger(): Logger {
+		if (this.errorLogHandler) {
+			return this.errorLogHandler;
+		}
+
+		this.errorLogHandler = new Logger({
+			type                                    : 'pretty',
+			colorizePrettyLogs                      : true,
+			exposeErrorCodeFrame                    : true,
+			exposeErrorCodeFrameLinesBeforeAndAfter : 5,
+			displayTypes                            : true,
+			exposeStack                             : false,
+			displayFilePath                         : "displayAll",
+			displayFunctionName                     : true,
+		});
+
+		return this.errorLogHandler;
 	}
 }
 

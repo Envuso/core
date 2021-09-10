@@ -9,7 +9,7 @@ import {HookContract} from "./ServerHooks/HookContract";
 
 export interface CorsConfiguration {
 	enabled: boolean;
-	options: FastifyCorsOptions
+	options: FastifyCorsOptions;
 }
 
 export interface ServerConfiguration {
@@ -39,7 +39,7 @@ export interface ServerContract {
 	 *
 	 * @private
 	 */
-	registerControllers(): void;
+	registerRoutes(): void;
 
 	registerHooks(hooks: { new(): HookContract }[]): void;
 
@@ -59,5 +59,5 @@ export interface ServerContract {
 
 	handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply): Promise<FastifyReply>;
 
-	unload();
+	unload(): Promise<void>;
 }

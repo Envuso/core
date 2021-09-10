@@ -9,14 +9,14 @@ config({path : path.join(__dirname, '..', '..', '.env')});
 import fs from "fs";
 import {App} from "../AppContainer";
 import {Storage} from '../Storage';
-import {Config} from '../Config';
+//import {Config} from '../Config';
 
 const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
+//	const app = await App.bootInstance({config : Config});
+//	await app.loadServiceProviders();
 
-	fs.writeFileSync('./testfile.txt', '12345', {encoding : 'utf-8'});
-	fs.writeFileSync('./testfiletwo.txt', 'abc', {encoding : 'utf-8'});
+//	fs.writeFileSync('./testfile.txt', '12345', {encoding : 'utf-8'});
+//	fs.writeFileSync('./testfiletwo.txt', 'abc', {encoding : 'utf-8'});
 };
 
 beforeAll(() => {
@@ -148,7 +148,7 @@ describe('s3 storage', () => {
 
 		expect(response.url).toContain(directoryName);
 
-		const url = await Storage.disk('s3').url(directoryName);
+		const url = Storage.disk('s3').url(directoryName);
 		expect(url).toEqual(response.url);
 
 		const deleted = await Storage.disk('s3').remove(directoryName);
