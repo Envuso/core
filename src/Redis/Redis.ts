@@ -5,7 +5,9 @@ import Obj from "../Common/Utility/Obj";
 let instance: Redis = null;
 
 interface ExtRedis extends IRedis {
-	popQueueWithLimit(key: string, min: number | string, max: number | string, limit: number): Promise<any>;
+	pop(queue: string, reservedQueue: string, limit: number): Promise<string[] | null>;
+
+	migrateQueue(delayQueue: string, queue: string, time: number): Promise<string[]>;
 }
 
 export class Redis {
@@ -38,6 +40,14 @@ export class Redis {
 	public static getInstance(): Redis {
 		return instance;
 	}
+
+	public static shutdown() {
+		return this.getInstance().client.shutdown("SAVE");
+	}
+
+	/*
+	 Basic
+	 */
 
 	/**
 	 * Set a value using promises rather than callbacks
@@ -160,6 +170,10 @@ export class Redis {
 		return await this.client.exists(key) === 1;
 	}
 
+	/*
+	 Sorted Set
+	 */
+
 	public static zAdd(key: string, score: number, value: string): Promise<boolean> {
 		return this.getInstance().zAdd(key, score, value);
 	}
@@ -168,8 +182,24 @@ export class Redis {
 		return await this.client.zadd(key, score, value) === 1;
 	}
 
-	public static shutdown() {
-		return this.getInstance().client.shutdown("SAVE");
+	/*
+	 List
+	 */
+
+	public static lPush(key: string, data: string): Promise<boolean> {
+		return this.getInstance().lPush(key, data);
+	}
+
+	public async lPush(key: string, data: string): Promise<boolean> {
+		return await this.client.lpush(key, data) === 1;
+	}
+
+	public static lRemove(key: string, count: number, member: string): Promise<boolean> {
+		return this.getInstance().lRemove(key, count, member);
+	}
+
+	public async lRemove(key: string, count: number, member: string): Promise<boolean> {
+		return await this.client.lrem(key, count, member) === 1;
 	}
 }
 

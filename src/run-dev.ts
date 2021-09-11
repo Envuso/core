@@ -16,9 +16,11 @@ Configuration.initiate()
 	.then(() => envuso.boot())
 	.then(() => envuso.serve())
 	.then(async () => {
-		for (let i = 0; i < 5; i++) {
-			new ImplementedJob(i + 1).dispatch();
-		}
+		new ImplementedJob(1).dispatch();
+
+		//		for (let i = 0; i < 4; i++) {
+		//			new ImplementedJob(1).dispatch();
+		//		}
 	})
 	.catch(error => Log.exception(error));
 

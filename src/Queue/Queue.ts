@@ -1,15 +1,22 @@
-import {Worker} from "worker_threads";
-import {Job} from "./Job";
+import {IWorkerResult} from "./IWorkerResult";
+import {Job} from "./Jobs/Job";
 import {App} from "../AppContainer";
 import Redis from "../Redis/Redis";
 import {Log, DateTime} from "../Common";
 import {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
-import {WorkerPool} from "./WorkerPool";
+import LuaScripts from "./LuaScripts";
+import {TaskWorker, WorkerPool} from "./WorkerPool";
 
 let instance: Queue = null;
 
 export class Queue {
 	private config: QueueConfiguration;
+	// Primary Queue where Jobs that are ready to process are stored
+	private static queueName         = 'queue';
+	// Queue where Jobs that have a delay are stored
+	private static delayedQueueName  = 'queue:delayed';
+	// Queue where Jobs that are currently being processed are stored
+	private static reservedQueueName = 'queue:reserved';
 
 	constructor(config: QueueConfiguration) {
 		if (instance) {
@@ -20,7 +27,14 @@ export class Queue {
 
 		instance = this;
 
-		WorkerPool.getInstance().on('worker:freed', this.onWorkerFreed.bind(this));
+		// WorkerPool.getInstance().on('worker:created', this.onWorkerCreated.bind(this));
+		WorkerPool.getInstance().on('worker:ready', this.onWorkerAvailable.bind(this));
+		// WorkerPool.getInstance().on('worker:run', this.onWorkerRun.bind(this));
+		WorkerPool.getInstance().on('worker:success', this.onWorkerSuccess.bind(this));
+		WorkerPool.getInstance().on('worker:failed', this.onWorkerFailed.bind(this));
+		WorkerPool.getInstance().on('worker:available', this.onWorkerAvailable.bind(this));
+		//		WorkerPool.getInstance().on('worker:freed', this.onWorkerFreed.bind(this));
+		// WorkerPool.getInstance().on('worker:error', this.onWorkerError.bind(this));
 	}
 
 	static getInstance() {
@@ -31,31 +45,22 @@ export class Queue {
 		await this.registerCommands();
 
 		while (App.isBooted()) {
-			// Worker Pool is still processing a batch of Jobs
-			if (WorkerPool.getCapacity() === 0) {
-				Log.label("Queue").debug("Waiting for free workers...");
+			await this.migrate();
+
+			if (WorkerPool.getCapacity() == 0) {
+				Log.label('Queue').warn('No workers available');
 				await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
 				continue;
 			}
 
-			// Get list of Jobs that should be run now
-			const jobsToRun = await Redis.getInstance().getClient()
-				.popQueueWithLimit("queue", "-inf", Date.now(), WorkerPool.getCapacity());
+			const jobs = await this.getNextJob(WorkerPool.getCapacity());
 
-			for (const jobData of jobsToRun) {
-				try {
-					const result = WorkerPool.getInstance().runTask(jobData);
+			for (const payload of jobs) {
+				const result = WorkerPool.getInstance().runTask(payload);
 
-					// WorkerPool is full, pop it back on the Queue
-					if (!result) {
-						// Should we follow retry logic here and add some delay?
-						await Redis.zAdd('queue', Date.now(), jobData);
-					}
-				} catch (error) {
-					Log.label("Queue").error(error);
-
-					// TODO: Retry failed Jobs
-					// TODO: Have Job say if it should be retried
+				// WorkerPool is full, pop it back on the Queue
+				if (!result) {
+					await Queue.pushRaw(payload);
 				}
 			}
 
@@ -63,37 +68,107 @@ export class Queue {
 		}
 	}
 
-	public static async dispatch(job: Job, delayUntil?: DateTime) {
-		const runAt = new Date(delayUntil?.toTime() ?? Date.now());
-		await Redis.zAdd("queue", runAt.getTime(), job.serialize());
+	public static async dispatch(job: Job) {
+		if (!job.hasDelay()) {
+			await this.push(job);
+		} else {
+			await this.later(job, job.delayUntil);
+		}
 
 		const {namespace} = Reflect.getMetadata("job", job.constructor);
 
-		Log.label("Queue").info(`Queued: ${namespace.split(":")[0]} (${runAt})`);
+		Log.label("Queue").info(`Queued: ${namespace}`);
 	}
+
+	/**
+	 * Push a Job onto the Queue so it can be processed.
+	 *
+	 * @param {Job} job
+	 * @returns {Promise<void>}
+	 */
+	public static push(job: Job) {
+		return this.pushRaw(job.serialize());
+	}
+
+	public static pushRaw(job: string) {
+		return Redis.lPush(Queue.queueName, job);
+	}
+
+	/**
+	 * Push a Job onto the Delayed Queue so it can be processed at a later time.
+	 *
+	 * @param {Job} job
+	 * @param {DateTime} delayUntil
+	 * @returns {Promise<void>}
+	 */
+	public static later(job: Job, delayUntil: DateTime) {
+		return this.laterRaw(job.serialize(), delayUntil);
+	}
+
+	public static laterRaw(job: string, delayUntil: DateTime) {
+		return Redis.zAdd(Queue.delayedQueueName, delayUntil.toTime(), job);
+	}
+
+	/*
+	 Private Functions
+	 */
 
 	private async registerCommands() {
-		// Allows us to get a limited number of items (limit) withing a range (min/max) whilst also removing them from Redis
-		// Command: popQueueWithLimit envuso-queue -inf Date.now() 5
-		// Return: string[] - Array of serialized Jobs
-		await Redis.getInstance().getClient()
-			.defineCommand("popQueueWithLimit", {
-				numberOfKeys : 1,
-				lua          : `local jobs = redis.call('zrangebyscore', KEYS[1], ARGV[1], ARGV[2], 'limit', 0, ARGV[3]) local jobCount = table.getn(jobs) if (jobCount > 0) then redis.call('zremrangebyrank', KEYS[1], 0, jobCount - 1) end return jobs`,
-			});
+		await Redis.getInstance().getClient().defineCommand('pop', LuaScripts.pop());
+		await Redis.getInstance().getClient().defineCommand('migrateQueue', LuaScripts.migrateQueue());
 	}
 
-	private async onWorkerFreed(worker: Worker) {
-		const jobsToRun = await Redis.getInstance().getClient()
-			.popQueueWithLimit("queue", "-inf", Date.now(), 1);
+	/**
+	 * Migrate Jobs from the Delayed Queue onto the Primary Queue
+	 *
+	 * @returns {Promise<string[]>}
+	 * @private
+	 */
+	private migrate(): Promise<string[]> {
+		return Redis.getInstance().getClient().migrateQueue(Queue.delayedQueueName, Queue.queueName, Date.now());
+	}
 
-		console.log(jobsToRun);
+	/**
+	 * Get the next x number of Jobs that are ready to be processed
+	 *
+	 * @param {number} capacity
+	 * @returns {Promise<string[]>}
+	 * @private
+	 */
+	private getNextJob(capacity: number = 1): Promise<string[]> {
+		return Redis.getInstance().getClient().pop(Queue.queueName, Queue.reservedQueueName, capacity);
+	}
 
-		if (jobsToRun.length === 1) {
-			// Bypass the checks done via WorkerPool.runTask as the Worker has indicated they're free and is requesting another Job.
-			worker.postMessage(jobsToRun[0]);
+	/*
+	 Worker Events
+	 */
+
+	private async onWorkerAvailable(worker: TaskWorker) {
+		const jobs = await this.getNextJob();
+
+		if (jobs.length === 1) {
+			// Have the Worker run another Job right away.
+			worker.runImmediate(jobs[0]);
 		} else {
-			WorkerPool.getInstance().freeWorker(worker);
+			// Mark the Worker as available so the Queue can use it on its next loop.
+			worker.free();
 		}
+	}
+
+	private async onWorkerSuccess(worker: TaskWorker, result: IWorkerResult) {
+		await Redis.lRemove(Queue.reservedQueueName, 1, worker.payload);
+	}
+
+	private async onWorkerFailed(worker: TaskWorker, result: IWorkerResult) {
+		// Remove the Job from the reserved Queue because it's not being processed anymore
+		await Redis.lRemove(Queue.reservedQueueName, 1, worker.payload);
+
+		// Don't push back into queue if the next attempt will just fail anyways
+		if (result.job.attempts > result.job.retries) {
+			return;
+		}
+
+		// FIXME: There is potential for this Job to be lost if something happens between the lRemove above and this zAdd
+		await Queue.pushRaw(worker.payload);
 	}
 }
