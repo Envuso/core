@@ -1,6 +1,6 @@
 //@ts-ignore
 import {defaultMetadataStorage} from "class-transformer/cjs/storage.js";
-import {MongoClient, MongoError} from "mongodb";
+import {MongoClient} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
@@ -12,7 +12,6 @@ import {Database} from "./Database";
 import {getInternallyExcluded} from "./InternalDecorators";
 import {ModelDecoratorMeta} from "./ModelDecorators";
 import {QueryBuilder} from "./Mongo/QueryBuilder";
-import {RedisClientInstance} from "./Redis/RedisClientInstance";
 import {SeedManager} from "./Seeder/SeedManager";
 import {ClassTransformer} from 'class-transformer';
 
@@ -31,7 +30,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		// Initiate the connection to redis and prep the client for usage
-		new RedisClientInstance(config.get<string, any>('Database.redis'));
+		// new RedisClientInstance(config.get<string, any>('Database.redis'));
 	}
 
 	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {
@@ -87,7 +86,5 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			}
 
 		}
-
-		await RedisClientInstance.shutdown();
 	}
 }

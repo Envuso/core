@@ -14,7 +14,7 @@ export class RedisSessionDriver implements SessionStorageDriver {
 	}
 
 	public writeSessionData(id: string, data: object): Promise<boolean> {
-		return Redis.getInstance().put(`session:${id}`, JSON.stringify(data));
+		return Redis.getInstance().set(`session:${id}`, JSON.stringify(data));
 	}
 
 }

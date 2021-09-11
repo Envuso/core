@@ -13,6 +13,21 @@ export interface EnvusoContract {
 	 * providers to the container and such.
 	 */
 	boot(withoutServiceProviders? : (new () => ServiceProvider)[]): Promise<void>;
+	boot(): Promise<void>;
+
+	/**
+	 * Boot the core App instance, bind any service
+	 * providers to the container and such.
+	 */
+	bootInWorker(): Promise<void>;
+
+	/**
+	 * We need to do the regular boot process, but with a different
+	 * subset of service providers
+	 *
+	 * @returns {Promise<void>}
+	 */
+	initiateForQueueWorker(config: object): Promise<void>;
 
 	/**
 	 * There is certain cases where we need to boot the framework, but not run the web server

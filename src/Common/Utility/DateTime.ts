@@ -70,7 +70,7 @@ export class DateTime implements DateTimeContract {
 			date = new this(date);
 		}
 
-		return this.now().get().diff(date.get(), 'seconds');
+		return Math.abs(this.now().get().diff(date.get(), "seconds"));
 	}
 
 	/**
@@ -80,11 +80,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInSeconds(date: DateJsOrDateTime) {
-		if (!(date instanceof DateTime)) {
-			date = new DateTime(date);
-		}
-
-		return this._date.diff(date.get(), 'seconds');
+		return DateTime.diffInSeconds(date);
 	}
 
 	/**
@@ -98,7 +94,7 @@ export class DateTime implements DateTimeContract {
 			date = new this(date);
 		}
 
-		return this.now().get().diff(date.get(), 'minutes');
+		return Math.abs(this.now().get().diff(date.get(), "minutes"));
 	}
 
 	/**
@@ -108,11 +104,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInMinutes(date: DateJsOrDateTime) {
-		if (!(date instanceof DateTime)) {
-			date = new DateTime(date);
-		}
-
-		return this._date.diff(date.get(), 'minutes');
+		return DateTime.diffInMinutes(date);
 	}
 
 	/**
@@ -126,7 +118,7 @@ export class DateTime implements DateTimeContract {
 			date = new this(date);
 		}
 
-		return this.now().get().diff(date.get(), 'hours');
+		return Math.abs(this.now().get().diff(date.get(), "hours"));
 	}
 
 	/**
@@ -136,11 +128,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInHours(date: DateJsOrDateTime) {
-		if (!(date instanceof DateTime)) {
-			date = new DateTime(date);
-		}
-
-		return this._date.diff(date.get(), 'hours');
+		return DateTime.diffInHours(date);
 	}
 
 	/**
@@ -154,7 +142,7 @@ export class DateTime implements DateTimeContract {
 			date = new this(date);
 		}
 
-		return this.now().get().diff(date.get(), 'days');
+		return Math.abs(this.now().get().diff(date.get(), "days"));
 	}
 
 	/**
@@ -164,11 +152,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInDays(date: DateJsOrDateTime) {
-		if (!(date instanceof DateTime)) {
-			date = new DateTime(date);
-		}
-
-		return this._date.diff(date.get(), 'days');
+		return DateTime.diffInDays(date);
 	}
 
 	/**

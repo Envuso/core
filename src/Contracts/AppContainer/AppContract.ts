@@ -1,6 +1,6 @@
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
-import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
 import {ServiceProvider} from "../../AppContainer";
+import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
 import {ExceptionHandlerConstructorContract} from "../Common/Exception/ExceptionHandlerContract";
 import {ConfigRepositoryContract} from "./Config/ConfigRepositoryContract";
 import {ServiceProviderContract} from "./ServiceProviderContract";
@@ -69,7 +69,7 @@ export interface AppContract {
 	/**
 	 * Will load all service providers from the app config
 	 */
-	loadServiceProviders(withoutServiceProviders? : (new () => ServiceProvider)[]): Promise<void>;
+	loadServiceProviders(withoutServiceProviders?: (new () => ServiceProvider)[], isForQueueWorker?: boolean): Promise<void>;
 
 	/**
 	 * Will run the "unload" method on all registered service providers

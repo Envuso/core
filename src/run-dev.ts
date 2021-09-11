@@ -1,19 +1,27 @@
 import "reflect-metadata";
-
 import path from "path";
 import Environment from "./AppContainer/Config/Environment";
 
 Environment.load(path.join(__dirname, "..", ".env"));
 
 import Configuration from "./Config/Configuration";
-import { Envuso } from "./Envuso";
-import { Log } from "./Common";
+import {Envuso} from "./Envuso";
+import {DateTime, Log} from "./Common";
+import {ImplementedJob} from "./Queue/ImplementedJob";
+import Redis from "./Redis/Redis";
 
 const envuso = new Envuso();
 
 Configuration.initiate()
 	.then(() => envuso.boot())
 	.then(() => envuso.serve())
+	.then(async () => {
+		//		new ImplementedJob(1).dispatch();
+
+		for (let i = 0; i < 10; i++) {
+			new ImplementedJob(1).dispatch();
+		}
+	})
 	.catch(error => Log.exception(error));
 
 //envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {

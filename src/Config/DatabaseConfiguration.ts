@@ -2,7 +2,6 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 import {
 	DatabaseConfiguration as DbConfig,
 	MongoConnectionConfiguration,
-	RedisConnectionConfiguration
 } from './../Contracts/Configuration/DatabaseConfigurationContracts';
 
 export default class DatabaseConfiguration extends ConfigurationCredentials implements DbConfig {
@@ -14,18 +13,6 @@ export default class DatabaseConfiguration extends ConfigurationCredentials impl
 			ssl            : false,
 			readPreference : "primaryPreferred",
 		}
-	};
-
-	redis: RedisConnectionConfiguration = {
-		/**
-		 * Set this to false to disable redis integration
-		 */
-		enabled : true,
-
-		prefix : 'envuso-',
-		//		db     : 'default',
-		host : '127.0.0.1',
-		port : 6379,
 	};
 
 	/**

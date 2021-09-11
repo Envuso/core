@@ -26,6 +26,28 @@ export class Envuso implements EnvusoContract {
 	public async boot(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
 		await this.initiateWithoutServing(withoutServiceProviders);
 	}
+	/**
+	 * Boot the core App instance, bind any service
+	 * providers to the container and such.
+	 */
+	public async bootInWorker() {
+		await this.initiateForQueueWorker();
+	}
+
+	/**
+	 * We need to do the regular boot process, but with a different
+	 * subset of service providers
+	 *
+	 * @returns {Promise<void>}
+	 */
+	public async initiateForQueueWorker() {
+		await App.bootInstance();
+		await App.getInstance().loadServiceProviders(true);
+
+		this._app = App.getInstance();
+
+		Log.success('Envuso is booted in worker!');
+	}
 
 	/**
 	 * There is certain cases where we need to boot the framework, but not run the web server
@@ -35,19 +57,9 @@ export class Envuso implements EnvusoContract {
 	 */
 	public async initiateWithoutServing(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
 		await App.bootInstance();
-
 		await App.getInstance().loadServiceProviders(withoutServiceProviders);
 
 		this._app = App.getInstance();
-
-		this.registerServerHooks(
-			BindRequestContextHook,
-			InitiateRequestContextHook,
-			ProcessUploadedFilesHook,
-			SetResponseCookiesHook,
-			SaveSessionHook,
-			// HandleErrorHook
-		);
 
 		Log.success('Envuso is booted!');
 	}
@@ -83,6 +95,16 @@ export class Envuso implements EnvusoContract {
 	 */
 	public async initialise() {
 		this._server = resolve<Server>(Server);
+
+		this.registerServerHooks(
+			BindRequestContextHook,
+			InitiateRequestContextHook,
+			ProcessUploadedFilesHook,
+			SetResponseCookiesHook,
+			SaveSessionHook,
+			// HandleErrorHook
+		);
+
 		await this._server.initialise();
 	}
 

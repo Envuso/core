@@ -153,18 +153,20 @@ export class App implements AppContract {
 	/**
 	 * Will load all service providers from the app config
 	 */
-	async loadServiceProviders(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
+	async loadServiceProviders(withoutServiceProviders: (new () => ServiceProvider)[] = [], isForQueueWorker: boolean = false) {
 		type Provider = (constructor<ServiceProvider>)
 		const configRepository = this.resolve(ConfigRepository);
 
-		const appConfig = configRepository.file<string, { providers: (new () => ServiceProvider)[] }>("App");
-
-		if (!appConfig) {
+		const serviceProviderList = configRepository.get<string, (new () => ServiceProvider)[]>(
+			isForQueueWorker ? 'queue.providers' : 'app.providers', null
+		);
+		if (!serviceProviderList) {
 			throw new Error('No service providers found.');
 		}
 
-		for (let providerClass of appConfig.providers) {
-			if(withoutServiceProviders.map(s => s.name).includes(providerClass.name)){
+
+		for (let providerClass of serviceProviderList) {
+			if (withoutServiceProviders.map(s => s.name).includes(providerClass.name)) {
 				continue;
 			}
 
@@ -182,9 +184,7 @@ export class App implements AppContract {
 		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
 
 		for (let provider of serviceProviders) {
-
 			await provider.boot(this, this.resolve(ConfigRepository));
-
 			if (config('app.logging.providers', false)) {
 				Log.info('Service provider booted: ' + provider.constructor.name);
 			}

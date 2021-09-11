@@ -76,11 +76,11 @@ export class FileLoader {
 		const moduleInstanceKey = Object.keys(module).shift() || null;
 
 		if (!moduleInstanceKey) {
-			throw new Error('There was an error loading the module from classAndNameFromModule path: ' + module);
+			throw new Error("There was an error loading the module from classAndNameFromModule path: " + module);
 		}
 
 		const instance = module[moduleInstanceKey];
-		const name     = instance.name;
+		const name = instance.name;
 
 		return {instance, name};
 	}
@@ -119,11 +119,12 @@ export class FileLoader {
 		if (!isTS)
 			pathInformation.base = pathInformation.base.replace(
 				`${pathInformation.name}.${extensions.forTsNode}`,
-				`${pathInformation.name}.${extensions.forNode}`
+				`${pathInformation.name}.${extensions.forNode}`,
 			);
 
-		if (!isTS && pathInformation.dir.includes('/src/')) {
-			pathInformation.dir = pathInformation.dir.replace('/src/', '/dist/');
+		if (!isTS && (pathInformation.dir.includes("/src/") || pathInformation.dir.includes("\\src\\"))) {
+			pathInformation.dir = pathInformation.dir.replace("/src/", "/dist/")
+			                                     .replace("\\src\\", "\\dist\\");
 		}
 
 		return path.format(pathInformation);
@@ -143,14 +144,17 @@ export class FileLoader {
 			try {
 				const module = await import(pathForEnv);
 
-				const {instance, name} = this.moduleInformation(module);
+				for (const key in module) {
+					const instance = module[key];
+					const name = instance.name;
 
-				modules.push({
-					instance          : instance,
-					name              : name,
-					originalPath      : path,
-					forRunEnvironment : pathForEnv
-				});
+					modules.push({
+						instance         : instance,
+						name             : name,
+						originalPath     : path,
+						forRunEnvironment: pathForEnv,
+					});
+				}
 			} catch (error) {
 				Log.error(error);
 			}
