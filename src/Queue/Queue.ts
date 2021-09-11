@@ -31,6 +31,7 @@ export class Queue {
 		WorkerPool.getInstance().on('worker:success', this.onWorkerSuccess.bind(this));
 		WorkerPool.getInstance().on('worker:failed', this.onWorkerFailed.bind(this));
 		WorkerPool.getInstance().on('worker:available', this.onWorkerAvailable.bind(this));
+		WorkerPool.getInstance().on('worker:error', this.onWorkerError.bind(this));
 	}
 
 	static getInstance() {
@@ -176,5 +177,13 @@ export class Queue {
 
 		// FIXME: There is potential for this Job to be lost if something happens between the lRemove above and this zAdd
 		await Queue.pushRaw(worker.payload);
+	}
+
+	private async onWorkerError(worker: TaskWorker, error: Error) {
+		if (!worker.payload) {
+			return;
+		}
+
+		await Redis.lRemove(Queue.reservedQueueName, 1, worker.payload);
 	}
 }
