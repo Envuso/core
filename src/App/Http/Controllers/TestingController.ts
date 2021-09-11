@@ -13,6 +13,7 @@ import {VerifyCsrfTokenMiddleware} from "../../../Routing/Middleware/Middlewares
 import {dto, query, body, user} from "../../../Routing/Route/RouteDecorators";
 import {session} from "../../../Session";
 import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
+import {Book} from "../../Models/Book";
 import {User} from "../../Models/User";
 import {UserSocketListener} from "../Sockets/UserSocketListener";
 
@@ -166,7 +167,7 @@ export class TestingController extends Controller {
 
 	@get('/auth/token')
 	async getToken() {
-		const user = await User.where({email : 'sam@iffdt.dev'}).first();
+		const user = await User.query().where({email : 'sam@iffdt.dev'}).first();
 
 		return user.generateToken();
 	}
@@ -184,19 +185,19 @@ export class TestingController extends Controller {
 
 	@get('/model/pagination')
 	async testPagination() {
-		return User.paginate(1);
+		return User.query().paginate(1);
 	}
 
 	@get('/model/pagination/filtered')
 	async testPaginationFiltered() {
-		return User.where({something : "randomtext"}).paginate(1);
+		return User.query().where({something : "randomtext"}).paginate(1);
 	}
 
 	@get()
 	async testQueryBuilderMethod() {
-		User.where({
-			something : 'el'
-		});
+//		User.where({
+//			something : 'el'
+//		});
 
 		User.findOne({
 			something : 'lel'
@@ -214,17 +215,17 @@ export class TestingController extends Controller {
 
 		User.find('lele', 'something');
 
-		User.orderByDesc('something');
+//		User.orderByDesc('something');
 
-		User.where({_id : new ObjectId('lel')}).orderByDesc('something');
+//		User.where({_id : new ObjectId('lel')}).orderByDesc('something');
 
-		User.orderByDesc('something');
+//		User.orderByDesc('something');
 
 		User.create({});
 
-		const users = await User.where({}).orderByAsc('something').get();
+//		const users = await User.where({}).orderByAsc('something').get();
 
-		const user = await User.where({}).first();
+//		const user = await User.where({}).first();
 
 	}
 

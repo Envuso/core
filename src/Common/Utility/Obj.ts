@@ -1,6 +1,4 @@
-import get from "lodash.get";
-import unset from "lodash.unset";
-import pick from "lodash.pick";
+import _ from 'lodash';
 
 export class Obj {
 
@@ -104,7 +102,7 @@ export class Obj {
 		if (key === undefined) {
 			return (obj === undefined ? _default : obj);
 		}
-		return get(obj, key) ?? _default;
+		return _.get(obj, key) ?? _default;
 	}
 
 	/**
@@ -115,7 +113,7 @@ export class Obj {
 	 * @return {Partial<T>}
 	 */
 	public static only<T extends object>(obj: T, keys: string[]): Partial<T> {
-		return pick(obj, keys);
+		return _.pick(obj, keys);
 	}
 
 	/**
@@ -161,7 +159,7 @@ export class Obj {
 			return obj;
 		}
 
-		unset(obj, key);
+		_.unset(obj, key);
 
 		return obj;
 	}
@@ -261,9 +259,10 @@ export class Obj {
 		return value && typeof value.constructor === "function" &&
 			Function.prototype.toString.call(value.constructor).replace(/\(.*\)/, "()")
 			=== Function.prototype.toString.call(/*native object*/Function)
-			            .replace("Function", "Promise") // replacing Identifier
-			            .replace(/\(.*\)/, "()"); // removing possible FormalParameterList
+				.replace("Function", "Promise") // replacing Identifier
+				.replace(/\(.*\)/, "()"); // removing possible FormalParameterList
 	}
+
 	/**
 	 * Create an array of the same object as many times as needed
 	 *
@@ -289,6 +288,20 @@ export class Obj {
 		}
 
 		return arr;
+	}
+
+	public static keyBy(obj: object, keyName: string) {
+		return _.keyBy(obj, keyName);
+	}
+
+	public static pluck<T>(obj: object, keyName: string): T[] {
+		const result = [];
+
+		Object.values(obj).forEach(value => {
+			result.push(_.get(value, keyName));
+		});
+
+		return result;
 	}
 
 }

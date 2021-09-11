@@ -1,3 +1,5 @@
+//@ts-ignore
+import {defaultMetadataStorage} from "class-transformer/cjs/storage.js";
 import {MongoClient, MongoError} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
@@ -5,8 +7,14 @@ import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {FileLoader} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
+import {Database} from "./Database";
+import {getInternallyExcluded} from "./InternalDecorators";
+import {ModelDecoratorMeta} from "./ModelDecorators";
+import {QueryBuilder} from "./Mongo/QueryBuilder";
 import {RedisClientInstance} from "./Redis/RedisClientInstance";
 import {SeedManager} from "./Seeder/SeedManager";
+import {ClassTransformer} from 'class-transformer';
 
 export class DatabaseServiceProvider extends ServiceProvider {
 
@@ -48,6 +56,22 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			const binding = {useValue : module.instance};
 			app.container().register(`Model:${module.name}`, binding);
 			app.container().register(`Model:${pluralize(module.name.toLowerCase())}`, binding);
+
+			/**
+			 * We get the properties defined on the model, excluding any marked with @internalExclude()
+			 * then load them into the container so they're available when we need them
+			 */
+			const modelInst    = new module.instance({fromContainer:true}, true);
+			const excludedKeys = Object.keys(getInternallyExcluded(module.instance.prototype as (new () => ModelContract<any>)));
+			const fields       = Object.getOwnPropertyNames(modelInst).filter(property => {
+				return !excludedKeys.includes(property);
+			});
+
+			app.container().register(`Model:Fields:${module.name}`, {useValue : fields});
+			app.container().register(`Model:QueryBuilder:${module.name}`, {
+				useFactory : () => new QueryBuilder(modelInst as any, collection)
+			});
+
 		}
 	}
 
@@ -57,7 +81,6 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		if (mongoClient) {
 			try {
 				await mongoClient.close(true);
-
 				console.log('Successfully closed mongo client connection.');
 			} catch (error) {
 				console.error('Failed to close mongo client connection', error);

@@ -1,22 +1,16 @@
-import {classToPlain, plainToClass, Transform} from "class-transformer";
+import {classToPlain, Exclude, plainToClass, Transform} from "class-transformer";
 import {ObjectId} from "mongodb";
-import pluralize from "pluralize";
-import {DecoratorHelpers} from "../Common";
-import {ClassType, Model, ModelObjectId, Nested, Ref} from "./index";
+import {Classes, DecoratorHelpers} from "../Common";
+import {ClassType, Model, ModelObjectId, Nested} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
 	HAS_MANY_RELATION        = 'envuso:model:relation:has-many',
 	BELONGS_TO_RELATION      = 'envuso:model:relation:belongs-to',
 	BELONGS_TO_MANY_RELATION = 'envuso:model:relation:belongs-to-many',
+	IGNORED_PROPERTY = 'envuso:model:fields:ignored',
 	MODEL_OBJECT_ID          = 'envuso:model-object-id',
 	AUTHORIZATION_POLICY_REF = 'envuso:authorization-policy',
-}
-
-function addRef(name: string, ref: Ref, target: any) {
-	const refs = Reflect.getMetadata('mongo:refs', target) || {};
-	refs[name] = ref;
-	Reflect.defineMetadata('mongo:refs', refs, target);
 }
 
 function isNotPrimitive(targetType: ClassType<any>, propertyKey: string) {
@@ -25,9 +19,11 @@ function isNotPrimitive(targetType: ClassType<any>, propertyKey: string) {
 	}
 }
 
+
 export function nested(typeFunction: any) {
 	return function (target: any, propertyKey: string) {
 		const targetType = Reflect.getMetadata('design:type', target, propertyKey);
+
 		isNotPrimitive(targetType, propertyKey);
 
 		Transform((val) => {
@@ -58,59 +54,34 @@ export function nested(typeFunction: any) {
 	};
 }
 
+/**
+ * Mark a model property as ignored
+ *
+ * If this added to a property, that property will never be persisted to the database.
+ *
+ * @param target
+ * @param propertyKey
+ */
 export function ignore(target: any, propertyKey: any) {
-	const ignores        = Reflect.getMetadata('mongo:ignore', target) || {};
-	ignores[propertyKey] = true;
-	Reflect.defineMetadata('mongo:ignore', ignores, target);
+	DecoratorHelpers.addToMetadataObject(
+		ModelDecoratorMeta.IGNORED_PROPERTY,
+		propertyKey,
+		true,
+		target
+	);
 }
 
-export function ref(modelReference: ClassType<any>) {
-	return function (target: any, propertyKey: string) {
-		const targetType = Reflect.getMetadata('design:type', target, propertyKey);
-		isNotPrimitive(targetType, propertyKey);
-
-		const isArray = targetType === Array;
-		const refId   = pluralize(pluralize(propertyKey, 1) + (isArray ? 'Ids' : 'Id'), isArray ? 2 : 1);
-
-		Reflect.defineMetadata('design:type', (isArray ? Array : ObjectId), target, refId);
-
-		const refInfo = {
-			_id                        : refId,
-			array                      : isArray,
-			modelName                  : modelReference.name,
-			aggregationLookupModelName : String(pluralize(modelReference.name, 2)).toLowerCase(),
-			aggregationUnwindModelName : String(pluralize(modelReference.name, isArray ? 2 : 1)).toLowerCase(),
-		};
-		addRef(propertyKey, refInfo, target);
-
-		Transform((val) => {
-			if (!val.value) {
-				return null;
-			}
-
-			if (targetType === Array) {
-				return val.value.map(v => plainToClass(modelReference, v));
-			}
-
-			return plainToClass(modelReference, val.value);
-		}, {toClassOnly : true})(target, propertyKey);
-
-		Transform((val) => {
-			if (!val.value) {
-				return null;
-			}
-			if (targetType === Array) {
-				return val.value.map(v => classToPlain(v));
-			}
-
-			return classToPlain(val.value);
-		}, {toPlainOnly : true})(target, propertyKey);
-
-	};
-}
-
+/**
+ * Define a model property as an array of mongo object ids
+ * When serializing;
+ * - This will convert it from a string array, to ObjectId array
+ * when de-serializing;
+ * - This will convert it from an ObjectId array, to string array
+ *
+ * @param target
+ * @param {string} propertyKey
+ */
 export function ids(target: any, propertyKey: string) {
-
 	isNotPrimitive(target, propertyKey);
 
 	DecoratorHelpers.pushToMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, [
@@ -124,6 +95,7 @@ export function ids(target: any, propertyKey: string) {
 
 		return val.value.map(v => new ObjectId(v));
 	}, {toClassOnly : true})(target, propertyKey);
+
 	Transform((val) => {
 		if (!val.value) {
 			return null;
@@ -146,8 +118,25 @@ export function id(target: any, propertyKey: string) {
 		{name : propertyKey} as ModelObjectId
 	], target);
 
-	Transform(({value}) => new ObjectId(value), {toClassOnly : true})(target, propertyKey);
-	Transform(({value}) => value.toString(), {toPlainOnly : true})(target, propertyKey);
+	Transform(({key, obj, value}) => {
+		const objId = obj[key];
+
+		if (objId instanceof ObjectId) {
+			return objId;
+		}
+
+		return new ObjectId(objId);
+	}, {toClassOnly : true})(target, propertyKey);
+
+	Transform(({obj, key, value,}) => {
+		const objId = obj[key];
+
+		if (objId === undefined || typeof objId === 'string') {
+			return objId;
+		}
+
+		return objId.toHexString();
+	}, {toPlainOnly : true})(target, propertyKey);
 }
 
 /**
@@ -167,3 +156,9 @@ export function policy(policy: ClassType<any>) {
 	};
 }
 
+export function getModelObjectIds<T>(target: any): ModelObjectId[] {
+	return DecoratorHelpers.get<ModelObjectId[]>(
+		!Classes.isInstantiated(target) ? new target() : target,
+		ModelDecoratorMeta.MODEL_OBJECT_ID
+	) || [];
+}

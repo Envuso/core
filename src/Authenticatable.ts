@@ -1,4 +1,4 @@
-import {classToPlainFromExist, Exclude} from "class-transformer";
+import {classToPlainFromExist} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {injectable} from "tsyringe";
 import {config, resolve} from "./AppContainer";
@@ -10,11 +10,12 @@ import {SocketChannelListenerContract} from "./Contracts/Sockets/SocketChannelLi
 import {Model} from "./Database/Mongo/Model";
 import {SocketEvents} from "./Sockets/SocketEvents";
 import {SocketServer} from "./Sockets/SocketServer";
+import {internalExclude} from "./Database/InternalDecorators";
 
 @injectable()
 export class Authenticatable<T> extends Model<T> implements AuthenticatableContract<T> {
 
-	@Exclude()
+	@internalExclude()
 	public _user: any;
 
 	public generateToken(additionalPayload?: any) {
@@ -41,9 +42,9 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 		if (this._user && (user instanceof Authenticatable) && user._user) {
 			user = user._user;
 		}
-//		if (user instanceof Authenticatable && !this._user) {
-//			user = user._user;
-//		}
+		//		if (user instanceof Authenticatable && !this._user) {
+		//			user = user._user;
+		//		}
 
 		Object.assign(this, user);
 		this._user = user;

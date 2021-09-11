@@ -11,7 +11,7 @@ export enum ModelRelationType {
 }
 
 type RelationDecoratorProperties = {
-	relatedModel: (new () => ModelContract<any>) | string;
+	relatedModel: string;
 	foreignKey: string;
 	localKey: string;
 }
@@ -20,7 +20,7 @@ export interface ModelRelationMeta {
 	// This is the property on the model that the relation
 	// data will be applied to when loaded.
 	propertyKey: string;
-	relatedModel: (new () => ModelContract<any>) | string,
+	relatedModel: string,
 	foreignKey?: string;
 	localKey?: string;
 	type: ModelRelationType;
@@ -62,7 +62,7 @@ function relationshipTypeForMetaKey(decoratorType: ModelDecoratorMeta): ModelRel
  */
 function relationDecorator(properties: IArguments, decoratorType: ModelDecoratorMeta) {
 	const decoratorProperties: RelationDecoratorProperties = {
-		relatedModel : properties[0],
+		relatedModel : Database.getModelCollectionName(properties[0]),
 		foreignKey   : properties[1],
 		localKey     : properties[2],
 	};

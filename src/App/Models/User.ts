@@ -1,4 +1,4 @@
-import {Exclude} from "class-transformer";
+import {Exclude, Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
 import {belongsTo, hasMany, hasOne, id, policy} from "../../Database";
@@ -17,29 +17,36 @@ export class User extends Authenticatable<User> {
 	//	@hasOne(Book, 'userId', '_id')
 	//	book?: Book;
 
-	@hasMany(Book, 'userId', '_id')
+	@hasMany('Book', 'userId', '_id')
 	books?: Book;
 
-	someCount: number = 1;
+	someCount: number;
 
 	email: string;
 
 	name: string = 'hello';
 
-	something: string = 'hello';
+	something: string;
+
+	nameTags: string[] = [];
+
+	tags: string[] = [];
 
 	orderValue: number;
 
 	@Exclude()
 	password: string;
 
-	@hasOne(Book, 'userId', '_id')
+	@hasOne('Book', 'userId', '_id')
 	hasOneBook: Book;
 
 	@id
 	bookId: ObjectId;
 
-	@belongsTo(Book, 'bookId', '_id')
+	@belongsTo('Book', 'bookId', '_id')
 	belongsToOneBook: Book;
 
+
+
 }
+

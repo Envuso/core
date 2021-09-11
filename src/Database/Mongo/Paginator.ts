@@ -1,7 +1,9 @@
-import {FilterQuery, ObjectId} from "mongodb";
+import {ObjectId} from "mongodb";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {RequestContextStore} from "../../Routing/Context/RequestContextStore";
+import {ModelAttributesFilter} from "../QueryBuilderTypes";
+import {QueryBuilderParts} from "./QueryBuilderParts";
 
 export type PageCursor = 'after' | 'before';
 
@@ -25,7 +27,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 
 	constructor(
 		public model: ModelContract<T>,
-		public query: FilterQuery<T> | Partial<T>,
+		public query: QueryBuilderParts<T>,
 		public limit: number
 	) {}
 
@@ -42,7 +44,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 
 
 		const results = await this.model.queryBuilder()
-			.where(this.query)
+			.where(this.query.getQuery())
 			.limit(this.limit)
 			.get();
 
@@ -61,7 +63,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 		if (!results?.length)
 			return this;
 
-		const total       = await this.model.queryBuilder().where(this.query).count();
+		const total       = await this.model.queryBuilder().where(this.query.getQuery()).count();
 		const hasNext     = (results.length === this.limit) && (total > results.length);
 		const hasPrevious = this.getAfterCursor() !== null;
 
@@ -113,7 +115,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 	 * @returns {null | {_id: {}}}
 	 * @private
 	 */
-	public setupQuery(): FilterQuery<T> | Partial<T> {
+	public setupQuery(): ModelAttributesFilter<T> {
 		let query = {
 			'_id' : {}
 		};
@@ -142,20 +144,18 @@ export class Paginator<T> implements PaginatorContract<T> {
 	 * @param query
 	 */
 	public mergeQuery(query: any): void {
-		if (this.query === null) {
-			this.query = {};
-		}
+		const thisQuery = this.query.getQuery();
 
-		let currentQueryId = (this.query as any)?._id;
+		let currentQueryId = thisQuery?._id;
 
 		if (currentQueryId) {
 			query = {...currentQueryId, ...query._id};
 		}
 
 		if (query._id)
-			(this.query as any)._id = query._id;
+			(thisQuery as any)._id = query._id;
 
-		this.query = {...this.query, ...query};
+		this.query = this.query.add(query);
 	}
 
 	/**

@@ -18,6 +18,6 @@ export class Book extends Model<Book> {
 	@id
 	userId: ObjectId;
 
-//	@belongsTo('User', 'userId', '_id')
+	@belongsTo('User', 'userId', '_id')
 	user: User;
 }

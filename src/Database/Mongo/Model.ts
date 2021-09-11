@@ -1,32 +1,23 @@
-import {config, resolve} from "../../AppContainer";
-import {classToPlainFromExist, Exclude} from "class-transformer";
+import {classToPlain, classToPlainFromExist, plainToClass} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
+import _ from 'lodash';
+import {Collection, Filter, FindOptions, ObjectId, OptionalId, UpdateOptions, UpdateResult,} from "mongodb";
 import pluralize from 'pluralize';
+import {config, resolve} from "../../AppContainer";
+import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
-import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {ModelProps} from "../index";
+import {Database} from "../index";
 import {ModelDecoratorMeta} from "../ModelDecorators";
-import {convertEntityObjectIds, dehydrateModel, getModelObjectIds, hydrateModel} from "../Serialization/Serializer";
+import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
+import {convertEntityObjectIds} from "../Serialization/Serializer";
+import {ModelHelpers} from "./ModelHelpers";
 import {QueryBuilder} from "./QueryBuilder";
-
 
 export class Model<M> implements ModelContract<M> {
 
-	/**
-	 * We'll store the result of the recent mongo request if there
-	 * is one. This way we always have access to it, and can return
-	 * generic true/false types of responses for some operations.
-	 */
-	@Exclude()
-	public _recentMongoResponse: any = null;
 
-	@Exclude()
-	public readonly _queryBuilder: QueryBuilder<M>;
-
-	constructor() {
-		this._queryBuilder = new QueryBuilder<M>(this);
+	constructor(attributes: Partial<M> = {}, isTemporary: boolean = false) {
 	}
 
 	/**
@@ -47,7 +38,15 @@ export class Model<M> implements ModelContract<M> {
 	 * Get the query builder instance
 	 */
 	public queryBuilder(): QueryBuilderContract<M> {
-		return this._queryBuilder;
+		return QueryBuilder.fromContainer<M>(this as any);
+	}
+
+	static query<T extends Model<any>>(this: new() => T): QueryBuilderContract<T> {
+		//		return instance(this).queryBuilder();
+		//		return new QueryBuilder<T>(tempInstance(this) as any);
+		//		return new this().queryBuilder();
+
+		return QueryBuilder.fromContainer<T>(this);
 	}
 
 	/**
@@ -62,76 +61,23 @@ export class Model<M> implements ModelContract<M> {
 			.with(...relations)
 			.first();
 
+		const relationAttributes = {};
+
 		for (let relation of relations) {
 			if (!result[relation]) {
 				continue;
 			}
 
-			(this as any)[relation] = result[relation];
+			if (!this.isAttribute(relation)) {
+				continue;
+			}
+
+			relationAttributes[relation as string] = result[relation];
 		}
+
+		this.assignAttributes(relationAttributes);
 
 		return this;
-	}
-
-	/**
-	 * Get an instance of query builder, similar to using collection.find()
-	 * But... our query builder returns a couple of helper methods, first(), get()
-	 *
-	 * This method proxies right through to the query builder.
-	 *
-	 * {@see QueryBuilder}
-	 *
-	 * @param attributes
-	 * @param key
-	 * @param value
-	 */
-	static where<T extends Model<any>>(this: new() => T, attributes: FilterQuery<T> | Partial<T>, key?: string, value?: any): QueryBuilderContract<T> {
-		return new this().queryBuilder().where<T>(attributes);
-	}
-
-	/**
-	 * Allows us to do a query for an item that exists in the array.
-	 * For example, we have documents with usernames, jane, bill, bob.
-	 *
-	 * We can do .whereIn('username', ['jane', 'bill'])
-	 *
-	 * {@see QueryBuilder}
-	 *
-	 * @param key
-	 * @param values
-	 */
-	whereIn<F extends (keyof M)>(key: F, values: M[F][]): QueryBuilderContract<M> {
-		return this.queryBuilder().whereIn(key, values);
-	}
-
-	static whereIn<T extends Model<any>, F extends (keyof T)>(
-		this: new() => T,
-		key: F,
-		values: T[F][]
-	): QueryBuilderContract<T> {
-		return new this().whereIn(key, values);
-	}
-
-	static query<T extends Model<any>>(
-		this: new() => T,
-	): QueryBuilderContract<T> {
-		return new this().queryBuilder();
-	}
-
-	static when<T extends Model<any>>(
-		this: new() => T,
-		condition: boolean | (() => boolean),
-		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilderContract<T> {
-		if (typeof condition === 'boolean' && !condition) {
-			return new this().queryBuilder();
-		}
-
-		if (typeof condition === 'function' && !condition()) {
-			return new this().queryBuilder();
-		}
-
-		return new this().queryBuilder().where<T>(attributes);
 	}
 
 	/**
@@ -139,13 +85,8 @@ export class Model<M> implements ModelContract<M> {
 	 *
 	 * @param query
 	 */
-	static async findOne<T extends Model<any>>(
-		this: new() => T,
-		query: FilterQuery<T | { _id: any }> = {}
-	): Promise<T | null> {
-		const model = await new this().collection().findOne<Object>(query as any);
-
-		return hydrateModel(model, this);
+	static async findOne<T extends Model<any>>(this: new() => T, query: Filter<T | { _id: any }> = {}): Promise<T | null> {
+		return await QueryBuilder.fromContainer<T>(this).where(query).first();
 	}
 
 	/**
@@ -154,30 +95,17 @@ export class Model<M> implements ModelContract<M> {
 	 */
 	static async get<T extends Model<any>>(
 		this: new() => T,
-		query?: FilterQuery<T | { _id: any }>,
-		options?: WithoutProjection<FindOneOptions<T>>
+		query?: ModelAttributesFilter<T | { _id: any }>,
+		options?: FindOptions<T>
 	): Promise<T[]> {
-		const cursor  = await new this().collection().find(query as any, options);
-		const results = await cursor.toArray();
-
-		return results.map(doc => hydrateModel(doc, this));
+		return await QueryBuilder.fromContainer<T>(this).where(query).get(options);
 	}
 
 	/**
 	 * Count all the documents in the collection
 	 */
 	public static async count(): Promise<number> {
-		return this.where({}).count();
-	}
-
-	/**
-	 * Paginate all data on the collection
-	 */
-	public static paginate<T extends Model<any>>(
-		this: new() => T,
-		limit: number = 20
-	): Promise<PaginatorContract<T>> {
-		return new this().queryBuilder().paginate(limit);
+		return this.query().where({}).count();
 	}
 
 	/**
@@ -186,62 +114,28 @@ export class Model<M> implements ModelContract<M> {
 	 * @param key
 	 * @param field
 	 */
-	static find<T extends Model<any>>(
-		this: new() => T,
-		key: string | ObjectId,
-		field: keyof T | '_id' = '_id'
-	): Promise<T> {
-		const objectId = getModelObjectIds(new this()).find(f => f.name === field);
+	static find<T extends Model<any>>(this: new() => T, key: string | ObjectId, field: keyof T | '_id' = '_id'): Promise<T> {
+		return QueryBuilder.fromContainer<T>(this).where({[field] : key}).first();
+	}
 
-		if (objectId !== undefined) {
-			key = new ObjectId(key);
+	/**
+	 * Create a new instance of this model from the specified attributes
+	 *
+	 * This will not be persisted to the database unless {@see save()} is called
+	 *
+	 * @param {Partial<T> | T} attributes
+	 * @returns {T}
+	 */
+	static make<T extends Model<any>>(this: new () => T, attributes: Partial<T> | T): T {
+		if (!(_.isPlainObject(attributes)) && (attributes instanceof Model)) {
+			attributes = attributes.getAttributes();
 		}
 
-		return new this().queryBuilder()
-			.where<T>({[field] : key})
-			.first();
-	}
+		let model = new this();
+		model     = model.hydrate(attributes);
+		model.assignAttributes(attributes, true);
 
-	/**
-	 * Basically an alias of the {@see QueryBuilder.orderByDesc()}
-	 * that allows us to order and call get() or first()
-	 *
-	 * @param key
-	 */
-	static orderByDesc<T extends Model<any>>(
-		this: new() => T,
-		key: keyof T
-	): QueryBuilderContract<T> {
-		return new QueryBuilder<T>(new this()).orderByDesc(key);
-	}
-
-	/**
-	 * Basically an alias of the {@see QueryBuilder.orderByAsc()}
-	 * that allows us to order and call get() or first()
-	 *
-	 * @param key
-	 */
-	static orderByAsc<T extends Model<any>>(
-		this: new() => T,
-		key: keyof T
-	): QueryBuilderContract<T> {
-		return new QueryBuilder<T>(new this()).orderByAsc(key);
-	}
-
-	/**
-	 * Sometimes we just want a simple way to check if
-	 * a document exists with the specified fields
-	 *
-	 * @param {FilterQuery<T>} query
-	 * @returns {Promise<boolean>}
-	 */
-	static async exists<T extends Model<any>>(
-		this: new() => T,
-		query: FilterQuery<T>
-	) {
-		const result = await new this().collection().findOne(query);
-
-		return !!result;
+		return model;
 	}
 
 	/**
@@ -249,21 +143,24 @@ export class Model<M> implements ModelContract<M> {
 	 *
 	 * @param {Partial<M>} attributes
 	 */
-	static async create<T extends Model<any>>(
-		this: new() => T,
-		attributes: Partial<T>
-	): Promise<T> {
-		const collection = new this().collection();
+	static async create<T extends Model<any>>(this: new () => T, attributes: Partial<T>): Promise<T> {
+		let model = new this();
+		model     = model.hydrate(attributes);
 
-		const createdEntIty = await collection.insertOne(
-			dehydrateModel(hydrateModel(attributes, this))
+		return model.hydrate(
+			await model.queryBuilder().create(model.dehydrate())
 		);
 
-		const newEntity = await collection.findOne({
-			_id : createdEntIty.insertedId
-		});
-
-		return hydrateModel(newEntity, this);
+		//const collection = model.collection();
+		//
+		//const createdEntIty = await collection.insertOne(
+		//	//dehydrateModel(hydrateModel(attributes, this))
+		//	ModelHelpers.convertObjectIdsInAttributes(model, model.dehydrate())
+		//);
+		//
+		//return model.hydrate(
+		//	await collection.findOne({_id : createdEntIty.insertedId})
+		//);
 	}
 
 	/**
@@ -272,65 +169,22 @@ export class Model<M> implements ModelContract<M> {
 	 * @param attributes
 	 * @param options
 	 */
-	public async update(
-		attributes: UpdateQuery<M> | Partial<M>,
-		options: ReplaceOneOptions = {}
-	): Promise<M> {
-		//		const plain = dehydrateModel({...this, ...attributes});
+	public async update(attributes: ModelAttributesUpdateFilter<M>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult> {
 
-		const attributeChecks = attributes as UpdateQuery<M>;
+		const updated = await this.queryBuilder()
+			.where({_id : this.getModelId()})
+			.update(attributes);
 
-		// Update queries in mongo require atomic operators...
-		// We'll check if any of the mongo atomic operators are defined
-		// in the update query... if so, then we'll manually call $set
-		// This will allow us to use both kinds of updates
-
-		let usesAtomicOperator = false;
-		for (let key of Object.keys(attributeChecks)) {
-			if (this.getMongoAtomicOperators().includes(key)) {
-				usesAtomicOperator = true;
-				break;
-			}
-		}
-
-		if (!usesAtomicOperator) {
-			// We want to iterate over the attributes to actually ensure they're a property
-			// of our model. Without this, random properties can be saved onto our document.
-			const attributesToSet = {};
-			for (let attributesKey in attributes) {
-				if (this[attributesKey] === undefined) {
-					continue;
-				}
-				attributesToSet[attributesKey] = attributes[attributesKey];
-			}
-
-			//@ts-ignore - some silly type issue i cba to figure out rn
-			attributes = {$set : attributesToSet};
-		}
-
-		await this.collection().updateOne({
-			'_id' : (this as any)._id
-		}, attributes, options);
+		const keys = Object.keys(attributes);
 
 		const updatedModel = await this.queryBuilder()
 			.where({_id : this.getModelId()})
+			.selectFields(...keys)
 			.first();
 
-		Object.assign(this, updatedModel);
+		this.assignUpdatedAttributes(_.pick(updatedModel, keys), keys, true);
 
-		return updatedModel;
-
-		// await this.collection().replaceOne({
-		// 	_id : (this as any)._id
-		// }, plain as any, options);
-
-		// for (let attributesKey in attributes) {
-		// 	(this as any)[attributesKey] = attributes[attributesKey];
-		// }
-
-		// await this.refresh();
-
-		//		return this;
+		return updated;
 	}
 
 	/**
@@ -347,22 +201,24 @@ export class Model<M> implements ModelContract<M> {
 		//If the model hasn't been persisted to the db yet... we'll
 		//dehydrate it, insert it to the db, then add the id to the model
 		if (this.isFresh()) {
-			const plain = dehydrateModel(this);
+			const plain = this.dehydrateForQuery();
 
-			const res = await this.collection().insertOne(plain as any);
+			const res = await this.collection().insertOne(plain);
 
 			(this as any)._id  = res.insertedId;
 			(plain as any)._id = res.insertedId;
 
-			const modelObjectIds = convertEntityObjectIds(this, plain);
-			for (let modelObjectIdsKey in modelObjectIds) {
-				this[modelObjectIdsKey] = modelObjectIds[modelObjectIdsKey];
-			}
+			//			const modelObjectIds = convertEntityObjectIds(this, plain);
+			//			for (let modelObjectIdsKey in modelObjectIds) {
+			//				this[modelObjectIdsKey] = modelObjectIds[modelObjectIdsKey];
+			//			}
+
+			this.assignAttributes(plain as Partial<M>);
 
 			return;
 		}
 
-		await this.update(dehydrateModel(this as any));
+		await this.update(this.dehydrate());
 
 		return this;
 	}
@@ -372,7 +228,7 @@ export class Model<M> implements ModelContract<M> {
 	 * @returns {boolean}
 	 */
 	public isFresh(): boolean {
-		return this.getModelId() === undefined;
+		return (this as any)._id === undefined;
 	}
 
 	/**
@@ -381,7 +237,7 @@ export class Model<M> implements ModelContract<M> {
 	 * @returns {ObjectId}
 	 */
 	public getModelId(): ObjectId {
-		return (this as any)?._id;
+		return new ObjectId((this as any)?._id);
 	}
 
 	/**
@@ -389,11 +245,10 @@ export class Model<M> implements ModelContract<M> {
 	 */
 	public async refresh(): Promise<this> {
 		const newVersion = await this.queryBuilder()
-			.where({_id : (this as any)._id})
+			.where({_id : this.getModelId()})
 			.first();
 
-		//		Object.keys(newVersion).forEach(key => this[key] = newVersion[key]);
-		Object.assign(this, newVersion);
+		this.assignAttributes(newVersion);
 
 		return this;
 	}
@@ -402,9 +257,9 @@ export class Model<M> implements ModelContract<M> {
 	 * Delete the current model instance from the collection
 	 */
 	public async delete(): Promise<boolean> {
-		const response = await this.collection().deleteOne({_id : (this as any)._id});
+		const response = await this.collection().deleteOne({_id : this.getModelId()});
 
-		return !!response.result.ok;
+		return !!response.acknowledged;
 	}
 
 	/**
@@ -427,34 +282,20 @@ export class Model<M> implements ModelContract<M> {
 	 * @param {T[] | Partial<T>[]} models
 	 * @returns {Promise<{success: boolean, ids: ObjectId[]}>}
 	 */
-	public static async insertMany<T extends Model<any>>(
-		this: new() => T,
-		models: T[] | Partial<T>[]
-	): Promise<{ success: boolean, ids: ObjectId[] }> {
-		const formattedModels = models.map(model => {
-			if (!(model instanceof this)) {
-				model = hydrateModel(model, this);
-			}
-
-			return dehydrateModel(model);
-		});
-
-		const result = await new this().collection().insertMany(formattedModels);
-
-		const wasSuccessful = result.result.ok && (result.result.n === formattedModels.length);
-
-		return {
-			success : wasSuccessful,
-			ids     : Object.values(result.insertedIds),
-		};
+	public static async insertMany<T extends Model<any>>(this: new() => T, models: T[] | Partial<T>[]): Promise<{ success: boolean, ids: ObjectId[] }> {
+		return QueryBuilder.fromContainer<T>(this).insertMany(models);
 	}
 
-	public mongoResponse(): any {
-		return this._recentMongoResponse;
-	}
-
-	public setMongoResponse(response: any): any {
-		this._recentMongoResponse = response;
+	/**
+	 * This method just calls {@see insertMany}
+	 * I find it's nice to just have different naming
+	 * Sometimes our brains go for insertMany, sometimes createMany.
+	 *
+	 * @param {T[] | Partial<T>[]} models
+	 * @returns {Promise<{success: boolean, ids: ObjectId[]}>}
+	 */
+	public static createMany<T extends Model<any>>(this: new() => T, models: T[] | Partial<T>[]): Promise<{ success: boolean, ids: ObjectId[] }> {
+		return QueryBuilder.fromContainer<T>(this).insertMany(models);
 	}
 
 	/**
@@ -464,8 +305,130 @@ export class Model<M> implements ModelContract<M> {
 		return Model.formatNameForCollection(this.constructor.name, many);
 	}
 
-	static formatNameForCollection(str: string, many: boolean = false) {
-		return String(pluralize(str, many ? 2 : 1)).toLowerCase();
+	public getAttributes(): Partial<M> {
+		const fields = this.getModelFields();
+
+		const attributes = {};
+
+		for (let field of fields) {
+			attributes[field] = this[field];
+		}
+
+		return attributes;
+	}
+
+	public isAttribute(key: SingleModelProp<M>): boolean {
+		return this.getModelFields().includes(key as string);
+	}
+
+	public assignUpdatedAttributes(attributes: Partial<M>, updatedKeys: string[], ignoreFieldChecks: boolean = false): void {
+		const fields = this.getModelFields();
+
+		attributes = ModelHelpers.convertObjectIdsInAttributes(this, attributes);
+
+		for (let attributeKey in attributes) {
+			const key = attributeKey as string;
+
+			if (!updatedKeys.includes(key)) {
+				Log.warn(`Key does not exist in updated keys: ${updatedKeys} - attributes: ${attributes}`);
+				continue;
+			}
+
+			if (!ignoreFieldChecks) {
+				if (!fields.includes(key)) {
+					Log.label('Model->assignAttributes').warn('Trying to assign a key which doesnt exist in model fields. This property will be skipped.');
+					Log.label('Model->assignAttributes').warn(`Key: ${key}, Model: ${this.constructor.name}, Available fields: ${fields}`);
+
+					continue;
+				}
+			}
+
+			this[key] = attributes[key];
+		}
+	}
+
+	public assignAttributes(attributes: Partial<M>, ignoreFieldChecks: boolean = false): void {
+		const fields = this.getModelFields();
+
+		attributes = ModelHelpers.convertObjectIdsInAttributes(this, attributes);
+
+		for (let attributeKey in attributes) {
+			const key = attributeKey as string;
+
+			if (!ignoreFieldChecks) {
+				if (!fields.includes(key)) {
+					Log.label('Model->assignAttributes').warn('Trying to assign a key which doesnt exist in model fields. This property will be skipped.');
+					Log.label('Model->assignAttributes').warn(`Key: ${key}, Model: ${this.constructor.name}, Available fields: ${fields}`);
+
+					continue;
+				}
+			}
+
+			this[key] = attributes[key];
+		}
+	}
+
+	public hydrate(attributes: Partial<M>): M {
+		// Reeeeeeeee.....
+		return (this.constructor as any).hydrate(attributes) as unknown as M;
+	}
+
+	public static hydrate<T extends Model<any>>(this: new() => T, attributes: Partial<T>) {
+		return plainToClass<T, Object>(this, attributes, {
+			ignoreDecorators  : true,
+			exposeUnsetFields : false,
+		});
+	}
+
+	public static hydrateUsing<T extends Model<any>>(model: new() => T, attributes: Partial<T>) {
+		return plainToClass<T, Object>(model, attributes, {
+			ignoreDecorators  : true,
+			exposeUnsetFields : false,
+		});
+	}
+
+	public dehydrateForQuery(): OptionalId<M> {
+		// Also Reeeeeeeee.....
+		return (this.constructor as any).dehydrate(this) as any;
+	}
+
+	public dehydrate(): object {
+		// Also more Reeeeeeeee.....
+		return (this.constructor as any).dehydrate(this) as any;
+	}
+
+	public static dehydrate<T extends Model<any>>(this: new() => T, model: T): object {
+		if (!model)
+			return model;
+
+		const plain: any = classToPlain(model, {
+			enableCircularCheck : true,
+			excludePrefixes     : ['_'],
+			ignoreDecorators    : true
+		});
+
+		// const nested = Reflect.getMetadata('mongo:nested', model) || [];
+		// for (let {name, array} of nested) {
+		// 	if (plain[name]) {
+		// 		if (!array) {
+		// 			plain[name] = (this as new () => Model<any>).dehydrateModel(plain[name]);
+		// 		} else {
+		// 			plain[name] = plain[name].map((e: any) => dehydrateModel(e));
+		// 		}
+		// 	}
+		// }
+
+		const ignores = Reflect.getMetadata(ModelDecoratorMeta.IGNORED_PROPERTY, model) || {};
+		for (const name in ignores) {
+			delete plain[name];
+		}
+
+		const modelObjectIds = convertEntityObjectIds(model, plain);
+		for (let modelObjectIdsKey in modelObjectIds) {
+			plain[modelObjectIdsKey] = modelObjectIds[modelObjectIdsKey];
+		}
+
+		return plain;
 	}
 
 	/**
@@ -484,27 +447,11 @@ export class Model<M> implements ModelContract<M> {
 	}
 
 	public toBSON() {
-		return dehydrateModel(this);
+		return this.dehydrate();
 	}
 
-	public getMongoAtomicOperators() {
-		return [
-			"$currentDate",
-			"$inc",
-			"$min",
-			"$max",
-			"$mul",
-			"$rename",
-			"$set",
-			"$setOnInsert",
-			"$unset",
-			"$addToSet",
-			"$pop",
-			"$pull",
-			"$push",
-			"$pullAll",
-			"$bit",
-		];
+	static formatNameForCollection(str: string, many: boolean = false) {
+		return String(pluralize(str, many ? 2 : 1)).toLowerCase();
 	}
 
 	/**
@@ -518,6 +465,13 @@ export class Model<M> implements ModelContract<M> {
 		return (Reflect.getMetadata(metaKey, this) ?? _default) as T;
 	}
 
+	public getModelFields(): string[] {
+		return Database.getModelFieldsFromContainer(this.constructor.name);
+	}
+
 }
 
+function getCollection<T extends Model<any>>(model: new() => T): Collection<T> {
+	return resolve<Collection<T>>(this.name + 'ModelCollection');
+}
 

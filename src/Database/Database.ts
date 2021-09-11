@@ -16,14 +16,22 @@ export class Database {
 	 * @param {{new(): ModelContract<any>} | string} modelOrName
 	 * @returns {Promise<any>}
 	 */
-	public static dropCollection(modelOrName: (new () => ModelContract<any>) | string): Promise<any> {
+	public static async dropCollection(modelOrName: (new () => ModelContract<any>) | string): Promise<any> {
 		const collection = this.getModelCollectionFromContainer(modelOrName);
 
 		if (!collection) {
 			return;
 		}
 
-		return collection.drop();
+		try {
+			await collection.drop();
+		} catch (error) {
+			if (error?.codeName === 'NamespaceNotFound') {
+				Log.info('Collection not dropped. It doesnt exist.');
+			} else {
+				throw error;
+			}
+		}
 	}
 
 	/**
@@ -61,6 +69,19 @@ export class Database {
 	}
 
 	/**
+	 * This uses the constructor name of your model.
+	 *
+	 * For a model defined as "Users", the key will be "Users".
+	 *
+	 * @param {string} key
+	 *
+	 * @returns {string[]}
+	 */
+	public static getModelFieldsFromContainer(key: string): string[] {
+		return app().resolve<string[]>(`Model:Fields:${key}`);
+	}
+
+	/**
 	 * Get the mongo db driver collection instance for a model instance or by name
 	 *
 	 * @param {{new(): ModelContract<T>} | string} key
@@ -75,5 +96,6 @@ export class Database {
 
 		return new modelInst().collection();
 	}
+
 
 }

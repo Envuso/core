@@ -1,4 +1,4 @@
-import {App} from "../AppContainer";
+import {App, ServiceProvider} from "../AppContainer";
 import {Server} from "../Server/Server";
 import {ErrorHandlerFn} from "./Server/ServerContract";
 import {HookContract} from "./Server/ServerHooks/HookContract";
@@ -12,16 +12,16 @@ export interface EnvusoContract {
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	boot(config: object): Promise<void>;
+	boot(withoutServiceProviders? : (new () => ServiceProvider)[]): Promise<void>;
 
 	/**
 	 * There is certain cases where we need to boot the framework, but not run the web server
 	 * Instead of calling prepare(), we can call this method
 	 *
-	 * @param {object} config
 	 * @returns {Promise<void>}
+	 * @param withoutServiceProviders
 	 */
-	initiateWithoutServing(config: object): Promise<void>;
+	initiateWithoutServing(withoutServiceProviders? : (new () => ServiceProvider)[]): Promise<void>;
 
 	/**
 	 * Register core server extensions, envuso's hooks are basically wrappers around fastify hooks

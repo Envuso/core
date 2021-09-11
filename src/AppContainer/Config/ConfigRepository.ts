@@ -1,6 +1,4 @@
-import has from "lodash.has";
-import set from "lodash.set";
-import get from "lodash.get";
+import _ from 'lodash';
 import {injectable} from "tsyringe";
 import {ConfigRepositoryContract} from "../../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {ConfigFile} from "./ConfigurationFile";
@@ -52,7 +50,7 @@ export class ConfigRepository implements ConfigRepositoryContract {
 			key = key.toLowerCase() as T;
 		}
 
-		return get(this._config, key) ?? _default;
+		return _.get(this._config, key) ?? _default;
 	}
 
 	/**
@@ -73,7 +71,7 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 * @param value
 	 */
 	public set(key: string, value: any) {
-		set(this._config, key, value);
+		_.set(this._config, key, value);
 	}
 
 	/**
@@ -107,7 +105,7 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 * @param key
 	 */
 	public has(key: string): boolean {
-		return has(this._config, key);
+		return _.has(this._config, key);
 	}
 
 	public reset() {

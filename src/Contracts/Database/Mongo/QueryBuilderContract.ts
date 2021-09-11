@@ -1,7 +1,22 @@
-import {Cursor, FilterQuery, UpdateManyOptions, UpdateQuery, UpdateWriteOpResult} from "mongodb";
-import {ModelProps, ModelRelationMeta, ModelRelationType, QueryOperator, SingleModelProp} from "../../../Database";
+import {
+	AggregationCursor,
+	BulkWriteResult,
+	Collection,
+	DeleteResult,
+	FindCursor,
+	FindOptions,
+	ObjectId,
+	UpdateFilter,
+	UpdateOptions,
+	UpdateResult
+} from "mongodb";
+import {ModelDecoratorMeta, ModelRelationMeta, ModelRelationType, QueryOperator, QueryResolveType} from "../../../Database";
+import {QueryAggregation} from "../../../Database/Mongo/QueryAggregation";
+import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
+import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
 import {ModelContract} from "./ModelContract";
 import {PaginatorContract} from "./PaginatorContract";
+
 
 export interface CollectionOrder {
 	direction: 1 | -1,
@@ -12,13 +27,20 @@ export interface CollectionOrder {
  * @template T
  */
 export interface QueryBuilderContract<T> {
-	_builderResult: Cursor<T>;
+
+	_collection: Collection<T>;
+	_builderResult: FindCursor<T> | AggregationCursor<T>;
 	_model: ModelContract<T>;
-	_collectionFilter: object;
-	_collectionAggregation: object[];
 	_collectionOrder: CollectionOrder | null;
 	_limit: number;
-	readonly collectionFilter: Object;
+	_projection: object;
+	_filter: QueryBuilderParts<T>;
+	_hasOneRelations: ModelRelationMeta[];
+	_hasManyRelations: ModelRelationMeta[];
+	_belongsToRelations: ModelRelationMeta[];
+	_belongsToManyRelations: ModelRelationMeta[];
+
+	_aggregation: QueryAggregation<T>;
 
 	/**
 	 * Similar to using collection.find()
@@ -28,7 +50,7 @@ export interface QueryBuilderContract<T> {
 	 * @param key
 	 * @param value
 	 */
-	where<M>(key: SingleModelProp<T>, value: any): QueryBuilderContract<T>;
+	where(key: SingleModelProp<T>, value: any): QueryBuilderContract<T>;
 
 	/**
 	 * Similar to using collection.find()
@@ -40,7 +62,7 @@ export interface QueryBuilderContract<T> {
 	 * @param operator
 	 * @param value
 	 */
-	where<M>(key: SingleModelProp<T>, operator: QueryOperator, value: any): QueryBuilderContract<T>;
+	where(key: SingleModelProp<T>, operator: QueryOperator, value: any): QueryBuilderContract<T>;
 
 	/**
 	 * Similar to using collection.find()
@@ -49,15 +71,17 @@ export interface QueryBuilderContract<T> {
 	 *
 	 * @param attributes
 	 */
-	where<M>(attributes: FilterQuery<M | T> | Partial<M | T>): QueryBuilderContract<T>;
+	where(attributes: ModelAttributesFilter<T>): QueryBuilderContract<T>;
 
 	/**
 	 * Similar to using collection.find()
 	 * Handles all of the above overloads
 	 *
 	 * @param attributes
+	 * @param operator
+	 * @param value
 	 */
-	where<M>(attributes: (FilterQuery<M | T> | Partial<M | T>) | SingleModelProp<T>, operator?: QueryOperator, value?: any): QueryBuilderContract<T>;
+	where(attributes: (ModelAttributesFilter<T>) | SingleModelProp<T>, operator?: QueryOperator, value?: any): QueryBuilderContract<T>;
 
 	/**
 	 * Imagine we have users like
@@ -73,9 +97,7 @@ export interface QueryBuilderContract<T> {
 	 * @param key
 	 * @param values
 	 */
-	whereIn<F extends (keyof T)>(
-		key: F, values: T[F][]
-	): QueryBuilderContract<T>;
+	whereIn<F extends (keyof T)>(key: F, values: T[F][]): QueryBuilderContract<T>;
 
 	/**
 	 * Imagine if we have some book documents like:
@@ -102,30 +124,10 @@ export interface QueryBuilderContract<T> {
 	 * @template T
 	 * @template M
 	 * @param {boolean | (() => boolean)} condition
-	 * @param {FilterQuery<M | T> | Partial<M | T>} attributes
+	 * @param {ModelAttributesFilter<T} attributes
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	when<M>(
-		condition: boolean | (() => boolean),
-		attributes: FilterQuery<M | T> | Partial<M | T>
-	): QueryBuilderContract<T>;
-
-	/**
-	 * Check if a property on the model is part of a relationship
-	 *
-	 * @param {string} key
-	 * @param {ModelRelationType} type
-	 * @returns {boolean}
-	 */
-	isRelation(key: string, type?: ModelRelationType): boolean;
-
-	/**
-	 * Get an object of all relations on this model as an object
-	 * Key is the relation property, value is the meta registered
-	 *
-	 * @returns {ModelRelationMeta[]}
-	 */
-	relations(): { [key: string]: ModelRelationMeta };
+	when(condition: boolean | (() => boolean), attributes: ModelAttributesFilter<T>): QueryBuilderContract<T>;
 
 	/**
 	 * Allows us to specify any model relations to load on this query
@@ -143,7 +145,7 @@ export interface QueryBuilderContract<T> {
 	 * @param {boolean} existState
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	exists(key: SingleModelProp<T>|string, existState?: boolean): QueryBuilderContract<T>;
+	exists(key: SingleModelProp<T>, existState?: boolean): QueryBuilderContract<T>;
 
 	/**
 	 * Uses {@see exists}
@@ -152,11 +154,20 @@ export interface QueryBuilderContract<T> {
 	 * @param {SingleModelProp<T>} key
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	doesntExist(key: SingleModelProp<T>|string): QueryBuilderContract<T>;
+	doesntExist(key: SingleModelProp<T>): QueryBuilderContract<T>;
+
+	/**
+	 * Limit the results of the collection
+	 *
+	 * @param {number} limit
+	 * @returns {this<T>}
+	 */
+	limit(limit: number): QueryBuilderContract<T>;
 
 	/**
 	 * Allows us to specify an order of descending, which is applied to the cursor
 	 *
+	 * @template T
 	 * @param key
 	 */
 	orderByDesc(key: keyof T | string): this;
@@ -164,53 +175,94 @@ export interface QueryBuilderContract<T> {
 	/**
 	 * Allows us to specify an order of ascending, which is applied to the cursor
 	 *
+	 * @template T
 	 * @param key
 	 */
 	orderByAsc(key: keyof T | string): this;
 
 	/**
-	 * Get the first result in the mongo Cursor
+	 * Mark the fields which should only be returned in the result
+	 *
+	 * Note: How _id fields work in these queries can be strange, I don't fully
+	 * understand it my self. Be sure to read the mongo docs if you're facing weird issues.
+	 *
+	 * @see https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/
+	 *
+	 * @template T
+	 * @param {string} fields
+	 * @returns {QueryBuilderContract<T>}
 	 */
-	first(): Promise<T>;
+	selectFields(...fields: string[]): QueryBuilderContract<T>;
 
 	/**
-	 * Get all items from the collection that match the query
+	 * Mark the fields which should excluded from the result
+	 *
+	 * Note: How _id fields work in these queries can be strange, I don't fully
+	 * understand it my self. Be sure to read the mongo docs if you're facing weird issues.
+	 *
+	 * @see https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/
+	 *
+	 * @template T
+	 * @param {string} fields
+	 * @returns {QueryBuilderContract<T>}
 	 */
-	get(): Promise<T[]>;
+	excludeFields(...fields: string[]): QueryBuilderContract<T>;
+
+	/**
+	 * Mark the specified fields in the projection as included or excluded
+	 *
+	 * Note: How _id fields work in these queries can be strange, I don't fully
+	 * understand it my self. Be sure to read the mongo docs if you're facing weird issues.
+	 *
+	 * @see https://docs.mongodb.com/manual/tutorial/project-fields-from-query-results/
+	 *
+	 * @template T
+	 * @param {string[]} fields
+	 * @param {boolean} projection
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	setFieldProjection(fields: string[], projection: boolean): QueryBuilderContract<T>;
+
+	parseAttributesForUpdateQuery(definedAttributes: ModelAttributesUpdateFilter<T>): UpdateFilter<T>;
 
 	/**
 	 * Update many items in the collection, will use the filter specified by .where()
 	 * You can specify {returnMongoResponse : true} in the options to return the mongo result
 	 * of this operation, otherwise, this method will return true/false if it succeeded or failed.
 	 *
+	 * @template T
 	 * @param attributes
 	 * @param options
 	 * @return boolean | UpdateWriteOpResult
 	 */
-	update(
-		attributes: UpdateQuery<T> | Partial<T>,
-		options?: UpdateManyOptions & { returnMongoResponse: boolean }
-	): Promise<boolean | UpdateWriteOpResult>;
+	update(attributes: ModelAttributesUpdateFilter<T>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult>;
+
+	create(attributes: Partial<T>): Promise<any>;
 
 	/**
-	 * Get an instance of the underlying mongo cursor
-	 */
-	cursor(): Promise<Cursor<T>>;
-
-	/**
-	 * Limit the results of the collection
+	 * Whatever is provided as the uniqueKey should exist in the attribute object for each item.
 	 *
-	 * @param {number} limit
-	 * @returns {QueryBuilderContract<T>}
+	 * for example, we want to update usernames of users by their _id
+	 * If we don't provide one, mongo isn't going to filter your updates correctly.
+	 *
+	 * .batchUpdate('_id', [
+	 *  {_id: '1234', username : 'Barry'},
+	 *  {_id: '23872', username : 'Bruce'},
+	 * ]);
+	 *
+	 * @template T
+	 * @param {P} uniqueKey
+	 * @param {ModelAttributesUpdateFilter<T>[]} updateAttributes
+	 * @returns {Promise<BulkWriteResult | null>}
 	 */
-	limit(limit: number): QueryBuilderContract<T>;
+	batchUpdate<P extends SingleModelProp<T>>(uniqueKey: P, updateAttributes: (ModelAttributesUpdateFilter<T>)[]): Promise<BulkWriteResult | null>;
 
 	/**
 	 * Delete any items from the collection specified in the where() clause
 	 *
 	 * @returns {Promise<boolean>}
 	 */
-	delete(): Promise<boolean>;
+	delete(returnMongoResponse?: boolean): Promise<boolean | DeleteResult>;
 
 	/**
 	 * Returns the count of items, filters if one was specified with .where()
@@ -224,9 +276,56 @@ export interface QueryBuilderContract<T> {
 	 * Paginate the results
 	 *
 	 * @param {number} limit
-	 * @returns {PaginatorContract<T>}
+	 * @returns {PaginatorContract<{}>}
 	 */
 	paginate(limit: number): Promise<PaginatorContract<T>>;
+
+	/**
+	 * Insert many created models(documents) into the collection
+	 *
+	 * We can pass multiple model instances, or raw objects.
+	 *
+	 * Example:
+	 *
+	 * const bruce = new User()
+	 * bruce.username = 'bruce';
+	 * const sally = new User()
+	 * sally.username = 'sally';
+	 * docs = [bruce, sally]
+	 *
+	 * is the same as:
+	 *
+	 * docs = [{username:'bruce'}, {username:'sally'}]
+	 *
+	 * @template T
+	 * @param {T[] | Partial<T>[]} models
+	 * @returns {Promise<{success: boolean, ids: ObjectId[]}>}
+	 */
+	insertMany(models: T[] | Partial<T>[]): Promise<{ success: boolean, ids: ObjectId[] }>;
+
+	/**
+	 * Get the first result in the mongo Cursor
+	 *
+	 * @template T
+	 * @returns {Promise<T>}
+	 */
+	first(options?: FindOptions<T>): Promise<T>;
+
+	/**
+	 * Get all items from the collection that match the query
+	 *
+	 * @template T
+	 * @returns {Promise<T[]>}
+	 */
+	get(options?: FindOptions<T>): Promise<T[]>;
+
+	/**
+	 * Get an instance of the underlying mongo cursor
+	 *
+	 * @template T
+	 * @returns {Promise<Cursor<T>>}
+	 */
+	cursor(): FindCursor<T> | AggregationCursor<T>;
 
 	/**
 	 * When a filter has been specified with where(). It will apply to
@@ -236,7 +335,35 @@ export interface QueryBuilderContract<T> {
 	 *
 	 * @private
 	 */
-	resolveFilter(): any;
+	resolveCursor(options: FindOptions<T>, queryResolveType: QueryResolveType): FindCursor<T> | AggregationCursor<T>;
+
+	/**
+	 * Just makes the implementing code more consistent/shorter
+	 *
+	 * @param {ModelDecoratorMeta} decoratorType
+	 * @returns {ModelRelationMeta[]}
+	 * @private
+	 */
+	getMeta(decoratorType: ModelDecoratorMeta): ModelRelationMeta[];
+
+	/**
+	 * Check if a property on the model is part of a relationship
+	 *
+	 * @param {string} key
+	 * @param {ModelRelationType} type
+	 * @returns {boolean}
+	 */
+	isRelation(key: string, type?: ModelRelationType): boolean;
+
+	joinedRelationsArray(): ModelRelationMeta[];
+
+	/**
+	 * Get an object of all relations on this model as an object
+	 * Key is the relation property, value is the meta registered
+	 *
+	 * @returns {ModelRelationMeta[]}
+	 */
+	relations(): { [key: string]: ModelRelationMeta };
 
 	/**
 	 * After we have resolved our query, we need to make sure we clear everything
@@ -244,4 +371,5 @@ export interface QueryBuilderContract<T> {
 	 * @private
 	 */
 	cleanupBuilder(): void;
+
 }

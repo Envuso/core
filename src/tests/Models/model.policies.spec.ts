@@ -1,17 +1,16 @@
 import "reflect-metadata";
-import {User} from "../App/Models/User";
-import {UserPolicy} from "../App/Policies/UserPolicy";
-import {App} from "../AppContainer";
-import {ModelDecoratorMeta} from "../Database";
-import {Server} from "../Server/Server";
-import {bootApp, unloadApp} from "./preptests";
+import 'jest-extended';
+import {User} from "../../App/Models/User";
+import {UserPolicy} from "../../App/Policies/UserPolicy";
+import {App} from "../../AppContainer";
+import {ModelDecoratorMeta} from "../../Database";
+import {Server} from "../../Server/Server";
+import {bootApp, unloadApp} from "../preptests";
 
-
-
-beforeAll(() => bootApp());
-afterAll(() => unloadApp());
 
 describe('model policies', () => {
+	beforeAll(() => bootApp());
+	afterAll(() => unloadApp());
 
 	test('model policy is defined via decorator', async () => {
 		const app    = App.getInstance();
@@ -122,6 +121,4 @@ describe('model policies', () => {
 
 	});
 
-
 });
-

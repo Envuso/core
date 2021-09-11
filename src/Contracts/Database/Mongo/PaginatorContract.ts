@@ -1,5 +1,6 @@
-import {FilterQuery} from "mongodb";
 import {PaginatedResponse} from "../../../Database/Mongo/Paginator";
+import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
+import {ModelAttributesFilter} from "../../../Database/QueryBuilderTypes";
 import {ModelContract} from "./ModelContract";
 
 export interface PaginatorContract<T> {
@@ -7,7 +8,7 @@ export interface PaginatorContract<T> {
 	_beforeCursor: string;
 	_afterCursor: string;
 	model: ModelContract<T>;
-	query: FilterQuery<T> | Partial<T>;
+	query: QueryBuilderParts<T>;
 	limit: number;
 
 	/**
@@ -44,7 +45,7 @@ export interface PaginatorContract<T> {
 	 * @returns {null | {_id: {}}}
 	 * @private
 	 */
-	setupQuery(): FilterQuery<T> | Partial<T>;
+	setupQuery(): ModelAttributesFilter<T>;
 
 	/**
 	 * Try to ensure that we can assign our pagination filter to the query

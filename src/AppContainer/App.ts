@@ -153,7 +153,7 @@ export class App implements AppContract {
 	/**
 	 * Will load all service providers from the app config
 	 */
-	async loadServiceProviders() {
+	async loadServiceProviders(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
 		type Provider = (constructor<ServiceProvider>)
 		const configRepository = this.resolve(ConfigRepository);
 
@@ -164,6 +164,10 @@ export class App implements AppContract {
 		}
 
 		for (let providerClass of appConfig.providers) {
+			if(withoutServiceProviders.map(s => s.name).includes(providerClass.name)){
+				continue;
+			}
+
 			const provider = new providerClass();
 
 			this.bind(() => provider);

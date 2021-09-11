@@ -1,6 +1,4 @@
-import difference from "lodash.difference";
-import uniq from "lodash.uniq";
-import merge from "lodash.merge";
+import _ from 'lodash';
 import {Maths} from "./Maths";
 
 
@@ -47,8 +45,8 @@ export class Arr {
 	 *
 	 * @return {array}
 	 */
-	public static diff<T extends ArrayLike<any>>(arrayOne: ArrayLike<any>, arrayTwo: ArrayLike<any>): T {
-		return difference(arrayOne, arrayTwo);
+	public static diff<T extends any[]>(arrayOne: ArrayLike<any>, arrayTwo: ArrayLike<any>): T {
+		return _.difference(arrayOne, arrayTwo) as T;
 	}
 
 	/**
@@ -57,8 +55,8 @@ export class Arr {
 	 * @param {ArrayLike<any>} array
 	 * @return {ArrayLike<any>}
 	 */
-	public static unique<T extends ArrayLike<any>>(array: ArrayLike<any>): T {
-		return uniq(array);
+	public static unique<T extends any[]>(array: ArrayLike<any>): T {
+		return _.uniq(array) as T;
 	}
 
 	/**
@@ -72,7 +70,7 @@ export class Arr {
 	public static merge<T extends ArrayLike<any>, TT extends ArrayLike<any>>(
 		arrayOne: T, arrayTwo: TT
 	): ArrayLike<any> {
-		return merge(arrayOne, arrayTwo);
+		return _.merge(arrayOne, arrayTwo);
 	}
 
 	public static contains(arr: any[], item: any): boolean {
@@ -97,9 +95,9 @@ export class Arr {
 	 * @returns {any[]}
 	 */
 	public static takeRandom(arr: any[], max: number) {
-		const rand = Maths.randomInt(0, max);
+		const rand = Maths.randomInt(1, arr.length > max ? arr.length : max);
 
-		return arr.slice(0, rand);
+		return _.take(arr, rand)
 	}
 }
 

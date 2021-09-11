@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import * as path from "path";
+import {ServiceProvider} from "../AppContainer";
 import Environment from '../AppContainer/Config/Environment';
 import 'jest-extended';
 
@@ -11,10 +12,10 @@ import {Envuso} from "../Envuso";
 
 let envuso: Envuso = null;
 
-export const bootApp = async function (serve: boolean = true) {
+export const bootApp = async function (serve: boolean = true, ignoredServiceProviders: (new () => ServiceProvider)[] = []) {
 	envuso = new Envuso();
 	await Configuration.initiate();
-	await envuso.boot();
+	await envuso.boot(ignoredServiceProviders);
 	if (serve) {
 		await envuso.serve();
 	}

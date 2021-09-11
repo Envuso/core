@@ -1,35 +1,38 @@
-import {Collection, FilterQuery, FindOneOptions, ObjectId, ReplaceOneOptions, UpdateQuery, WithoutProjection} from "mongodb";
-import {ModelDecoratorMeta, QueryBuilder} from "../../../Database";
+import {
+	Collection, Filter, FindOptions,
+	ObjectId, OptionalId, UpdateOptions, UpdateResult,
+} from "mongodb";
+import {Model, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
+import {ModelAttributesFilter, SingleModelProp} from "../../../Database/QueryBuilderTypes";
 import {PaginatorContract} from "./PaginatorContract";
 import {QueryBuilderContract} from "./QueryBuilderContract";
 
 export interface ModelContractConstructor<M> {
-	new(): ModelContract<M>;
+	new(): M;
 
-	where<T extends ModelContract<any>>(
-		this: new() => T,
-		attributes: FilterQuery<T> | Partial<T>
-	): QueryBuilderContract<T>;
+	getCollection<T extends Model<any>>(this: new() => T): Collection<T>;
 
-	query<T extends ModelContract<any>>(
-		this: new() => T,
-	): QueryBuilderContract<T>;
+	hydrate<T extends ModelContract<any>>(this: new() => T, attributes: Partial<T>);
+
+	where<T extends ModelContract<any>>(this: new() => T, attributes: ModelAttributesFilter<T>): QueryBuilderContract<T>;
+
+	query<T extends ModelContract<any>>(this: new() => T): QueryBuilderContract<T>;
 
 	when<T extends ModelContract<any>>(
 		this: new() => T,
 		condition: boolean | (() => boolean),
-		attributes: FilterQuery<T> | Partial<T>
+		attributes: ModelAttributesFilter<T>
 	): QueryBuilderContract<T>;
 
 	findOne<T extends ModelContract<any>>(
 		this: new() => T,
-		query: FilterQuery<T | { _id: any }>
+		query: Filter<T | { _id: any }>
 	): Promise<T | null>;
 
 	get<T extends ModelContract<any>>(
 		this: new() => T,
-		query?: FilterQuery<T | { _id: any }>,
-		options?: WithoutProjection<FindOneOptions<T>>
+		query?: ModelAttributesFilter<T | { _id: any }>,
+		options?: FindOptions<T>
 	): Promise<T[]>;
 
 	count(): Promise<number>;
@@ -60,20 +63,22 @@ export interface ModelContractConstructor<M> {
 		key: keyof T
 	): QueryBuilderContract<T>;
 
-	exists<T extends ModelContract<any>>(
-		this: new() => T,
-		query: FilterQuery<T>
-	);
+	exists<T extends ModelContract<any>>(this: new() => T, query: ModelAttributesFilter<T>);
 
-	create<T extends ModelContract<any>>(
-		this: new() => T,
-		attributes: Partial<T>
-	): Promise<T>;
+	create<T extends ModelContractConstructor<any>>(this: new() => T, attributes: Partial<T>): Promise<T>;
+
+	insertMany<T extends Model<any>>(this: new() => T, models: T[] | Partial<T>[]): Promise<{ success: boolean, ids: ObjectId[] }>;
+
+	createMany<T extends Model<any>>(this: new() => T, models: T[] | Partial<T>[]): Promise<{ success: boolean, ids: ObjectId[] }>;
+
+	hydrate<T extends Model<any>>(this: new() => T, attributes: Partial<T>);
+
+	dehydrate<T extends Model<any>>(this: new() => T, model: T): object;
 }
 
 export interface ModelContract<M> {
-	_recentMongoResponse: any;
-	_queryBuilder: QueryBuilder<M>;
+
+	//_queryBuilder: QueryBuilder<M>;
 
 	/**
 	 * Access the underlying mongo collection for this model
@@ -91,10 +96,9 @@ export interface ModelContract<M> {
 	 * @param attributes
 	 * @param options
 	 */
-	update(
-		attributes: UpdateQuery<M> | Partial<M>,
-		options: ReplaceOneOptions
-	): Promise<M>;
+	update(attributes: ModelAttributesFilter<M> | Partial<M>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult>;
+
+	assignAttributes(attributes: Partial<M>, ignoreFieldChecks?: boolean): void;
 
 	/**
 	 * Save any changes made to the model
@@ -131,14 +135,22 @@ export interface ModelContract<M> {
 	 */
 	delete(): Promise<boolean>;
 
-	mongoResponse(): any;
-
-	setMongoResponse(response: any): any;
-
 	/**
 	 * Will return a correctly formatted name for the underlying mongo collection
 	 */
 	collectionName(many: boolean): string;
+
+	getAttributes(): Partial<M>;
+
+	isAttribute(key: SingleModelProp<M>): boolean;
+
+	hydrate(attributes: Partial<M>): M;
+
+	dehydrateForQuery(): OptionalId<M>;
+
+	dehydrate(): object;
+
+	toBSON();
 
 	/**
 	 * When this model instance is returned in a
@@ -146,8 +158,6 @@ export interface ModelContract<M> {
 	 * that any @Exclude() properties etc are taken care of.
 	 */
 	toJSON(): Record<string, any>;
-
-	getMongoAtomicOperators(): string[];
 
 	/**
 	 * Make it a tad cleaner to get meta from this model
@@ -157,5 +167,8 @@ export interface ModelContract<M> {
 	 * @param _default
 	 * @returns {T}
 	 */
-	getMeta<T>(metaKey: ModelDecoratorMeta, _default?:any): T;
+	getMeta<T>(metaKey: ModelDecoratorMeta, _default?: any): T;
+
+	getModelFields(): string[];
+
 }

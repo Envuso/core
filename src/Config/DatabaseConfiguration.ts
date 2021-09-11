@@ -11,10 +11,8 @@ export default class DatabaseConfiguration extends ConfigurationCredentials impl
 		name          : 'test',
 		url           : 'mongodb://127.0.0.1:27017',
 		clientOptions : {
-			ssl                : false,
-			readPreference     : "primaryPreferred",
-			useNewUrlParser    : true,
-			useUnifiedTopology : true
+			ssl            : false,
+			readPreference : "primaryPreferred",
 		}
 	};
 

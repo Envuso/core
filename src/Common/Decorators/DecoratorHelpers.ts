@@ -1,4 +1,3 @@
-
 export enum DESIGN_META {
 	DESIGN_PARAM_TYPES = 'design:paramtypes',
 	DESIGN_TYPE        = 'design:type',
@@ -15,7 +14,7 @@ export class DecoratorHelpers {
 	 * @param propertyKey
 	 */
 	static paramTypes(target: any, propertyKey?: string | symbol) {
-		return Reflect.getMetadata(DESIGN_META.DESIGN_PARAM_TYPES, target, propertyKey)
+		return Reflect.getMetadata(DESIGN_META.DESIGN_PARAM_TYPES, target, propertyKey);
 	}
 
 	/**
@@ -25,7 +24,7 @@ export class DecoratorHelpers {
 	 * @param propertyKey
 	 */
 	static propertyType(target: any, propertyKey: string | symbol) {
-		return Reflect.getMetadata(DESIGN_META.DESIGN_TYPE, target, propertyKey)
+		return Reflect.getMetadata(DESIGN_META.DESIGN_TYPE, target, propertyKey);
 	}
 
 	/**
@@ -38,7 +37,7 @@ export class DecoratorHelpers {
 	 * @param method
 	 */
 	static properties(target: any, method?: string) {
-		return Reflect.getMetadata(DESIGN_META.DESIGN_PROPERTIES, target, method)
+		return Reflect.getMetadata(DESIGN_META.DESIGN_PROPERTIES, target, method);
 	}
 
 	/**
@@ -47,7 +46,7 @@ export class DecoratorHelpers {
 	 * @param target
 	 */
 	static returnType(target: any) {
-		return Reflect.getMetadata(DESIGN_META.DESIGN_RETURN_TYPE, target)
+		return Reflect.getMetadata(DESIGN_META.DESIGN_RETURN_TYPE, target);
 	}
 
 	/**
@@ -108,5 +107,30 @@ export class DecoratorHelpers {
 	static pushToMetadata(metadataKey: string, values: any[], target: any) {
 		const data: any[] = Reflect.getMetadata(metadataKey, target) || [];
 		Reflect.defineMetadata(metadataKey, data.concat(values), target);
+	}
+
+	/**
+	 * This will add the key/value object to the defined metadata
+	 * If none exists, it will be created.
+	 *
+	 * @param {string} metadataKey
+	 * @param valueKey
+	 * @param valueData
+	 * @param target
+	 */
+	static addToMetadataObject(metadataKey: string, valueKey:string, valueData: any, target: any) {
+		const data: any = Reflect.getMetadata(metadataKey, target) || {};
+
+		data[valueKey] = valueData;
+
+		Reflect.defineMetadata(metadataKey, data, target);
+	}
+
+	static get<T>(target: any, key: string | symbol): T {
+		return Reflect.getMetadata(key, target) as T;
+	}
+
+	static getKeys(target: any) {
+		return Reflect.getMetadataKeys(target);
 	}
 }

@@ -1,4 +1,4 @@
-import {App, resolve} from "./AppContainer";
+import {App, resolve, ServiceProvider} from "./AppContainer";
 import {Log} from "./Common";
 import {EnvusoContract} from "./Contracts/EnvusoContract";
 import {ErrorHandlerFn} from "./Contracts/Server/ServerContract";
@@ -23,8 +23,8 @@ export class Envuso implements EnvusoContract {
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	public async boot() {
-		await this.initiateWithoutServing();
+	public async boot(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
+		await this.initiateWithoutServing(withoutServiceProviders);
 	}
 
 	/**
@@ -33,10 +33,10 @@ export class Envuso implements EnvusoContract {
 	 *
 	 * @returns {Promise<void>}
 	 */
-	public async initiateWithoutServing() {
+	public async initiateWithoutServing(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
 		await App.bootInstance();
 
-		await App.getInstance().loadServiceProviders();
+		await App.getInstance().loadServiceProviders(withoutServiceProviders);
 
 		this._app = App.getInstance();
 
