@@ -52,7 +52,36 @@ export function migrateQueue() {
 	};
 }
 
+/**
+ * Moves all values from a source list to a destination list.
+ * Example;
+ * source: a, b, c
+ * destination: 1, 2, 3
+ * Final Result;
+ * source: <empty>
+ * destination: a, b, c, 1, 2, 3
+ *
+ * Command: recoverQueue [source] [destination]
+ * Example: recoverQueue envuso-queue:reserved envuso-queue
+ * Returns: number - Number of values moved
+ *
+ * @returns {{lua: string, numberOfKeys: number}}
+ */
+export function moveList() {
+	return {
+		numberOfKeys : 2,
+		lua          : `local count = redis.call('llen', KEYS[1])
+
+		for i=1, count do
+			redis.call('lmove', KEYS[1], KEYS[2], 'RIGHT', 'LEFT')
+		end
+
+		return count`
+	};
+}
+
 export default {
 	pop,
-	migrateQueue
+	migrateQueue,
+	moveList
 };

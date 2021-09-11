@@ -27,14 +27,10 @@ export class Queue {
 
 		instance = this;
 
-		// WorkerPool.getInstance().on('worker:created', this.onWorkerCreated.bind(this));
 		WorkerPool.getInstance().on('worker:ready', this.onWorkerAvailable.bind(this));
-		// WorkerPool.getInstance().on('worker:run', this.onWorkerRun.bind(this));
 		WorkerPool.getInstance().on('worker:success', this.onWorkerSuccess.bind(this));
 		WorkerPool.getInstance().on('worker:failed', this.onWorkerFailed.bind(this));
 		WorkerPool.getInstance().on('worker:available', this.onWorkerAvailable.bind(this));
-		//		WorkerPool.getInstance().on('worker:freed', this.onWorkerFreed.bind(this));
-		// WorkerPool.getInstance().on('worker:error', this.onWorkerError.bind(this));
 	}
 
 	static getInstance() {
@@ -43,6 +39,11 @@ export class Queue {
 
 	public async run() {
 		await this.registerCommands();
+		const jobsRecovered = await this.recover();
+
+		if (jobsRecovered > 0) {
+			Log.label('Queue').info(`Recovered ${jobsRecovered} incomplete Jobs`);
+		}
 
 		while (App.isBooted()) {
 			await this.migrate();
@@ -91,7 +92,7 @@ export class Queue {
 	}
 
 	public static pushRaw(job: string) {
-		return Redis.lPush(Queue.queueName, job);
+		return Redis.pushToEnd(Queue.queueName, job);
 	}
 
 	/**
@@ -113,9 +114,14 @@ export class Queue {
 	 Private Functions
 	 */
 
+	private recover() {
+		return Redis.getInstance().getClient().moveList(Queue.reservedQueueName, Queue.queueName);
+	}
+
 	private async registerCommands() {
 		await Redis.getInstance().getClient().defineCommand('pop', LuaScripts.pop());
 		await Redis.getInstance().getClient().defineCommand('migrateQueue', LuaScripts.migrateQueue());
+		await Redis.getInstance().getClient().defineCommand('moveList', LuaScripts.moveList());
 	}
 
 	/**

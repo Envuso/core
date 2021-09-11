@@ -8,6 +8,8 @@ interface ExtRedis extends IRedis {
 	pop(queue: string, reservedQueue: string, limit: number): Promise<string[] | null>;
 
 	migrateQueue(delayQueue: string, queue: string, time: number): Promise<string[]>;
+
+	moveList(source: string, destination: string): Promise<number>;
 }
 
 export class Redis {
@@ -186,12 +188,28 @@ export class Redis {
 	 List
 	 */
 
-	public static lPush(key: string, data: string): Promise<boolean> {
-		return this.getInstance().lPush(key, data);
+	public static lRange(key: string, min: number, max: number): Promise<string[]> {
+		return this.getInstance().lRange(key, min, max);
 	}
 
-	public async lPush(key: string, data: string): Promise<boolean> {
+	public lRange(key: string, min: number, max: number): Promise<string[]> {
+		return this.client.lrange(key, min, max);
+	}
+
+	public static push(key: string, data: string): Promise<boolean> {
+		return this.getInstance().push(key, data);
+	}
+
+	public async push(key: string, data: string): Promise<boolean> {
 		return await this.client.lpush(key, data) === 1;
+	}
+
+	public static pushToEnd(key: string, data: string): Promise<boolean> {
+		return this.getInstance().pushToEnd(key, data);
+	}
+
+	public async pushToEnd(key: string, data: string): Promise<boolean> {
+		return await this.client.rpush(key, data) === 1;
 	}
 
 	public static lRemove(key: string, count: number, member: string): Promise<boolean> {

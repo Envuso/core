@@ -13,7 +13,8 @@ export class ImplementedJob extends Job implements Queueable {
 	}
 
 	async handle() {
-		throw new Error('Whoops');
+		//		throw new Error('Whoops');
+
 		const regularEncryption = resolve(Encryption);
 		//		console.time("SimpleCrypto");
 		for (let i = 0; i < 100; i++) {
@@ -23,7 +24,7 @@ export class ImplementedJob extends Job implements Queueable {
 		//		console.timeEnd("SimpleCrypto");
 	}
 
-	public async handleException(error: Error): Promise<any> {
-		console.log("I'm handling this exception :)");
-	}
+	//	public async handleException(error: Error): Promise<any> {
+	//		console.log("I'm handling this exception :)");
+	//	}
 }
