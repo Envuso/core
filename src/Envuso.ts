@@ -23,9 +23,10 @@ export class Envuso implements EnvusoContract {
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	public async boot(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
+	public async boot(withoutServiceProviders: (new () => ServiceProvider)[] = []) {
 		await this.initiateWithoutServing(withoutServiceProviders);
 	}
+
 	/**
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
@@ -42,7 +43,7 @@ export class Envuso implements EnvusoContract {
 	 */
 	public async initiateForQueueWorker() {
 		await App.bootInstance();
-		await App.getInstance().loadServiceProviders(true);
+		await App.getInstance().loadServiceProviders([], true);
 
 		this._app = App.getInstance();
 
@@ -55,7 +56,7 @@ export class Envuso implements EnvusoContract {
 	 *
 	 * @returns {Promise<void>}
 	 */
-	public async initiateWithoutServing(withoutServiceProviders : (new () => ServiceProvider)[] = []) {
+	public async initiateWithoutServing(withoutServiceProviders: (new () => ServiceProvider)[] = []) {
 		await App.bootInstance();
 		await App.getInstance().loadServiceProviders(withoutServiceProviders);
 

@@ -18,52 +18,17 @@ export interface ModelContractConstructor<M> {
 
 	query<T extends ModelContract<any>>(this: new() => T): QueryBuilderContract<T>;
 
-	when<T extends ModelContract<any>>(
-		this: new() => T,
-		condition: boolean | (() => boolean),
-		attributes: ModelAttributesFilter<T>
-	): QueryBuilderContract<T>;
+	when<T extends Model<any>>(this: new() => T, condition: boolean | (() => boolean), attributes: ModelAttributesFilter<T>): QueryBuilderContract<T>;
 
-	findOne<T extends ModelContract<any>>(
-		this: new() => T,
-		query: Filter<T | { _id: any }>
-	): Promise<T | null>;
+	findOne<T extends Model<any>>(this: new() => T, query: Filter<T | { _id: any }>): Promise<T | null>;
 
-	get<T extends ModelContract<any>>(
-		this: new() => T,
-		query?: ModelAttributesFilter<T | { _id: any }>,
-		options?: FindOptions<T>
-	): Promise<T[]>;
+	get<T extends Model<any>>(this: new() => T, query?: ModelAttributesFilter<T | { _id: any }>, options?: FindOptions<T>): Promise<T[]>;
 
 	count(): Promise<number>;
 
-	paginate<T extends ModelContract<any>>(
-		this: new() => T,
-		limit: number
-	): Promise<PaginatorContract<T>>;
+	with<T extends Model<any>>(this: new() => T, ...refs: (keyof T)[]): QueryBuilderContract<T>;
 
-	with<T extends ModelContract<any>>(
-		this: new() => T,
-		...refs: (keyof T)[]
-	): QueryBuilderContract<T>;
-
-	find<T extends ModelContract<any>>(
-		this: new() => T,
-		key: string | ObjectId,
-		field?: keyof T | '_id'
-	): Promise<T>;
-
-	orderByDesc<T extends ModelContract<any>>(
-		this: new() => T,
-		key: keyof T
-	): QueryBuilderContract<T>;
-
-	orderByAsc<T extends ModelContract<any>>(
-		this: new() => T,
-		key: keyof T
-	): QueryBuilderContract<T>;
-
-	exists<T extends ModelContract<any>>(this: new() => T, query: ModelAttributesFilter<T>);
+	find<T extends Model<any>>(this: new() => T, key: string | ObjectId, field?: keyof T | '_id'): Promise<T>;
 
 	create<T extends ModelContractConstructor<any>>(this: new() => T, attributes: Partial<T>): Promise<T>;
 

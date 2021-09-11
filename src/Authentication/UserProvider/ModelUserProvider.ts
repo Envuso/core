@@ -29,7 +29,7 @@ export class ModelUserProvider extends UserProvider implements UserProviderContr
 
 		const userModel = this.getUserModel<T>();
 
-		const user: any = await userModel.find(id);
+		const user: any = await (userModel as any).find(id);
 
 		if (!user?._id) {
 			return null;
@@ -54,7 +54,7 @@ export class ModelUserProvider extends UserProvider implements UserProviderContr
 		const filter              = {};
 		filter[primaryIdentifier] = identifier;
 
-		const user: any = await userModel.where(filter as any).first();
+		const user: any = await (userModel as any).query().where(filter as any).first();
 
 		if (!user?._id) {
 			return null;

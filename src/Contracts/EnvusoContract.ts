@@ -27,7 +27,7 @@ export interface EnvusoContract {
 	 *
 	 * @returns {Promise<void>}
 	 */
-	initiateForQueueWorker(config: object): Promise<void>;
+	initiateForQueueWorker(): Promise<void>;
 
 	/**
 	 * There is certain cases where we need to boot the framework, but not run the web server
