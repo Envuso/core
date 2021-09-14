@@ -180,4 +180,57 @@ export interface RequestContract extends RequestResponseContextContract {
 	 */
 	user<T>(): AuthenticatableContract<T> | null;
 
+	/**
+	 * Check if the specified input is an empty string
+	 *
+	 * @param {string} key
+	 * @returns {boolean}
+	 */
+	isEmptyString(key: string): boolean;
+
+	/**
+	 * Check if the input has the specified key
+	 *
+	 * @param {string} keys
+	 * @returns {boolean}
+	 */
+	has(...keys: string[]): boolean;
+
+	/**
+	 * The inverse of )has for readability
+	 *
+	 * @param {string} keys
+	 * @returns {boolean}
+	 */
+	missing(...keys: string[]): boolean;
+
+	/**
+	 * Get the specified items from the request body/query
+	 *
+	 * @param {string} keys
+	 * @returns {T[]}
+	 */
+	only<T extends any>(...keys: string[]): T[];
+
+	/**
+	 * Get all items from the request body/query, except the specified items
+	 *
+	 * @param {string} keys
+	 * @returns {T[]}
+	 */
+	except<T extends any>(...keys: string[]): T[];
+
+	/**
+	 * Get the keys of all the inputs on the request, including files
+	 *
+	 * @returns {string[]}
+	 */
+	keys(): string[];
+
+	/**
+	 * Get all of the file keys defined on the request
+	 *
+	 * @returns {string[]}
+	 */
+	fileKeys(): string[];
 }

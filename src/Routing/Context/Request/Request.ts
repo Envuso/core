@@ -2,7 +2,7 @@ import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
 import {config} from "../../../AppContainer";
-import {Obj} from "../../../Common";
+import {Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
@@ -25,6 +25,78 @@ export class Request extends RequestResponseContext implements RequestContract {
 
 	constructor(context: RequestContextContract, request: FastifyRequest | IncomingMessage) {
 		super(context, request);
+	}
+
+	/**
+	 * Check if the specified input is an empty string
+	 *
+	 * @param {string} key
+	 * @returns {boolean}
+	 */
+	public isEmptyString(key: string): boolean {
+		const input = this.all();
+
+		return Str.isEmpty(input[key] ?? null);
+	}
+
+	/**
+	 * Check if the input has the specified key
+	 *
+	 * @param {string} keys
+	 * @returns {boolean}
+	 */
+	public has(...keys: string[]): boolean {
+		const input = this.all();
+
+		for (let key in input) {
+			if (input[key] === undefined) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * The inverse of )has for readability
+	 *
+	 * @param {string} keys
+	 * @returns {boolean}
+	 */
+	public missing(...keys: string[]): boolean {
+		return !this.has(...keys);
+	}
+
+	/**
+	 * Get the specified items from the request body/query
+	 *
+	 * @param {string} keys
+	 * @returns {T[]}
+	 */
+	public only<T extends any>(...keys: string[]): T[] {
+		return Obj.only(this.all(), keys);
+	}
+
+	/**
+	 * Get all items from the request body/query, except the specified items
+	 *
+	 * @param {string} keys
+	 * @returns {T[]}
+	 */
+	public except<T extends any>(...keys: string[]): T[] {
+		return Obj.except(this.all(), keys);
+	}
+
+	/**
+	 * Get the keys of all the inputs on the request, including files
+	 *
+	 * @returns {string[]}
+	 */
+	public keys(): string[] {
+		return [
+			...Object.keys(this.all()),
+			...this.fileKeys(),
+		];
 	}
 
 	/**
@@ -183,6 +255,15 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	files(): UploadedFile[] {
 		return this._uploadedFiles;
+	}
+
+	/**
+	 * Get all of the file keys defined on the request
+	 *
+	 * @returns {string[]}
+	 */
+	public fileKeys(): string[] {
+		return this._uploadedFiles.map(f => f.getFieldName()) ?? [];
 	}
 
 	/**

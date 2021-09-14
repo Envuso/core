@@ -1,5 +1,6 @@
 import {FastifyReply} from "fastify";
 import {StatusCodes} from "../../../../Common";
+import {CookieContract} from "../../../Cookies/CookieContract";
 //import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
 import {RequestResponseContextContract} from "../RequestResponseContextContract";
 import {RedirectResponseContract} from "./RedirectResponseContract";
@@ -127,4 +128,38 @@ export interface ResponseContract extends RequestResponseContextContract {
 	 */
 	negotiatedErrorView(jsonData: any, statusCode: number, error?: Error);
 
+	/**
+	 * Flash some data onto the session whilst re-directing
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @returns {ResponseContract}
+	 */
+	with(key: string, value: any): ResponseContract;
+
+	/**
+	 * Add a cookie to the response via an instance of a Cookie
+	 *
+	 * @param {CookieContract<any>} key
+	 * @returns {ResponseContract}
+	 */
+	withCookie(key: CookieContract<any>): ResponseContract;
+
+	/**
+	 * Add a cookie to the response using key/value
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @returns {ResponseContract}
+	 */
+	withCookie(key: string, value: any): ResponseContract;
+
+	/**
+	 * Add a cookie to the response
+	 *
+	 * @param {string|CookieContract} key
+	 * @param value
+	 * @returns {ResponseContract}
+	 */
+	withCookie(key: string | CookieContract<any>, value?: any): ResponseContract;
 }

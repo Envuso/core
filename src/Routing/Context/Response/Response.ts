@@ -2,6 +2,7 @@ import {FastifyReply} from "fastify";
 import {resolve} from "../../../AppContainer";
 import {Log, StatusCodes} from "../../../Common";
 import {renderableExceptionData} from "../../../Common/Exception/ExceptionHelpers";
+import {CookieContract} from "../../../Contracts/Cookies/CookieContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {ResponseContract} from "../../../Contracts/Routing/Context/Response/ResponseContract";
@@ -246,5 +247,52 @@ export class Response extends RequestResponseContext implements ResponseContract
 			: this.view('Exceptions/exception', data);
 	}
 
+	/**
+	 * Flash some data onto the session whilst re-directing
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @returns {ResponseContract}
+	 */
+	public with(key: string, value: any): ResponseContract {
+		if (this._context.hasSession()) {
+			this._context.session.store().flash(key, value);
+		}
+
+		return this;
+	}
+
+	/**
+	 * Add a cookie to the response via an instance of a Cookie
+	 *
+	 * @param {CookieContract<any>} key
+	 * @returns {ResponseContract}
+	 */
+	public withCookie(key: CookieContract<any>): ResponseContract;
+	/**
+	 * Add a cookie to the response using key/value
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @returns {ResponseContract}
+	 */
+	public withCookie(key: string, value: any): ResponseContract;
+
+	/**
+	 * Add a cookie to the response
+	 *
+	 * @param {string|CookieContract} key
+	 * @param value
+	 * @returns {ResponseContract}
+	 */
+	public withCookie(key: string | CookieContract<any>, value?: any): ResponseContract {
+		if (typeof key === 'string') {
+			this._cookieJar.put(key, value);
+		} else {
+			this._cookieJar.put(key.name, key, key.signed);
+		}
+
+		return this;
+	}
 
 }
