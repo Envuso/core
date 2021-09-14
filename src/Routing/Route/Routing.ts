@@ -188,7 +188,7 @@ export class Routing implements RoutingContract {
 			return null;
 		}
 
-		return Object.values(route).find(r => r.getMethod() === routeNameParts[1]);
+		return Object.values(route).find(r => r.getMethodName() === routeNameParts[1]);
 	}
 
 	/**
