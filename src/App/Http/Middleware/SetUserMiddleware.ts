@@ -5,7 +5,7 @@ import {User} from "../../Models/User";
 
 export class SetUserMiddleware extends Middleware {
 	public async handle(context: RequestContextContract): Promise<any> {
-		const user = await User.where({email : 'sam@iffdt.dev'}).first();
+		const user = await User.query().where({email : 'sam@iffdt.dev'}).first();
 
 		Auth.authoriseAs(user);
 	}

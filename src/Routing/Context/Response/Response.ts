@@ -7,7 +7,6 @@ import {RequestContextContract} from "../../../Contracts/Routing/Context/Request
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {ResponseContract} from "../../../Contracts/Routing/Context/Response/ResponseContract";
 import {ViewManagerContract} from "../../../Contracts/Routing/Views/ViewManagerContract";
-//import {ApplicationRouteAttributeObject} from "../../../Meta/ApplicationRouteMeta";
 import {ViewManager} from "../../Views/ViewManager";
 import {RequestResponseContext} from "../RequestResponseContext";
 

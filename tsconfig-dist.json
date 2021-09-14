@@ -9,7 +9,6 @@
     "src/tests/**/*"
   ],
   "include": [
-    "src/App/**/*",
     "src/AppContainer/**/*",
     "src/Authentication/**/*",
     "src/Authorization/**/*",
@@ -24,6 +23,8 @@
     "src/OAuthProvider/**/*",
     "src/Packages/**/*",
     "src/Routing/**/*",
+    "src/Redis/**/*",
+    "src/Queue/**/*",
     "src/Security/**/*",
     "src/Session/**/*",
     "src/Server/**/*",
@@ -31,7 +32,6 @@
     "src/Storage/**/*.ts",
     "src/Authenticatable.ts",
     "src/Envuso.ts",
-    "src/run-dev.ts",
     "src/index.ts"
   ]
 }

@@ -55,6 +55,8 @@
     "src/OAuthProvider/**/*",
     "src/Packages/**/*",
     "src/Routing/**/*",
+    "src/Redis/**/*",
+    "src/Queue/**/*",
     "src/Security/**/*",
     "src/Server/**/*",
     "src/Sockets/**/*",
