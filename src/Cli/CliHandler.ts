@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import path from "path";
 import Environment from './../AppContainer/Config/Environment';
 import {config, resolve} from "../AppContainer";
 import {Log} from "../Common";
@@ -13,11 +14,12 @@ const envuso = new Envuso();
 
 //const yargs = require("yargs");
 
-const runFrameworkLogic = (dev: boolean = false, logic: () => Promise<void>) => {
+const runFrameworkLogic = async (dev: boolean = false, logic: () => Promise<void>) => {
 
-	const Configuration = dev ? require('./../Config/Configuration') : require('../../../../dist/Config/Configuration');
+	const moduleImport = await (dev ? import('./../Config/Configuration')
+		: import(path.join(process.cwd(), 'dist', 'Config', 'Configuration.js')));
 
-	Configuration.initiate()
+	moduleImport.default.default.initiate()
 		.then(() => envuso.initiateWithoutServing())
 		.then(() => logic())
 		.then(() => process.exit())
