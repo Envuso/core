@@ -19,7 +19,7 @@ const runFrameworkLogic = async (dev: boolean = false, logic: () => Promise<void
 	const moduleImport = await (dev ? import('./../Config/Configuration')
 		: import(path.join(process.cwd(), 'dist', 'Config', 'Configuration.js')));
 
-	moduleImport.default.default.initiate()
+	moduleImport.default.initiate()
 		.then(() => envuso.initiateWithoutServing())
 		.then(() => logic())
 		.then(() => process.exit())
