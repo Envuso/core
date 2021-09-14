@@ -20,7 +20,6 @@ git push origin next
 
 echo "› Committed and pushed changes"
 
-cp .bin/cli-prod dist/ecli
 cp package.json dist/package.json
 
 echo "› Copied package.json & ecli to /dist"

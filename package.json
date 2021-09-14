@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-next.23",
+  "version": "2.0.0-next.24",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -19,11 +19,7 @@
     "dev": "ts-node-dev --respawn --rs --transpile-only src/run-dev.ts --ignore-watch src/Meta/**/*.ts, src/Meta/**/*.json",
     "devo": "ts-node src/run-dev.ts"
   },
-  "bin": {
-    "ecli": "./ecli"
-  },
   "dependencies": {
-    "@envuso/compiler": "^0.0.19",
     "@types/crypto-js": "^4.0.2",
     "@zishone/dotnotate": "^0.1.3",
     "aws-sdk": "^2.884.0",

@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import Environment from './../AppContainer/Config/Environment';
-import {ConfigMetaGenerator, ControllerMetaGenerator, GenerateTypesFile, ModuleMetaGenerator, Program} from "@envuso/compiler";
 import {config, resolve} from "../AppContainer";
 import {Log} from "../Common";
 import {SeedManager} from "../Database";
@@ -12,7 +11,7 @@ Log.disable();
 
 const envuso = new Envuso();
 
-const yargs = require("yargs");
+//const yargs = require("yargs");
 
 const runFrameworkLogic = (dev: boolean = false, logic: () => Promise<void>) => {
 
@@ -27,48 +26,52 @@ const runFrameworkLogic = (dev: boolean = false, logic: () => Promise<void>) => 
 		});
 };
 
-export const run = (dev: boolean = false) => {
-	yargs.command(
-		'db:seed',
-		'Run the database seeders. Seeders are defined in /src/Seeders/Seeders.ts.',
-		(yargs) => {
-		},
-		(argv) => {
-			runFrameworkLogic(dev, async () => {
-				const seederClass = config().get<string, any>('Database.seeder');
-				if (seederClass) {
-					const seeder = new seederClass();
+export const seedDatabase = (dev: boolean = false) => {
+	runFrameworkLogic(dev, async () => {
+		const seederClass = config().get<string, any>('Database.seeder');
+		if (seederClass) {
+			const seeder = new seederClass();
 
-					seeder.registerSeeders();
+			seeder.registerSeeders();
 
-					await resolve(SeedManager).runSeeders();
-				}
-			});
-
-		},
-	);
-	yargs.command(
-		'build [--watch]',
-		`Build your application using envuso's compiler.`,
-		() => yargs.option('watch', {
-			alias    : 'w',
-			default  : false,
-			boolean  : true,
-			describe : 'If specified, the compiler will stay running and re-build when changes are detected.'
-		}),
-		async (argv) => {
-			await Program.loadConfiguration();
-			await Program.setup([
-				GenerateTypesFile,
-				ConfigMetaGenerator,
-				ControllerMetaGenerator,
-				ModuleMetaGenerator,
-			]);
-			await Program.run(argv.watch);
-		},
-	);
-
-	yargs.demandCommand(1);
-	yargs.strict();
-	yargs.parse();
+			await resolve(SeedManager).runSeeders();
+		}
+	});
 };
+
+//export const run = (dev: boolean = false) => {
+//	yargs.command(
+//		'db:seed',
+//		'Run the database seeders. Seeders are defined in /src/Seeders/Seeders.ts.',
+//		(yargs) => {
+//		},
+//		(argv) => {
+//
+//
+//		},
+//	);
+//	yargs.command(
+//		'build [--watch]',
+//		`Build your application using envuso's compiler.`,
+//		() => yargs.option('watch', {
+//			alias    : 'w',
+//			default  : false,
+//			boolean  : true,
+//			describe : 'If specified, the compiler will stay running and re-build when changes are detected.'
+//		}),
+//		async (argv) => {
+//			await Program.loadConfiguration();
+//			await Program.setup([
+//				GenerateTypesFile,
+//				ConfigMetaGenerator,
+//				ControllerMetaGenerator,
+//				ModuleMetaGenerator,
+//			]);
+//			await Program.run(argv.watch);
+//		},
+//	);
+//
+//	yargs.demandCommand(1);
+//	yargs.strict();
+//	yargs.parse();
+//};
