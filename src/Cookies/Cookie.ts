@@ -69,7 +69,13 @@ export class Cookie<T> implements CookieContract<T> {
 	 */
 	public toHeaderString() {
 //		let str = this.name + '=' + this.getSignedValueOrRegular();
-		let str = this.name + '=' + this.value;
+		let value = this.value;
+
+//		if(this.isSigned()) {
+//			value = RabbitEncryption.encrypt(value);
+//		}
+
+		let str = this.name + '=' + value;
 
 		if (this.maxAge !== null) {
 			const maxAge = this.maxAge.diffInSeconds(DateTime.now());

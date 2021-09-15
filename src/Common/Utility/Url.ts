@@ -1,8 +1,11 @@
 import {config} from "../../AppContainer";
-import {Routing} from "../../Routing/Route/Routing";
-import {Log} from "../Logger/Log";
+import {UrlGenerator} from "../../Routing/Route/UrlGenerator";
 
 export class Url {
+
+	public static generator(): UrlGenerator {
+		return new UrlGenerator();
+	}
 
 	/**
 	 * Generate a url for a controller method
@@ -12,15 +15,7 @@ export class Url {
 	 * @returns {string | null}
 	 */
 	public static routeUrl<T extends string>(controllerAndMethod: T, attributes?: any): string | null {
-		const route = Routing.get().getRouteByName(controllerAndMethod);
-
-		if (!route) {
-			Log.error(`The route you are trying to create a url for is not found: ${controllerAndMethod}`);
-
-			return null;
-		}
-
-		return route.constructUrl(attributes);
+		return this.generator().generateUrlForRoute(controllerAndMethod, attributes);
 	}
 
 	/**

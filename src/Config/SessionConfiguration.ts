@@ -2,6 +2,7 @@ import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCred
 import {DateTime} from "../Common";
 import {CookieConfiguration, SessionConfiguration as SessionConfig, SessionCookie} from "../Contracts/Session/Types";
 import {FileSessionDriver} from "../Session/Drivers/FileSessionDriver";
+import {RedisSessionDriver} from "../Session/Drivers/RedisSessionDriver";
 import {SessionStorageDriver} from "../Session/Drivers/SessionStorageDriver";
 
 
@@ -31,8 +32,8 @@ export default class SessionConfiguration extends ConfigurationCredentials imple
 	 *   - FileSessionDriver
 	 *      - Import: ../Session/Drivers/FileSessionDriver
 	 */
-	sessionStorageDriver: new () => SessionStorageDriver | null = FileSessionDriver;
-	// sessionStorageDriver: new () => SessionStorageDriver | null = RedisSessionDriver;
+//	sessionStorageDriver: new () => SessionStorageDriver | null = FileSessionDriver;
+	 sessionStorageDriver: new () => SessionStorageDriver | null = RedisSessionDriver;
 
 	/**
 	 * Configuration for session cookies

@@ -19,4 +19,13 @@ export class StartSessionMiddleware extends Middleware {
 		context.setSession(await session.create(sessionId));
 	}
 
+	public async after(context: RequestContextContract): Promise<any> {
+		this.storeCurrentUrl(context);
+	}
+
+	private storeCurrentUrl(context: RequestContextContract) {
+		if (context.request.method() === 'GET' && !context.request.isAjax() && !context.request.prefetch()) {
+			context.session.store().setPreviousUrl(context.request.url());
+		}
+	}
 }

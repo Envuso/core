@@ -2,6 +2,7 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyPlugin, FastifyPluginOptions, FastifyServerOptions} from "fastify";
 import {FastifyCorsOptions} from "fastify-cors";
 import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
+import {HandleInertiaRequestMiddleware} from "../App/Http/Middleware/HandleInertiaRequestMiddleware";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {ServerConfiguration as ServerConfig} from "../Contracts/Server/ServerContract";
 import {InertiaMiddleware} from "../Packages/Inertia/Middleware/InertiaMiddleware";
@@ -21,7 +22,7 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	middleware = [
 		StartSessionMiddleware,
 		InjectViewGlobals,
-		InertiaMiddleware,
+		HandleInertiaRequestMiddleware,
 	];
 
 	/**

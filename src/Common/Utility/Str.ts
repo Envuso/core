@@ -77,6 +77,8 @@ declare global {
 
 		singular(): this;
 
+		strcasecmp(str): number;
+
 	}
 }
 
@@ -120,4 +122,15 @@ String.prototype.isSingular = function (): boolean {
 
 String.prototype.singular = function () {
 	return singular(this);
+};
+
+/**
+ * Implementation of php's strcasecmp
+ * @param str
+ * @returns {number}
+ */
+String.prototype.strcasecmp = function (str): number {
+	let lowerThis = this.toLowerCase();
+	let lowerStr  = str.toLowerCase();
+	return lowerThis > lowerStr ? 1 : (lowerThis < lowerStr ? -1 : 0);
 };

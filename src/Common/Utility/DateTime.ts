@@ -80,7 +80,8 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInSeconds(date: DateJsOrDateTime) {
-		return DateTime.diffInSeconds(date);
+//		return DateTime.diffInSeconds(date);
+		return Math.abs(this._date.diff(new DateTime(date).get(), "seconds"));
 	}
 
 	/**
@@ -104,7 +105,8 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInMinutes(date: DateJsOrDateTime) {
-		return DateTime.diffInMinutes(date);
+//		return DateTime.diffInMinutes(date);
+		return Math.abs(this._date.diff(new DateTime(date).get(), "minutes"));
 	}
 
 	/**
@@ -128,7 +130,8 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInHours(date: DateJsOrDateTime) {
-		return DateTime.diffInHours(date);
+//		return DateTime.diffInHours(date);
+		return Math.abs(this._date.diff(new DateTime(date).get(), "hours"));
 	}
 
 	/**
@@ -152,7 +155,8 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInDays(date: DateJsOrDateTime) {
-		return DateTime.diffInDays(date);
+//		return DateTime.diffInDays(date);
+		return Math.abs(this._date.diff(new DateTime(date).get(), "days"));
 	}
 
 	/**

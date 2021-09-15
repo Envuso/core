@@ -28,6 +28,15 @@ export class Request extends RequestResponseContext implements RequestContract {
 	}
 
 	/**
+	 * Get the referer header
+	 *
+	 * @returns {string | null}
+	 */
+	public getReferer(): string | null {
+		return this._headers.get('referer', null) as (string | null);
+	}
+
+	/**
 	 * Check if the specified input is an empty string
 	 *
 	 * @param {string} key
@@ -139,6 +148,24 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	url(): string {
 		return this._request.url;
+	}
+
+	/**
+	 * Is the request using HTTPS?
+	 *
+	 * @returns {boolean}
+	 */
+	public isSecure(): boolean {
+		return this.scheme() === 'https';
+	}
+
+	/**
+	 * Get the current requests scheme
+	 *
+	 * @returns {"http" | "https"}
+	 */
+	public scheme(): 'http' | 'https' {
+		return (this._request as FastifyRequest).protocol.toLowerCase() as 'http' | 'https';
 	}
 
 	/**
@@ -348,6 +375,25 @@ export class Request extends RequestResponseContext implements RequestContract {
 
 	public isPjax(): boolean {
 		return this._headers.has('X-PJAX');
+	}
+
+	/**
+	 * Try to correctly detect JSON only requests
+	 *
+	 * @returns {boolean}
+	 */
+	public expectsJson() {
+		return (this.isAjax() && !this.isPjax()) || this.wantsJson();
+	}
+
+	/**
+	 * Determine if the request is the result of a prefetch call
+	 *
+	 * @returns {boolean}
+	 */
+	public prefetch(): boolean {
+		return (this._headers.get('HTTP_X_MOZ', '') as string).strcasecmp('prefect') === 0 ||
+			(this._headers.get('Purpose', '') as string).strcasecmp('prefect') === 0;
 	}
 
 	/**

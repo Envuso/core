@@ -233,4 +233,39 @@ export interface RequestContract extends RequestResponseContextContract {
 	 * @returns {string[]}
 	 */
 	fileKeys(): string[];
+
+	/**
+	 * Get the referer header
+	 *
+	 * @returns {string | null}
+	 */
+	getReferer(): string | null;
+
+	/**
+	 * Determine if the request is the result of a prefetch call.
+	 *
+	 * @returns {boolean}
+	 */
+	prefetch(): boolean;
+
+	/**
+	 * Is the request using HTTPS?
+	 *
+	 * @returns {boolean}
+	 */
+	isSecure(): boolean;
+
+	/**
+	 * Get the current requests scheme
+	 *
+	 * @returns {"http" | "https"}
+	 */
+	scheme(): 'http' | 'https';
+
+	/**
+	 * Try to correctly detect JSON only requests
+	 *
+	 * @returns {boolean}
+	 */
+	expectsJson(): boolean;
 }

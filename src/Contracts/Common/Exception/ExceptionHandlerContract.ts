@@ -1,10 +1,12 @@
 import {Exception} from "../../../Common";
 import {ExceptionResponse} from "../../../Common/Exception/ExceptionHandler";
 import {RequestContract} from "../../Routing/Context/Request/RequestContract";
+import {RedirectResponseContract} from "../../Routing/Context/Response/RedirectResponseContract";
 
 export interface ExceptionHandlerConstructorContract {
-	new ();
-	handle(request: RequestContract, exception: Exception | Error): ExceptionResponse;
+	new();
+
+	handle(request: RequestContract, exception: Exception | Error): ExceptionResponse | RedirectResponseContract;
 }
 
 export interface ExceptionHandlerContract {
@@ -13,7 +15,7 @@ export interface ExceptionHandlerContract {
 	ignoredExceptions: (new () => Exception)[];
 	internallyIgnoredExceptions: (new () => Exception)[];
 
-	process(request: RequestContract, exception: Exception): ExceptionResponse | null;
+	process(request: RequestContract, exception: Exception): ExceptionResponse | RedirectResponseContract | null;
 
 	handleViewResponse(request: RequestContract, exception: Exception): ExceptionResponse;
 

@@ -8,6 +8,7 @@ import {RequestContextContract} from "../../Contracts/Routing/Context/RequestCon
 import {RequestResponseContextContract} from "../../Contracts/Routing/Context/RequestResponseContextContract";
 import {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {CookieJar} from "../../Cookies";
+import {UrlGenerator} from "../Route/UrlGenerator";
 import {RedirectResponse} from "./Response/RedirectResponse";
 
 /**
@@ -110,7 +111,7 @@ export class RequestResponseContext implements RequestResponseContextContract {
 	 *
 	 * @returns {string}
 	 */
-	public getHeader<T>(header: keyof IncomingHttpHeaders, _default:any = null): T | null {
+	public getHeader<T>(header: keyof IncomingHttpHeaders, _default: any = null): T | null {
 		const headerValue = this._headers.get(header.toString(), _default);
 
 		if (!headerValue) {
@@ -214,4 +215,23 @@ export class RequestResponseContext implements RequestResponseContextContract {
 	public flush() {
 		this._context.session.store().flushInput([]);
 	}
+
+	/**
+	 * Get an instance of the UrlGenerator
+	 *
+	 * @returns {UrlGenerator}
+	 */
+	public getUrlGenerator(): UrlGenerator {
+		return new UrlGenerator(this._context);
+	}
+
+	/**
+	 * Get the previous request url
+	 *
+	 * @returns {string}
+	 */
+	public getPreviousUrl(): string {
+		return this.getUrlGenerator().previous();
+	}
+
 }

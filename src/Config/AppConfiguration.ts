@@ -38,7 +38,7 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		StorageServiceProvider,
 		ServerServiceProvider,
 		InertiaServiceProvider,
-		QueueServiceProvider,
+//		QueueServiceProvider,
 	];
 
 	exceptionHandler: ExceptionHandlerConstructorContract = ExceptionHandler;
@@ -50,7 +50,7 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 	 *
 	 * @type {string}
 	 */
-	url: string = Environment.get('APP_URL', 'http://127.0.0.1' + Environment.get('PORT', 3000));
+	url: string = Environment.get('APP_URL', 'http://127.0.0.1:' + Environment.get('PORT', 3000));
 
 	logging = {
 		middleware        : true,

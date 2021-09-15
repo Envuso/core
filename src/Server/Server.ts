@@ -3,11 +3,13 @@ import {FastifyError} from "fastify-error";
 import middie from "middie";
 import {config, ConfigRepository, resolve} from "../AppContainer";
 import {Exception, Log} from "../Common";
+import {ExceptionResponse} from "../Common/Exception/ExceptionHandler";
 import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import {ErrorHandlerFn, ServerConfiguration, ServerContract} from "../Contracts/Server/ServerContract";
 import {HookContract} from "../Contracts/Server/ServerHooks/HookContract";
 import {RequestContext} from "../Routing/Context/RequestContext";
+import {RedirectResponse} from "../Routing/Context/Response/RedirectResponse";
 import {Routing} from "../Routing/Route/Routing";
 import {AssetManager} from "../Routing/StaticAssets/AssetManager";
 import {SocketServer} from "../Sockets/SocketServer";
@@ -167,8 +169,11 @@ export class Server implements ServerContract {
 	public async handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
 		const result = this._exceptionHandler.handle(context.request, error);
 
+		if (result instanceof RedirectResponse) {
+			return reply.redirect(result.getRedirectUrl());
+		}
 
-		return reply.status(result.code).send(result);
+		return reply.status((result as ExceptionResponse).code).send((result as ExceptionResponse));
 
 		/*if (!this._customErrorHandler) {
 		 const response = (error instanceof Exception) ? error.response : {
@@ -186,7 +191,7 @@ export class Server implements ServerContract {
 	}
 
 	public async unload() {
-		if(this._server) {
+		if (this._server) {
 			await this._server.close();
 		}
 		this._server             = null;

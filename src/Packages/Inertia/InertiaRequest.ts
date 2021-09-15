@@ -56,7 +56,6 @@ export class InertiaRequest implements InertiaRequestContract {
 
 		if (this.isPartialReload()) {
 			const partialHeader = this.context.request.getHeader<string>('x-inertia-partial-data', '');
-			//			props = Obj.map(props, (value) => (typeof value === 'function' ? value() : value));
 			const partialProps  = Obj.only(props, partialHeader.split(','));
 
 			props = async () => {

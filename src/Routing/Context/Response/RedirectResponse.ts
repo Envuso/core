@@ -1,4 +1,4 @@
-import {Url} from "../../../Common/Utility/Url";
+import {CookieContract} from "../../../Contracts/Cookies/CookieContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {session} from "../../../Session";
@@ -27,7 +27,9 @@ export class RedirectResponse implements RedirectResponseContract {
 	 * @return {RedirectResponseContract}
 	 */
 	public route<T extends string>(controllerAndMethod: T, attributes?: any): RedirectResponseContract {
-		this.redirectTo = Url.routeUrl<T>(controllerAndMethod, attributes);
+		this.redirectTo = this._context.request.getUrlGenerator().generateUrlForRoute<T>(
+			controllerAndMethod, attributes
+		);
 
 		return this;
 	}
@@ -93,4 +95,47 @@ export class RedirectResponse implements RedirectResponseContract {
 		return this.redirectTo;
 	}
 
+	/**
+	 * Add a cookie to the response via an instance of a Cookie
+	 *
+	 * @param {CookieContract<any>} key
+	 * @returns {RedirectResponseContract}
+	 */
+	public withCookie(key: CookieContract<any>): RedirectResponseContract;
+	/**
+	 * Add a cookie to the response using key/value
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @returns {RedirectResponseContract}
+	 */
+	public withCookie(key: string, value: any): RedirectResponseContract;
+
+	/**
+	 * Add a cookie to the response
+	 *
+	 * @param {string|CookieContract} key
+	 * @param value
+	 * @returns {RedirectResponseContract}
+	 */
+	public withCookie(key: string | CookieContract<any>, value?: any): RedirectResponseContract {
+		if (typeof key === 'string') {
+			this._context.response._cookieJar.put(key, value);
+		} else {
+			this._context.response._cookieJar.put(key.name, key, key.signed);
+		}
+
+		return this;
+	}
+
+	/**
+	 * Return a redirect to the previous url
+	 *
+	 * @returns {RedirectResponseContract}
+	 */
+	public back(): RedirectResponseContract {
+		this.redirectTo = this._context.request.getPreviousUrl();
+
+		return this;
+	}
 }

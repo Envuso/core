@@ -6,11 +6,15 @@ export class DtoValidationException extends Exception {
 
 	constructor(validationErrors: { [key: string]: string }) {
 		super('Failed to validate input');
-		this.code = StatusCodes.UNPROCESSABLE_ENTITY;
+		this.code              = StatusCodes.UNPROCESSABLE_ENTITY;
 		this._validationErrors = validationErrors;
 	}
 
 	public handleJsonResponse(): object {
+		return this._validationErrors;
+	}
+
+	public getValidationErrors() {
 		return this._validationErrors;
 	}
 

@@ -16,12 +16,6 @@ export interface RequestContextContract {
 	inertia: InertiaRequestContract;
 
 	/**
-	 * Set any cookies from the request into the cookie jar
-	 * If we're using cookie based sessions, prepare our session
-	 */
-	initiateForRequest(): Promise<void>;
-
-	/**
 	 * We use async localstorage to help have context around the app without direct
 	 * access to our fastify request. We also bind this context class to the fastify request
 	 *

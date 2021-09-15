@@ -53,17 +53,6 @@ export class RequestContext implements RequestContextContract {
 	}
 
 	/**
-	 * Set any cookies from the request into the cookie jar
-	 * If we're using cookie based sessions, prepare our session
-	 */
-	public async initiateForRequest() {
-		const cookieJar = (new CookieJar().setCookies(this.request.fastifyRequest));
-
-		this.response.setCookieJar(cookieJar);
-		this.request.setCookieJar(cookieJar);
-	}
-
-	/**
 	 * We use async localstorage to help have context around the app without direct
 	 * access to our fastify request. We also bind this context class to the fastify request
 	 *

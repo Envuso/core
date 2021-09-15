@@ -1,5 +1,12 @@
+import {IsNotEmpty, IsString} from "class-validator";
 import {Inertia} from "../../../Packages/Inertia/Inertia";
-import {controller, Controller, get} from "../../../Routing";
+import {back, controller, Controller, DataTransferObject, dto, get, post, redirect} from "../../../Routing";
+
+class TestingDto extends DataTransferObject {
+	@IsNotEmpty()
+	@IsString()
+	message: string;
+}
 
 @controller('/inertia')
 export class InertiaTestingController extends Controller {
@@ -16,6 +23,11 @@ export class InertiaTestingController extends Controller {
 			asyncValue : async () => 2,
 			message    : 'Wew, a another hello world.'
 		});
+	}
+
+	@post('/dto-validator')
+	async testDtoValidation(@dto() data: TestingDto) {
+		return back().with('wat', 'test');
 	}
 
 }

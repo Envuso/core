@@ -1,6 +1,8 @@
 import Environment from "../../AppContainer/Config/Environment";
 import {ExceptionHandlerContract} from "../../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
+import {DtoValidationException} from "../../Routing";
 import {getReasonPhrase, StatusCodes} from "../Http";
 import {Arr} from "../Utility/Arr";
 import {Exception} from "./Exception";
@@ -50,8 +52,8 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 		'TokenExpiredError' : this.handleUnauthorised,
 	};
 
-	public static handle(request: RequestContract, exception: Exception | Error): ExceptionResponse {
-		const isDev            = Environment.isDev();
+	public static handle(request: RequestContract, exception: Exception | Error): ExceptionResponse | RedirectResponseContract {
+		const isDev = Environment.isDev();
 
 		const exceptionHandler = new ExceptionHandler();
 
@@ -75,8 +77,14 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 		return exceptionHandler.process(request, exception);
 	}
 
-	public process(request: RequestContract, exception: Exception): ExceptionResponse | null {
+	public process(request: RequestContract, exception: Exception): ExceptionResponse | RedirectResponseContract | null {
 		const isDev = Environment.isDev();
+
+		if (exception instanceof DtoValidationException && (!request.expectsJson() || request.hasHeader('X-Inertia'))) {
+			return request.redirectResponse()
+				.to(request.getPreviousUrl())
+				.with('errors', exception.getValidationErrors());
+		}
 
 		if (!this.shouldHandle(exception)) {
 			return {

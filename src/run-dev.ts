@@ -15,13 +15,13 @@ const envuso = new Envuso();
 Configuration.initiate()
 	.then(() => envuso.boot())
 	.then(() => envuso.serve())
-	.then(async () => {
-		//		new ImplementedJob(1).dispatch();
-
-		for (let i = 0; i < 10; i++) {
-			new ImplementedJob(1).dispatch();
-		}
-	})
+//	.then(async () => {
+//		//		new ImplementedJob(1).dispatch();
+//
+//		for (let i = 0; i < 10; i++) {
+//			new ImplementedJob(1).dispatch();
+//		}
+//	})
 	.catch(error => Log.exception(error));
 
 //envuso.addExceptionHandler(async (exception: Error | Exception, request: FastifyRequest, reply: FastifyReply) => {

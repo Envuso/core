@@ -1,6 +1,7 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {IncomingHttpHeaders, IncomingMessage} from "http";
 import {ObjectContainer, ObjectContainerObject} from "../../../Common";
+import {UrlGenerator} from "../../../Routing/Route/UrlGenerator";
 import {CookieJarContract} from "../../Cookies/CookieJarContract";
 import {RedirectResponseContract} from "./Response/RedirectResponseContract";
 
@@ -86,4 +87,18 @@ export interface RequestResponseContextContract {
 	 * Flush all of the old input data from the session
 	 */
 	flush():void;
+
+	/**
+	 * Get an instance of the UrlGenerator
+	 *
+	 * @returns {UrlGenerator}
+	 */
+	getUrlGenerator(): UrlGenerator;
+
+	/**
+	 * Get the previous request url
+	 *
+	 * @returns {string}
+	 */
+	getPreviousUrl(): string;
 }

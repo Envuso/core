@@ -63,7 +63,7 @@ export class SessionStore implements SessionStoreContract {
 	 * @return {T}
 	 */
 	public get<T>(key?: string, _default: any = null): T {
-		if(key === undefined) {
+		if (key === undefined) {
 			return this.attributes;
 		}
 
@@ -340,7 +340,7 @@ export class SessionStore implements SessionStoreContract {
 	 *
 	 * @param {object} values
 	 */
-	public populate(values: object):void {
+	public populate(values: object): void {
 		this.flush();
 
 		this.put(values);
@@ -351,8 +351,25 @@ export class SessionStore implements SessionStoreContract {
 	 *
 	 * @param {any[]} values
 	 */
-	public flushInput(values: any[]):void {
-		this.flash('_old_input', values)
+	public flushInput(values: any[]): void {
+		this.flash('_old_input', values);
 	}
 
+	/**
+	 * Set the previous request url
+	 *
+	 * @param {string} url
+	 */
+	public setPreviousUrl(url: string): void {
+		this.put('_previous.url', url);
+	}
+
+	/**
+	 * Get the previous request url
+	 *
+	 * @returns {string | null}
+	 */
+	public previousUrl(): string | null {
+		return this.get('_previous.url');
+	}
 }

@@ -5,6 +5,7 @@ import {ValidatorOptions} from "class-validator/types/validation/ValidatorOption
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
 import {DataTransferObjectContract} from "../../Contracts/Routing/DataTransferObject/DataTransferObjectContract";
+import {RequestContext} from "../Context/RequestContext";
 import {Responsable} from "../Context/Response/Responsable";
 import {DtoValidationException} from "./DtoValidationException";
 
@@ -63,7 +64,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 		}
 
 		if (this.failed()) {
-			throw new DtoValidationException(this.__validationErrors);
+			this.handleValidationException();
 		}
 	}
 
@@ -104,7 +105,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 	 * Did the validation fail?
 	 */
 	public failed(): boolean {
-		if(!this.__validationErrors) {
+		if (!this.__validationErrors) {
 			return false;
 		}
 
@@ -154,5 +155,15 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 		return classToPlain(this, {
 			excludePrefixes : ['__']
 		});
+	}
+
+	private handleValidationException() {
+		const context = RequestContext.get();
+
+		if (context.hasSession()) {
+			context.session.store().flash('errors', this.__validationErrors);
+		}
+
+		throw new DtoValidationException(this.__validationErrors);
 	}
 }

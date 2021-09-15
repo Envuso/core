@@ -18,7 +18,8 @@ export class Obj {
 		return (Obj.isNullOrUndefined(value) ||
 			(typeof value === 'string' && value.length === 0) ||
 			(typeof value === 'number' && (isNaN(value) || value === 0)) ||
-			(Array.isArray(value) && value.length === 0)
+			(Array.isArray(value) && value.length === 0) ||
+			(Object.keys(value || {}).length === 0)
 		);
 	}
 

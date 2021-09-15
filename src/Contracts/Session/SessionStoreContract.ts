@@ -229,4 +229,18 @@ export interface SessionStoreContract {
 	 * @param {any[]} values
 	 */
 	flushInput(values: any[]): void;
+
+	/**
+	 * Set the previous request url
+	 *
+	 * @param {string} url
+	 */
+	setPreviousUrl(url: string): void;
+
+	/**
+	 * Get the previous request url
+	 *
+	 * @returns {string | null}
+	 */
+	previousUrl(): string | null;
 }

@@ -1,5 +1,7 @@
 //import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
 
+import {CookieContract} from "../../../Cookies/CookieContract";
+
 export interface RedirectResponseContract {
 	/**
 	 * Redirect to an internal application route
@@ -48,4 +50,36 @@ export interface RedirectResponseContract {
 
 	getRedirectUrl(): string | null;
 
+	/**
+	 * Add a cookie to the response via an instance of a Cookie
+	 *
+	 * @param {CookieContract<any>} key
+	 * @returns {RedirectResponseContract}
+	 */
+	withCookie(key: CookieContract<any>): RedirectResponseContract;
+
+	/**
+	 * Add a cookie to the response using key/value
+	 *
+	 * @param {string} key
+	 * @param value
+	 * @returns {RedirectResponseContract}
+	 */
+	withCookie(key: string, value: any): RedirectResponseContract;
+
+	/**
+	 * Add a cookie to the response
+	 *
+	 * @param {string|CookieContract} key
+	 * @param value
+	 * @returns {RedirectResponseContract}
+	 */
+	withCookie(key: string | CookieContract<any>, value?: any): RedirectResponseContract;
+
+	/**
+	 * Return a redirect to the previous url
+	 *
+	 * @returns {RedirectResponseContract}
+	 */
+	back(): RedirectResponseContract;
 }

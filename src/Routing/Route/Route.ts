@@ -400,7 +400,7 @@ export class Route implements RouteContract {
 					await before(RequestContext.get());
 				}
 			},
-			onResponse : async function (req, res) {
+			onSend : async function (req, res) {
 				if (after) {
 					await after(RequestContext.get());
 				}

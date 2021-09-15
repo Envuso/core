@@ -29,6 +29,10 @@ function redirect(url?: string): RedirectResponseContract {
 	return response().redirectResponse();
 }
 
+function back(): RedirectResponseContract {
+	return response().redirectResponse().back();
+}
+
 export * from './Controller/Controller';
 export * from './DataTransferObject/DataTransferObject';
 export * from './DataTransferObject/DtoValidationException';
@@ -43,5 +47,5 @@ export * from './Middleware/Middlewares/JwtAuthenticationMiddleware';
 export * from './Context/Response/Response';
 export * from './Context/Request/Request';
 
-export {request, view, redirect, RequestContext};
+export {request, view, redirect, back, RequestContext};
 

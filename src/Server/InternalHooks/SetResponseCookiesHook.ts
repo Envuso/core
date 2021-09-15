@@ -2,7 +2,7 @@ import {config} from "../../AppContainer";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {Cookie} from "../../Cookies";
 import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
-import {Encryption} from "../../Crypt";
+import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, OnSendHook} from "../ServerHooks";
 
@@ -46,8 +46,8 @@ export class SetResponseCookiesHook extends OnSendHook {
 	}
 
 	private encryptAndSet(context: RequestContextContract, cookie: Cookie<any>) {
-		cookie.value = Encryption.encrypt(
-			CookieValuePrefix.create(cookie.name, Encryption.getKey()) + cookie.value
+		cookie.value = RabbitEncryption.encrypt(
+			CookieValuePrefix.create(cookie.name, RabbitEncryption.getKey()) + cookie.value
 		);
 
 		context.response.setHeader('set-cookie', cookie.toHeaderString());
