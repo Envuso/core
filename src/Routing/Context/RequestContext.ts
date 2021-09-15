@@ -154,6 +154,10 @@ export class RequestContext implements RequestContextContract {
 			Authenticatable, {useValue : user}
 		);
 
+		if (this.hasSession()) {
+			this.session.setUser(user);
+		}
+
 		this.user = user;
 	}
 

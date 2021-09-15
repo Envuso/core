@@ -1,5 +1,6 @@
 import {config, resolve} from "../AppContainer";
 import {Str} from "../Common";
+import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {CsrfContract} from "../Contracts/Security/CsrfContract";
 import {SessionContract} from "../Contracts/Session/SessionContract";
 import {SessionStoreContract} from "../Contracts/Session/SessionStoreContract";
@@ -121,7 +122,7 @@ export class Session implements SessionContract {
 	 * @returns {string}
 	 */
 	public getCookieName(): string {
-		return config().get<string, any>('Session.sessionCookie.name' , 'id');
+		return config().get<string, any>('Session.sessionCookie.name', 'id');
 	}
 
 	/**
@@ -243,6 +244,17 @@ export class Session implements SessionContract {
 
 	public store(): SessionStoreContract {
 		return this.attributes;
+	}
+
+	/**
+	 * Set the authenticated user onto the session
+	 *
+	 * @param {AuthenticatableContract<any>} user
+	 */
+	public setUser(user: AuthenticatableContract<any>) {
+		this.userId = user._user._id ?? (user as any)._id;
+
+		this.store().put('user_id', this.userId);
 	}
 
 }

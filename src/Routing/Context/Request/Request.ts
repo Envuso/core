@@ -6,6 +6,7 @@ import {Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import {SessionContract} from "../../../Contracts/Session/SessionContract";
 import {Storage} from "../../../Storage";
 import {RequestResponseContext} from "../RequestResponseContext";
 import {UploadedFile} from "./UploadedFile";
@@ -322,6 +323,15 @@ export class Request extends RequestResponseContext implements RequestContract {
 		}
 
 		return cookie.getValue();
+	}
+
+	/**
+	 * Access the session via the request
+	 *
+	 * @returns {SessionContract}
+	 */
+	public session(): SessionContract {
+		return this._context.session;
 	}
 
 	/**

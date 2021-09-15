@@ -1,5 +1,6 @@
 import {Session} from "../../Session";
 import {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
+import {AuthenticatableContract} from "../Authentication/UserProvider/AuthenticatableContract";
 import {SessionStoreContract} from "./SessionStoreContract";
 
 export interface SessionContract {
@@ -135,4 +136,6 @@ export interface SessionContract {
 	invalidate(): Promise<void>;
 
 	store(): SessionStoreContract;
+
+	setUser(user: AuthenticatableContract<any>): void;
 }

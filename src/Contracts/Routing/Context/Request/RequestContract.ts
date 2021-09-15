@@ -1,6 +1,7 @@
 import {HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {AuthenticatableContract} from "../../../Authentication/UserProvider/AuthenticatableContract";
+import {SessionContract} from "../../../Session/SessionContract";
 import {RequestResponseContextContract} from "../RequestResponseContextContract";
 import {UploadedFileContract} from "./UploadedFileContract";
 
@@ -268,4 +269,11 @@ export interface RequestContract extends RequestResponseContextContract {
 	 * @returns {boolean}
 	 */
 	expectsJson(): boolean;
+
+	/**
+	 * Access the session via the request
+	 *
+	 * @returns {SessionContract}
+	 */
+	session(): SessionContract;
 }
