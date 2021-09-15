@@ -4,6 +4,7 @@ import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestCo
 import {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {DtoValidationException} from "../../Routing";
 import {getReasonPhrase, StatusCodes} from "../Http";
+import Log from "../Logger/Log";
 import {Arr} from "../Utility/Arr";
 import {Exception} from "./Exception";
 
@@ -58,6 +59,9 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 		const exceptionHandler = new ExceptionHandler();
 
 		if (!(exception instanceof Exception)) {
+
+			Log.label('Exception Handler').exception(exception.toString(), exception);
+
 			const mapper = exceptionHandler.exceptionMapper[exception.constructor.name];
 
 			if (mapper) {
