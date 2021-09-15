@@ -252,7 +252,7 @@ export class Session implements SessionContract {
 	 * @param {AuthenticatableContract<any>} user
 	 */
 	public setUser(user: AuthenticatableContract<any>) {
-		this.userId = user._user._id ?? (user as any)._id;
+		this.userId = user?._user?._id ?? (user as any)._id;
 
 		this.store().put('user_id', this.userId);
 	}
