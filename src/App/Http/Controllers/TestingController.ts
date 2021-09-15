@@ -1,5 +1,4 @@
-import {IsString, MinLength} from "class-validator";
-import {ObjectId} from "mongodb";
+import {Allow, IsString, MinLength} from "class-validator";
 import {Auth} from "../../../Authentication";
 import {Authorization} from "../../../Authorization/Authorization";
 import {EventManager} from "../../../Events";
@@ -7,23 +6,28 @@ import {redirect, request, response, view} from "../../../Routing";
 import {Controller} from "../../../Routing/Controller/Controller";
 import {controller, get, method, post} from "../../../Routing/Controller/ControllerDecorators";
 import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
+import {Confirmed} from "../../../Routing/DataTransferObject/Validators";
 import {middleware} from "../../../Routing/Middleware/MiddlewareDecorators";
 import {JwtAuthenticationMiddleware} from "../../../Routing/Middleware/Middlewares/JwtAuthenticationMiddleware";
 import {VerifyCsrfTokenMiddleware} from "../../../Routing/Middleware/Middlewares/VerifyCsrfTokenMiddleware";
 import {dto, query, body, user} from "../../../Routing/Route/RouteDecorators";
 import {session} from "../../../Session";
 import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
-import {Book} from "../../Models/Book";
 import {User} from "../../Models/User";
 import {UserSocketListener} from "../Sockets/UserSocketListener";
 
 class DTO extends DataTransferObject {
-
 	@IsString()
 	@MinLength(1)
 	something: string;
+}
 
+class ConfirmedDto extends DataTransferObject {
+	@Confirmed()
+	password: string;
 
+	@Allow()
+	password_confirmation: string;
 }
 
 /**
@@ -55,7 +59,7 @@ export class TestingController extends Controller {
 	async redirectToRoute(@query message: string) {
 		return redirect().route('TestingController.testQueryParamDecorator', {
 			message : 'Hello!',
-			yeet : 'fdsf'
+			yeet    : 'fdsf'
 		});
 	}
 
@@ -195,9 +199,9 @@ export class TestingController extends Controller {
 
 	@get()
 	async testQueryBuilderMethod() {
-//		User.where({
-//			something : 'el'
-//		});
+		//		User.where({
+		//			something : 'el'
+		//		});
 
 		User.findOne({
 			something : 'lel'
@@ -215,17 +219,17 @@ export class TestingController extends Controller {
 
 		User.find('lele', 'something');
 
-//		User.orderByDesc('something');
+		//		User.orderByDesc('something');
 
-//		User.where({_id : new ObjectId('lel')}).orderByDesc('something');
+		//		User.where({_id : new ObjectId('lel')}).orderByDesc('something');
 
-//		User.orderByDesc('something');
+		//		User.orderByDesc('something');
 
 		User.create({});
 
-//		const users = await User.where({}).orderByAsc('something').get();
+		//		const users = await User.where({}).orderByAsc('something').get();
 
-//		const user = await User.where({}).first();
+		//		const user = await User.where({}).first();
 
 	}
 
@@ -310,7 +314,7 @@ export class TestingController extends Controller {
 		return redirect()
 			.route('TestingController.testRenderingView')
 			.with('testing-flash', true)
-			.withInput({messageflashed:'wewt?'})
+			.withInput({messageflashed : 'wewt?'});
 	}
 
 	@middleware(new VerifyCsrfTokenMiddleware())
@@ -347,6 +351,11 @@ export class TestingController extends Controller {
 	@get('/testing/:item/:itemtwo/three/:four')
 	async testingRouteParams() {
 		return response().internalError();
+	}
+
+	@post('/confirmed')
+	testConfirmed(@dto() body: ConfirmedDto) {
+
 	}
 
 }
