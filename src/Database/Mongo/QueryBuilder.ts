@@ -112,6 +112,34 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	}
 
 	/**
+	 * Use mongo db's text search feature
+	 *
+	 * @template T
+	 * @param {string} searchString
+	 * @param {string} language
+	 * @param {boolean} caseSensitive
+	 * @param {boolean} diacriticSensitive
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public textSearch(searchString: string, language?: string, caseSensitive?: boolean, diacriticSensitive?: boolean):QueryBuilderContract<T> {
+		const query: ModelAttributesFilter<T> = {$text : {$search : searchString}};
+
+		if (language !== undefined) {
+			query.$text.$language = language;
+		}
+		if (caseSensitive !== undefined) {
+			query.$text.$caseSensitive = caseSensitive;
+		}
+		if (diacriticSensitive !== undefined) {
+			query.$text.$diacriticSensitive = diacriticSensitive;
+		}
+
+		this._filter.add(query);
+
+		return this;
+	}
+
+	/**
 	 * Similar to using collection.find()
 	 *
 	 * In mongo terms, this is doing .find({key : value}}

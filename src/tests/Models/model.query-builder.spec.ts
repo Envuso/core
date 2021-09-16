@@ -256,8 +256,19 @@ describe('model query builder implementation', () => {
 		await user.load('books');
 
 		await user.update({orderValue : 1});
+	});
 
-		debugger;
+
+	test('text searching', async () => {
+		await User.createMany([
+			{name : 'sam', email : 'someemail@test.com'},
+			{name : 'sammeh', email : 'some@test.com'},
+			{name : 'meh', email : 'yah@test.com'},
+		]);
+
+		const results = await User.query().textSearch('sam').get();
+
+		expect(results.length).toBeGreaterThan(0);
 	});
 
 });

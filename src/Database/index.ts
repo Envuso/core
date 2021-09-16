@@ -1,3 +1,5 @@
+import {IndexSpecification} from "mongodb";
+
 export * from './DatabaseServiceProvider';
 export * from './Database';
 export * from './Mongo/Model';
@@ -19,10 +21,13 @@ export interface Nested {
 	array: boolean;
 }
 
-
 export interface ModelObjectId {
 	name: string;
 }
 
+export interface ModelIndex {
+	name : string;
+	index : {[key:string]: any}
+}
 
 

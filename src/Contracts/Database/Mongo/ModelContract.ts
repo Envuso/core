@@ -136,4 +136,5 @@ export interface ModelContract<M> {
 
 	getModelFields(): string[];
 
+	createIndexes(): Promise<void>;
 }

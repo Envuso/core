@@ -7,8 +7,7 @@ import {config, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database} from "../index";
-import {ModelDecoratorMeta} from "../ModelDecorators";
+import {Database, ModelDecoratorMeta, ModelIndex} from "../index";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {convertEntityObjectIds} from "../Serialization/Serializer";
 import {ModelHelpers} from "./ModelHelpers";
@@ -467,6 +466,25 @@ export class Model<M> implements ModelContract<M> {
 
 	public getModelFields(): string[] {
 		return Database.getModelFieldsFromContainer(this.constructor.name);
+	}
+
+	public async createIndexes() {
+		const indexes = this.getMeta<ModelIndex[]>(ModelDecoratorMeta.INDEX, []);
+
+		if (!indexes.length) {
+			return;
+		}
+
+
+		const indexesToCreate = indexes.map(i => ({name : i.name, key : i.index}));
+
+		for (let index of indexesToCreate) {
+			if (await this.collection().indexExists(index.name)) {
+				await this.collection().dropIndex(index.name);
+			}
+		}
+
+		const result = await this.collection().createIndexes(indexesToCreate);
 	}
 
 }

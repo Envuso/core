@@ -44,7 +44,7 @@ export class Redis {
 	}
 
 	public static shutdown() {
-		return this.getInstance().client.shutdown("SAVE");
+		return this.getInstance().client.quit();
 	}
 
 	/*

@@ -1,11 +1,12 @@
 import {Exclude, Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
-import {belongsTo, hasMany, hasOne, id, policy} from "../../Database";
+import {belongsTo, hasMany, hasOne, id, index, policy} from "../../Database";
 import {UserPolicy} from "../Policies/UserPolicy";
 import {Book} from "./Book";
 
 @policy(UserPolicy)
+@index('user-search', {name : 'text'})
 export class User extends Authenticatable<User> {
 
 	@id
@@ -45,7 +46,6 @@ export class User extends Authenticatable<User> {
 
 	@belongsTo('Book', 'bookId', '_id')
 	belongsToOneBook: Book;
-
 
 
 }

@@ -1,14 +1,15 @@
 import {classToPlain, Exclude, plainToClass, Transform} from "class-transformer";
-import {ObjectId} from "mongodb";
+import {IndexDescription, IndexSpecification, ObjectId} from "mongodb";
 import {Classes, DecoratorHelpers} from "../Common";
-import {ClassType, Model, ModelObjectId, Nested} from "./index";
+import {ClassType, Model, ModelIndex, ModelObjectId, Nested} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
 	HAS_MANY_RELATION        = 'envuso:model:relation:has-many',
 	BELONGS_TO_RELATION      = 'envuso:model:relation:belongs-to',
 	BELONGS_TO_MANY_RELATION = 'envuso:model:relation:belongs-to-many',
-	IGNORED_PROPERTY = 'envuso:model:fields:ignored',
+	IGNORED_PROPERTY         = 'envuso:model:fields:ignored',
+	INDEX                    = 'envuso:model:index',
 	MODEL_OBJECT_ID          = 'envuso:model-object-id',
 	AUTHORIZATION_POLICY_REF = 'envuso:authorization-policy',
 }
@@ -153,6 +154,21 @@ export function policy(policy: ClassType<any>) {
 		if (constructor.prototype.constructor.name !== 'Model') {
 			Reflect.defineMetadata(ModelDecoratorMeta.AUTHORIZATION_POLICY_REF, policy, constructor.prototype);
 		}
+	};
+}
+
+/**
+ * Specify that this model needs to create indexes on mongodb
+ *
+ * @param {string} name
+ * @param {IndexSpecification} indexSpec
+ * @returns {(constructor: Function) => void}
+ */
+export function index(name: string, indexSpec: IndexSpecification) {
+	return function (constructor: Function) {
+		DecoratorHelpers.pushToMetadata(
+			ModelDecoratorMeta.INDEX, [{name, index : indexSpec}], constructor.prototype
+		);
 	};
 }
 

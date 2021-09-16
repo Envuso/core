@@ -42,10 +42,16 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		const client = app.resolve(MongoClient);
 		const dbName = config.get<string, any>('Database.mongo.name');
 
+		const collections     = await client.db(dbName).collections();
+		const collectionNames = collections.map(c => c.collectionName);
+
 		for (let module of modules) {
-			const collection = client.db(dbName).collection<typeof module.instance>(
-				pluralize(module.name.toLowerCase())
-			);
+			const collectionName = pluralize(module.name.toLowerCase());
+
+			const collection = client.db(dbName).collection<typeof module.instance>(collectionName);
+			if (!collectionNames.includes(collectionName)) {
+				await client.db(dbName).createCollection(collectionName);
+			}
 
 			app.container().register(module.name + 'ModelCollection', {
 				useValue : collection
@@ -60,11 +66,13 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			 * We get the properties defined on the model, excluding any marked with @internalExclude()
 			 * then load them into the container so they're available when we need them
 			 */
-			const modelInst    = new module.instance({fromContainer:true}, true);
+			const modelInst    = new module.instance({fromContainer : true}, true);
 			const excludedKeys = Object.keys(getInternallyExcluded(module.instance.prototype as (new () => ModelContract<any>)));
 			const fields       = Object.getOwnPropertyNames(modelInst).filter(property => {
 				return !excludedKeys.includes(property);
 			});
+
+			await (modelInst as any).createIndexes();
 
 			app.container().register(`Model:Fields:${module.name}`, {useValue : fields});
 			app.container().register(`Model:QueryBuilder:${module.name}`, {

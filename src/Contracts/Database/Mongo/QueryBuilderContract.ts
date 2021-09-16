@@ -43,6 +43,18 @@ export interface QueryBuilderContract<T> {
 	_aggregation: QueryAggregation<T>;
 
 	/**
+	 * Use mongo db's text search feature
+	 *
+	 * @template T
+	 * @param {string} searchString
+	 * @param {string} language
+	 * @param {boolean} caseSensitive
+	 * @param {boolean} diacriticSensitive
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	textSearch(searchString: string, language?: string, caseSensitive?: boolean, diacriticSensitive?: boolean):QueryBuilderContract<T>;
+
+	/**
 	 * Similar to using collection.find()
 	 *
 	 * In mongo terms, this is doing .find({key : value}}
