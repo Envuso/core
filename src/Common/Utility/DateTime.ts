@@ -13,7 +13,7 @@ export class DateTime implements DateTimeContract {
 	public _date: dayjs.Dayjs;
 
 	constructor(date?: DateJsOrDateTime) {
-		if(date instanceof DateTime) {
+		if (date instanceof DateTime) {
 			this._date = date.get();
 		} else {
 			this._date = dayjs(date as dayjs.ConfigType);
@@ -80,7 +80,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInSeconds(date: DateJsOrDateTime) {
-//		return DateTime.diffInSeconds(date);
+		//		return DateTime.diffInSeconds(date);
 		return Math.abs(this._date.diff(new DateTime(date).get(), "seconds"));
 	}
 
@@ -105,7 +105,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInMinutes(date: DateJsOrDateTime) {
-//		return DateTime.diffInMinutes(date);
+		//		return DateTime.diffInMinutes(date);
 		return Math.abs(this._date.diff(new DateTime(date).get(), "minutes"));
 	}
 
@@ -130,7 +130,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInHours(date: DateJsOrDateTime) {
-//		return DateTime.diffInHours(date);
+		//		return DateTime.diffInHours(date);
 		return Math.abs(this._date.diff(new DateTime(date).get(), "hours"));
 	}
 
@@ -155,7 +155,7 @@ export class DateTime implements DateTimeContract {
 	 * @returns {number}
 	 */
 	public diffInDays(date: DateJsOrDateTime) {
-//		return DateTime.diffInDays(date);
+		//		return DateTime.diffInDays(date);
 		return Math.abs(this._date.diff(new DateTime(date).get(), "days"));
 	}
 
@@ -327,6 +327,24 @@ export class DateTime implements DateTimeContract {
 		return this;
 	}
 
+	public diffForHumans(
+		otherDate: DateTimeContract            = null,
+		comparisonType: DateTimeComparisonType = DateTimeComparisonType.OTHER_TO_CURRENT,
+		withoutSuffix: boolean                 = false,
+	): string {
+		if (!otherDate) {
+			otherDate = DateTime.now();
+		}
+
+		switch (comparisonType) {
+			case DateTimeComparisonType.CURRENT_TO_OTHER:
+				return otherDate.get().from(this._date, withoutSuffix);
+			case DateTimeComparisonType.OTHER_TO_CURRENT:
+				return this._date.from(otherDate.get(), withoutSuffix);
+		}
+
+		return null;
+	}
 
 	public unix(): number {
 		return this._date.unix();
@@ -359,4 +377,9 @@ export class DateTime implements DateTimeContract {
 	public utcOffset(): number {
 		return this._date.utcOffset();
 	}
+}
+
+export enum DateTimeComparisonType {
+	CURRENT_TO_OTHER = 'current-to-other',
+	OTHER_TO_CURRENT = 'other-to-current',
 }

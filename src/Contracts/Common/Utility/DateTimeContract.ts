@@ -1,4 +1,5 @@
 import dayjs, {Dayjs} from "dayjs";
+import {DateTimeComparisonType} from "../../../Common";
 
 export type DateJsOrDateTime = string | number | Date | Dayjs | DateTimeContract;
 
@@ -155,6 +156,12 @@ export interface DateTimeContract {
 	 * @returns {DateTimeContract}
 	 */
 	subYears(years: number): DateTimeContract;
+
+	diffForHumans(
+		otherDate?: DateTimeContract,
+		comparisonType?: DateTimeComparisonType,
+		withoutSuffix?: boolean,
+	): string;
 
 	unix(): number;
 
