@@ -1722,6 +1722,13 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.3.tgz#90420f9f9c6d3987f176a19a7d8e764271a2f55d"
   integrity sha512-Fxt+AfXgjMoin2maPIYzFZnQjAXjAL0PHscM5pRTtatFqB+vZxAM9tLp2Optnuw3QOQC40jTNeGYFOMvyf7v9g==
 
+"@envuso/date-time-helper@^0.1.2":
+  version "0.1.2-0"
+  resolved "https://registry.yarnpkg.com/@envuso/date-time-helper/-/date-time-helper-0.1.2-0.tgz#ae32fe7d2b08b2f53e001cbe4f23f6b5d98a9b15"
+  integrity sha512-qRTcNm0iD7NtRK2kLd2Dz0iGWp4Z8KpygBzH4TEfBecmsB4hU86eqtXsD1123bW2JILiRfOwFB2zmeVxWLu3Gg==
+  dependencies:
+    dayjs "^1.10.4"
+
 "@fastify/forwarded@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@fastify/forwarded/-/forwarded-1.0.0.tgz#cc4a3bc1f02856e56e67d6d655026e8d8c2e7429"

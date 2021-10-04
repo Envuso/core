@@ -6,9 +6,9 @@ Environment.load(path.join(__dirname, "..", ".env"));
 
 import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
-import {DateTime, Log} from "./Common";
-import {ImplementedJob} from "./Queue/ImplementedJob";
-import Redis from "./Redis/Redis";
+import {Log} from "./Common";
+import {DateTime} from "@envuso/date-time-helper";
+
 
 const envuso = new Envuso();
 

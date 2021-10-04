@@ -124,10 +124,10 @@ export class TestingController extends Controller {
 		return user;
 	}
 
-	@get('/rmb/uservalsobj/:user')
-	async testRouteModelBindingObjValues(user: User) {
-		return {_id : user._id};
-	}
+//	@get('/rmb/uservalsobj/:user')
+//	async testRouteModelBindingObjValues(user: User) {
+//		return {_id : user._id};
+//	}
 
 	@get('/rmb/uservals/:user')
 	async testRouteModelBindingValues(user: User) {

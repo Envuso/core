@@ -1,7 +1,6 @@
-import {DateTime} from "../Common";
-import {DateTimeContract} from "../Contracts/Common/Utility/DateTimeContract";
+import {DateTime} from "@envuso/date-time-helper";
+import {DateTimeContract} from "@envuso/date-time-helper";
 import {Redis} from "../Database";
-
 
 export class Cache {
 

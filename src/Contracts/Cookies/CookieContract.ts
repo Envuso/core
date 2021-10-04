@@ -1,5 +1,5 @@
-import {DateTime} from "../../Common";
-import {DateTimeContract} from "../Common/Utility/DateTimeContract";
+import {DateTime} from "@envuso/date-time-helper";
+import {DateTimeContract} from "@envuso/date-time-helper";
 import {CookieSameSiteValue} from "../Session/Types";
 
 export interface CookieContract<T> {

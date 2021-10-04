@@ -1,5 +1,5 @@
 import {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
-import {DateTimeContract} from "../Common/Utility/DateTimeContract";
+import {DateTimeContract} from "@envuso/date-time-helper";
 
 export type CookieConfiguration = {
 	path?: string;

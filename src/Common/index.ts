@@ -5,7 +5,6 @@ export * from './Utility/FileLoader';
 export * from './Utility/Arr';
 export * from './Utility/Classes';
 export * from './Utility/Classes.types';
-export * from './Utility/DateTime';
 export * from './Utility/FileLoader';
 export * from './Utility/Maths';
 export * from './Utility/Obj';

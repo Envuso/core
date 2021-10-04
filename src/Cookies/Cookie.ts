@@ -1,6 +1,5 @@
+import {DateTime, DateTimeContract} from "@envuso/date-time-helper";
 import {config} from "../AppContainer";
-import {DateTime} from "../Common";
-import {DateTimeContract} from "../Contracts/Common/Utility/DateTimeContract";
 import {CookieContract} from "../Contracts/Cookies/CookieContract";
 import {CookieConfiguration, CookieSameSiteValue} from "../Contracts/Session/Types";
 

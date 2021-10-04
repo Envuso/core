@@ -1,5 +1,6 @@
 import {classToPlain, Exclude, plainToClass} from "class-transformer";
-import {DateTime, Exception, Str} from "../../Common";
+import {Exception, Str} from "../../Common";
+import {DateTime} from "@envuso/date-time-helper";
 import {BaseQueueable} from "./Queueable";
 import {Queue} from "../Queue";
 
