@@ -1,6 +1,7 @@
 import {AsyncLocalStorage} from "async_hooks";
 import {FastifyRequest} from "fastify";
 import {SocketConnectionContract} from "../../Sockets/SocketConnectionContract";
+import {RequestContract} from "./Request/RequestContract";
 import {RequestContextContract} from "./RequestContextContract";
 
 export interface RequestContextStoreContract {
@@ -8,5 +9,7 @@ export interface RequestContextStoreContract {
 
 	context(): RequestContextContract;
 
-	bind(request: FastifyRequest | SocketConnectionContract, done: any): void;
+	store(): AsyncLocalStorage<RequestContextContract>;
+
+	bind(request: FastifyRequest | RequestContract, done: any): void;
 }

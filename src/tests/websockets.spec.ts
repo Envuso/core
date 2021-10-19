@@ -62,9 +62,15 @@ describe('Websocket channels', () => {
 		u.sendSocketEvent('hello', 'again');
 
 		await new Promise((resolve, reject) => {
-			client.subscribe(`user:${u._id}`, (error, channel) => {
-				debugger;
+
+			client.subscribe(`user:${u._id.toString()}`, (error, channel) => {
+				if (error) {
+					console.error(error);
+					reject(error);
+					return;
+				}
 			});
+
 			client.subscribe('public', (error, channel) => {
 				if (error) {
 					console.error(error);

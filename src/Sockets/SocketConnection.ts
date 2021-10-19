@@ -5,6 +5,7 @@ import {app, config, resolve} from "../AppContainer";
 import {Auth} from "../Authentication";
 import {Classes, Log, Str} from "../Common";
 import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import {SocketChannelListenerContract, SocketChannelListenerContractConstructor} from "../Contracts/Sockets/SocketChannelListenerContract";
 import {SocketConnectionContract} from "../Contracts/Sockets/SocketConnectionContract";
 import {SocketListenerContract} from "../Contracts/Sockets/SocketListenerContract";
@@ -26,6 +27,8 @@ export class SocketConnection implements SocketConnectionContract {
 	public user: AuthenticatableContract<any>;
 
 	public isConnected: boolean;
+
+	public requestContext: RequestContextContract = null;
 
 	/**
 	 * The callback for the server so we can remove the connection
@@ -52,8 +55,16 @@ export class SocketConnection implements SocketConnectionContract {
 		if (config('app.logging.socketInformation'))
 			Log.info(`Socket connected - id: ${this.id} - userId: ${this.userId}`);
 
-		this.socket.on("message", this._handlePacket.bind(this));
-		this.socket.on("close", this._onClose.bind(this));
+		if(this.socket.listenerCount("message") === 0) {
+			this.socket.on("message", (data: string) => {
+				this._handlePacket(data);
+			});
+		}
+		if(this.socket.listenerCount("close") === 0) {
+			this.socket.on("close", (code, reason) => {
+				this._onClose(code, reason);
+			});
+		}
 	}
 
 	/**
@@ -135,30 +146,46 @@ export class SocketConnection implements SocketConnectionContract {
 		await listener.handle(this, this.user, packet);
 	}
 
-	public async _onChannelMessage(packet: SocketPacketContract) {
-		const channelInformation = parseSocketChannelName(packet.getChannel());
-
-		const listener = resolve<SocketChannelListenerContract>(channelInformation.containerListenerName);
-
-		if (!this.hasSubscription(listener)) {
-			if (config('app.logging.socketInformation'))
-				Log.warn("Someone sent a message to a channel that they're not subscribed to...", channelInformation);
-
-			return;
-		}
+	public async runChannelMiddlewares(listener: SocketChannelListenerContract) {
+		await this.processMiddlewares();
 
 		for (let middleware of listener.middlewares()) {
 			await middleware.handle(RequestContext.get());
 		}
 
-		if (!listener[packet.getEvent()]) {
-			if (config('app.logging.socketInformation'))
-				Log.warn('Trying to use event name that is not registered: ' + packet.getEvent());
+		this.userId = Auth.id();
+		this.user   = Auth.user();
 
-			return;
-		}
+		// Assign the connection id to the request
+		// So we can track it more efficiently
+		(this.request as any).userId       = this.userId;
+		(this.request as any).connectionId = this.id;
+	}
 
-		await listener[packet.getEvent()](this, this.user, packet);
+	public async _onChannelMessage(packet: SocketPacketContract) {
+		new RequestContext(this.request, undefined, this).bindToSockets(async () => {
+			const channelInformation = parseSocketChannelName(packet.getChannel());
+
+			const listener = resolve<SocketChannelListenerContract>(channelInformation.containerListenerName);
+
+			if (!this.hasSubscription(listener)) {
+				if (config('app.logging.socketInformation'))
+					Log.warn("Someone sent a message to a channel that they're not subscribed to...", channelInformation);
+
+				return;
+			}
+
+			await this.runChannelMiddlewares(listener);
+
+			if (!listener[packet.getEvent()]) {
+				if (config('app.logging.socketInformation'))
+					Log.warn('Trying to use event name that is not registered: ' + packet.getEvent());
+
+				return;
+			}
+
+			await listener[packet.getEvent()](this, this.user, packet);
+		});
 	}
 
 	/**
@@ -202,37 +229,42 @@ export class SocketConnection implements SocketConnectionContract {
 	 * @private
 	 */
 	public async _onChannelSubscribeRequest({channel}) {
-		const channelInfo = parseSocketChannelName(channel);
+		new RequestContext(this.request, undefined, this).bindToSockets(async () => {
+			const channelInfo = parseSocketChannelName(channel);
 
-		const container = app().container();
+			const container = app().container();
 
-		if(!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
-			if (config('app.logging.socketInformation'))
-				Log.error('Listener not found.... ', channelInfo);
+			if (!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
+				if (config('app.logging.socketInformation'))
+					Log.error('Listener not found.... ', channelInfo);
 
-			return;
-		}
+				return;
+			}
 
-		const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
+			const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
-		if (!listener) {
-			if (config('app.logging.socketInformation'))
-				Log.error('Listener not found.... ', channelInfo);
-			return;
-		}
+			if (!listener) {
+				if (config('app.logging.socketInformation'))
+					Log.error('Listener not found.... ', channelInfo);
+				return;
+			}
 
-		listener.setChannelInformation(channelInfo);
+			await this.runChannelMiddlewares(listener);
 
-		const canSubscribe = await listener.isAuthorised(this, this.user);
+			listener.setChannelInformation(channelInfo);
 
-		if (canSubscribe) {
-			this._subscribedChannels.set(channelInfo.channelName, listener);
-		}
+			const canSubscribe = await listener.isAuthorised(this, this.user);
 
-		this.send(SocketEvents.CHANNEL_SUBSCRIBE_RESPONSE, {
-			channel    : listener.getChannelName(),
-			successful : canSubscribe
+			if (canSubscribe) {
+				this._subscribedChannels.set(channelInfo.channelName, listener);
+			}
+
+			this.send(SocketEvents.CHANNEL_SUBSCRIBE_RESPONSE, {
+				channel    : listener.getChannelName(),
+				successful : canSubscribe
+			});
 		});
+
 	}
 
 	/**
@@ -244,37 +276,39 @@ export class SocketConnection implements SocketConnectionContract {
 	 * @private
 	 */
 	public async _onChannelUnsubscribeRequest({channel}) {
-		const channelInfo = parseSocketChannelName(channel);
+		new RequestContext(this.request, undefined, this).bindToSockets(async () => {
+			const channelInfo = parseSocketChannelName(channel);
 
-		const container = app().container();
+			const container = app().container();
 
-		if(!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
-			if (config('app.logging.socketInformation'))
-				Log.error('Listener not found.... ', channelInfo);
+			if (!container.isRegistered<SocketChannelListenerContract>(channelInfo.containerListenerName)) {
+				if (config('app.logging.socketInformation'))
+					Log.error('Listener not found.... ', channelInfo);
 
-			return;
-		}
+				return;
+			}
 
-		const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
+			const listener = container.resolve<SocketChannelListenerContract>(channelInfo.containerListenerName);
 
-		if (!listener) {
-			console.error('Listener not found.... ', channelInfo);
-			return;
-		}
+			if (!listener) {
+				console.error('Listener not found.... ', channelInfo);
+				return;
+			}
 
-		const subscription = this._subscribedChannels.get(channelInfo.channelName);
+			const subscription = this._subscribedChannels.get(channelInfo.channelName);
 
-		if (!subscription) {
-			return;
-		}
+			if (!subscription) {
+				return;
+			}
 
-		const isAuthorised = await subscription.isAuthorised(this, this.user);
+			const isAuthorised = await subscription.isAuthorised(this, this.user);
 
-		if (!isAuthorised) {
-			return;
-		}
+			if (!isAuthorised) {
+				return;
+			}
 
-		this._subscribedChannels.delete(channelInfo.channelName);
+			this._subscribedChannels.delete(channelInfo.channelName);
+		});
 	}
 
 	/**

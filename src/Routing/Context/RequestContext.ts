@@ -85,10 +85,10 @@ export class RequestContext implements RequestContextContract {
 		// throughout the lifecycle of this request, this isn't bound to
 		// our wrapper request class, only the original fastify request
 		Reflect.defineMetadata(
-			METADATA.HTTP_CONTEXT, this, this.socket
+			METADATA.HTTP_CONTEXT, this, this.request
 		);
 
-		RequestContextStore.getInstance().bind(this.socket, done);
+		RequestContextStore.getInstance().bind(this.request, done);
 	}
 
 	/**

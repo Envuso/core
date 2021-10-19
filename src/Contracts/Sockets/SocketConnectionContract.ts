@@ -49,6 +49,8 @@ export interface SocketConnectionContract {
 
 	_onEventMessage(packet: SocketPacketContract): Promise<void>;
 
+	runChannelMiddlewares(listener: SocketChannelListenerContract): Promise<void>;
+
 	_onChannelMessage(packet: SocketPacketContract): Promise<void>;
 
 	/**
