@@ -11,7 +11,7 @@ export default class WebsocketsConfiguration extends ConfigurationCredentials {
 	enabled: boolean = true;
 
 	middleware: (new () => MiddlewareContract)[] = [
-		JwtAuthenticationMiddleware
+		// JwtAuthenticationMiddleware
 	];
 
 	/**

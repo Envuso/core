@@ -47,7 +47,7 @@ export class Auth {
 	 * @returns {T}
 	 */
 	public static user<T>(): T {
-		return resolve(Authentication).user<T>().getUser();
+		return resolve(Authentication).user<T>()?.getUser() ?? null;
 	}
 
 	/**
@@ -56,7 +56,7 @@ export class Auth {
 	 * @returns {string|null}
 	 */
 	public static id(): string | null {
-		const user = resolve(Authentication).user().getUser() as any;
+		const user = resolve(Authentication).user()?.getUser() as any;
 
 		return user?._id.toHexString() ?? null;
 	}

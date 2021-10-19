@@ -7,18 +7,18 @@ import {SocketPacket} from "../../../Sockets/SocketPacket";
 import {User} from "../../Models/User";
 
 @injectable()
-export class UserSocketListener extends SocketChannelListener {
+export class PublicSocketListener extends SocketChannelListener {
 
 	public middlewares(): Middleware[] {
-		return [new JwtAuthenticationMiddleware()];
+		return [];
 	}
 
 	public channelName(): string {
-		return "user:*";
+		return "public";
 	}
 
 	public async isAuthorised(connection: SocketConnectionContract, user: User): Promise<boolean> {
-		return this.channelInfo.wildcardValue === user?._id?.toString();
+		return true
 	}
 
 	async hello(connection: SocketConnectionContract, user: User, packet: SocketPacket): Promise<any> {
