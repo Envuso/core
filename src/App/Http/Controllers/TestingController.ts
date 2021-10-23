@@ -14,7 +14,7 @@ import {dto, query, body, user} from "../../../Routing/Route/RouteDecorators";
 import {session} from "../../../Session";
 import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
 import {User} from "../../Models/User";
-import {UserSocketListener} from "../Sockets/UserSocketListener";
+//import {UserSocketListener} from "../Sockets/UserSocketListener";
 
 class DTO extends DataTransferObject {
 	@IsString()
@@ -182,7 +182,7 @@ export class TestingController extends Controller {
 		const user = Auth.user<User>();
 		//		user.sendSocketEvent('wewt', {message : 'yeah boi'});
 
-		user.sendSocketChannelEvent(UserSocketListener, 'wewt', {message : 'yeah boi'});
+//		user.sendSocketChannelEvent(UserSocketListener, 'wewt', {message : 'yeah boi'});
 
 		return {};
 	}

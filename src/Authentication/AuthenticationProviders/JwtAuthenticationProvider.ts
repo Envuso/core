@@ -32,7 +32,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 		super();
 		this._userProvider = userProvider;
 
-		this._appKey = resolve(ConfigRepository).get<string, any>('App.appKey')
+		this._appKey = resolve(ConfigRepository).get<string, any>('App.appKey');
 
 		if (!this._appKey) {
 			Log.warn('You are trying to use JWT Auth. But there is no app key defined in config(Config/App.ts), which is needed to sign Json Web Tokens.');
@@ -41,7 +41,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 
 		const authConf = config().get<string, any>('Auth');
 
-		this._config = authConf.jwt ??  {
+		this._config = authConf.jwt ?? {
 			/**
 			 * The prefix used in authorization header checks
 			 */
@@ -107,8 +107,15 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 		);
 	}
 
-	public async authoriseRequest<T>(request: RequestContract): Promise<AuthenticatableContract<T>> {
-		const token = this.getAuthenticationInformation(request);
+	public async authoriseRequest<T>(request: RequestContract | null, specifiedToken?: string | null): Promise<AuthenticatableContract<T>> {
+
+		let token = null;
+
+		if (request === null) {
+			token = specifiedToken;
+		} else {
+			token = this.getAuthenticationInformation(request);
+		}
 
 		if (!token) {
 			return null;

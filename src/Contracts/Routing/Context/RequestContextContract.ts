@@ -2,7 +2,7 @@ import {DependencyContainer} from "tsyringe";
 import {InertiaRequestContract} from "../../../Packages/Inertia/Contracts/InertiaRequestContract";
 import {AuthenticatableContract} from "../../Authentication/UserProvider/AuthenticatableContract";
 import {SessionContract} from "../../Session/SessionContract";
-import {SocketConnectionContract} from "../../Sockets/SocketConnectionContract";
+import {WebSocketConnectionContract} from "../../WebSockets/WebSocketConnectionContract";
 import {RequestContract} from "./Request/RequestContract";
 import {ResponseContract} from "./Response/ResponseContract";
 
@@ -12,7 +12,7 @@ export interface RequestContextContract {
 	container: DependencyContainer;
 	user: AuthenticatableContract<any>;
 	session: SessionContract;
-	socket: SocketConnectionContract;
+	socket: WebSocketConnectionContract<any>;
 	inertia: InertiaRequestContract;
 
 	/**
@@ -23,7 +23,7 @@ export interface RequestContextContract {
 	 */
 	bindToFastify(done): void;
 
-	bindToSockets(done): void;
+	bindToSockets(connection: WebSocketConnectionContract<any>, done): void;
 
 	hasSession(): boolean;
 

@@ -12,6 +12,7 @@ export enum ServerEventTypes {
 	SOCKET_PING                 = 'ping',
 	SOCKET_PONG                 = 'pong',
 	SOCKET_READY                = 'ready',
+	SOCKET_DISCONNECT           = 'disconnect',
 	CHANNEL_SUBSCRIBE_REQUEST   = 'subscribe-channel-request',
 	CHANNEL_SUBSCRIBE_RESPONSE  = 'subscribe-channel-response',
 	CHANNEL_UNSUBSCRIBE_REQUEST = 'unsubscribe-channel-request'

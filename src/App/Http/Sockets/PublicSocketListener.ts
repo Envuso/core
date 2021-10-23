@@ -1,13 +1,14 @@
-import {JwtAuthenticationMiddleware, Middleware} from "../../../Routing";
+import {WebSocketConnectionContract} from "../../../Contracts/WebSockets/WebSocketConnectionContract";
+import {Middleware} from "../../../Routing";
 import {injectable} from "tsyringe";
 import {Log} from "../../../Common";
-import {SocketConnectionContract} from "../../../Contracts/Sockets/SocketConnectionContract";
-import {SocketChannelListener} from "../../../Sockets/SocketChannelListener";
-import {SocketPacket} from "../../../Sockets/SocketPacket";
+import {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
+import {WebSocketChannelListener} from "../../../WebSockets/WebSocketChannelListener";
+import {WebSocketConnection} from "../../../WebSockets/WebSocketConnection";
 import {User} from "../../Models/User";
 
 @injectable()
-export class PublicSocketListener extends SocketChannelListener {
+export class PublicSocketListener extends WebSocketChannelListener {
 
 	public middlewares(): Middleware[] {
 		return [];
@@ -17,14 +18,16 @@ export class PublicSocketListener extends SocketChannelListener {
 		return "public";
 	}
 
-	public async isAuthorised(connection: SocketConnectionContract, user: User): Promise<boolean> {
-		return true
+	public async isAuthorised(connection: WebSocketConnection<User>): Promise<boolean> {
+		return true;
 	}
 
-	async hello(connection: SocketConnectionContract, user: User, packet: SocketPacket): Promise<any> {
+	async hello(connection: WebSocketConnectionContract<any>, packet: UserMessageSocketPacket): Promise<any> {
 		Log.success('GREAT SUCCESS HIGH FIVE');
 
-		connection.send('hello', {message : 'Fuck yeah from ' + user._id});
+		//		this.send('hello', {message : 'uwot'});
+
+		this.broadcast('hello', {message : 'uwot'});
 	}
 
 

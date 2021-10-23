@@ -1,19 +1,21 @@
+import {ObjectId} from "mongodb";
 import {ModelConstructorOrInstantiatedModel} from "../../../Authorization/Authorization";
-import {SocketEvents} from "../../../Sockets/SocketEvents";
-import {SocketChannelListenerContract} from "../../Sockets/SocketChannelListenerContract";
+import {WebSocketChannelListenerContractConstructor} from "../../WebSockets/WebSocketChannelListenerContract";
 
 export interface AuthenticatableContract<T> {
 	_user: any;
 
 	generateToken(additionalPayload?: any): string;
 
-	sendSocketChannelEvent(channel: new () => SocketChannelListenerContract, eventName: SocketEvents | string, data: any): void;
+	sendSocketChannelEvent(channel: WebSocketChannelListenerContractConstructor, eventName: string, data: any): void;
 
-	sendSocketEvent(eventName: SocketEvents | string, data: any): void;
+	sendSocketEvent(eventName: string, data: any): void;
 
 	setUser(user: any): AuthenticatableContract<T>;
 
 	getUser<T>(): T;
+
+	getId(): ObjectId;
 
 	can<T extends ModelConstructorOrInstantiatedModel>(permission: string, model: T, ...additional): Promise<boolean>;
 

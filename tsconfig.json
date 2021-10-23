@@ -59,7 +59,7 @@
     "src/Queue/**/*",
     "src/Security/**/*",
     "src/Server/**/*",
-    "src/Sockets/**/*",
+    "src/WebSockets/**/*",
     "src/Session/**/*",
     "src/Storage/**/*.ts",
     "src/Queue/**/*.ts",

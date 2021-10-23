@@ -1,6 +1,7 @@
 import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
+import {HttpRequest} from "uWebSockets.js";
 import {config} from "../../../AppContainer";
 import {Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
@@ -24,7 +25,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	private _uploadedFiles: UploadedFile[] = [];
 
-	constructor(context: RequestContextContract, request: FastifyRequest | IncomingMessage) {
+	constructor(context: RequestContextContract, request: FastifyRequest) {
 		super(context, request);
 	}
 

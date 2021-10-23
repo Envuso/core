@@ -1722,7 +1722,7 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.3.tgz#90420f9f9c6d3987f176a19a7d8e764271a2f55d"
   integrity sha512-Fxt+AfXgjMoin2maPIYzFZnQjAXjAL0PHscM5pRTtatFqB+vZxAM9tLp2Optnuw3QOQC40jTNeGYFOMvyf7v9g==
 
-"@envuso/date-time-helper@^0.1.2":
+"@envuso/date-time-helper@^0.1.2-0":
   version "0.1.2-0"
   resolved "https://registry.yarnpkg.com/@envuso/date-time-helper/-/date-time-helper-0.1.2-0.tgz#ae32fe7d2b08b2f53e001cbe4f23f6b5d98a9b15"
   integrity sha512-qRTcNm0iD7NtRK2kLd2Dz0iGWp4Z8KpygBzH4TEfBecmsB4hU86eqtXsD1123bW2JILiRfOwFB2zmeVxWLu3Gg==
@@ -10172,6 +10172,10 @@ typescript@^4.4.2:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.2.tgz#6d618640d430e3569a1dfb44f7d7e600ced3ee86"
   integrity sha512-gzP+t5W4hdy4c+68bfcv0t400HVJMMd2+H9B7gae1nQlBzCqvrXX+6GL/b3GAgyTH966pzrZ70/fRjwAtZksSQ==
+
+uWebSockets.js@uNetworking/uWebSockets.js#v19.3.0:
+  version "19.3.0"
+  resolved "https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/7bf0faac5859fef2d113e83d22803f7833774c11"
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"

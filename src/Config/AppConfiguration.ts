@@ -17,6 +17,7 @@ import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
 import {RedisServiceProvider} from "../Redis/RedisServiceProvider";
 import {QueueServiceProvider} from "../Queue/QueueServiceProvider";
+import {WebSocketsServiceProvider} from "../WebSockets/WebSocketsServiceProvider";
 
 
 export default class AppConfiguration extends ConfigurationCredentials implements ApplicationConfiguration {
@@ -38,7 +39,8 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		StorageServiceProvider,
 		ServerServiceProvider,
 		InertiaServiceProvider,
-//		QueueServiceProvider,
+		//		QueueServiceProvider,
+		WebSocketsServiceProvider
 	];
 
 	exceptionHandler: ExceptionHandlerConstructorContract = ExceptionHandler;
@@ -53,13 +55,15 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 	url: string = Environment.get('APP_URL', 'http://127.0.0.1:' + Environment.get('PORT', 3000));
 
 	logging = {
-		middleware        : true,
-		routes            : true,
-		controllers       : true,
-		providers         : true,
-		serverHooks       : true,
-		socketInformation : false,
+		middleware  : false,
+		routes      : false,
+		controllers : false,
+		providers   : true,
+		serverHooks : true,
+
+		socketInformation : true,
 		socketChannels    : true,
+		socketExceptions  : false,
 	};
 
 	isDev() {

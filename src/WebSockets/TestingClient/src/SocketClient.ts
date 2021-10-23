@@ -6,8 +6,9 @@ import ws from 'ws';
 
 export class SocketClient {
 	private url: string;
+	private token: string;
 
-	private protocols: string | string[];
+	private protocols: string[] = [];
 
 	private ws: ws;
 
@@ -19,12 +20,19 @@ export class SocketClient {
 	private disconnectTimer: NodeJS.Timeout = null;
 	private disconnectBackoff: number       = 2_000;
 	private disconnectRetries: number       = 0;
+	public shouldAttemptReconnect: boolean  = false;
 
 	private connectionStatus: ConnectionStatus = ConnectionStatus.NONE;
 
-	constructor(url: string, protocols?: string | string[]) {
+	constructor(url: string, protocols?: string[]) {
 		this.url       = url;
-		this.protocols = protocols;
+		this.protocols = protocols || [];
+	}
+
+	public addProtocol(protocol: any): this {
+		this.protocols.push(this.token);
+
+		return this;
 	}
 
 	/**
@@ -34,11 +42,9 @@ export class SocketClient {
 	 * @returns {this}
 	 */
 	public usingJwt(token: string): this {
-		const url = new URL(this.url);
+		this.token = token;
 
-		url.searchParams.set('token', token);
-
-		this.url = url.toString();
+		this.addProtocol(this.token);
 
 		return this;
 	}
@@ -78,6 +84,12 @@ export class SocketClient {
 			this.ws.addEventListener('message', (event) => {
 				const packet: SocketPacket = JSON.parse(event.data);
 
+				if (packet.event === ServerEventTypes.SOCKET_DISCONNECT) {
+					this.connectionStatus = ConnectionStatus.DISCONNECTED;
+					resolve(false);
+
+					return;
+				}
 				if (packet.event === ServerEventTypes.SOCKET_READY) {
 					this.connectionStatus = ConnectionStatus.CONNECTED;
 
@@ -152,6 +164,8 @@ export class SocketClient {
 
 		this.dispatchEvent('closed', event);
 
+		console.log('WE WERE DISCONNECTED');
+
 		/**
 		 * Connection was closed by the developer, not a lost connection to the server
 		 */
@@ -167,7 +181,11 @@ export class SocketClient {
 		/**
 		 * Connection was lost to the server
 		 */
+		this.connectionStatus = ConnectionStatus.DISCONNECTED;
 
+		if (!this.shouldAttemptReconnect) {
+			return;
+		}
 		this.connectionStatus = ConnectionStatus.RE_CONNECTING;
 		this.beginReconnect();
 	}
@@ -361,7 +379,16 @@ export class SocketClient {
 		return true;
 	}
 
+	hasSubscription(channel: string): boolean {
+		return this.channels.has(channel);
+	}
+
 	disconnect() {
 		this.ws.close();
+	}
+
+	terminate() {
+		this.ws.close();
+		this.ws.terminate();
 	}
 }

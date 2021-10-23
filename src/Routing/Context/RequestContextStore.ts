@@ -4,8 +4,7 @@ import {METADATA} from "../../Common";
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {RequestContextStoreContract} from "../../Contracts/Routing/Context/RequestContextStoreContract";
-import {SocketConnectionContract} from "../../Contracts/Sockets/SocketConnectionContract";
-
+import {WebSocketConnectionContract} from "../../Contracts/WebSockets/WebSocketConnectionContract";
 
 let instance = null;
 
@@ -35,7 +34,7 @@ export class RequestContextStore implements RequestContextStoreContract {
 		return this._store;
 	}
 
-	public bind(request: FastifyRequest | RequestContract, done: any) {
+	public bind(request: FastifyRequest | WebSocketConnectionContract<any>, done: any) {
 		const cont = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
 
 		this._store.run(cont, done);

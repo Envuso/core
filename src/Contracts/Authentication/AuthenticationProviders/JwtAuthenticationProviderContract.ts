@@ -12,7 +12,7 @@ export interface JwtAuthenticationProviderContract {
 
 	validateAuthenticationInformation<T extends VerifiedTokenInterface>(credential: string): T | null;
 
-	authoriseRequest<T>(request: RequestContract): Promise<AuthenticatableContract<T>>;
+	authoriseRequest<T>(request: RequestContract | null, specifiedToken?: string | null): Promise<AuthenticatableContract<T>>;
 
 	issueToken(id: string, additionalPayload?: any): string;
 }

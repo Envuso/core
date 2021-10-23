@@ -1,16 +1,16 @@
 import {classToPlainFromExist} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
+import {ObjectId} from "mongodb";
 import {injectable} from "tsyringe";
 import {config, resolve} from "./AppContainer";
 import {Authorization, ModelConstructorOrInstantiatedModel} from "./Authorization/Authorization";
 import {AuthenticationContract} from "./Contracts/Authentication/AuthenticationContract";
 import {JwtAuthenticationProviderContract} from "./Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
 import {AuthenticatableContract} from "./Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {SocketChannelListenerContract} from "./Contracts/Sockets/SocketChannelListenerContract";
+import {WebSocketChannelListenerContractConstructor} from "./Contracts/WebSockets/WebSocketChannelListenerContract";
 import {Model} from "./Database/Mongo/Model";
-import {SocketEvents} from "./Sockets/SocketEvents";
-import {SocketServer} from "./Sockets/SocketServer";
 import {internalExclude} from "./Database/InternalDecorators";
+import {WebSocketServer} from "./WebSockets/WebSocketServer";
 
 @injectable()
 export class Authenticatable<T> extends Model<T> implements AuthenticatableContract<T> {
@@ -24,18 +24,12 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 			.issueToken((this as any)._id as unknown as string, additionalPayload);
 	}
 
-	public sendSocketChannelEvent(channel: new () => SocketChannelListenerContract, eventName: SocketEvents | string, data: any) {
-		const userId = (this?._user?._id ?? (this as any)._id).toString();
-
-		resolve(SocketServer).sendToUserViaChannel(
-			userId, channel, eventName, data
-		);
+	public sendSocketChannelEvent(channel: WebSocketChannelListenerContractConstructor, eventName: string, data: any) {
+		WebSocketServer.sendToUserViaChannel(this.getId().toString(), channel, eventName, data);
 	}
 
-	public sendSocketEvent(eventName: SocketEvents | string, data: any) {
-		const userId = (this?._user?._id ?? (this as any)._id).toString();
-
-		resolve(SocketServer).sendToUser(userId, eventName, data);
+	public sendSocketEvent(eventName: string, data: any) {
+		WebSocketServer.sendToUserId(this.getId().toString(), eventName, data);
 	}
 
 	public setUser(user: any): AuthenticatableContract<T> {
@@ -54,6 +48,10 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 
 	public getUser<T>(): T {
 		return this._user as T;
+	}
+
+	public getId(): ObjectId {
+		return new ObjectId((this?._user?._id ?? (this as any)._id).toString());
 	}
 
 	public can<T extends ModelConstructorOrInstantiatedModel>(permission: string, model: T, ...additional): Promise<boolean> {

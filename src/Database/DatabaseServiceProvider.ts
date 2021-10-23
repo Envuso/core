@@ -1,10 +1,9 @@
-//@ts-ignore
-import {defaultMetadataStorage} from "class-transformer/cjs/storage.js";
+
 import {MongoClient} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
-import {FileLoader} from "../Common";
+import {FileLoader, Log} from "../Common";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
@@ -88,9 +87,9 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		if (mongoClient) {
 			try {
 				await mongoClient.close(true);
-				console.log('Successfully closed mongo client connection.');
+				Log.info('Successfully closed mongo client connection.');
 			} catch (error) {
-				console.error('Failed to close mongo client connection', error);
+				Log.error('Failed to close mongo client connection', error);
 			}
 
 		}

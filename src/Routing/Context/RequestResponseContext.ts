@@ -2,6 +2,7 @@ import {FastifyReply, FastifyRequest} from "fastify";
 import Reply from "fastify/lib/reply.js";
 import Request from "fastify/lib/request.js";
 import {IncomingHttpHeaders, IncomingMessage} from "http";
+import {HttpRequest} from "uWebSockets.js";
 import {ObjectContainer, ObjectContainerObject} from "../../Common";
 import {CookieJarContract} from "../../Contracts/Cookies/CookieJarContract";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
@@ -27,7 +28,7 @@ export class RequestResponseContext implements RequestResponseContextContract {
 	/**
 	 * Hold the original fastify request so we can access/use it when needed
 	 */
-	public _request: FastifyRequest | IncomingMessage = null;
+	public _request: FastifyRequest = null;
 
 	/**
 	 * Handles all cookies that will be sent on the request
@@ -47,7 +48,7 @@ export class RequestResponseContext implements RequestResponseContextContract {
 
 	protected _context: RequestContextContract = null;
 
-	constructor(context: RequestContextContract, method: FastifyReply | FastifyRequest | IncomingMessage) {
+	constructor(context: RequestContextContract, method: FastifyReply | FastifyRequest) {
 		this.bindMethod(method);
 		this._context   = context;
 		this._cookieJar = new CookieJar();
@@ -169,7 +170,7 @@ export class RequestResponseContext implements RequestResponseContextContract {
 		return this._response;
 	}
 
-	private bindMethod(method: FastifyReply | FastifyRequest | IncomingMessage) {
+	private bindMethod(method: FastifyReply | FastifyRequest) {
 		if (method instanceof Reply) {
 			this._response = (<FastifyReply>method);
 			return;
@@ -178,10 +179,10 @@ export class RequestResponseContext implements RequestResponseContextContract {
 			this._request = <Request>method;
 			return;
 		}
-		if (method instanceof IncomingMessage) {
-			this._request = <IncomingMessage>method;
-			return;
-		}
+//		if (method instanceof HttpRequest) {
+//			this._request = <IncomingMessage>method;
+//			return;
+//		}
 	}
 
 	private getHeaderContainerForMethod(method: FastifyReply | FastifyRequest | IncomingMessage): ObjectContainer<number | string | string[] | undefined> {

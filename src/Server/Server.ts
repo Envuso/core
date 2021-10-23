@@ -12,7 +12,6 @@ import {RequestContext} from "../Routing/Context/RequestContext";
 import {RedirectResponse} from "../Routing/Context/Response/RedirectResponse";
 import {Routing} from "../Routing/Route/Routing";
 import {AssetManager} from "../Routing/StaticAssets/AssetManager";
-import {SocketServer} from "../Sockets/SocketServer";
 
 
 export class Server implements ServerContract {
@@ -150,13 +149,6 @@ export class Server implements ServerContract {
 	 * Begin listening for connections
 	 */
 	public async listen() {
-
-		const socketServer = resolve(SocketServer);
-
-		if (socketServer.isEnabled()) {
-			await socketServer.initiate(this._server);
-		}
-
 		await this._server.listen(this._config.port);
 
 		Log.success('Server is running at http://127.0.0.1:' + this._config.port);

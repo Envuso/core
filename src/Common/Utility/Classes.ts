@@ -13,6 +13,10 @@ export interface FrameworkModule {
 
 export class Classes {
 
+	public static getOrInstantiate<T>(c: any, ...args): T {
+		return this.isInstantiated(c) ? c : new c(...args);
+	}
+
 	/**
 	 * Check if a class has been instantiated
 	 *

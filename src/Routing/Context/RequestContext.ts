@@ -1,5 +1,4 @@
 import {FastifyReply, FastifyRequest} from "fastify";
-import {IncomingMessage} from "http";
 import {DependencyContainer} from "tsyringe";
 import {App} from "../../AppContainer";
 import {Authenticatable} from "../../Authenticatable";
@@ -9,8 +8,7 @@ import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestCo
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {ResponseContract} from "../../Contracts/Routing/Context/Response/ResponseContract";
 import {SessionContract} from "../../Contracts/Session/SessionContract";
-import {SocketConnectionContract} from "../../Contracts/Sockets/SocketConnectionContract";
-import {CookieJar} from "../../Cookies";
+import {WebSocketConnectionContract} from "../../Contracts/WebSockets/WebSocketConnectionContract";
 import {InertiaRequestContract} from "../../Packages/Inertia/Contracts/InertiaRequestContract";
 import {InertiaRequest} from "../../Packages/Inertia/InertiaRequest";
 import {Request} from "./Request/Request";
@@ -29,22 +27,20 @@ export class RequestContext implements RequestContextContract {
 
 	public session: SessionContract = null;
 
-	public socket: SocketConnectionContract = null;
+	public socket: WebSocketConnectionContract<any> = null;
 
 	public inertia: InertiaRequestContract = null;
 
 	private additional: { [key: string]: any } = {};
 
 	constructor(
-		request?: FastifyRequest | IncomingMessage,
+		request?: FastifyRequest,
 		response?: FastifyReply,
-		socket?: SocketConnectionContract
+		socket?: WebSocketConnectionContract<any>
 	) {
 		if (request) {
 			this.request = new Request(this, request);
-
-			if (!(request instanceof IncomingMessage))
-				this.inertia = new InertiaRequest(this, request);
+			this.inertia = new InertiaRequest(this, request);
 		}
 		if (response)
 			this.response = new Response(this, response);
@@ -78,17 +74,17 @@ export class RequestContext implements RequestContextContract {
 		RequestContextStore.getInstance().bind(this.request.fastifyRequest, done);
 	}
 
-	public bindToSockets(done) {
+	public bindToSockets(connection: WebSocketConnectionContract<any>, done) {
 		this.container = App.getInstance().container().createChildContainer();
 
 		// We bind the context to the current request, so it's obtainable
 		// throughout the lifecycle of this request, this isn't bound to
 		// our wrapper request class, only the original fastify request
 		Reflect.defineMetadata(
-			METADATA.HTTP_CONTEXT, this, this.request
+			METADATA.HTTP_CONTEXT, this, connection
 		);
 
-		RequestContextStore.getInstance().bind(this.request, done);
+		RequestContextStore.getInstance().bind(connection, done);
 	}
 
 	/**

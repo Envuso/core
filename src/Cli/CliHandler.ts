@@ -41,6 +41,7 @@ export const seedDatabase = (dev: boolean = false) => {
 	});
 };
 
+
 //export const run = (dev: boolean = false) => {
 //	yargs.command(
 //		'db:seed',
