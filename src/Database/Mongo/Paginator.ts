@@ -43,12 +43,12 @@ export class Paginator<T> implements PaginatorContract<T> {
 
 		this.mergeQuery(this.setupQuery());
 
+		const total = await queryBuilder.where(this.query.getQuery()).count();
+
 		const results = await queryBuilder
 			.where(this.query.getQuery())
 			.limit(this.limit)
-			.get({
-				limit: this.limit,
-			});
+			.get({limit : this.limit});
 
 		this._response = {
 			data       : results,
@@ -65,7 +65,6 @@ export class Paginator<T> implements PaginatorContract<T> {
 		if (!results?.length)
 			return this;
 
-		const total       = await queryBuilder.where(this.query.getQuery()).count();
 		const hasNext     = (results.length === this.limit) && (total > results.length);
 		const hasPrevious = this.getAfterCursor() !== null;
 
