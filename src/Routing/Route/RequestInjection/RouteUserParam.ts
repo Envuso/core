@@ -1,6 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {resolve} from "../../../AppContainer";
-import {Authentication} from "../../../Authentication";
+import {Auth, Authentication} from "../../../Authentication";
 import {DecoratorHelpers, METADATA} from "../../../Common";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
@@ -39,7 +39,13 @@ export class RouteUserParam extends MethodParameterDecorator {
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply) {
-		return resolve(Authentication).user().getUser();
+		if(!Auth.check()) {
+			return null;
+		}
+
+		return Auth.user();
+
+//		const user = resolve(Authentication).user().getUser();
 	}
 
 }
