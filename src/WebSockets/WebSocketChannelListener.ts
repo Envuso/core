@@ -102,8 +102,13 @@ export abstract class WebSocketChannelListener implements WebSocketChannelListen
 	public static broadcast(this: WebSocketChannelListenerContractConstructor, wildcardValue: string | null, event: string, data: any) {
 		const c = new this();
 
+		c.channelInfo.channelName           = c.channelName();
+		c.channelInfo.wildcardValue         = null;
+		c.channelInfo.containerListenerName = this.containerListenerName();
+
 		if (c.usesWildcardChannel()) {
-			c.channelWildcardValue = wildcardValue;
+			c.channelInfo.wildcardValue = wildcardValue;
+			c.channelWildcardValue      = wildcardValue;
 		}
 
 		c.connectedChannelName = c.getChannelName();
