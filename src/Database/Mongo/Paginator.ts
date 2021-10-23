@@ -16,14 +16,14 @@ export interface PaginatedResponse<T> {
 		hasPrevious: boolean;
 		total: number;
 		limit: number;
-	}
+	};
 }
 
 export class Paginator<T> implements PaginatorContract<T> {
 
 	public _response: PaginatedResponse<T> = null;
-	public _beforeCursor: string = null;
-	public _afterCursor: string = null;
+	public _beforeCursor: string           = null;
+	public _afterCursor: string            = null;
 
 	constructor(
 		public model: ModelContract<T>,
@@ -84,10 +84,18 @@ export class Paginator<T> implements PaginatorContract<T> {
 	 * We'll then store them on the class
 	 */
 	public setPageCursors() {
-		const ctx = RequestContextStore.getInstance();
+		const ctx     = RequestContextStore.getInstance();
+		const context = ctx.context();
 
-		this._afterCursor  = ctx.context().request.get<string>('after') ?? null;
-		this._beforeCursor = ctx.context().request.get<string>('before') ?? null;
+		if (!context) {
+			this._afterCursor  = null;
+			this._beforeCursor = null;
+
+			return;
+		}
+
+		this._afterCursor  = context.request.get<string>('after') ?? null;
+		this._beforeCursor = context.request.get<string>('before') ?? null;
 	}
 
 	/**
@@ -155,7 +163,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 		if (query._id)
 			(thisQuery as any)._id = query._id;
 
-		this.query = this.query.add(query);
+		this.query.add(query);
 	}
 
 	/**

@@ -18,7 +18,7 @@ import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mo
 import {Database, ModelDecoratorMeta, ModelRelationMeta, ModelRelationType} from "../index";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {ModelHelpers} from "./ModelHelpers";
-import {Paginator} from "./Paginator";
+import {PaginatedResponse, Paginator} from "./Paginator";
 import {QueryAggregation} from "./QueryAggregation";
 import {QueryBuilderHelpers} from "./QueryBuilderHelpers";
 import {QueryBuilderParts} from "./QueryBuilderParts";
@@ -121,7 +121,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @param {boolean} diacriticSensitive
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	public textSearch(searchString: string, language?: string, caseSensitive?: boolean, diacriticSensitive?: boolean):QueryBuilderContract<T> {
+	public textSearch(searchString: string, language?: string, caseSensitive?: boolean, diacriticSensitive?: boolean): QueryBuilderContract<T> {
 		const query: ModelAttributesFilter<T> = {$text : {$search : searchString}};
 
 		if (language !== undefined) {
@@ -627,7 +627,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @param {number} limit
 	 * @returns {PaginatorContract<{}>}
 	 */
-	public async paginate(limit: number = 20): Promise<PaginatorContract<T>> {
+	public async paginate(limit: number = 20): Promise<PaginatedResponse<T>> {
 		this.limit(limit);
 
 		const paginator = new Paginator(
@@ -638,7 +638,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 		await paginator.getResults();
 
-		return paginator;
+		return paginator._response;
 	}
 
 	/**

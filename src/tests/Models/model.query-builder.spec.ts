@@ -258,7 +258,6 @@ describe('model query builder implementation', () => {
 		await user.update({orderValue : 1});
 	});
 
-
 	test('text searching', async () => {
 		await User.createMany([
 			{name : 'sam', email : 'someemail@test.com'},
@@ -269,6 +268,19 @@ describe('model query builder implementation', () => {
 		const results = await User.query().textSearch('sam').get();
 
 		expect(results.length).toBeGreaterThan(0);
+	});
+
+	test('pagination', async () => {
+		await User.createMany([
+			{name : 'sam', email : 'someemail@test.com'},
+			{name : 'sammeh', email : 'some@test.com'},
+			{name : 'meh', email : 'yah@test.com'},
+		]);
+
+		const results = await User.query().paginate(1);
+
+		expect(results.data.length).toBeGreaterThan(0);
+		expect(results.pagination.hasNext).toBeTruthy();
 	});
 
 });

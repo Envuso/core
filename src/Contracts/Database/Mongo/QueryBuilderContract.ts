@@ -11,6 +11,7 @@ import {
 	UpdateResult
 } from "mongodb";
 import {ModelDecoratorMeta, ModelRelationMeta, ModelRelationType, QueryOperator, QueryResolveType} from "../../../Database";
+import {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryAggregation} from "../../../Database/Mongo/QueryAggregation";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
@@ -290,7 +291,7 @@ export interface QueryBuilderContract<T> {
 	 * @param {number} limit
 	 * @returns {PaginatorContract<{}>}
 	 */
-	paginate(limit: number): Promise<PaginatorContract<T>>;
+	paginate(limit: number): Promise<PaginatedResponse<T>>;
 
 	/**
 	 * Insert many created models(documents) into the collection
