@@ -3,6 +3,7 @@ import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {RequestContextStore} from "../../Routing/Context/RequestContextStore";
 import {ModelAttributesFilter} from "../QueryBuilderTypes";
+import {QueryBuilder} from "./QueryBuilder";
 import {QueryBuilderParts} from "./QueryBuilderParts";
 
 export type PageCursor = 'after' | 'before';
@@ -37,16 +38,17 @@ export class Paginator<T> implements PaginatorContract<T> {
 	 * @template T
 	 * @returns {Promise<Paginator<T>>}
 	 */
-	public async getResults(): Promise<this> {
+	public async getResults(queryBuilder: QueryBuilder<any>): Promise<this> {
 		this.setPageCursors();
 
 		this.mergeQuery(this.setupQuery());
 
-
-		const results = await this.model.queryBuilder()
+		const results = await queryBuilder
 			.where(this.query.getQuery())
 			.limit(this.limit)
-			.get();
+			.get({
+				limit: this.limit,
+			});
 
 		this._response = {
 			data       : results,
@@ -63,7 +65,7 @@ export class Paginator<T> implements PaginatorContract<T> {
 		if (!results?.length)
 			return this;
 
-		const total       = await this.model.queryBuilder().where(this.query.getQuery()).count();
+		const total       = await queryBuilder.where(this.query.getQuery()).count();
 		const hasNext     = (results.length === this.limit) && (total > results.length);
 		const hasPrevious = this.getAfterCursor() !== null;
 

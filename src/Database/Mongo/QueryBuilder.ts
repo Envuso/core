@@ -636,7 +636,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			this._limit
 		);
 
-		await paginator.getResults();
+		await paginator.getResults(this);
 
 		return paginator._response;
 	}
@@ -782,7 +782,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 		if (this._aggregation.hasAggregations()) {
 
-			this._aggregation.setFilterQuery(this._filter);
+			this._aggregation.setFilterQuery(this._filter, (options.limit ?? null));
 
 			this._builderResult = this._collection.aggregate<T>(
 				this._aggregation.getQuery()

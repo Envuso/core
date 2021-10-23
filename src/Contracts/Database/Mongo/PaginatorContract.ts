@@ -1,3 +1,4 @@
+import {QueryBuilder} from "../../../Database";
 import {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
 import {ModelAttributesFilter} from "../../../Database/QueryBuilderTypes";
@@ -17,7 +18,7 @@ export interface PaginatorContract<T> {
 	 * @template T
 	 * @returns {Promise<Paginator<T>>}
 	 */
-	getResults(): Promise<this>;
+	getResults(queryBuilder: QueryBuilder<any>): Promise<this>;
 
 	/**
 	 * Attempt to get the before/after cursors specified on the request

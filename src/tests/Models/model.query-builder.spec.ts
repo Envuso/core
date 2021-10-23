@@ -271,13 +271,23 @@ describe('model query builder implementation', () => {
 	});
 
 	test('pagination', async () => {
-		await User.createMany([
+		const createManyRes = await User.createMany([
 			{name : 'sam', email : 'someemail@test.com'},
 			{name : 'sammeh', email : 'some@test.com'},
 			{name : 'meh', email : 'yah@test.com'},
 		]);
 
-		const results = await User.query().paginate(1);
+		const users = await User.query()
+			.whereIn('_id', createManyRes.ids)
+			.get();
+
+		for (let user of users) {
+			await Book.create({userId : user._id, title : 'pls work'});
+		}
+
+		const results = await User.query()
+			.with('books')
+			.paginate(1);
 
 		expect(results.data.length).toBeGreaterThan(0);
 		expect(results.pagination.hasNext).toBeTruthy();

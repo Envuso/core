@@ -38,8 +38,12 @@ export class QueryAggregation<T> {
 		return this;
 	}
 
-	public setFilterQuery(filter: QueryBuilderParts<T>): QueryAggregation<T> {
+	public setFilterQuery(filter: QueryBuilderParts<T>, limit: number = null): QueryAggregation<T> {
 		this.aggregations.unshift({$match : filter.getQueryAsFilter()});
+
+		if (limit) {
+			this.aggregations.push({$limit : limit});
+		}
 
 		return this;
 	}
