@@ -380,7 +380,7 @@ export class WebSocketServer {
 		const userConnections = [];
 
 		this.connections.forEach(connection => {
-			if (connection.user?._id === id) {
+			if (connection.user?._id.toString() === id) {
 				userConnections.push(connection);
 			}
 		});
