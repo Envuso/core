@@ -46,7 +46,7 @@ export class WebSocketConnection<T> implements WebSocketConnectionContract<T> {
 	getSubscription(channel: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): WebSocketChannelListenerContract {
 		channel = Classes.getOrInstantiate<WebSocketChannelListenerContract>(channel);
 
-		return this.subscriptions.get(channel.channelName());
+		return this.subscriptions.get(channel.getChannelName());
 	}
 
 	/**
@@ -58,23 +58,18 @@ export class WebSocketConnection<T> implements WebSocketConnectionContract<T> {
 	public hasSubscription(channel: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): boolean {
 		channel = Classes.getOrInstantiate<WebSocketChannelListenerContract>(channel);
 
-		return this.subscriptions.has(channel.channelName());
+		return this.subscriptions.has(channel.getChannelName());
 	}
 
 	subscribe(listener: WebSocketChannelListenerContract) {
-		const channelName = listener.channelInfo.channelName;
-
 		listener.connection = this;
-		this.subscriptions.set(channelName, listener);
-
-		this.connection.subscribe(channelName);
+		this.subscriptions.set(listener.connectedChannelName, listener);
+		this.connection.subscribe(listener.connectedChannelName);
 	}
 
 	unsubscribe(listener: WebSocketChannelListenerContract) {
-		const channelName = listener.channelInfo.channelName;
-
-		this.subscriptions.delete(channelName);
-		this.connection.unsubscribe(channelName);
+		this.subscriptions.delete(listener.connectedChannelName);
+		this.connection.unsubscribe(listener.connectedChannelName);
 	}
 
 	public async subscribeToChannelListener(listener: WebSocketChannelListenerContract) {

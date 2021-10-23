@@ -234,7 +234,10 @@ export class WebSocketServer {
 			return null;
 		}
 
-		return container.resolve<WebSocketChannelListenerContract>(channelInfo.containerListenerName);
+		const listener = container.resolve<WebSocketChannelListenerContract>(channelInfo.containerListenerName);
+		listener.setChannelInformation(channelInfo);
+
+		return listener;
 	}
 
 	private async handleChannelSubscription(webSocketConnection: WebSocketConnection<any>, packet: ChannelSubscribeSocketPacket) {

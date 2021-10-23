@@ -236,8 +236,9 @@ describe('websocket channels', () => {
 					resolve({channel, error});
 				}
 
+				channel.listen('welcome', data => console.log(data));
 
-				UserSocketListener.broadcast(user._id.toString(), 'aids', {moreAids : true});
+				UserSocketListener.broadcast(user._id.toString(), 'welcome', {message : 'hello'});
 
 				resolve({channel, error});
 			});

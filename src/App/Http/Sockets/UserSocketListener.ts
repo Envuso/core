@@ -27,9 +27,7 @@ export class UserSocketListener extends WebSocketChannelListener {
 	async hello(connection: WebSocketConnection<User>, packet: UserMessageSocketPacket): Promise<any> {
 		Log.success('GREAT SUCCESS HIGH FIVE');
 
-		this.send('hello', {
-			message : 'Hell yeah from ' + connection.user._id
-		});
+		UserSocketListener.broadcast(connection.user._id.toString(), 'hello', {message : 'oh hi, it worked woooo'});
 	}
 
 
