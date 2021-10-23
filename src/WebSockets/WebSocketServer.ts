@@ -156,10 +156,14 @@ export class WebSocketServer {
 		req.user  = ws.user;
 
 		this.runGlobalMiddleware().then(success => {
-			if (success) {
-				ws.subscribe(`auth:user:${req.user.getId().toString()}`);
-				webSocketConnection.sendEvent(SocketEvents.SOCKET_READY);
+			if (!success) {
+				return;
 			}
+
+			if (req.user) {
+				ws.subscribe(`auth:user:${req.user.getId().toString()}`);
+			}
+			webSocketConnection.sendEvent(SocketEvents.SOCKET_READY);
 		});
 
 	}
