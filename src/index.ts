@@ -1,5 +1,3 @@
-
-
 export {SecurityServiceProvider} from "./Security/SecurityServiceProvider";
 export {EncryptionServiceProvider, Encryption} from "./Crypt";
 export {RouteServiceProvider} from "./Routing/RouteServiceProvider";
@@ -10,6 +8,7 @@ export {AuthorizationServiceProvider} from './Authorization/AuthorizationService
 export {StorageServiceProvider} from "./Storage";
 export {EventServiceProvider} from "./Events";
 export {SessionServiceProvider} from "./Session/SessionServiceProvider";
+export {WebSocketsServiceProvider} from "./WebSockets/WebSocketsServiceProvider";
 
 
 export {Envuso} from './Envuso';
