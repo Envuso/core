@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {UserSocketListener} from "../App/Http/Sockets/UserSocketListener";
 import {User} from "../App/Models/User";
 import {resolve} from "../AppContainer";
 import {EncryptionServiceProvider} from "../Crypt";
@@ -214,6 +215,29 @@ describe('websocket channels', () => {
 				}
 
 				expect(error).toBeNull();
+
+				resolve({channel, error});
+			});
+		}));
+
+		client.terminate();
+	});
+
+	test('test broadcasting on a channel', async () => {
+		const {user, token} = await createUserAndToken();
+
+		const client = await createSocketClient(token);
+
+
+		await (new Promise((resolve, reject) => {
+			client.subscribe(`user:${user._id.toString()}`, (error, channel) => {
+
+				if (error) {
+					resolve({channel, error});
+				}
+
+
+				UserSocketListener.broadcast(user._id.toString(), 'aids', {moreAids : true});
 
 				resolve({channel, error});
 			});
