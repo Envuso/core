@@ -41,9 +41,9 @@ export class Paginator<T> implements PaginatorContract<T> {
 	public async getResults(queryBuilder: QueryBuilder<any>): Promise<this> {
 		this.setPageCursors();
 
-		this.mergeQuery(this.setupQuery());
-
 		const total = await queryBuilder.where(this.query.getQuery()).count();
+
+		this.mergeQuery(this.setupQuery());
 
 		const results = await queryBuilder
 			.where(this.query.getQuery())
