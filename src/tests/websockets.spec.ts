@@ -246,6 +246,29 @@ describe('websocket channels', () => {
 
 		client.terminate();
 	});
+	test('test sending to user via channel', async () => {
+		const {user, token} = await createUserAndToken();
+
+		const client = await createSocketClient(token);
+
+
+		await (new Promise((resolve, reject) => {
+			client.subscribe(`user:${user._id.toString()}`, (error, channel) => {
+
+				if (error) {
+					resolve({channel, error});
+				}
+
+				channel.listen('welcome', data => console.log(data));
+
+				user.sendSocketChannelEvent(`user:${user._id.toString()}`, 'welcome', {message : 'hi'});
+
+				resolve({channel, error});
+			});
+		}));
+
+		client.terminate();
+	});
 
 });
 

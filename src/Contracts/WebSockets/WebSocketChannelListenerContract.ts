@@ -15,6 +15,8 @@ export interface WebSocketChannelListenerContract {
 
 	getChannelInformation(): ChannelInformation;
 
+	hasBeenInitialised(): boolean;
+
 	/**
 	 * This will output the name for the channel originally subscribed to...
 	 * For example, the channel "user:*", if we subscribed to channel "user:1" it will be the "user:1" channel.
@@ -40,7 +42,15 @@ export interface WebSocketChannelListenerContract {
 	 * @param {string} event
 	 * @param data
 	 */
+
 	//	broadcast<T extends SocketPacketContract>(channel: string, event: string, data: T | any): void;
+
+	/**
+	 *
+	 * @param {string} channelNameString
+	 * @returns {WebSocketChannelListenerContract}
+	 */
+	configureFromChannelString(channelNameString: string): WebSocketChannelListenerContract;
 }
 
 export interface WebSocketChannelListenerContractConstructor {

@@ -24,7 +24,7 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 			.issueToken((this as any)._id as unknown as string, additionalPayload);
 	}
 
-	public sendSocketChannelEvent(channel: WebSocketChannelListenerContractConstructor, eventName: string, data: any) {
+	public sendSocketChannelEvent(channel: string, eventName: string, data: any) {
 		WebSocketServer.sendToUserViaChannel(this.getId().toString(), channel, eventName, data);
 	}
 

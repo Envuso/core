@@ -48,8 +48,20 @@ export abstract class WebSocketChannelListener implements WebSocketChannelListen
 			: channelInfo.channelName;
 	}
 
+	public hasBeenInitialised(): boolean {
+		return (
+			this.channelInfo !== undefined && this.connectedChannelName !== undefined
+		);
+	}
+
 	public usesWildcardChannel(): boolean {
 		return this.channelName().includes('*');
+	}
+
+	public configureFromChannelString(channelNameString: string): WebSocketChannelListenerContract {
+		this.setChannelInformation(WebSocketServer.parseSocketChannelName(channelNameString));
+
+		return this;
 	}
 
 	public getChannelInformation(): ChannelInformation {

@@ -241,7 +241,7 @@ export class WebSocketServer {
 	}
 
 	private async handleChannelSubscription(webSocketConnection: WebSocketConnection<any>, packet: ChannelSubscribeSocketPacket) {
-		const channelInfo = this.parseSocketChannelName(packet.data.channel);
+		const channelInfo = WebSocketServer.parseSocketChannelName(packet.data.channel);
 
 		const listener = this.getChannelListener(channelInfo);
 
@@ -280,7 +280,7 @@ export class WebSocketServer {
 	}
 
 	private async handleChannelUnsubscribe(webSocketConnection: WebSocketConnection<any>, packet: ChannelUnsubscribeSocketPacket) {
-		const channelInfo = this.parseSocketChannelName(packet.data.channel);
+		const channelInfo = WebSocketServer.parseSocketChannelName(packet.data.channel);
 
 		const listener = this.getChannelListener(channelInfo);
 
@@ -327,7 +327,7 @@ export class WebSocketServer {
 			return;
 		}
 
-		const channelInfo = this.parseSocketChannelName(packet.channel);
+		const channelInfo = WebSocketServer.parseSocketChannelName(packet.channel);
 		const listener    = this.getChannelListener(channelInfo);
 
 		if (!listener) {
@@ -354,7 +354,7 @@ export class WebSocketServer {
 	 * Parse the requested channel name and return information
 	 * that we need to resolve this listener from the container.
 	 */
-	parseSocketChannelName(channelName: string): ChannelInformation {
+	public static parseSocketChannelName(channelName: string): ChannelInformation {
 		let searchForRoom = channelName;
 		let roomWildcard  = null;
 
@@ -391,7 +391,7 @@ export class WebSocketServer {
 		return userConnections;
 	}
 
-	public static sendToUserViaChannel(id: string, channel: WebSocketChannelListenerContractConstructor, event: SocketEvents | string, data: any) {
+	public static sendToUserViaChannel(id: string, channel: string, event: SocketEvents | string, data: any) {
 		resolve(WebSocketServer).sendToUserViaChannel(id, channel, event, data);
 	}
 
@@ -403,17 +403,22 @@ export class WebSocketServer {
 	 * @param {SocketEvents | string} event
 	 * @param data
 	 */
-	public sendToUserViaChannel(id: string, channel: WebSocketChannelListenerContractConstructor, event: SocketEvents | string, data: any) {
+	public sendToUserViaChannel(
+		id: string,
+		channel: string,
+		event: SocketEvents | string,
+		data: any,
+	) {
 		const connections = this.getUserConnections(id);
 
 		for (let connection of connections) {
-			const channelSubscription = connection.getSubscription(channel);
+			const subscription = connection.getSubscription(channel);
 
-			if (!channelSubscription) {
+			if (!subscription) {
 				continue;
 			}
 
-			channelSubscription.send(event, data);
+			subscription.send(event, data);
 		}
 	}
 

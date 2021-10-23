@@ -14,6 +14,12 @@ export interface WebSocketConnectionContract<T> {
 
 	subscribeToChannelListener(listener: WebSocketChannelListenerContract);
 
+	getSubscription(channelListener: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): WebSocketChannelListenerContract;
+
+	getSubscriptionsForChannel(listener: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): WebSocketChannelListenerContract[];
+
+	hasSubscription(channel: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): boolean;
+
 	setWebSocketConnection(connection: WebSocket);
 
 	closeConnection(reason?: string): void;
@@ -24,5 +30,5 @@ export interface WebSocketConnectionContract<T> {
 
 	setUser(user: T): WebSocketConnectionContract<T>;
 
-	broadcast(channel: string, event:string, data: any);
+	broadcast(channel: string, event: string, data: any);
 }
