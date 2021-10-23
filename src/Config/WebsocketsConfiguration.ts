@@ -1,4 +1,4 @@
-import {AppOptions, CompressOptions, SHARED_COMPRESSOR, WebSocketBehavior} from "uWebSockets.js";
+import {AppOptions, CompressOptions, SHARED_COMPRESSOR} from "uWebSockets.js";
 import {ServerOptions} from "ws";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";

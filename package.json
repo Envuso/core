@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-next.37",
+  "version": "2.0.0-next.38",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -121,7 +121,7 @@
     "Security/**/*",
     "Server/**/*",
     "Session/**/*",
-    "Sockets/**/*",
+    "WebSockets/**/*",
     "Storage/**/*",
     "Authenticatable.*",
     "Envuso.*",
