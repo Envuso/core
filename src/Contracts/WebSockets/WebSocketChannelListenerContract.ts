@@ -8,6 +8,9 @@ export interface WebSocketChannelListenerContract {
 
 	channelInfo: ChannelInformation;
 
+	connectedChannelName: string;
+	channelWildcardValue: string | null;
+
 	setChannelInformation(channelInfo: ChannelInformation): void;
 
 	getChannelInformation(): ChannelInformation;
@@ -28,6 +31,8 @@ export interface WebSocketChannelListenerContract {
 
 	broadcast(event: string, data: any);
 
+	usesWildcardChannel(): boolean;
+
 	/**
 	 * Broadcast a packet to a channel with the specified event
 	 *
@@ -41,7 +46,7 @@ export interface WebSocketChannelListenerContract {
 export interface WebSocketChannelListenerContractConstructor {
 	new(): WebSocketChannelListenerContract;
 
-	broadcast(this: WebSocketChannelListenerContractConstructor, wildcardValue: string | null, event: string, data: any);
+	broadcast(this: new() => WebSocketChannelListenerContract, wildcardValue: string | null, event: string, data: any);
 
 	containerListenerName(this: WebSocketChannelListenerContractConstructor): string;
 }

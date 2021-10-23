@@ -1,6 +1,6 @@
 import {resolve} from "../AppContainer";
 import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
-import {WebSocketChannelListenerContract} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
+import {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
 import {WebSocketConnection} from "./WebSocketConnection";
 import {ChannelInformation, WebSocketServer} from "./WebSocketServer";
@@ -99,7 +99,7 @@ export abstract class WebSocketChannelListener implements WebSocketChannelListen
 		this.connection.send(packet);
 	}
 
-	public static broadcast(this: new() => WebSocketChannelListener, wildcardValue: string | null, event: string, data: any) {
+	public static broadcast(this: WebSocketChannelListenerContractConstructor, wildcardValue: string | null, event: string, data: any) {
 		const c = new this();
 
 		if (c.usesWildcardChannel()) {
