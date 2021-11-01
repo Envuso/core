@@ -212,6 +212,28 @@ export class QueryBuilderParts<T> {
 		this.query = {};
 	}
 
+	/**
+	 * If we have a relationship query builder instance and
+	 * we want to add queries for relations. For ex
+	 * querying the Users related books (user -> books -> userId = x)
+	 *
+	 * We need to re-key the query by the relationship name
+	 *
+	 * @param {string} key
+	 * @returns {this<T>}
+	 */
+	public reKeyQueryForRelation(key: string) {
+		const flattened = {};
+		for (let objectKey of Object.keys(this.query)) {
+			flattened[`${key}.${objectKey}`] = this.query[objectKey];
+		}
+
+		this.query = flattened;
+
+		return this;
+	}
+
+
 	public setRelationsData(modelRelationMetas: { [p: string]: ModelRelationMeta }) {
 		this.relationships = modelRelationMetas;
 	}

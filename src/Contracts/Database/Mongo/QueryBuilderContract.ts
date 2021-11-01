@@ -53,7 +53,7 @@ export interface QueryBuilderContract<T> {
 	 * @param {boolean} diacriticSensitive
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	textSearch(searchString: string, language?: string, caseSensitive?: boolean, diacriticSensitive?: boolean):QueryBuilderContract<T>;
+	textSearch(searchString: string, language?: string, caseSensitive?: boolean, diacriticSensitive?: boolean): QueryBuilderContract<T>;
 
 	/**
 	 * Similar to using collection.find()
@@ -141,6 +141,22 @@ export interface QueryBuilderContract<T> {
 	 * @returns {QueryBuilderContract<T>}
 	 */
 	when(condition: boolean | (() => boolean), attributes: ModelAttributesFilter<T>): QueryBuilderContract<T>;
+
+	/**
+	 * Allows us to define a "where query" to limit the results of a relationship query
+	 * If we have a user collection and books collection(User has many books)
+	 * User -> Books {userId, title}
+	 * We can query for a user that has a book with a specific title
+	 * for ex: User.query().whereHas('Books', builder => builder.where('title', 'cool book')).get();
+	 *
+	 * @param {R} relation
+	 * @param {(builder: QueryBuilderContract<T[R]>) => QueryBuilderContract<T[R]>} cb
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	whereHas<R extends keyof ModelProps<T>>(
+		relation: R,
+		cb: (builder: QueryBuilderContract<T[R]>) => QueryBuilderContract<T[R]>
+	): QueryBuilderContract<T>;
 
 	/**
 	 * Allows us to specify any model relations to load on this query

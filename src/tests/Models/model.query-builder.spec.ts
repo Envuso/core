@@ -293,4 +293,25 @@ describe('model query builder implementation', () => {
 		expect(results.pagination.hasNext).toBeTruthy();
 	});
 
+	test('querying relationship', async () => {
+		const user = await User.create(
+			{name : 'sam', email : 'someemail@test.com'},
+		);
+
+		await Book.create({title: 'big yeet', userId : user._id});
+
+
+		const u = await User.query()
+			.whereHas('hasOneBook', builder => {
+				return builder
+					.where('title', 'big yeet')
+					.where('userId', user._id);
+			})
+			.get();
+
+		expect(u).toBeArray();
+		expect(u[0].books.userId.equals(user._id));
+
+	});
+
 });

@@ -1,4 +1,5 @@
 import {QueryBuilderParts} from "./QueryBuilderParts";
+import _ from 'lodash';
 
 export class QueryAggregation<T> {
 
@@ -22,6 +23,13 @@ export class QueryAggregation<T> {
 				as,
 			}
 		});
+
+		return this;
+	}
+
+	match(filter: QueryBuilderParts<T>): QueryAggregation<T> {
+
+		this.aggregations.push({$match : filter.getQueryAsFilter()});
 
 		return this;
 	}

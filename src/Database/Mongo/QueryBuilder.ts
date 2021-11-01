@@ -11,17 +11,18 @@ import {
 	UpdateResult
 } from "mongodb";
 import {resolve} from "../../AppContainer";
-import {Classes, Log} from "../../Common";
+import {Classes, Exception, Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database, ModelDecoratorMeta, ModelRelationMeta, ModelRelationType} from "../index";
+import {Database, Model, ModelDecoratorMeta, ModelRelationMeta, ModelRelationType} from "../index";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {ModelHelpers} from "./ModelHelpers";
 import {PaginatedResponse, Paginator} from "./Paginator";
 import {QueryAggregation} from "./QueryAggregation";
 import {QueryBuilderHelpers} from "./QueryBuilderHelpers";
 import {QueryBuilderParts} from "./QueryBuilderParts";
+import _ from 'lodash';
 
 export type QueryOperator = "==" | "=" | "!==" | "!=" | ">" | ">=" | "<>" | "<" | "<="
 
@@ -274,6 +275,43 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		}
 
 		return this.where(attributes);
+	}
+
+
+	/**
+	 * Allows us to define a "where query" to limit the results of a relationship query
+	 * If we have a user collection and books collection(User has many books)
+	 * User -> Books {userId, title}
+	 * We can query for a user that has a book with a specific title
+	 * for ex: User.query().whereHas('Books', builder => builder.where('title', 'cool book')).get();
+	 *
+	 * @param {R} relation
+	 * @param {(builder: QueryBuilderContract<T[R]>) => QueryBuilderContract<T[R]>} cb
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public whereHas<R extends keyof ModelProps<T>>(
+		relation: R,
+		cb: (builder: QueryBuilderContract<T[R]>) => QueryBuilderContract<T[R]>
+	): QueryBuilderContract<T> {
+		const relationInfo = this.relations()[relation as string];
+		if (!relationInfo) {
+			throw new Exception('Cannot find model relation for whereHas');
+		}
+
+		const model = Database.getModelFromContainer<T[R]>(relationInfo.relatedModel);
+
+		if (!model) {
+			throw new Exception('Cannot find model for whereHas');
+		}
+
+		const builder = cb(QueryBuilder.fromContainer<T[R]>(model.prototype));
+
+		this.with(relation);
+
+
+		this._aggregation.match(builder._filter.reKeyQueryForRelation(relation as string));
+
+		return this;
 	}
 
 	/**
