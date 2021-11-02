@@ -1,5 +1,6 @@
 import {WebSocket} from 'uWebSockets.js';
 import {Classes, METADATA} from "../Common";
+import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import {WebSocketChannelListenerContract} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
 import {SocketEventPacket, SocketEvents} from "./SocketEventTypes";
@@ -150,7 +151,7 @@ export class WebSocketConnection<T> implements WebSocketConnectionContract<T> {
 		}));
 	}
 
-	public context() {
+	public context(): RequestContextContract {
 		return Reflect.getMetadata(METADATA.HTTP_CONTEXT, this);
 	}
 }
