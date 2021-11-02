@@ -326,7 +326,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 		this.with(relation);
 
-		this._aggregation.addFields('ratingsCount', {$size : '$ratings'});
+		this._aggregation.addFields(`${relationInfo.propertyKey}Count`, {$size : '$' + relationInfo.propertyKey});
 
 		return this;
 	}
