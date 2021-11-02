@@ -344,7 +344,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		this.with(relation);
 		this.withCount(relation);
 
-		this._aggregation.match({relation : {$gt : 0}});
+		this._aggregation.match({[`${relationInfo.propertyKey}Count`] : {$gt : 0}});
 
 		return this;
 	}
