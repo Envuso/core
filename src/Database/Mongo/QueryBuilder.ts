@@ -314,6 +314,41 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		return this;
 	}
 
+	public withCount<R extends keyof ModelProps<T>>(relation: R) {
+		const relationInfo = this.relations()[relation as string];
+		if (!relationInfo) {
+			throw new Exception('Cannot find model relation for whereHas');
+		}
+		const model = Database.getModelFromContainer<T[R]>(relationInfo.relatedModel);
+		if (!model) {
+			throw new Exception('Cannot find model for whereHas');
+		}
+
+		this.with(relation);
+
+		this._aggregation.addFields('ratingsCount', {$size : '$ratings'});
+
+		return this;
+	}
+
+	/**
+	 * @param {R} relation
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public has<R extends keyof ModelProps<T>>(relation: R,): QueryBuilderContract<T> {
+		const relationInfo = this.relations()[relation as string];
+		if (!relationInfo) {
+			throw new Exception('Cannot find model relation for whereHas');
+		}
+
+		this.with(relation);
+		this.withCount(relation);
+
+		this._aggregation.match({relation : {$gt : 0}});
+
+		return this;
+	}
+
 	/**
 	 * Allows us to specify any model relations to load on this query
 	 *

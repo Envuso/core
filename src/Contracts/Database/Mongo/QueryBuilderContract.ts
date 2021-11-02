@@ -158,6 +158,14 @@ export interface QueryBuilderContract<T> {
 		cb: (builder: QueryBuilderContract<T[R]>) => QueryBuilderContract<T[R]>
 	): QueryBuilderContract<T>;
 
+	withCount<R extends keyof ModelProps<T>>(relation: R): QueryBuilderContract<T>;
+
+	/**
+	 * @param {R} relation
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	has<R extends keyof ModelProps<T>>(relation: R): QueryBuilderContract<T>;
+
 	/**
 	 * Allows us to specify any model relations to load on this query
 	 *

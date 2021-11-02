@@ -33,9 +33,21 @@ export class QueryAggregation<T> {
 		return this;
 	}
 
-	match(filter: QueryBuilderParts<T>): QueryAggregation<T> {
+	addFields(key: string, fieldsQ: { [key: string]: any }) {
+		this.aggregations.push({
+			$addFields : {[key] : fieldsQ}
+		});
 
-		this.aggregations.push({$match : filter.getQueryAsFilter()});
+		return this;
+	}
+
+	match(filter: QueryBuilderParts<T> | { [key: string]: any }): QueryAggregation<T> {
+
+		if (filter instanceof QueryBuilderParts) {
+			filter = filter.getQueryAsFilter();
+		}
+
+		this.aggregations.push({$match : filter});
 
 		return this;
 	}
