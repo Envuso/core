@@ -27,6 +27,12 @@ export class QueryAggregation<T> {
 		return this;
 	}
 
+	sample(size: number): QueryAggregation<T> {
+		this.aggregations.push({$sample : {size}});
+
+		return this;
+	}
+
 	match(filter: QueryBuilderParts<T>): QueryAggregation<T> {
 
 		this.aggregations.push({$match : filter.getQueryAsFilter()});

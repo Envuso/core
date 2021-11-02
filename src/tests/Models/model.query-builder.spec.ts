@@ -314,4 +314,16 @@ describe('model query builder implementation', () => {
 
 	});
 
+	test('querying for random documents', async () => {
+		const user = await User.create(
+			{name : 'sam', email : '482374872@test.com'},
+		);
+
+		const u = await User.query()
+			.random(2)
+			.get();
+
+		expect(u).toBeArray();
+	});
+
 });

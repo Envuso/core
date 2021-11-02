@@ -660,6 +660,18 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	}
 
 	/**
+	 * Get x random number of documents
+	 *
+	 * @param {number} amount
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public random(amount: number = 1): QueryBuilderContract<T> {
+		this._aggregation.sample(amount);
+
+		return this;
+	}
+
+	/**
 	 * Paginate the results
 	 *
 	 * @param {number} limit

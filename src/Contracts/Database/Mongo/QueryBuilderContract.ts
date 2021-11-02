@@ -302,6 +302,14 @@ export interface QueryBuilderContract<T> {
 	count(): Promise<number>;
 
 	/**
+	 * Get x random number of documents
+	 *
+	 * @param {number} amount
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	random(amount?: number): QueryBuilderContract<T>;
+
+	/**
 	 * Paginate the results
 	 *
 	 * @param {number} limit
