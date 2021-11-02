@@ -7,7 +7,7 @@ import {config, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database, ModelDecoratorMeta, ModelIndex} from "../index";
+import {Database, ModelDecoratorMeta, ModelIndex, transformFromObjectIds, transformToObjectIds} from "../index";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {convertEntityObjectIds} from "../Serialization/Serializer";
 import {ModelHelpers} from "./ModelHelpers";
@@ -400,7 +400,7 @@ export class Model<M> implements ModelContract<M> {
 		if (!model)
 			return model;
 
-		const plain: any = classToPlain(model, {
+		let plain: any = classToPlain(model, {
 			enableCircularCheck : true,
 			excludePrefixes     : ['_'],
 			ignoreDecorators    : true
@@ -421,6 +421,8 @@ export class Model<M> implements ModelContract<M> {
 		for (const name in ignores) {
 			delete plain[name];
 		}
+
+//		plain = transformFromObjectIds(plain);
 
 		const modelObjectIds = convertEntityObjectIds(model, plain);
 		for (let modelObjectIdsKey in modelObjectIds) {

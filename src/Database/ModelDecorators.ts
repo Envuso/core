@@ -1,7 +1,7 @@
-import {classToPlain, Exclude, plainToClass, Transform} from "class-transformer";
-import {IndexDescription, IndexSpecification, ObjectId} from "mongodb";
-import {Classes, DecoratorHelpers} from "../Common";
-import {ClassType, Model, ModelIndex, ModelObjectId, Nested} from "./index";
+import {classToPlain, plainToClass, Transform} from "class-transformer";
+import {IndexSpecification, ObjectId} from "mongodb";
+import {Log, Classes, DecoratorHelpers, Obj} from "../Common";
+import {ClassType, Model, ModelObjectId, Nested} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
@@ -72,40 +72,6 @@ export function ignore(target: any, propertyKey: any) {
 	);
 }
 
-/**
- * Define a model property as an array of mongo object ids
- * When serializing;
- * - This will convert it from a string array, to ObjectId array
- * when de-serializing;
- * - This will convert it from an ObjectId array, to string array
- *
- * @param target
- * @param {string} propertyKey
- */
-export function ids(target: any, propertyKey: string) {
-	isNotPrimitive(target, propertyKey);
-
-	DecoratorHelpers.pushToMetadata(ModelDecoratorMeta.MODEL_OBJECT_ID, [
-		{name : propertyKey} as ModelObjectId
-	], target);
-
-	Transform((val) => {
-		if (!val.value) {
-			return null;
-		}
-
-		return val.value.map(v => new ObjectId(v));
-	}, {toClassOnly : true})(target, propertyKey);
-
-	Transform((val) => {
-		if (!val.value) {
-			return null;
-		}
-
-		return val.value.map(v => v.toString());
-	}, {toPlainOnly : true})(target, propertyKey);
-
-}
 
 /**
  * Define a model property as a mongo object id
@@ -120,23 +86,11 @@ export function id(target: any, propertyKey: string) {
 	], target);
 
 	Transform(({key, obj, value}) => {
-		const objId = obj[key];
-
-		if (objId instanceof ObjectId) {
-			return objId;
-		}
-
-		return new ObjectId(objId);
+		return transformToObjectIds(obj[key]);
 	}, {toClassOnly : true})(target, propertyKey);
 
 	Transform(({obj, key, value,}) => {
-		const objId = obj[key];
-
-		if (objId === undefined || typeof objId === 'string') {
-			return objId;
-		}
-
-		return objId.toHexString();
+		return transformFromObjectIds(obj[key]);
 	}, {toPlainOnly : true})(target, propertyKey);
 }
 
@@ -177,4 +131,73 @@ export function getModelObjectIds<T>(target: any): ModelObjectId[] {
 		!Classes.isInstantiated(target) ? new target() : target,
 		ModelDecoratorMeta.MODEL_OBJECT_ID
 	) || [];
+}
+
+/**
+ * Attempt to transform any type of object id definition from string -> object id
+ * This will hopefully convert an object id string, object containing object id strings,
+ * array of object id strings to object id instances.
+ *
+ * @param value
+ * @returns {any}
+ */
+export function transformToObjectIds(value: any) {
+
+	if (typeof value === 'string' && ObjectId.isValid(value)) {
+		return new ObjectId(value);
+	}
+
+	for (let key in value) {
+		const val = value[key];
+
+		if (!val) {
+			if (!ObjectId.isValid(val)) {
+				Log.warn('Field ' + key + ' is being converted to an ObjectID... but ' + val + ' is not able to be converted to an ObjectID.');
+				Log.warn('Full value: ', value);
+			}
+			continue;
+		}
+
+		if (val instanceof ObjectId) {
+			value[key] = val;
+			continue;
+		}
+
+		if (typeof val === 'string' && ObjectId.isValid(val)) {
+			value[key] = new ObjectId(val);
+		} else if (Array.isArray(val) || Obj.isObject(val)) {
+			value[key] = transformToObjectIds(val);
+		}
+	}
+
+	return value;
+}
+
+/**
+ * This will attempt to transform an Object Id instance to a string, whether it's a single value
+ * object containing one/many or an array of object ids
+ *
+ * @param value
+ * @returns {any}
+ */
+export function transformFromObjectIds(value: any) {
+	if (value instanceof ObjectId && ObjectId.isValid(value)) {
+		return value.toHexString();
+	}
+
+	for (let key in value) {
+		const val = value[key];
+
+		if (!val) {
+			continue;
+		}
+
+		if (val instanceof ObjectId) {
+			value[key] = val.toHexString();
+		} else if (Array.isArray(val) || Obj.isObject(val)) {
+			value[key] = transformFromObjectIds(val);
+		}
+	}
+
+	return value;
 }

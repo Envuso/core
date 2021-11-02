@@ -26,8 +26,8 @@ export interface ModelObjectId {
 }
 
 export interface ModelIndex {
-	name : string;
-	index : {[key:string]: any}
+	name: string;
+	index: { [key: string]: any };
 }
 
 

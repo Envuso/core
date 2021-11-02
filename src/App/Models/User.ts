@@ -48,5 +48,11 @@ export class User extends Authenticatable<User> {
 	belongsToOneBook: Book;
 
 
+	@id
+	objectIdArr: ObjectId[]                           = [];
+	@id
+	objectIdObj: { id?: ObjectId, deeper?: ObjectId[] } = {};
+
+
 }
 
