@@ -64,6 +64,7 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		socketInformation : true,
 		socketChannels    : true,
 		socketExceptions  : false,
+		databaseQuery     : true,
 	};
 
 	isDev() {

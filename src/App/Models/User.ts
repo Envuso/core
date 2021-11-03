@@ -66,5 +66,6 @@ export class User extends Authenticatable<User> {
 	@hasMany('Book', '_id', 'annoyingRelationIds.id')
 	annoyingRelation: Book[];
 
+	someOrderingTimestamp: Date;
 }
 

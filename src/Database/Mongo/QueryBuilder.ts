@@ -10,7 +10,7 @@ import {
 	UpdateOptions,
 	UpdateResult
 } from "mongodb";
-import {resolve} from "../../AppContainer";
+import {config, resolve} from "../../AppContainer";
 import {Classes, Exception, Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
@@ -877,11 +877,19 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 			this._aggregation.setFilterQuery(this._filter, (options.limit ?? null));
 
+			if (config().get('app.logging.databaseQuery', false)) {
+				Log.debug(`${this._model.collectionName(false)} collection query: \n${JSON.stringify(this._aggregation.getQuery(), null, 4)}`);
+			}
+
 			this._builderResult = this._collection.aggregate<T>(
 				this._aggregation.getQuery()
 			);
 
 			return this._builderResult;
+		}
+
+		if (config().get('app.logging.databaseQuery', false)) {
+			Log.debug(`${this._model.collectionName(false)} collection query: \n${JSON.stringify(this._filter.getQuery(), null, 4)}`);
 		}
 
 		this._builderResult = this._collection.find(this._filter.getQuery(), options);

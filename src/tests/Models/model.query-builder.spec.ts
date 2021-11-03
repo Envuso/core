@@ -157,6 +157,7 @@ describe('model query builder implementation', () => {
 
 		const q = await User.query()
 			.exists('orderValue')
+			.with('books')
 			.where({
 				orderValue : {
 					$gte : 0

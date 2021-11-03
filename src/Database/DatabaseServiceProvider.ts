@@ -1,4 +1,3 @@
-
 import {MongoClient} from "mongodb";
 import path from 'path';
 import pluralize from "pluralize";
