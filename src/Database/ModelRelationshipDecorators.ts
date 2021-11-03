@@ -14,6 +14,7 @@ type RelationDecoratorProperties = {
 	relatedModel: string;
 	foreignKey: string;
 	localKey: string;
+	sort: RelationSortOption;
 }
 
 export interface ModelRelationMeta {
@@ -24,7 +25,10 @@ export interface ModelRelationMeta {
 	foreignKey?: string;
 	localKey?: string;
 	type: ModelRelationType;
+	sort: RelationSortOption;
 }
+
+export type RelationSortOption = { [key: string]: -1 | 1 };
 
 function handleRelationshipTransforms(relatedModel: (new () => ModelContract<any>) | string, target: any, propertyKey: string) {
 	// When serializing object to class, convert the object to our model instance
@@ -58,14 +62,22 @@ function relationshipTypeForMetaKey(decoratorType: ModelDecoratorMeta): ModelRel
  *
  * @param {any[]} properties
  * @param {ModelDecoratorMeta} decoratorType
+ * @param {RelationSortOption} sort
+ *
  * @returns {(target: any, propertyKey: string) => void}
  */
-function relationDecorator(properties: IArguments, decoratorType: ModelDecoratorMeta) {
+function relationDecorator(
+	properties: IArguments,
+	decoratorType: ModelDecoratorMeta,
+	sort: RelationSortOption
+) {
 	const decoratorProperties: RelationDecoratorProperties = {
 		relatedModel : Database.getModelCollectionName(properties[0]),
 		foreignKey   : properties[1],
 		localKey     : properties[2],
+		sort,
 	};
+
 	return function (target: any, propertyKey: string) {
 		const relationMeta: ModelRelationMeta = {
 			propertyKey,
@@ -97,10 +109,16 @@ function relationDecorator(properties: IArguments, decoratorType: ModelDecorator
  * @param {ModelContract<any> | string} relatedModel
  * @param {string} foreignKey
  * @param {string} localKey
+ * @param sort
  * @returns {(target: any, propertyKey: string) => void}
  */
-export function hasOne(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
-	return relationDecorator(arguments, ModelDecoratorMeta.HAS_ONE_RELATION);
+export function hasOne(
+	relatedModel: (new () => ModelContract<any>) | string,
+	foreignKey: string,
+	localKey: string,
+	sort: RelationSortOption = {_id : 1}
+) {
+	return relationDecorator(arguments, ModelDecoratorMeta.HAS_ONE_RELATION, sort);
 }
 
 /**
@@ -127,10 +145,16 @@ export function hasOne(relatedModel: (new () => ModelContract<any>) | string, fo
  * @param {{new(): ModelContract<any>} | string} relatedModel
  * @param {string} foreignKey
  * @param {string} localKey
+ * @param sort
  * @returns {(target: any, propertyKey: string) => void}
  */
-export function hasMany(relatedModel: (new () => ModelContract<any>) | string, foreignKey: string, localKey: string) {
-	return relationDecorator(arguments, ModelDecoratorMeta.HAS_MANY_RELATION);
+export function hasMany(
+	relatedModel: (new () => ModelContract<any>) | string,
+	foreignKey: string,
+	localKey: string,
+	sort: RelationSortOption = {_id : 1}
+) {
+	return relationDecorator(arguments, ModelDecoratorMeta.HAS_MANY_RELATION, sort);
 }
 
 /**
@@ -139,10 +163,16 @@ export function hasMany(relatedModel: (new () => ModelContract<any>) | string, f
  * @param {{new(): ModelContract<any>} | string} relatedModel
  * @param {string} localKey
  * @param {string} foreignKey
+ * @param sort
  * @returns {(target: any, propertyKey: string) => void}
  */
-export function belongsTo(relatedModel: (new () => ModelContract<any>) | string, localKey: string, foreignKey: string) {
-	return relationDecorator(arguments, ModelDecoratorMeta.BELONGS_TO_RELATION);
+export function belongsTo(
+	relatedModel: (new () => ModelContract<any>) | string,
+	localKey: string,
+	foreignKey: string,
+	sort: RelationSortOption = {_id : 1}
+) {
+	return relationDecorator(arguments, ModelDecoratorMeta.BELONGS_TO_RELATION, sort);
 }
 
 // Where is belongsToMany you ask?

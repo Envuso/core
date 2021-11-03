@@ -138,5 +138,20 @@ describe('model relationships', () => {
 		expect(bruceWithBooks.belongsToOneBook).toBeInstanceOf(Book);
 
 	});
+	test('many relation with order clause', async () => {
+
+		const bruce = await User.create({name : 'bruce'});
+
+		await Book.insertMany([
+			{userId : bruce._id, title : 'One of bruce\'s books'},
+			{userId : bruce._id, title : 'Another one of bruce\'s books'},
+		]);
+
+		const bruceWithBooks = await User.query()
+			.where({_id : bruce._id})
+			.with('booksDesc', 'booksAsc')
+			.first();
+
+	});
 
 });

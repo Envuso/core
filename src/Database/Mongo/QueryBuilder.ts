@@ -380,11 +380,12 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				 * pick the first document from that array and set it there.
 				 */
 				this._aggregation
-					.lookup(
+					.lookupWithSubPipeline(
 						Database.getModelCollectionName(meta.relatedModel),
 						meta.localKey,
 						meta.foreignKey,
-						meta.propertyKey
+						meta.propertyKey,
+						[{$sort : meta.sort}]
 					)
 					.addArrayValueFirstField(
 						meta.propertyKey, meta.propertyKey
@@ -396,11 +397,12 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			 */
 			if (meta.type === ModelRelationType.BELONGS_TO) {
 				this._aggregation
-					.lookup(
+					.lookupWithSubPipeline(
 						Database.getModelCollectionName(meta.relatedModel),
 						meta.foreignKey,
 						meta.localKey,
-						meta.propertyKey
+						meta.propertyKey,
+						[{$sort : meta.sort}]
 					)
 					.addArrayValueFirstField(meta.propertyKey, meta.propertyKey);
 			}
@@ -409,20 +411,22 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 				/**
 				 * Basically the same as a MySQL join
 				 */
-				this._aggregation.lookup(
+				this._aggregation.lookupWithSubPipeline(
 					Database.getModelCollectionName(meta.relatedModel),
 					meta.localKey,
 					meta.foreignKey,
-					meta.propertyKey
+					meta.propertyKey,
+					[{$sort : meta.sort}]
 				);
 			}
 
 			if (meta.type === ModelRelationType.BELONGS_TO_MANY) {
-				this._aggregation.lookup(
+				this._aggregation.lookupWithSubPipeline(
 					Database.getModelCollectionName(meta.relatedModel),
 					meta.foreignKey,
 					meta.localKey,
-					meta.propertyKey
+					meta.propertyKey,
+					[{$sort : meta.sort}]
 				);
 			}
 

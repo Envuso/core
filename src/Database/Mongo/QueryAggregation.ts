@@ -9,6 +9,29 @@ export class QueryAggregation<T> {
 
 	}
 
+	lookupWithSubPipeline(
+		from: string,
+		localField: string,
+		foreignField: string,
+		as: string,
+		pipeline: { [key: string]: any }[]
+	) {
+		const localLetVar = localField.replace(/_/, '');
+
+		this.aggregations.push({
+			$lookup : {
+				from, as,
+				let      : {[localLetVar] : `$${localField}`},
+				pipeline : [
+					{$match : {$expr : {$eq : [`$$${localLetVar}`, `$${foreignField}`]}}},
+					...pipeline
+				],
+			}
+		});
+
+		return this;
+	}
+
 	lookup(
 		from: string,
 		localField: string,

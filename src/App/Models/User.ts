@@ -48,8 +48,15 @@ export class User extends Authenticatable<User> {
 	belongsToOneBook: Book;
 
 
+	@hasMany('Book', 'userId', '_id', {_id : -1})
+	booksDesc: Book[];
+
+	@hasMany('Book', 'userId', '_id', {_id : 1})
+	booksAsc: Book[];
+
+
 	@id
-	objectIdArr: ObjectId[]                           = [];
+	objectIdArr: ObjectId[]                             = [];
 	@id
 	objectIdObj: { id?: ObjectId, deeper?: ObjectId[] } = {};
 
