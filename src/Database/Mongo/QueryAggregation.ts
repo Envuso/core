@@ -18,7 +18,7 @@ export class QueryAggregation<T> {
 	) {
 		const localLetVar = localField
 			.replace(/_/, '')
-			.replace(/./, '');
+			.replace(/\./, '');
 
 		this.aggregations.push({
 			$lookup : {
