@@ -385,6 +385,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 						meta.localKey,
 						meta.foreignKey,
 						meta.propertyKey,
+						meta.isLocalKeyArray,
 						[{$sort : meta.sort}]
 					)
 					.addArrayValueFirstField(
@@ -402,6 +403,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 						meta.foreignKey,
 						meta.localKey,
 						meta.propertyKey,
+						meta.isLocalKeyArray,
 						[{$sort : meta.sort}]
 					)
 					.addArrayValueFirstField(meta.propertyKey, meta.propertyKey);
@@ -416,6 +418,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 					meta.localKey,
 					meta.foreignKey,
 					meta.propertyKey,
+					meta.isLocalKeyArray,
 					[{$sort : meta.sort}]
 				);
 			}
@@ -426,6 +429,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 					meta.foreignKey,
 					meta.localKey,
 					meta.propertyKey,
+					meta.isLocalKeyArray,
 					[{$sort : meta.sort}]
 				);
 			}

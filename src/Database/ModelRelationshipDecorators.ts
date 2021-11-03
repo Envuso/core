@@ -1,4 +1,5 @@
 import {classToPlain, plainToClass, Transform} from "class-transformer";
+import instance from "tsyringe/dist/typings/dependency-container";
 import {DecoratorHelpers} from "../Common";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 import {Database, ModelDecoratorMeta} from "./index";
@@ -24,6 +25,7 @@ export interface ModelRelationMeta {
 	relatedModel: string,
 	foreignKey?: string;
 	localKey?: string;
+	isLocalKeyArray: boolean;
 	type: ModelRelationType;
 	sort: RelationSortOption;
 }
@@ -79,7 +81,23 @@ function relationDecorator(
 	};
 
 	return function (target: any, propertyKey: string) {
+
+		// If modelPropType is undefined.... it's probably because there's no decorator
+		// and there's no elegant solution i can be fucked to figure out right now.
+		// HF future sam
+
+		let isLocalKeyArray = false;
+		if (decoratorProperties.localKey.includes('.')) {
+			const modelPropType = Reflect.getMetadata(
+				'design:type',
+				target,
+				decoratorProperties.localKey.split('.')[0]
+			);
+			isLocalKeyArray     = (modelPropType === Array);
+		}
+
 		const relationMeta: ModelRelationMeta = {
+			isLocalKeyArray,
 			propertyKey,
 			...decoratorProperties,
 			type : relationshipTypeForMetaKey(decoratorType)
@@ -154,6 +172,8 @@ export function hasMany(
 	localKey: string,
 	sort: RelationSortOption = {_id : 1}
 ) {
+
+
 	return relationDecorator(arguments, ModelDecoratorMeta.HAS_MANY_RELATION, sort);
 }
 

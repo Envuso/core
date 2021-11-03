@@ -136,7 +136,7 @@ describe('model logic', () => {
 			bookId      : new ObjectId(),
 			objectIdArr : [new ObjectId(), new ObjectId()],
 			objectIdObj : {id : new ObjectId(), deeper : [new ObjectId()]},
-			_user: {}
+			_user       : {}
 		};
 
 		const user = await User.create(baseUserData);
@@ -154,6 +154,26 @@ describe('model logic', () => {
 		expect(dehydrated.objectIdArr[1]).toBeString();
 		expect(dehydrated.objectIdObj.id).toBeString();
 		expect(dehydrated.objectIdObj.deeper[0]).toBeString();
+	});
+
+	test('annoying array/regular/nestest relation', async () => {
+
+
+		const res = await Book.insertMany([
+			{title : 'One of bruce\'s books'},
+			{title : 'Another one of bruce\'s books'},
+		]);
+
+		const bruce = await User.create({
+			name : 'bruce', annoyingRelationIds : [{id : res.ids[0]}, {id : res.ids[1]}]
+		});
+
+		const bb = await User.query()
+			.where('_id', bruce._id)
+			.with('annoyingRelation')
+			.first();
+
+
 	});
 
 

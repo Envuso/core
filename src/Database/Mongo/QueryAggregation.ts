@@ -14,18 +14,23 @@ export class QueryAggregation<T> {
 		localField: string,
 		foreignField: string,
 		as: string,
+		isArrayLookup: boolean,
 		pipeline: { [key: string]: any }[]
 	) {
 		const localLetVar = localField
 			.replace(/_/, '')
 			.replace(/\./, '');
 
+		const expression = isArrayLookup
+			? {$in : [`$${foreignField}`, `$$${localLetVar}`]}
+			: {$eq : [`$$${localLetVar}`, `$${foreignField}`]};
+
 		this.aggregations.push({
 			$lookup : {
 				from, as,
 				let      : {[localLetVar] : `$${localField}`},
 				pipeline : [
-					{$match : {$expr : {$eq : [`$$${localLetVar}`, `$${foreignField}`]}}},
+					{$match : {$expr : expression}},
 					...pipeline
 				],
 			}

@@ -60,6 +60,11 @@ export class User extends Authenticatable<User> {
 	@id
 	objectIdObj: { id?: ObjectId, deeper?: ObjectId[] } = {};
 
+	@id
+	annoyingRelationIds: { id: ObjectId }[] = [];
+
+	@hasMany('Book', '_id', 'annoyingRelationIds.id')
+	annoyingRelation: Book[];
 
 }
 
