@@ -875,7 +875,8 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 		if (this._aggregation.hasAggregations()) {
 
-			this._aggregation.setFilterQuery(this._filter, (options.limit ?? null));
+			this._aggregation.setFilterQuery(this._filter);
+			this._aggregation.addQueryOptions(options);
 
 			if (config().get('app.logging.databaseQuery', false)) {
 				Log.debug(`${this._model.collectionName(false)} collection query: \n${JSON.stringify(this._aggregation.getQuery(), null, 4)}`);

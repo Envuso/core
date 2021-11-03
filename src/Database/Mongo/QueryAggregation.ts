@@ -1,3 +1,4 @@
+import {FindOptions} from "mongodb";
 import {QueryBuilderParts} from "./QueryBuilderParts";
 import _ from 'lodash';
 
@@ -7,6 +8,28 @@ export class QueryAggregation<T> {
 
 	constructor(model: any) {
 
+	}
+
+	/**
+	 * Attempt to apply all possible FindOptions to this aggregation query
+	 *
+	 * @param {FindOptions<T>} options
+	 * @returns {this<T>}
+	 */
+	public addQueryOptions(options: FindOptions<T>): QueryAggregation<T> {
+		if (options?.limit) {
+			this.aggregations.push({$limit : options.limit});
+		}
+
+		if (options?.sort) {
+			this.aggregations.push({$sort : options.sort});
+		}
+
+		if (options?.skip) {
+			this.aggregations.push({$skip : options.skip});
+		}
+
+		return this;
 	}
 
 	lookupWithSubPipeline(
@@ -94,12 +117,8 @@ export class QueryAggregation<T> {
 		return this;
 	}
 
-	public setFilterQuery(filter: QueryBuilderParts<T>, limit: number = null): QueryAggregation<T> {
+	public setFilterQuery(filter: QueryBuilderParts<T>): QueryAggregation<T> {
 		this.aggregations.unshift({$match : filter.getQueryAsFilter()});
-
-		if (limit) {
-			this.aggregations.push({$limit : limit});
-		}
 
 		return this;
 	}
@@ -115,5 +134,6 @@ export class QueryAggregation<T> {
 	cleanup() {
 		this.aggregations = [];
 	}
+
 
 }
