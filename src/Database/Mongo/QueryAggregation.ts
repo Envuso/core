@@ -16,7 +16,9 @@ export class QueryAggregation<T> {
 		as: string,
 		pipeline: { [key: string]: any }[]
 	) {
-		const localLetVar = localField.replace(/_/, '');
+		const localLetVar = localField
+			.replace(/_/, '')
+			.replace(/./, '');
 
 		this.aggregations.push({
 			$lookup : {
