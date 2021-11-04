@@ -3,11 +3,6 @@ import {Log} from "./Common";
 import {EnvusoContract} from "./Contracts/EnvusoContract";
 import {ErrorHandlerFn} from "./Contracts/Server/ServerContract";
 import {HookContract} from "./Contracts/Server/ServerHooks/HookContract";
-import {BindRequestContextHook} from "./Server/InternalHooks/BindRequestContextHook";
-import {InitiateRequestContextHook} from "./Server/InternalHooks/InitiateRequestContextHook";
-import {ProcessUploadedFilesHook} from "./Server/InternalHooks/ProcessUploadedFilesHook";
-import {SaveSessionHook} from "./Server/InternalHooks/SaveSessionHook";
-import {SetResponseCookiesHook} from "./Server/InternalHooks/SetResponseCookiesHook";
 import {Server} from "./Server/Server";
 import {Hook} from "./Server/ServerHooks";
 
@@ -72,12 +67,22 @@ export class Envuso implements EnvusoContract {
 	 */
 	public registerServerHooks(hooks: (new () => HookContract)[]) {
 		for (let hook of hooks) {
-			if (this._serverHooks.includes(hook)) {
+			if (this.hasServerHook(hook)) {
 				continue;
 			}
 
 			this._serverHooks.push(hook);
 		}
+	}
+
+	/**
+	 * Check if we're using a specific server hook
+	 *
+	 * @param {{new(): HookContract}} hook
+	 * @returns {boolean}
+	 */
+	public hasServerHook(hook: (new () => HookContract)): boolean {
+		return this._serverHooks.includes(hook);
 	}
 
 	/**

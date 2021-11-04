@@ -112,7 +112,7 @@ export interface RequestContract extends RequestResponseContextContract {
 	 *
 	 * @return {boolean}
 	 */
-	isJson(): boolean
+	isJson(): boolean;
 
 	/**
 	 * Does our request/response contain Content-Type text/html?
@@ -123,7 +123,7 @@ export interface RequestContract extends RequestResponseContextContract {
 	 *
 	 * @return {boolean}
 	 */
-	isHtml(): boolean
+	isHtml(): boolean;
 
 	/**
 	 * @credits: Laravel/Symfony Framework
@@ -137,11 +137,11 @@ export interface RequestContract extends RequestResponseContextContract {
 	 *
 	 * @return {boolean}
 	 */
-	isXmlHttpRequest(): boolean
+	isXmlHttpRequest(): boolean;
 
-	isAjax(): boolean
+	isAjax(): boolean;
 
-	isPjax(): boolean
+	isPjax(): boolean;
 
 	/**
 	 * Does our request/response contain Accept application/json?
@@ -152,7 +152,7 @@ export interface RequestContract extends RequestResponseContextContract {
 	 *
 	 * @return {boolean}
 	 */
-	wantsJson(): boolean
+	wantsJson(): boolean;
 
 	/**
 	 * Does our request/response contain Accept text/html
@@ -276,4 +276,6 @@ export interface RequestContract extends RequestResponseContextContract {
 	 * @returns {SessionContract}
 	 */
 	session(): SessionContract;
+
+	convertEmptyStringsToNull(): void;
 }

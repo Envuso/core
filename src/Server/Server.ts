@@ -44,6 +44,8 @@ export class Server implements ServerContract {
 
 	private _exceptionHandler: ExceptionHandlerConstructorContract = null;
 
+	private _registeredServerHooks: (new () => HookContract)[] = [];
+
 	/**
 	 * Initialise fastify, add all routes to the application and apply any middlewares
 	 */
@@ -111,7 +113,19 @@ export class Server implements ServerContract {
 	public registerHooks(hooks: { new(): HookContract }[]) {
 		for (let hook of hooks) {
 			new hook().register(this._server);
+
+			this._registeredServerHooks.push(hook);
 		}
+	}
+
+	/**
+	 * Check if we've registered a specific server hook
+	 *
+	 * @param {{new(): HookContract}} hook
+	 * @returns {boolean}
+	 */
+	public hasRegisteredServerHook(hook: (new () => HookContract)): boolean {
+		return this._registeredServerHooks.includes(hook);
 	}
 
 	/**

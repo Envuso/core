@@ -12,7 +12,8 @@ export interface EnvusoContract {
 	 * Boot the core App instance, bind any service
 	 * providers to the container and such.
 	 */
-	boot(withoutServiceProviders? : (new () => ServiceProvider)[]): Promise<void>;
+	boot(withoutServiceProviders?: (new () => ServiceProvider)[]): Promise<void>;
+
 	boot(): Promise<void>;
 
 	/**
@@ -36,7 +37,7 @@ export interface EnvusoContract {
 	 * @returns {Promise<void>}
 	 * @param withoutServiceProviders
 	 */
-	initiateWithoutServing(withoutServiceProviders? : (new () => ServiceProvider)[]): Promise<void>;
+	initiateWithoutServing(withoutServiceProviders?: (new () => ServiceProvider)[]): Promise<void>;
 
 	/**
 	 * Register core server extensions, envuso's hooks are basically wrappers around fastify hooks
@@ -44,6 +45,14 @@ export interface EnvusoContract {
 	 * @param {Hook} hooks
 	 */
 	registerServerHooks(hooks: (new () => HookContract)[]): void;
+
+	/**
+	 * Check if we're using a specific server hook
+	 *
+	 * @param {{new(): HookContract}} hook
+	 * @returns {boolean}
+	 */
+	hasServerHook(hook: (new () => HookContract)): boolean;
 
 	/**
 	 * Load a custom exception handler for handling errors from requests

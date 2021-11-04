@@ -2,12 +2,14 @@ import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
 import {HttpRequest} from "uWebSockets.js";
-import {config} from "../../../AppContainer";
+import {config, resolve} from "../../../AppContainer";
 import {Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {SessionContract} from "../../../Contracts/Session/SessionContract";
+import {ConvertEmptyStringsToNullHook} from "../../../Server/InternalHooks/ConvertEmptyStringsToNullHook";
+import {Server} from "../../../Server/Server";
 import {Storage} from "../../../Storage";
 import {RequestResponseContext} from "../RequestResponseContext";
 import {UploadedFile} from "./UploadedFile";
@@ -276,11 +278,19 @@ export class Request extends RequestResponseContext implements RequestContract {
 		 * Otherwise, we could do request().get('field') and it won't exist.
 		 */
 		for (let key in file.fields) {
-			if (key === file.filename) {
+			if (key === file.fieldname) {
 				continue;
 			}
 
-			this._request.body[key] = file.fields[key];
+			if (!this._request?.body) {
+				this._request.body = {};
+			}
+
+			this._request.body[key] = (file.fields[key] as any)?.value;
+		}
+
+		if (resolve(Server).hasRegisteredServerHook(ConvertEmptyStringsToNullHook)) {
+			this.convertEmptyStringsToNull();
 		}
 
 		this._uploadedFiles.push(fileInstance);
@@ -471,6 +481,30 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	user<T>(): AuthenticatableContract<T> | null {
 		return this._context.user ?? null;
+	}
+
+	public convertEmptyStringsToNull() {
+		const mapValues = (values: any) => {
+			if (!values) {
+				return values;
+			}
+
+			for (let key in values) {
+
+				if (typeof values[key] === 'string') {
+					values[key] = Str.isEmpty(values[key]) ? null : values[key];
+					continue;
+				}
+
+				if (Array.isArray(values[key]) || Obj.isObject(values[key])) {
+					values[key] = mapValues(values[key]);
+				}
+			}
+			return values;
+		};
+
+		this._request.body  = mapValues(this._request.body || {});
+		this._request.query = mapValues(this._request.query || {});
 	}
 
 }

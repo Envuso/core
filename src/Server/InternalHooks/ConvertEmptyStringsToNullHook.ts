@@ -17,32 +17,7 @@ export class ConvertEmptyStringsToNullHook extends PreHandlerHook {
 			return;
 		}
 
-		const req = (context.request._request as FastifyRequest);
-
-		(context.request._request as FastifyRequest).body = this.mapValues(req.body);
-
-		(context.request._request as FastifyRequest).query = this.mapValues(req.query);
-	}
-
-
-	private mapValues(values: any) {
-		if (!values) {
-			return values;
-		}
-
-		for (let key in values) {
-
-			if (typeof values[key] === 'string') {
-				values[key] = Str.isEmpty(values[key]) ? null : values[key];
-				continue;
-			}
-
-			if (Array.isArray(values[key]) || Obj.isObject(values[key])) {
-				values[key] = this.mapValues(values[key]);
-			}
-		}
-
-		return values;
+		context.request.convertEmptyStringsToNull();
 	}
 
 }

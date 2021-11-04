@@ -46,6 +46,14 @@ export interface ServerContract {
 	registerHooks(hooks: { new(): HookContract }[]): void;
 
 	/**
+	 * Check if we've registered a specific server hook
+	 *
+	 * @param {{new(): HookContract}} hook
+	 * @returns {boolean}
+	 */
+	hasRegisteredServerHook(hook: (new () => HookContract)): boolean;
+
+	/**
 	 * This will register app Fastify Plugins from Config/App.ts > fastifyPlugins
 	 *
 	 * @private
