@@ -43,7 +43,7 @@ export interface EnvusoContract {
 	 *
 	 * @param {Hook} hooks
 	 */
-	registerServerHooks(...hooks: (new () => HookContract)[]): void;
+	registerServerHooks(hooks: (new () => HookContract)[]): void;
 
 	/**
 	 * Load a custom exception handler for handling errors from requests

@@ -70,7 +70,7 @@ export class Envuso implements EnvusoContract {
 	 *
 	 * @param {Hook} hooks
 	 */
-	public registerServerHooks(...hooks: (new () => HookContract)[]) {
+	public registerServerHooks(hooks: (new () => HookContract)[]) {
 		for (let hook of hooks) {
 			if (this._serverHooks.includes(hook)) {
 				continue;

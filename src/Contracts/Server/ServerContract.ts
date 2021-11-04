@@ -18,7 +18,7 @@ export interface ServerConfiguration {
 	middleware: (new () => MiddlewareContract)[];
 	disableCookieEncryption: string[];
 	cors: { options: FastifyCorsOptions; enabled: boolean };
-	hooks: Array<HookTypes>,
+	hooks: (new () => HookContract)[],
 	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
 	fastifyOptions: FastifyServerOptions;
 	responseSerialization: ClassTransformOptions;

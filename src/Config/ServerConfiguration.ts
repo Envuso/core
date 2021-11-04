@@ -38,7 +38,7 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	 *
 	 * @type {Array<HookTypes>}
 	 */
-	hooks: [
+	hooks = [
 		BindRequestContextHook,
 		InitiateRequestContextHook,
 		ConvertEmptyStringsToNullHook,
