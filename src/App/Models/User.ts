@@ -67,5 +67,7 @@ export class User extends Authenticatable<User> {
 	annoyingRelation: Book[];
 
 	someOrderingTimestamp: Date;
+
+	updatingNestedObject: { something?: { else: boolean }, and?: { another: { thing: boolean } } } = {};
 }
 

@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import 'jest-extended';
+import _ from "lodash";
 import {Book} from "../../App/Models/Book";
 import {User} from "../../App/Models/User";
 import {AuthenticationServiceProvider} from "../../Authentication";
@@ -325,6 +326,7 @@ describe('model query builder implementation', () => {
 			.get();
 
 		expect(u).toBeArray();
+
 	});
 
 });

@@ -4,14 +4,33 @@ import {ObjectId} from "mongodb";
 import {Book} from "../../App/Models/Book";
 import {User} from "../../App/Models/User";
 import {App} from "../../AppContainer";
+import {AuthenticationServiceProvider} from "../../Authentication";
+import {AuthorizationServiceProvider} from "../../Authorization/AuthorizationServiceProvider";
 import {Arr, Obj, Str} from "../../Common";
+import {EncryptionServiceProvider} from "../../Crypt";
 import {Database} from "../../Database";
+import {EventServiceProvider} from "../../Events";
+import {InertiaServiceProvider} from "../../Packages/Inertia/InertiaServiceProvider";
+import {RouteServiceProvider} from "../../Routing/RouteServiceProvider";
+import {SecurityServiceProvider} from "../../Security/SecurityServiceProvider";
 import {Server} from "../../Server/Server";
+import {SessionServiceProvider} from "../../Session/SessionServiceProvider";
+import {StorageServiceProvider} from "../../Storage";
 import {bootApp, unloadApp} from "../preptests";
 
 describe('model', () => {
 
-	beforeAll(() => bootApp());
+	beforeAll(() => bootApp(false, [
+		SecurityServiceProvider,
+		SessionServiceProvider,
+		EventServiceProvider,
+		EncryptionServiceProvider,
+		AuthenticationServiceProvider,
+		AuthorizationServiceProvider,
+		RouteServiceProvider,
+		StorageServiceProvider,
+		InertiaServiceProvider,
+	]));
 
 	afterAll(async () => {
 		await Database.dropCollection('users');
@@ -49,6 +68,21 @@ describe('model', () => {
 
 		expect(m._id).toBeDefined();
 		expect(model.something).toBe('lel');
+	});
+	test('model can be updated with nested object', async () => {
+		const u = await User.create({
+			name : 'bruce'
+		});
+		//{ something: { else: boolean }, and: { another: { thing: boolean } } }
+		await u.update({
+			'updatingNestedObject.something.else' : true,
+			'updatingNestedObject.and.another.thing'                   : false,
+		});
+
+		expect(u.updatingNestedObject.something.else).toEqual(true);
+		expect(u.updatingNestedObject.and.another.thing).toEqual(false);
+
+
 	});
 
 	test('model where first', async () => {

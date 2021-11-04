@@ -1,6 +1,6 @@
 import {classToPlain, classToPlainFromExist, plainToClass} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import _ from 'lodash';
+import _, {update} from 'lodash';
 import {Collection, Filter, FindOptions, ObjectId, OptionalId, UpdateOptions, UpdateResult,} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
@@ -325,13 +325,12 @@ export class Model<M> implements ModelContract<M> {
 
 		attributes = ModelHelpers.convertObjectIdsInAttributes(this, attributes);
 
+		if (!_.has(attributes, updatedKeys)) {
+			Log.warn(`Key does not exist in updated keys: ${updatedKeys} - attributes: ${attributes}`);
+		}
+
 		for (let attributeKey in attributes) {
 			const key = attributeKey as string;
-
-			if (!updatedKeys.includes(key)) {
-				Log.warn(`Key does not exist in updated keys: ${updatedKeys} - attributes: ${attributes}`);
-				continue;
-			}
 
 			if (!ignoreFieldChecks) {
 				if (!fields.includes(key)) {
@@ -342,7 +341,8 @@ export class Model<M> implements ModelContract<M> {
 				}
 			}
 
-			this[key] = attributes[key];
+			_.set(this, key, attributes[key]);
+			//this[key] = attributes[key];
 		}
 	}
 
@@ -422,7 +422,7 @@ export class Model<M> implements ModelContract<M> {
 			delete plain[name];
 		}
 
-//		plain = transformFromObjectIds(plain);
+		//		plain = transformFromObjectIds(plain);
 
 		const modelObjectIds = convertEntityObjectIds(model, plain);
 		for (let modelObjectIdsKey in modelObjectIds) {
