@@ -269,6 +269,20 @@ export class Request extends RequestResponseContext implements RequestContract {
 		const fileInstance = new UploadedFile(file, tempFileName);
 		await fileInstance.setAdditionalInformation();
 
+		/**
+		 * We need to assign multipart request field data
+		 * to our fastify request object.
+		 *
+		 * Otherwise, we could do request().get('field') and it won't exist.
+		 */
+		for (let key in file.fields) {
+			if (key === file.filename) {
+				continue;
+			}
+
+			this._request.body[key] = file.fields[key];
+		}
+
 		this._uploadedFiles.push(fileInstance);
 	}
 

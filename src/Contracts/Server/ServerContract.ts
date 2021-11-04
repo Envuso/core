@@ -2,6 +2,7 @@ import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
 import {FastifyCorsOptions} from "fastify-cors";
 import {Exception} from "../../Common";
+import {HookTypes} from "../../Server/ServerHooks";
 import {RequestContextContract} from "../Routing/Context/RequestContextContract";
 import {ResponseContract} from "../Routing/Context/Response/ResponseContract";
 import {MiddlewareContract} from "../Routing/Middleware/MiddlewareContract";
@@ -17,6 +18,7 @@ export interface ServerConfiguration {
 	middleware: (new () => MiddlewareContract)[];
 	disableCookieEncryption: string[];
 	cors: { options: FastifyCorsOptions; enabled: boolean };
+	hooks: Array<HookTypes>,
 	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
 	fastifyOptions: FastifyServerOptions;
 	responseSerialization: ClassTransformOptions;

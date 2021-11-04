@@ -97,14 +97,7 @@ export class Envuso implements EnvusoContract {
 	public async initialise() {
 		this._server = resolve<Server>(Server);
 
-		this.registerServerHooks(
-			BindRequestContextHook,
-			InitiateRequestContextHook,
-			ProcessUploadedFilesHook,
-			SetResponseCookiesHook,
-			SaveSessionHook,
-			// HandleErrorHook
-		);
+		this.registerServerHooks(App.getInstance().config().get('server.hooks'));
 
 		await this._server.initialise();
 	}

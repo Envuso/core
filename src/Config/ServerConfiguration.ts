@@ -5,8 +5,13 @@ import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-mult
 import {HandleInertiaRequestMiddleware} from "../App/Http/Middleware/HandleInertiaRequestMiddleware";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {ServerConfiguration as ServerConfig} from "../Contracts/Server/ServerContract";
-import {InertiaMiddleware} from "../Packages/Inertia/Middleware/InertiaMiddleware";
 import {InjectViewGlobals} from "../Routing/Views/InjectViewGlobals";
+import {BindRequestContextHook} from "../Server/InternalHooks/BindRequestContextHook";
+import {ConvertEmptyStringsToNullHook} from "../Server/InternalHooks/ConvertEmptyStringsToNullHook";
+import {InitiateRequestContextHook} from "../Server/InternalHooks/InitiateRequestContextHook";
+import {ProcessUploadedFilesHook} from "../Server/InternalHooks/ProcessUploadedFilesHook";
+import {SaveSessionHook} from "../Server/InternalHooks/SaveSessionHook";
+import {SetResponseCookiesHook} from "../Server/InternalHooks/SetResponseCookiesHook";
 import {StartSessionMiddleware} from "../Session/Middleware/StartSessionMiddleware";
 
 export default class ServerConfiguration extends ConfigurationCredentials implements ServerConfig {
@@ -23,6 +28,23 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 		StartSessionMiddleware,
 		InjectViewGlobals,
 		HandleInertiaRequestMiddleware,
+	];
+
+	/**
+	 * We have a custom wrapper of fastify's server hooks
+	 * This will allow us to extend fastify/framework logic a little
+	 *
+	 * Be warned, removing some of these may break some core logic handling of the server.
+	 *
+	 * @type {Array<HookTypes>}
+	 */
+	hooks: [
+		BindRequestContextHook,
+		InitiateRequestContextHook,
+		ConvertEmptyStringsToNullHook,
+		ProcessUploadedFilesHook,
+		SetResponseCookiesHook,
+		SaveSessionHook,
 	];
 
 	/**

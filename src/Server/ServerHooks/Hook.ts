@@ -5,6 +5,15 @@ import {RequestPayload} from "fastify/types/hooks";
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
 import {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
+import {OnErrorHook} from "./HookTypes/OnErrorHook";
+import {OnRequestHook} from "./HookTypes/OnRequestHook";
+import {OnResponseHook} from "./HookTypes/OnResponseHook";
+import {OnSendHook} from "./HookTypes/OnSendHook";
+import {OnTimeoutHook} from "./HookTypes/OnTimeoutHook";
+import {PreHandlerHook} from "./HookTypes/PreHandlerHook";
+import {PreParsingHook} from "./HookTypes/PreParsingHook";
+import {PreSerializationHook} from "./HookTypes/PreSerializationHook";
+import {PreValidationHook} from "./HookTypes/PreValidationHook";
 
 export type FastifyHookName =
 	'onRequest'
@@ -31,6 +40,8 @@ export type FastifyHandlerHookMap = {
 
 export type HookRunnerArgs = { request: FastifyRequest, response: FastifyReply, done: DoneFuncWithErrOrRes, error?: Error, payload?: any }
 export type HookHandlerArgs = { request: FastifyRequest, response: FastifyReply, error?: Error, payload?: any, done?: DoneFuncWithErrOrRes }
+
+export type HookTypes = OnErrorHook | OnRequestHook | OnResponseHook | OnSendHook | OnTimeoutHook | PreHandlerHook | PreParsingHook | PreSerializationHook | PreValidationHook;
 
 export class Hook implements HookContract {
 

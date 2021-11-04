@@ -5,6 +5,7 @@ import {App} from "../AppContainer/App";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {AppContract} from "../Contracts/AppContainer/AppContract";
 import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {Server} from "../Server/Server";
 
 import {bootApp, unloadApp} from "./preptests";
 
