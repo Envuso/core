@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 export class QueryAggregation<T> {
 
-	private aggregations = [];
+	public aggregations = [];
 
 	constructor(model: any) {
 
@@ -118,6 +118,21 @@ export class QueryAggregation<T> {
 	}
 
 	public setFilterQuery(filter: QueryBuilderParts<T>): QueryAggregation<T> {
+
+		/**
+		 * $geoNear queries always need to be the first query to run in a pipeline
+		 *
+		 * When we call this method when we run .get()/.first(), it will also apply any
+		 * .where() filters to this pipeline, so you don't have to go through the builder.
+		 *
+		 * This means our .where() filters can't always be set at the first index.
+		 */
+		if (this.aggregations.find((val, index) => val?.$geoNear !== undefined)) {
+			this.aggregations.splice(1, 0, {$match : filter.getQueryAsFilter()});
+
+			return this;
+		}
+
 		this.aggregations.unshift({$match : filter.getQueryAsFilter()});
 
 		return this;
@@ -128,7 +143,7 @@ export class QueryAggregation<T> {
 			throw new Error('Near is not specified on geo near aggregation');
 		}
 
-		this.aggregations.push({$geoNear : query});
+		this.aggregations.unshift({$geoNear : query});
 
 		return this;
 	}

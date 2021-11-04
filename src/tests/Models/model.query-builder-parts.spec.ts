@@ -5,6 +5,7 @@ import {User} from "../../App/Models/User";
 import {AuthenticationServiceProvider} from "../../Authentication";
 import {AuthorizationServiceProvider} from "../../Authorization/AuthorizationServiceProvider";
 import {EncryptionServiceProvider} from "../../Crypt";
+import {GeoNearAggregation, QueryAggregation} from "../../Database/Mongo/QueryAggregation";
 import {QueryBuilderParts} from "../../Database/Mongo/QueryBuilderParts";
 import {EventServiceProvider} from "../../Events";
 import {InertiaServiceProvider} from "../../Packages/Inertia/InertiaServiceProvider";
@@ -122,6 +123,48 @@ describe('model query builder object id conversions', () => {
 		const q = builder.getQuery();
 
 		expect(q.$set.user._id).toBeInstanceOf(ObjectId);
+	});
+
+	test('$geoNear + where() gets correctly positioned in pipeline', async () => {
+
+		const geoNearData: GeoNearAggregation = {
+			near : {
+				type        : 'Point',
+				coordinates : [0, 0]
+			}
+		};
+		const objId                           = new ObjectId();
+
+		const q = User.query()
+			.where('_id', objId)
+			.aggregationPipeline(builder => {
+				return builder.addGeoNear(geoNearData);
+			});
+
+		expect(q.aggregationPipelineBuilder().aggregations[0]).toEqual({$geoNear : geoNearData});
+
+		const res = q.resolveCursor({}, 'get');
+
+		expect(q.aggregationPipelineBuilder().aggregations[0]).toEqual({$geoNear : geoNearData});
+		expect(q.aggregationPipelineBuilder().aggregations[1]).toEqual({"$match" : {'_id' : objId}});
+
+		const qtwo = User.query()
+			.where('_id', objId)
+			.where('name', objId)
+			.aggregationPipeline(builder => {
+				const b = new QueryBuilderParts(new User());
+				b.add({'someUserId' : objId});
+				return builder.setFilterQuery(b);
+			});
+
+		expect(qtwo.aggregationPipelineBuilder().aggregations[0]).toEqual({"$match" : {'someUserId' : objId}});
+
+		const restwo = qtwo.resolveCursor({}, 'get');
+
+		expect(qtwo.aggregationPipelineBuilder().aggregations[0]).toEqual({"$match" : {'_id' : objId, 'name' : objId.toString()}});
+		expect(qtwo.aggregationPipelineBuilder().aggregations[1]).toEqual({"$match" : {'someUserId' : objId}});
+
+
 	});
 
 });
