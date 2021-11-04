@@ -411,6 +411,21 @@ export interface QueryBuilderContract<T> {
 	relations(): { [key: string]: ModelRelationMeta };
 
 	/**
+	 * Chain pipeline queries onto the query
+	 *
+	 * @param {(builder: QueryAggregation<T>) => QueryAggregation<T>} cb
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	aggregationPipeline(cb: (builder: QueryAggregation<T>) => QueryAggregation<T>): QueryBuilderContract<T>;
+
+	/**
+	 * Access the aggregation pipeline query builder
+	 *
+	 * @returns {QueryAggregation<T>}
+	 */
+	aggregationPipelineBuilder(): QueryAggregation<T>;
+
+	/**
 	 * After we have resolved our query, we need to make sure we clear everything
 	 * up, just so that filters don't remain and cause unexpected issues
 	 * @private

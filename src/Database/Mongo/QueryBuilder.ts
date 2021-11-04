@@ -22,7 +22,6 @@ import {PaginatedResponse, Paginator} from "./Paginator";
 import {QueryAggregation} from "./QueryAggregation";
 import {QueryBuilderHelpers} from "./QueryBuilderHelpers";
 import {QueryBuilderParts} from "./QueryBuilderParts";
-import _ from 'lodash';
 
 export type QueryOperator = "==" | "=" | "!==" | "!=" | ">" | ">=" | "<>" | "<" | "<="
 
@@ -954,6 +953,27 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		}
 
 		return relations;
+	}
+
+	/**
+	 * Chain pipeline queries onto the query
+	 *
+	 * @param {(builder: QueryAggregation<T>) => QueryAggregation<T>} cb
+	 * @returns {QueryBuilderContract<T>}
+	 */
+	public aggregationPipeline(cb: (builder: QueryAggregation<T>) => QueryAggregation<T>): QueryBuilderContract<T> {
+		this._aggregation = cb(this._aggregation);
+
+		return this;
+	}
+
+	/**
+	 * Access the aggregation pipeline query builder
+	 *
+	 * @returns {QueryAggregation<T>}
+	 */
+	public aggregationPipelineBuilder(): QueryAggregation<T> {
+		return this._aggregation;
 	}
 
 	/**

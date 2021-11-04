@@ -123,6 +123,22 @@ export class QueryAggregation<T> {
 		return this;
 	}
 
+	public addGeoNear(query: GeoNearAggregation): QueryAggregation<T> {
+		if (!query?.near) {
+			throw new Error('Near is not specified on geo near aggregation');
+		}
+
+		this.aggregations.push({$geoNear : query});
+
+		return this;
+	}
+
+	public addAggregation(aggregation: any): QueryAggregation<T> {
+		this.aggregations.push(aggregation);
+
+		return this;
+	}
+
 	getQuery() {
 		return this.aggregations;
 	}
@@ -134,6 +150,21 @@ export class QueryAggregation<T> {
 	cleanup() {
 		this.aggregations = [];
 	}
+}
 
+export type GeoPoint = {
+	type: 'Point';
+	coordinates: number[] | number[][];
+}
 
+export type GeoNearAggregation = {
+	distanceField?: string;
+	distanceMultiplier?: number;
+	includeLocs?: string,
+	key?: string;
+	maxDistance?: number,
+	minDistance?: number,
+	near: GeoPoint,
+	spherical?: boolean,
+	uniqueDocs?: boolean,
 }
