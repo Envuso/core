@@ -102,7 +102,7 @@ export abstract class WebSocketChannelListener implements WebSocketChannelListen
 	public abstract isAuthorised(connection: WebSocketConnection<any>): Promise<boolean>;
 
 	public send(event: string, data: any) {
-		const packet = JSON.stringify({
+		const packet = WebSocketServer.transformSocketSendData({
 			event   : event,
 			channel : this.getChannelName(),
 			data    : data ?? {}

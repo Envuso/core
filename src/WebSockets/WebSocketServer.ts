@@ -1,5 +1,6 @@
 import {Buffer} from "buffer";
 import {JsonWebTokenError} from "jsonwebtoken";
+import {ObjectId} from "mongodb";
 import path from "path";
 import {
 	App,
@@ -18,6 +19,7 @@ import {Obj, FileLoader, Log, Str} from "../Common";
 import WebsocketsConfiguration, {uWsBehaviour} from "../Config/WebsocketsConfiguration";
 import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
+import {Model} from "../Database";
 import {RequestContext} from "../Routing";
 import {RequestContextStore} from "../Routing/Context/RequestContextStore";
 import {BaseEventPacket, ChannelSubscribeSocketPacket, ChannelUnsubscribeSocketPacket, SocketEvents, UserMessageSocketPacket} from "./SocketEventTypes";
@@ -427,7 +429,7 @@ export class WebSocketServer {
 	}
 
 	public sendToUserId(id: string, event: string, data: any) {
-		this.app.publish(`auth:user:${id}`, JSON.stringify({
+		this.app.publish(`auth:user:${id}`, WebSocketServer.transformSocketSendData({
 			event : event,
 			data  : data ?? {}
 		}));
@@ -438,12 +440,53 @@ export class WebSocketServer {
 	}
 
 	public broadcast(channel: string, event: string, data: any) {
-		this.app.publish(channel, JSON.stringify({
+		this.app.publish(channel, WebSocketServer.transformSocketSendData({
 			event   : event,
 			channel : channel,
 			data    : data ?? {}
 		}));
 	}
+
+	public static transformSocketSendData(data: any) {
+		const format = (d) => {
+			if (Array.isArray(d) || Obj.isObject(d)) {
+				for (let key in d) {
+
+					if (d[key]?.toResponse) {
+						d[key] = d[key].toResponse();
+						continue;
+					}
+
+					if (d[key] instanceof Model) {
+						d[key] = d[key].dehydrate();
+
+						continue;
+					}
+
+					if (d[key] instanceof ObjectId) {
+						d[key] = d[key].toString();
+
+						continue;
+					}
+
+					if (typeof d[key] === 'string') {
+						continue;
+					}
+
+					if (Array.isArray(d[key]) || Obj.isObject(d[key])) {
+						d[key] = format(d[key]);
+					}
+				}
+			}
+
+			return d;
+		};
+
+		data.data = format(data.data);
+
+		return JSON.stringify(data);
+	}
+
 }
 
 export interface CustomWebSocket extends WebSocket {
