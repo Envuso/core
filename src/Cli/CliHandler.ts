@@ -65,7 +65,24 @@ export const resetDb = (dev: boolean = false) => {
 
 export const resetCollection = (dev: boolean = false, collection: string) => {
 	return runFrameworkLogic(dev, async () => {
-		await Database.dropCollection(collection);
+		const db = Database.get();
+
+		const collections = await db.collections();
+
+		if (!collections.find(c => c.collectionName === collection)) {
+			Log.error(`The collection you're trying to drop "${collection}" does not exist.`);
+			return;
+		}
+
+		try {
+			await db.collection(collection).drop();
+		} catch (error) {
+			if (error?.codeName === 'NamespaceNotFound') {
+				Log.info('Collection not dropped. It doesnt exist.');
+			} else {
+				throw error;
+			}
+		}
 	});
 };
 
