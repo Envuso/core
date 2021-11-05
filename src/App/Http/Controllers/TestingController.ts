@@ -375,7 +375,7 @@ export class TestingController extends Controller {
 			}
 		}
 
-		return UserResource.from(user);
+		return UserResource.from(user, true);
 	}
 
 	@get('/api-resource/many')

@@ -8,39 +8,51 @@ import {RequestContext} from "../index";
 import {MissingValue} from "./Values/MissingValue";
 import {anyValue} from "./Values/Value";
 
-export type ResourceType<T> = new (data: T, pagination?: PaginatedResponsePagination, resource?: ResourceType<T>) => ApiResource<T>;
+export type ResourceType<T> = new (
+	data: T,
+	pagination?: PaginatedResponsePagination,
+	resource?: ResourceType<T>,
+	...additionalArgs: any[]
+) => ApiResource<T>;
 
 export abstract class ApiResource<T> implements Responsable {
 
 	constructor(
 		data: T,
 		pagination: PaginatedResponsePagination = null,
-		private resource: ResourceType<T>       = null
+		resource: ResourceType<T>               = null,
+		...additionalArgs: any[]
 	) {
-		this.data       = data;
-		this.pagination = pagination;
+		this.data           = data;
+		this.pagination     = pagination;
+		this.additionalArgs = additionalArgs;
 	}
+
+	private resource: ResourceType<T> = null;
+
+	private additionalArgs: any[] = [];
 
 	protected pagination: PaginatedResponsePagination = null;
 
 	protected data: T = null;
 
-	static from<T extends any>(this: ResourceType<T>, item: T) {
-		return new this(item, null, this);
+	static from<T extends any>(this: ResourceType<T>, item: T, ...additionalArgs: any) {
+		return new this(item, null, this, ...additionalArgs);
 	}
 
 	static collection<T extends any, TT extends PaginatedResponse<T>>(
 		this: ResourceType<T>,
-		items: TT | T[]
+		items: TT | T[],
+		...additionalArgs: any[]
 	) {
 		if (!Array.isArray(items) && (items as any)?.pagination) {
-			return new this(items.data as T, items.pagination, this);
+			return new this(items.data as T, items.pagination, this, ...additionalArgs);
 		}
 
-		return new this(items as T, null, this);
+		return new this(items as T, null, this, ...additionalArgs);
 	}
 
-	abstract transform(request: RequestContextContract): any;
+	abstract transform(request: RequestContextContract, ...args: any[]): any;
 
 	/**
 	 * Transform the passed in data into an object
@@ -172,12 +184,11 @@ export abstract class ApiResource<T> implements Responsable {
 	}
 
 	toResponse() {
+		const context = RequestContext.get();
 
 		if (Array.isArray(this.data)) {
-			const context = RequestContext.get();
-
 			const data = this.data.map(d => {
-				return new this.resource(d, null, this.resource).transform(context);
+				return new this.resource(d, null, this.resource).transform(context, ...this.additionalArgs);
 			});
 
 			if (this.pagination === null) {
@@ -190,7 +201,7 @@ export abstract class ApiResource<T> implements Responsable {
 			});
 		}
 
-		return this.transformData(this.transform(RequestContext.get()));
+		return this.transformData(this.transform(context, ...this.additionalArgs));
 	}
 }
 
