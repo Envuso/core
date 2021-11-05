@@ -26,6 +26,7 @@ export abstract class ApiResource<T> implements Responsable {
 		this.data           = data;
 		this.pagination     = pagination;
 		this.additionalArgs = additionalArgs;
+		this.resource       = resource;
 	}
 
 	private resource: ResourceType<T> = null;
