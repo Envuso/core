@@ -15,6 +15,7 @@ import {dto, query, body, user} from "../../../Routing/Route/RouteDecorators";
 import {session} from "../../../Session";
 import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
 import {User} from "../../Models/User";
+import {UserResource} from "../ApiResources/UserResource";
 
 //import {UserSocketListener} from "../Sockets/UserSocketListener";
 
@@ -366,29 +367,11 @@ export class TestingController extends Controller {
 			name : 'Brian'
 		});
 
-		class UserResource extends ApiResource<User> {
-			public transform(request: RequestContextContract): any {
-				return {
-					_id  : this.data._id,
-					name : this.data.name,
-				};
-			}
-		}
-
 		return UserResource.from(user, true);
 	}
 
 	@get('/api-resource/many')
 	async testApiResourceMany() {
-
-		class UserResource extends ApiResource<User> {
-			public transform(request: RequestContextContract): any {
-				return {
-					_id  : this.data._id,
-					name : this.data.name,
-				};
-			}
-		}
 
 		const users = await User.query().paginate(22);
 

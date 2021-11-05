@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {UserResource} from "../App/Http/ApiResources/UserResource";
 import {UserSocketListener} from "../App/Http/Sockets/UserSocketListener";
 import {User} from "../App/Models/User";
 import {resolve} from "../AppContainer";
@@ -246,6 +247,7 @@ describe('websocket channels', () => {
 
 		client.terminate();
 	});
+
 	test('test sending to user via channel', async () => {
 		const {user, token} = await createUserAndToken();
 
@@ -261,7 +263,11 @@ describe('websocket channels', () => {
 
 				channel.listen('welcome', data => console.log(data));
 
-				user.sendSocketChannelEvent(`user:${user._id.toString()}`, 'welcome', {message : 'hi'});
+				user.sendSocketChannelEvent(
+					`user:${user._id.toString()}`,
+					'welcome',
+					UserResource.from(user),
+				);
 
 				resolve({channel, error});
 			});

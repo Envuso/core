@@ -449,42 +449,48 @@ export class WebSocketServer {
 
 	public static transformSocketSendData(data: any) {
 		const format = (d) => {
+			const formatted = Array.isArray(d) ? [] : {};
+
 			if (Array.isArray(d) || Obj.isObject(d)) {
 				for (let key in d) {
 
 					if (d[key]?.toResponse) {
-						d[key] = d[key].toResponse();
+						formatted[key] = d[key].toResponse();
 						continue;
 					}
 
 					if (d[key] instanceof Model) {
-						d[key] = d[key].dehydrate();
+						formatted[key] = d[key].dehydrate();
 
 						continue;
 					}
 
 					if (d[key] instanceof ObjectId) {
-						d[key] = d[key].toString();
+						formatted[key] = d[key].toString();
 
 						continue;
 					}
 
 					if (typeof d[key] === 'string') {
+						formatted[key] = d[key];
 						continue;
 					}
 
 					if (Array.isArray(d[key]) || Obj.isObject(d[key])) {
-						d[key] = format(d[key]);
+						formatted[key] = format(d[key]);
+						continue;
 					}
+
+					formatted[key] = d[key];
 				}
+			} else {
+				return data;
 			}
 
-			return d;
+			return formatted;
 		};
 
-		data.data = format(data.data);
-
-		return JSON.stringify(data);
+		return JSON.stringify(format(data));
 	}
 
 }
