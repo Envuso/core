@@ -33,9 +33,9 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {
 		const log = (message: string) => {
-			if (config.get<string, boolean>('app.logging.models', false)) {
-				Log.info(message);
-			}
+			//if (config.get<string, boolean>('app.logging.models', false)) {
+			Log.info(message);
+			//}
 		};
 
 		const modules = await FileLoader.importClassesOfTypeFrom(

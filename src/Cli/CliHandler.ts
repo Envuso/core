@@ -42,7 +42,7 @@ const runFrameworkLogic = async (dev: boolean = false, logic: () => Promise<void
 };
 
 export const seedDatabase = (dev: boolean = false) => {
-	runFrameworkLogic(dev, async () => {
+	return runFrameworkLogic(dev, async () => {
 		const seederClass = config().get<string, any>('Database.seeder');
 
 		if (!seederClass) {
