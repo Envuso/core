@@ -46,6 +46,7 @@ export * from './Middleware/Middlewares/VerifyCsrfTokenMiddleware';
 export * from './Middleware/Middlewares/JwtAuthenticationMiddleware';
 export * from './Context/Response/Response';
 export * from './Context/Request/Request';
+export * from './ApiResource/ApiResource';
 
 export {request, view, redirect, back, RequestContext};
 

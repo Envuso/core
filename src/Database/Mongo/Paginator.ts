@@ -8,16 +8,18 @@ import {QueryBuilderParts} from "./QueryBuilderParts";
 
 export type PageCursor = 'after' | 'before';
 
+export type PaginatedResponsePagination = {
+	before: string;
+	after: string;
+	hasNext: boolean;
+	hasPrevious: boolean;
+	total: number;
+	limit: number;
+}
+
 export interface PaginatedResponse<T> {
 	data: T[];
-	pagination: {
-		before: string;
-		after: string;
-		hasNext: boolean;
-		hasPrevious: boolean;
-		total: number;
-		limit: number;
-	};
+	pagination: PaginatedResponsePagination;
 }
 
 export class Paginator<T> implements PaginatorContract<T> {

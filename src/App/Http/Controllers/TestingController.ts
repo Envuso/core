@@ -1,8 +1,9 @@
 import {Allow, IsString, MinLength} from "class-validator";
 import {Auth} from "../../../Authentication";
 import {Authorization} from "../../../Authorization/Authorization";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {EventManager} from "../../../Events";
-import {redirect, request, response, view} from "../../../Routing";
+import {ApiResource, redirect, request, response, view} from "../../../Routing";
 import {Controller} from "../../../Routing/Controller/Controller";
 import {controller, get, method, post} from "../../../Routing/Controller/ControllerDecorators";
 import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
@@ -14,6 +15,7 @@ import {dto, query, body, user} from "../../../Routing/Route/RouteDecorators";
 import {session} from "../../../Session";
 import {TestingEventDispatcher} from "../../Events/Dispatchers/TestingEventDispatcher";
 import {User} from "../../Models/User";
+
 //import {UserSocketListener} from "../Sockets/UserSocketListener";
 
 class DTO extends DataTransferObject {
@@ -124,10 +126,10 @@ export class TestingController extends Controller {
 		return user;
 	}
 
-//	@get('/rmb/uservalsobj/:user')
-//	async testRouteModelBindingObjValues(user: User) {
-//		return {_id : user._id};
-//	}
+	//	@get('/rmb/uservalsobj/:user')
+	//	async testRouteModelBindingObjValues(user: User) {
+	//		return {_id : user._id};
+	//	}
 
 	@get('/rmb/uservals/:user')
 	async testRouteModelBindingValues(user: User) {
@@ -182,7 +184,7 @@ export class TestingController extends Controller {
 		const user = Auth.user<User>();
 		//		user.sendSocketEvent('wewt', {message : 'yeah boi'});
 
-//		user.sendSocketChannelEvent(UserSocketListener, 'wewt', {message : 'yeah boi'});
+		//		user.sendSocketChannelEvent(UserSocketListener, 'wewt', {message : 'yeah boi'});
 
 		return {};
 	}
@@ -356,6 +358,24 @@ export class TestingController extends Controller {
 	@post('/confirmed')
 	testConfirmed(@dto() body: ConfirmedDto) {
 
+	}
+
+	@get('/api-resource')
+	async testApiResource() {
+		const user = await User.create({
+			name : 'Brian'
+		});
+
+		class UserResource extends ApiResource<User> {
+			public transform(request: RequestContextContract): any {
+				return {
+					_id  : this.data._id,
+					name : this.data.name,
+				};
+			}
+		}
+
+		return UserResource.from(user);
 	}
 
 }

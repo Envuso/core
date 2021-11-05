@@ -367,6 +367,27 @@ export class Model<M> implements ModelContract<M> {
 		}
 	}
 
+	/**
+	 * Check if a relationship is loaded.
+	 * This can be slightly inaccurate also... if we load a relationship
+	 * but there isn't a relation to actually load(ie, a user with a book, but it doesnt have a book stored)
+	 * then the value of the relationship on the model will be null.
+	 *
+	 * @param {SingleModelProp<M>} relationship
+	 * @returns {boolean}
+	 */
+	public relationIsLoaded(relationship: SingleModelProp<M>): boolean {
+		if (!this.isAttribute(relationship)) {
+			return false;
+		}
+
+		if (!this.queryBuilder().isRelation(relationship as string)) {
+			return false;
+		}
+
+		return !!this[relationship as string];
+	}
+
 	public hydrate(attributes: Partial<M>): M {
 		// Reeeeeeeee.....
 		return (this.constructor as any).hydrate(attributes) as unknown as M;

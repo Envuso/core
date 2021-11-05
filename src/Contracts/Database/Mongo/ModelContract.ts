@@ -66,6 +66,17 @@ export interface ModelContract<M> {
 	assignAttributes(attributes: Partial<M>, ignoreFieldChecks?: boolean): void;
 
 	/**
+	 * Check if a relationship is loaded.
+	 * This can be slightly inaccurate also... if we load a relationship
+	 * but there isn't a relation to actually load(ie, a user with a book, but it doesnt have a book stored)
+	 * then the value of the relationship on the model will be null.
+	 *
+	 * @param {SingleModelProp<M>} relationship
+	 * @returns {boolean}
+	 */
+	relationIsLoaded(relationship: SingleModelProp<M>): boolean;
+
+	/**
 	 * Save any changes made to the model
 	 *
 	 * For ex:

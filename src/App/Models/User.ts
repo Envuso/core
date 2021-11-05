@@ -15,6 +15,9 @@ export class User extends Authenticatable<User> {
 	@id
 	someUserId: ObjectId | string;
 
+	@hasOne('User', '_id', 'someUserId')
+	someUser: User;
+
 	//	@hasOne(Book, 'userId', '_id')
 	//	book?: Book;
 
