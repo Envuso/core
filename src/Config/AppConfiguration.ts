@@ -60,6 +60,7 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		controllers : false,
 		providers   : true,
 		serverHooks : true,
+		models      : true,
 
 		socketInformation : true,
 		socketChannels    : true,

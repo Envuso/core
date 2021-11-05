@@ -32,10 +32,17 @@ export class DatabaseServiceProvider extends ServiceProvider {
 	}
 
 	async loadModels(app: AppContract, config: ConfigRepositoryContract, modulePath: string) {
+		const log = (message: string) => {
+			if (config.get<string, boolean>('app.logging.models', false)) {
+				Log.info(message);
+			}
+		};
 
 		const modules = await FileLoader.importClassesOfTypeFrom(
 			path.join(modulePath, '**', '*.ts'), 'Model'
 		);
+
+		log(`Found ${modules.length} models to load.`);
 
 		const client = app.resolve(MongoClient);
 		const dbName = config.get<string, any>('Database.mongo.name');
@@ -48,7 +55,10 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 			const collection = client.db(dbName).collection<typeof module.instance>(collectionName);
 			if (!collectionNames.includes(collectionName)) {
+				log(`Collection ${collectionName} does not exist... creating.`);
+
 				await client.db(dbName).createCollection(collectionName);
+				log(`Collection ${collectionName} created successfully.`);
 			}
 
 			app.container().register(module.name + 'ModelCollection', {
@@ -59,6 +69,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			const binding = {useValue : module.instance};
 			app.container().register(`Model:${module.name}`, binding);
 			app.container().register(`Model:${pluralize(module.name.toLowerCase())}`, binding);
+			log(`Model: ${module.name} bound to the container`);
 
 			/**
 			 * We get the properties defined on the model, excluding any marked with @internalExclude()
@@ -70,6 +81,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 				return !excludedKeys.includes(property);
 			});
 
+			log(`Attempting to create any index for model: ${module.name}`);
 			await (modelInst as any).createIndexes();
 
 			app.container().register(`Model:Fields:${module.name}`, {useValue : fields});

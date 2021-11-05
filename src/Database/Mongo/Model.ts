@@ -498,16 +498,19 @@ export class Model<M> implements ModelContract<M> {
 			return;
 		}
 
+		try {
+			const indexesToCreate = indexes.map(i => ({name : i.name, key : i.index}));
 
-		const indexesToCreate = indexes.map(i => ({name : i.name, key : i.index}));
-
-		for (let index of indexesToCreate) {
-			if (await this.collection().indexExists(index.name)) {
-				await this.collection().dropIndex(index.name);
+			for (let index of indexesToCreate) {
+				if (await this.collection().indexExists(index.name)) {
+					await this.collection().dropIndex(index.name);
+				}
 			}
-		}
 
-		const result = await this.collection().createIndexes(indexesToCreate);
+			const result = await this.collection().createIndexes(indexesToCreate);
+		} catch (error) {
+			Log.exception(`Error when creating indexes for model: ${this.constructor.name}`, error);
+		}
 	}
 
 }
