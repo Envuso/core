@@ -378,4 +378,21 @@ export class TestingController extends Controller {
 		return UserResource.from(user);
 	}
 
+	@get('/api-resource/many')
+	async testApiResourceMany() {
+
+		class UserResource extends ApiResource<User> {
+			public transform(request: RequestContextContract): any {
+				return {
+					_id  : this.data._id,
+					name : this.data.name,
+				};
+			}
+		}
+
+		const users = await User.query().paginate(22);
+
+		return UserResource.collection(users);
+	}
+
 }

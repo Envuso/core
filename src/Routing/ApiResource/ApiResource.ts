@@ -15,7 +15,7 @@ export abstract class ApiResource<T> implements Responsable {
 	constructor(
 		data: T,
 		pagination: PaginatedResponsePagination = null,
-		private resource: ResourceType<T>        = null
+		private resource: ResourceType<T>       = null
 	) {
 		this.data       = data;
 		this.pagination = pagination;
@@ -55,11 +55,10 @@ export abstract class ApiResource<T> implements Responsable {
 	 * @private
 	 */
 	private transformData(data: any) {
-		let result: any = {};
+		let result: any = Array.isArray(data) ? [] : {};
 
 		if (Array.isArray(data) || Obj.isObject(data)) {
 			for (let key in data) {
-
 				if (data[key] instanceof MissingValue) {
 					continue;
 				}
