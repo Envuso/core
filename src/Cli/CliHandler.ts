@@ -9,7 +9,7 @@ import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import Environment from './../AppContainer/Config/Environment';
 import {config, resolve} from "../AppContainer";
 import {Log} from "../Common";
-import {SeedManager} from "../Database";
+import {Database, SeedManager} from "../Database";
 import {Envuso} from "../Envuso";
 
 
@@ -54,6 +54,18 @@ export const seedDatabase = (dev: boolean = false) => {
 		seeder.registerSeeders();
 
 		await resolve(SeedManager).runSeeders();
+	});
+};
+
+export const resetDb = (dev: boolean = false) => {
+	return runFrameworkLogic(dev, async () => {
+		await Database.get().dropDatabase();
+	});
+};
+
+export const resetCollection = (dev: boolean = false, collection: string) => {
+	return runFrameworkLogic(dev, async () => {
+		await Database.dropCollection(collection);
 	});
 };
 

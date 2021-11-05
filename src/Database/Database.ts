@@ -1,11 +1,22 @@
-import {Collection} from "mongodb";
+import {Collection, Db, MongoClient} from "mongodb";
 import pluralize from "pluralize";
-import {app} from "../AppContainer";
+import {app, config, resolve} from "../AppContainer";
 import {Classes, Log} from "../Common";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 
 
 export class Database {
+
+	/**
+	 * Get the mongodb db instance
+	 *
+	 * @returns {Db}
+	 */
+	public static get(): Db {
+		const client = resolve(MongoClient);
+
+		return client.db(config().get<string, any>('Database.mongo.name'));
+	}
 
 	/**
 	 * This will delete your collection and all of it's contents from mongo
