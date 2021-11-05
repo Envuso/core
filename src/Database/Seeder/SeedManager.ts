@@ -21,6 +21,12 @@ export class SeedManager implements SeedManagerContract {
 	 * @returns {Promise<void>}
 	 */
 	public async runSeeders() {
+
+		if (!this.seeders.length) {
+			console.log(chalk.yellow("Cannot run seeders, no seeders have been registered."));
+			return;
+		}
+
 		const startTime = new Date().getTime();
 		for await (let seeder of this.seeders) {
 			const seederStartTime = new Date().getTime();

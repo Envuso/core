@@ -44,13 +44,16 @@ const runFrameworkLogic = async (dev: boolean = false, logic: () => Promise<void
 export const seedDatabase = (dev: boolean = false) => {
 	runFrameworkLogic(dev, async () => {
 		const seederClass = config().get<string, any>('Database.seeder');
-		if (seederClass) {
-			const seeder = new seederClass();
-
-			seeder.registerSeeders();
-
-			await resolve(SeedManager).runSeeders();
+		if (!seederClass) {
+			Log.warn('No seeder is defined in DatabaseConfiguration.seeder. Please specify your seeders class.');
+			return;
 		}
+
+		const seeder = new seederClass();
+
+		seeder.registerSeeders();
+
+		await resolve(SeedManager).runSeeders();
 	});
 };
 
