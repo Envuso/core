@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-next.83",
+  "version": "2.0.0-next.84",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -65,7 +65,9 @@
     "utf-8-validate": "^5.0.4",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.2",
-    "ws": "^7.4.5"
+    "ws": "^7.4.5",
+    "is-image": "^3.0.0",
+    "is-video": "^1.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
@@ -94,8 +96,6 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-replace-ts-export-assignment": "^0.0.2",
     "fastify-multipart": "^4.0.3",
-    "is-image": "^3.0.0",
-    "is-video": "^1.0.1",
     "jest": "^26.6.3",
     "jest-extended": "^0.11.5",
     "ts-jest": "^26.5.4",
