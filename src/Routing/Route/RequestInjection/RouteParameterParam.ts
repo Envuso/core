@@ -1,5 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteParameterParam extends MethodParameterDecorator {
@@ -44,7 +45,7 @@ export class RouteParameterParam extends MethodParameterDecorator {
 		return this.expectedParamType === param;
 	}
 
-	bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
 		const paramValue = request.params[this.parameterName];
 		const param      = this.expectedParamType(paramValue);
 

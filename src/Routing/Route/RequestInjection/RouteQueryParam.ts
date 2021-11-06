@@ -1,5 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteQueryParam extends MethodParameterDecorator {
@@ -13,8 +14,8 @@ export class RouteQueryParam extends MethodParameterDecorator {
 	}
 
 	static handleParameter(reflector: ReflectControllerMethodParamData) {
-		const types          = DecoratorHelpers.paramTypes(reflector.target, reflector.propertyKey)
-		const parameterNames = DecoratorHelpers.getParameterNames(reflector.target[reflector.propertyKey])
+		const types          = DecoratorHelpers.paramTypes(reflector.target, reflector.propertyKey);
+		const parameterNames = DecoratorHelpers.getParameterNames(reflector.target[reflector.propertyKey]);
 
 		const routeParameterParam = new RouteQueryParam(
 			parameterNames[reflector.parameterIndex],
@@ -22,13 +23,13 @@ export class RouteQueryParam extends MethodParameterDecorator {
 			reflector.parameterIndex
 		);
 
-		this.setMetadata(reflector, routeParameterParam)
+		this.setMetadata(reflector, routeParameterParam);
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, param: RouteQueryParam) {
 		const target = reflector.target[reflector.propertyKey];
 
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_QUERY_PARAMETER, param, target)
+		Reflect.defineMetadata(METADATA.REQUEST_METHOD_QUERY_PARAMETER, param, target);
 	}
 
 	static getMetadata(target: Function): RouteQueryParam | undefined {
@@ -43,9 +44,10 @@ export class RouteQueryParam extends MethodParameterDecorator {
 		return this.expectedParamType === param;
 	}
 
-	bind(request: FastifyRequest, response: FastifyReply) {
-		const paramValue = request.query[this.parameterName];
-		const param      = this.expectedParamType(paramValue);
+	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
+		const paramValue = context.request.get(this.parameterName, null);
+
+		const param = this.expectedParamType(paramValue);
 
 		if (!param) {
 			throw new Error(`Expected type of ${typeof param} for param ${this.parameterName} but ${typeof paramValue} cannot be cast to ${typeof param}`);

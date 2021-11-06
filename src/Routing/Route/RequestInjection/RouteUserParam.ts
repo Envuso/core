@@ -1,7 +1,7 @@
 import {FastifyReply, FastifyRequest} from "fastify";
-import {resolve} from "../../../AppContainer";
-import {Auth, Authentication} from "../../../Authentication";
+import {Auth} from "../../../Authentication";
 import {DecoratorHelpers, METADATA} from "../../../Common";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteUserParam extends MethodParameterDecorator {
@@ -38,14 +38,12 @@ export class RouteUserParam extends MethodParameterDecorator {
 		return Reflect.getMetadata(METADATA.REQUEST_AUTHENTICATED_USER, target);
 	}
 
-	bind(request: FastifyRequest, response: FastifyReply) {
-		if(!Auth.check()) {
+	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
+		if (!Auth.check()) {
 			return null;
 		}
 
 		return Auth.user();
-
-//		const user = resolve(Authentication).user().getUser();
 	}
 
 }

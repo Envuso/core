@@ -1,5 +1,6 @@
 import {HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
+import {UploadedFile} from "../../../../Routing/Context/Request/UploadedFile";
 import {AuthenticatableContract} from "../../../Authentication/UserProvider/AuthenticatableContract";
 import {SessionContract} from "../../../Session/SessionContract";
 import {RequestResponseContextContract} from "../RequestResponseContextContract";
@@ -88,6 +89,14 @@ export interface RequestContract extends RequestResponseContextContract {
 	 * Get all files on the request
 	 */
 	files(): UploadedFileContract[];
+
+	/**
+	 * Get all files submitted on the request, but as an object of key -> value
+	 * rather than an array of uploaded files
+	 *
+	 * @returns {{[p: string]: UploadedFile}}
+	 */
+	filesKeyed(): { [key: string]: UploadedFile };
 
 	/**
 	 * Get a singular file on the request

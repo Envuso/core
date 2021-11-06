@@ -222,7 +222,7 @@ export class Route implements RouteContract {
 				);
 
 				if (canBind) {
-					const boundMetadata = await methodMeta.bind(request, response);
+					const boundMetadata = await methodMeta.bind(request, response, context);
 					parameterArgs.push(boundMetadata);
 
 					boundParameter = true;

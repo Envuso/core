@@ -1,5 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {METADATA} from "../../../Common";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 
 export interface ReflectControllerMethodParamData {
 	propertyKey: string | symbol;
@@ -41,8 +42,9 @@ export class MethodParameterDecorator {
 	 *
 	 * @param request
 	 * @param response
+	 * @param context
 	 */
-	bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
 		return undefined;
 	}
 

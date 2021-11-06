@@ -230,6 +230,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 		}
 
 		return {
+			//...(this.filesKeyed()),
 			...(this._request.body as object || {}),
 			...(this._request.query as object || {}),
 		} as T;
@@ -308,6 +309,26 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	files(): UploadedFile[] {
 		return this._uploadedFiles;
+	}
+
+	/**
+	 * Get all files submitted on the request, but as an object of key -> value
+	 * rather than an array of uploaded files
+	 *
+	 * @returns {{[p: string]: UploadedFile}}
+	 */
+	filesKeyed(): { [key: string]: UploadedFile } {
+		const files: any = {};
+
+		if (!this.hasFiles()) {
+			return {};
+		}
+
+		for (let file of this.files()) {
+			files[file.getFieldName()] = file;
+		}
+
+		return files;
 	}
 
 	/**

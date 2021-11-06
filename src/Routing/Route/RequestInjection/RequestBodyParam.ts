@@ -1,5 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {METADATA} from "../../../Common";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 
@@ -29,7 +30,7 @@ export class RequestBodyParam extends MethodParameterDecorator {
 		return parameterIndex === this.parameterIndex;
 	}
 
-	bind(request: FastifyRequest, response: FastifyReply) {
+	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
 		return request.body;
 	}
 }

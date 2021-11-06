@@ -4,6 +4,7 @@ import {validateOrReject} from "class-validator";
 import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
+import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {DataTransferObjectContract} from "../../Contracts/Routing/DataTransferObject/DataTransferObjectContract";
 import {RequestContext} from "../Context/RequestContext";
 import {Responsable} from "../Context/Response/Responsable";
@@ -87,12 +88,21 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 	/**
 	 * This is the logic for binding the serialized DTO to your controller method as a parameter.
 	 *
-	 * @param {object} body
-	 * @param {boolean} validate
 	 * @return {Promise<DataTransferObject>}
+	 * @param context
+	 * @param validate
 	 */
-	public static async handleControllerBinding(body: object, validate: boolean): Promise<DataTransferObjectContract> {
-		const dto = new this().serialize(body);
+	public static async handleControllerBinding(context: RequestContextContract, validate: boolean): Promise<DataTransferObjectContract> {
+
+		const dto = new this().serialize(context.request.all());
+
+		// We need to ensure we also add files into our DTO so they can be handled/validated
+		if (context.request.hasFiles()) {
+			const files = context.request.filesKeyed();
+			for (let key in files) {
+				dto[key] = files[key];
+			}
+		}
 
 		if (validate) {
 			await dto.validate();
