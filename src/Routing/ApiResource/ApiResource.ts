@@ -125,7 +125,7 @@ export abstract class ApiResource<T> implements Responsable {
 			for (let key in data) {
 				const transformed = this.transformValue(key, data[key]);
 
-				if (transformed) {
+				if (transformed !== undefined) {
 					result[key] = transformed;
 				}
 			}
