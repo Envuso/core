@@ -1,4 +1,5 @@
-import {classToPlain, plainToClass, Transform} from "class-transformer";
+import {DateTime} from "@envuso/date-time-helper";
+import {classToPlain, plainToClass, Transform, Type} from "class-transformer";
 import {IndexSpecification, ObjectId} from "mongodb";
 import {Log, Classes, DecoratorHelpers, Obj} from "../Common";
 import {ClassType, Model, ModelObjectId, Nested} from "./index";
@@ -70,6 +71,71 @@ export function ignore(target: any, propertyKey: any) {
 		true,
 		target
 	);
+}
+
+/**
+ * If we want to use Date/DateTime's on our models, we have a
+ * couple of choices by default(without this decorator)
+ *
+ * @Type(() => Date)
+ * property:Date;
+ *
+ * Something like the above, but if the value is null by default
+ * it will end up creating a new Date for the current date/time
+ *
+ * Or we can use string/number only and manually convert.
+ *
+ * I don't want to do either.
+ *
+ * We can also use the "formatter" parameter to specify the output type
+ * If we define a string, it will be called as a method on the instance.
+ *
+ * For example:
+ * @date('toString')
+ * createdAt:Date;
+ *
+ * This would result in our createdAt to be converted to a string when
+ * being saved to the database or when outputting it on an api response
+ *
+ * We can also do something this:
+ *
+ * @date(dateValue => dateValue.toISOString())
+ * createdAt:Date;
+ *
+ *
+ * @param {string|(Date) => any} formatter
+ */
+export function date(formatter?: string | ((date: Date) => any)) {
+	return function (target: any, propertyKey: string) {
+		const type = DecoratorHelpers.propertyType(target, propertyKey);
+
+
+		Transform(({key, obj, value}) => {
+			if (!value) {
+				return value;
+			}
+
+			return value instanceof Date ? value : new Date(value);
+		}, {toClassOnly : true})(target, propertyKey);
+
+		Transform(({obj, key, value,}) => {
+			if (!value) {
+				return value;
+			}
+			const dateVal = value;
+
+			if (formatter !== undefined) {
+				if (typeof formatter === 'string') {
+					return dateVal[formatter]();
+				} else {
+					return formatter(dateVal);
+				}
+			}
+
+			return value.toISOString();
+		}, {toPlainOnly : true})(target, propertyKey);
+
+	};
 }
 
 

@@ -20,6 +20,10 @@ export class DecoratorHelpers {
 	/**
 	 * Get the type of a property
 	 *
+	 * This is a property on a class. It will also return undefined if we do not have a decorator
+	 * on the property(i think) or maybe undefined if we're trying to use this outside
+	 * of when decorators are loaded.
+	 *
 	 * @param target
 	 * @param propertyKey
 	 */

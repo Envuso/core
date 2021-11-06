@@ -1,7 +1,8 @@
+import {DateTime} from "@envuso/date-time-helper";
 import {Exclude, Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
-import {belongsTo, hasMany, hasOne, id, index, policy} from "../../Database";
+import {belongsTo, date, hasMany, hasOne, id, index, policy} from "../../Database";
 import {UserPolicy} from "../Policies/UserPolicy";
 import {Book} from "./Book";
 
@@ -72,5 +73,10 @@ export class User extends Authenticatable<User> {
 	someOrderingTimestamp: Date;
 
 	updatingNestedObject: { something?: { else: boolean }, and?: { another: { thing: boolean } } } = {};
+
+	@date()
+	someRandomDate: Date;
+
+
 }
 

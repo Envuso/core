@@ -1,5 +1,4 @@
 import {classToPlain, plainToClass, Transform} from "class-transformer";
-import instance from "tsyringe/dist/typings/dependency-container";
 import {DecoratorHelpers} from "../Common";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 import {Database, ModelDecoratorMeta} from "./index";
@@ -172,8 +171,6 @@ export function hasMany(
 	localKey: string,
 	sort: RelationSortOption = {_id : 1}
 ) {
-
-
 	return relationDecorator(arguments, ModelDecoratorMeta.HAS_MANY_RELATION, sort);
 }
 
