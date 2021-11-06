@@ -5,8 +5,10 @@ import {User} from "../../Models/User";
 export class UserResource extends ApiResource<User> {
 	public transform(request: RequestContextContract): any {
 		return {
-			_id  : this.data._id,
-			name : this.data.name,
+			_id            : this.data._id,
+			name           : this.data.name,
+			someRandomDate : this.data.someRandomDate,
+			somethingElse  : new Date()
 		};
 	}
 }

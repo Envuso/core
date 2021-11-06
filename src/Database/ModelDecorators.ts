@@ -2,13 +2,14 @@ import {DateTime} from "@envuso/date-time-helper";
 import {classToPlain, plainToClass, Transform, Type} from "class-transformer";
 import {IndexSpecification, ObjectId} from "mongodb";
 import {Log, Classes, DecoratorHelpers, Obj} from "../Common";
-import {ClassType, Model, ModelObjectId, Nested} from "./index";
+import {ClassType, Model, ModelDateField, ModelObjectId, Nested} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
 	HAS_MANY_RELATION        = 'envuso:model:relation:has-many',
 	BELONGS_TO_RELATION      = 'envuso:model:relation:belongs-to',
 	BELONGS_TO_MANY_RELATION = 'envuso:model:relation:belongs-to-many',
+	DATE_PROPERTY            = 'envuso:model:fields:date',
 	IGNORED_PROPERTY         = 'envuso:model:fields:ignored',
 	INDEX                    = 'envuso:model:index',
 	MODEL_OBJECT_ID          = 'envuso:model-object-id',
@@ -109,30 +110,47 @@ export function date(formatter?: string | ((date: Date) => any)) {
 	return function (target: any, propertyKey: string) {
 		const type = DecoratorHelpers.propertyType(target, propertyKey);
 
+		const decoratorValue: ModelDateField = {
+			type,
+			property : propertyKey,
+			formatter,
+			toClass  : (value) => {
+				if (!value) {
+					return value;
+				}
+
+				return value instanceof Date ? value : new Date(value);
+			},
+			toPlain  : (value) => {
+				if (!value) {
+					return value;
+				}
+				const dateVal = value;
+
+				if (formatter !== undefined) {
+					if (typeof formatter === 'string') {
+						return dateVal[formatter]();
+					} else {
+						return formatter(dateVal);
+					}
+				}
+
+				return value.toISOString();
+			}
+		};
+
+		DecoratorHelpers.pushToMetadata(
+			ModelDecoratorMeta.DATE_PROPERTY,
+			[decoratorValue],
+			target
+		);
 
 		Transform(({key, obj, value}) => {
-			if (!value) {
-				return value;
-			}
-
-			return value instanceof Date ? value : new Date(value);
+			return decoratorValue.toClass(value);
 		}, {toClassOnly : true})(target, propertyKey);
 
 		Transform(({obj, key, value,}) => {
-			if (!value) {
-				return value;
-			}
-			const dateVal = value;
-
-			if (formatter !== undefined) {
-				if (typeof formatter === 'string') {
-					return dateVal[formatter]();
-				} else {
-					return formatter(dateVal);
-				}
-			}
-
-			return value.toISOString();
+			return decoratorValue.toPlain(value);
 		}, {toPlainOnly : true})(target, propertyKey);
 
 	};

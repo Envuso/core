@@ -2,7 +2,7 @@ import {
 	Collection, Filter, FindOptions,
 	ObjectId, OptionalId, UpdateOptions, UpdateResult,
 } from "mongodb";
-import {Model, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
+import {Model, ModelDateField, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
 import {ModelAttributesFilter, SingleModelProp} from "../../../Database/QueryBuilderTypes";
 import {PaginatorContract} from "./PaginatorContract";
 import {QueryBuilderContract} from "./QueryBuilderContract";
@@ -146,6 +146,8 @@ export interface ModelContract<M> {
 	getMeta<T>(metaKey: ModelDecoratorMeta, _default?: any): T;
 
 	getModelFields(): string[];
+
+	isDateField(field: string, returnBoolean?: boolean): boolean | ModelDateField;
 
 	createIndexes(): Promise<void>;
 }

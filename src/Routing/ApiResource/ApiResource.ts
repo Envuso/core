@@ -1,7 +1,7 @@
 import {ObjectId} from "mongodb";
 import {Obj} from "../../Common";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
-import {Model} from "../../Database";
+import {Model, ModelDateField} from "../../Database";
 import {PaginatedResponse, PaginatedResponsePagination} from "../../Database/Mongo/Paginator";
 import {Responsable} from "../Context/Response/Responsable";
 import {RequestContext} from "../index";
@@ -55,6 +55,57 @@ export abstract class ApiResource<T> implements Responsable {
 
 	abstract transform(request: RequestContextContract, ...args: any[]): any;
 
+	private transformValue(key: string, value: any) {
+		if (value instanceof MissingValue) {
+			return undefined;
+		}
+
+		if (value instanceof Date && key) {
+			if (this.data instanceof Model) {
+				const dateField = this.data.isDateField(key, false);
+				if (dateField) {
+					return (dateField as ModelDateField).toPlain(value);
+				}
+
+				return value.toString();
+			}
+
+			return value.toString();
+		}
+
+		if (value instanceof ObjectId) {
+			return value.toString();
+		}
+
+		if (value instanceof ApiResource) {
+			return (value as ApiResource<any>).toResponse();
+		}
+
+		if (value instanceof Model) {
+			return value.dehydrate();
+		}
+
+		if (typeof value === 'string') {
+			return value;
+		}
+
+		//		if (typeof value === 'function') {
+		//			const mergeData = this.transformData(value());
+		//
+		//			if (mergeData === undefined || (mergeData instanceof MissingValue)) {
+		//				return undefined;
+		//			}
+		//
+		//			return  {...mergeData, ...value};
+		//		}
+
+		if (Array.isArray(value) || Obj.isObject(value)) {
+			return this.transformData(value);
+		}
+
+		return value;
+	}
+
 	/**
 	 * Transform the passed in data into an object
 	 * which will be safe to return as a response
@@ -72,49 +123,14 @@ export abstract class ApiResource<T> implements Responsable {
 
 		if (Array.isArray(data) || Obj.isObject(data)) {
 			for (let key in data) {
-				if (data[key] instanceof MissingValue) {
-					continue;
+				const transformed = this.transformValue(key, data[key]);
+
+				if (transformed) {
+					result[key] = transformed;
 				}
-
-				if (data[key] instanceof ObjectId) {
-					result[key] = data[key].toString();
-					continue;
-				}
-
-				if (data[key] instanceof ApiResource) {
-					result[key] = (data[key] as ApiResource<any>).toResponse();
-					continue;
-				}
-
-				if (data[key] instanceof Model) {
-					data[key]   = data[key].dehydrate();
-					result[key] = data[key];
-					continue;
-				}
-
-				if (typeof data[key] === 'string') {
-					result[key] = data[key];
-					continue;
-				}
-
-				if (typeof data[key] === 'function') {
-					const mergeData = this.transformData(data[key]());
-
-					if (mergeData === undefined || (mergeData instanceof MissingValue)) {
-						continue;
-					}
-
-					result = {...mergeData, ...result};
-					continue;
-				}
-
-				if (Array.isArray(data[key]) || Obj.isObject(data[key])) {
-					result[key] = this.transformData(data[key]);
-					continue;
-				}
-
-				result[key] = data[key];
 			}
+		} else {
+			return this.transformValue(null, data);
 		}
 
 		return result;

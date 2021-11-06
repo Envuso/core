@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import 'jest-extended';
 import {DateTime} from "@envuso/date-time-helper";
+import {UserResource} from "../../App/Http/ApiResources/UserResource";
 
 import {User} from "../../App/Models/User";
 import {AuthenticationServiceProvider} from "../../Authentication";
@@ -36,7 +37,7 @@ describe('model decorators', () => {
 	test('@date decorator properly formats input/output', async () => {
 
 		const user = await User.create({
-			someRandomDate     : new Date(),
+			someRandomDate : new Date(),
 		});
 
 		expect(user.someRandomDate).toBeInstanceOf(Date);
@@ -44,6 +45,10 @@ describe('model decorators', () => {
 		const dehydrated: any = user.dehydrate();
 
 		expect(dehydrated.someRandomDate).toEqual(user.someRandomDate.toISOString());
+
+		const r = UserResource.from(user).toResponse();
+
+		expect(r.someRandomDate).toBeString();
 
 	});
 

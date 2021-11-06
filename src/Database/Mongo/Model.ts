@@ -7,7 +7,7 @@ import {config, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database, ModelDecoratorMeta, ModelIndex, transformFromObjectIds, transformToObjectIds} from "../index";
+import {Database, ModelDateField, ModelDecoratorMeta, ModelIndex, transformFromObjectIds, transformToObjectIds} from "../index";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {convertEntityObjectIds} from "../Serialization/Serializer";
 import {ModelHelpers} from "./ModelHelpers";
@@ -489,6 +489,14 @@ export class Model<M> implements ModelContract<M> {
 
 	public getModelFields(): string[] {
 		return Database.getModelFieldsFromContainer(this.constructor.name);
+	}
+
+	public isDateField(field: string, returnBoolean: boolean = false): boolean | ModelDateField {
+		const dates = this.getMeta<ModelDateField[]>(ModelDecoratorMeta.DATE_PROPERTY);
+
+		const date = dates.find(f => f.property === field);
+
+		return returnBoolean ? !!date : date;
 	}
 
 	public async createIndexes() {

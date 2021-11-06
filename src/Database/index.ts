@@ -30,4 +30,10 @@ export interface ModelIndex {
 	index: { [key: string]: any };
 }
 
-
+export type ModelDateField = {
+	type: Function,
+	property: string;
+	formatter?: string | ((date: Date) => any),
+	toClass: (value: any) => any,
+	toPlain: (value: any) => any,
+}
