@@ -3,7 +3,7 @@ import {Auth} from "../../../Authentication";
 import {Authorization} from "../../../Authorization/Authorization";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {EventManager} from "../../../Events";
-import {ApiResource, redirect, request, response, view} from "../../../Routing";
+import {ApiResource, headers, param, redirect, request, response, view} from "../../../Routing";
 import {Controller} from "../../../Routing/Controller/Controller";
 import {controller, get, method, post} from "../../../Routing/Controller/ControllerDecorators";
 import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
@@ -137,14 +137,14 @@ export class TestingController extends Controller {
 		return response().json({_id : user._id});
 	}
 
-	@get('something')
+	@method(['GET', 'POST'], 'something')
 	async something() {
 		return {msg : 'hello'};
 	}
 
-	@post('/body')
+	@method(['GET', 'POST'], '/body')
 	async testBody(@body body: any) {
-		return body.value;
+		return body.value ?? body.test ?? {message : 'no body'};
 	}
 
 	@post('/')
@@ -376,6 +376,20 @@ export class TestingController extends Controller {
 		const users = await User.query().paginate(22);
 
 		return UserResource.collection(users);
+	}
+
+	@get('/failing-query-param')
+	async failingParam(@query test: string) {
+		return test ?? {empty : true};
+	}
+
+	@get('/param/:test')
+	async param(@param test: string) {
+		return test ?? {empty : true};
+	}
+	@get('/headers')
+	async headers(@headers test: any) {
+		return test ?? {empty : true};
 	}
 
 }

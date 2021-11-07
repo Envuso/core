@@ -1,5 +1,6 @@
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
+import {Value} from "../../../Common/Utility/Value";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
@@ -46,6 +47,17 @@ export class RouteQueryParam extends MethodParameterDecorator {
 
 	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
 		const paramValue = context.request.get(this.parameterName, null);
+
+		if (!paramValue) {
+			return null;
+		}
+
+		const typeChecks = typeof this.expectedParamType;
+		const two        = typeof paramValue;
+
+		// if (Value.isPrimitive(this.expectedParamType)) {
+		// 	return;
+		// }
 
 		const param = this.expectedParamType(paramValue);
 
