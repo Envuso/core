@@ -14,6 +14,11 @@ export interface RequestContract extends RequestResponseContextContract {
 	body<T>(): T;
 
 	/**
+	 * Get all of the query parameters from the request
+	 */
+	query<T>(): T;
+
+	/**
 	 * Get the ip the request originated from
 	 */
 	ip(): string;

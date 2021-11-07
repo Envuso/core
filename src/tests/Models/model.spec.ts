@@ -75,8 +75,8 @@ describe('model', () => {
 		});
 		//{ something: { else: boolean }, and: { another: { thing: boolean } } }
 		await u.update({
-			'updatingNestedObject.something.else' : true,
-			'updatingNestedObject.and.another.thing'                   : false,
+			'updatingNestedObject.something.else'    : true,
+			'updatingNestedObject.and.another.thing' : false,
 		});
 
 		expect(u.updatingNestedObject.something.else).toEqual(true);
@@ -240,6 +240,11 @@ describe('model', () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
 
+		await User.createMany([
+			{something : 'hello'},
+			{something : 'jdfkjsdjflsjdlfjsldjlfjsdkljfsdljfsd'},
+		]);
+
 		const count = await User.query()
 			.when(false, {something : 'hello'})
 			.where({_id : 'dsjfksdjk'})
@@ -253,6 +258,31 @@ describe('model', () => {
 			.count();
 
 		expect(countTwo).toBeGreaterThan(0);
+
+		const countThree = await User.query()
+			.when(true, builder => {
+				return builder.where('something', 'hello');
+			})
+			.count();
+
+		expect(countThree).toBeGreaterThan(0);
+	});
+
+	test('using optional where chaining callback', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		await User.createMany([
+			{something : 'hello-237123817'},
+		]);
+
+		const count = await User.query()
+			.when(true, builder => {
+				return builder.where('something', 'hello-237123817');
+			})
+			.count();
+
+		expect(count).toBeGreaterThan(0);
 	});
 
 	test('using where in', async () => {

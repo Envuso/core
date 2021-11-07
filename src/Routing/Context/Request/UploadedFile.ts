@@ -118,7 +118,7 @@ export class UploadedFile implements UploadedFileContract {
 	}
 
 	/**
-	 * Get the file name stored in temp storage
+	 * Get the original files name that was uploaded
 	 *
 	 * @returns {string}
 	 */

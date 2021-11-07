@@ -124,6 +124,17 @@ export class Request extends RequestResponseContext implements RequestContract {
 	}
 
 	/**
+	 * Get all of the query parameters from the request
+	 */
+	query<T>(): T {
+		if (!this.isFastifyRequest(this._request)) {
+			return null;
+		}
+
+		return <T>this._request.query;
+	}
+
+	/**
 	 * Get the ip the request originated from
 	 */
 	ip(): string {

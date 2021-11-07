@@ -140,7 +140,7 @@ export interface QueryBuilderContract<T> {
 	 * @param {ModelAttributesFilter<T} attributes
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	when(condition: boolean | (() => boolean), attributes: ModelAttributesFilter<T>): QueryBuilderContract<T>;
+	when(condition: boolean | (() => boolean), attributes: (ModelAttributesFilter<T> | ((builder: QueryBuilderContract<T>) => QueryBuilderContract<T>))): QueryBuilderContract<T>;
 
 	/**
 	 * Allows us to define a "where query" to limit the results of a relationship query

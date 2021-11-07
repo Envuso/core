@@ -261,10 +261,10 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @template T
 	 * @template M
 	 * @param {boolean | (() => boolean)} condition
-	 * @param {ModelAttributesFilter<T} attributes
+	 * @param {ModelAttributesFilter<T> | (builder: QueryBuilderContract<T>) => QueryBuilderContract<T>} attributes
 	 * @returns {QueryBuilderContract<T>}
 	 */
-	public when(condition: boolean | (() => boolean), attributes: ModelAttributesFilter<T>): QueryBuilderContract<T> {
+	public when(condition: boolean | (() => boolean), attributes: (ModelAttributesFilter<T> | ((builder: QueryBuilderContract<T>) => QueryBuilderContract<T>))): QueryBuilderContract<T> {
 		if (typeof condition === 'boolean' && !condition) {
 			return this;
 		}
@@ -273,7 +273,15 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			return this;
 		}
 
-		return this.where(attributes);
+		if(typeof attributes === 'function') {
+			const result = attributes(this);
+			if(!(result instanceof QueryBuilder)) {
+				throw new Exception('Using query builder .when() with a callback... but the callback is not returning the builder. Example usage: .when(true, builder => builder.where({x : b})')
+			}
+			return result;
+		}
+
+		return this.where(attributes as ModelAttributesFilter<T>);
 	}
 
 

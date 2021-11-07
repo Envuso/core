@@ -123,6 +123,11 @@ export class Route implements RouteContract {
 	private storePreparedPath() {
 		const pathParts = this.pathParts();
 
+		if (!pathParts.length) {
+			this.routePath = '/';
+			return;
+		}
+
 		for (let path in pathParts) {
 			pathParts[path] = pathParts[path].replace('/', '');
 		}
@@ -135,6 +140,10 @@ export class Route implements RouteContract {
 
 		if (path.endsWith('/')) {
 			path = path.slice(0, -1);
+		}
+
+		if(path.trim() === '') {
+			path = '/'
 		}
 
 		this.routePath = path;
@@ -400,7 +409,7 @@ export class Route implements RouteContract {
 					await before(RequestContext.get());
 				}
 			},
-			onSend : async function (req, res) {
+			onSend     : async function (req, res) {
 				if (after) {
 					await after(RequestContext.get());
 				}

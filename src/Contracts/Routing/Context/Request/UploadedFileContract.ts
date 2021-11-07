@@ -84,7 +84,7 @@ export interface UploadedFileContract {
 	getTempFilePath(): string;
 
 	/**
-	 * Get the file name stored in temp storage
+	 * Get the original files name that was uploaded
 	 *
 	 * @returns {string}
 	 */
