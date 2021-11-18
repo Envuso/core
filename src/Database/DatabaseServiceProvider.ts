@@ -17,8 +17,15 @@ export class DatabaseServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		const mongoConfig = config.get<string, any>('Database.mongo');
-		const client      = new MongoClient(mongoConfig.url, mongoConfig.clientOptions);
-		const connection  = await client.connect();
+		const client      = new MongoClient(mongoConfig.url, {...mongoConfig.clientOptions, connectTimeoutMS : 2000});
+		let connection    = null;
+
+		try {
+			connection = await client.connect();
+		} catch (error) {
+			Log.error('Cannot connect to MongoDB. Framework will exit. Please configure your connection correctly or check that your server is online/accessible.');
+			process.exit(0);
+		}
 
 		app.container().register(MongoClient, {useValue : connection});
 		app.container().register(SeedManager, {useValue : new SeedManager()});

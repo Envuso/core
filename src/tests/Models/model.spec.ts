@@ -409,3 +409,45 @@ describe('model', () => {
 	});
 
 });
+
+describe('model hooks', () => {
+
+	beforeAll(() => bootApp(false, [
+		SecurityServiceProvider,
+		SessionServiceProvider,
+		EventServiceProvider,
+		EncryptionServiceProvider,
+		AuthenticationServiceProvider,
+		AuthorizationServiceProvider,
+		RouteServiceProvider,
+		StorageServiceProvider,
+		InertiaServiceProvider,
+	]));
+
+	afterAll(async () => {
+		await unloadApp(true);
+	});
+
+	test('model beforeCreate hook runs', async () => {
+		const user = await User.create({something : 'hi'});
+
+		expect(user.createdAt).toBeDefined();
+
+		expect(user).toBeInstanceOf(User);
+	});
+
+	test('model beforeUpdate hook runs', async () => {
+		const user = await User.create({something : 'hi'});
+
+		expect(user.createdAt).toBeDefined();
+		expect(user.updatedAt).toBeFalsy();
+
+		user.name = 'yeet';
+		await user.save()
+
+		expect(user.updatedAt).toBeDefined();
+
+		expect(user).toBeInstanceOf(User);
+	});
+
+});

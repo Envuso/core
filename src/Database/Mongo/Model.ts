@@ -1,13 +1,14 @@
 import {classToPlain, classToPlainFromExist, plainToClass} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import _, {update} from 'lodash';
+import _ from 'lodash';
 import {Collection, Filter, FindOptions, ObjectId, OptionalId, UpdateOptions, UpdateResult,} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database, ModelDateField, ModelDecoratorMeta, ModelIndex, transformFromObjectIds, transformToObjectIds} from "../index";
+import {Database, ModelDateField, ModelDecoratorMeta, ModelIndex} from "../index";
+import {ModelHook, ModelHookMetaData, ModelHooksMeta} from "../ModelHooks";
 import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {convertEntityObjectIds} from "../Serialization/Serializer";
 import {ModelHelpers} from "./ModelHelpers";
@@ -145,21 +146,9 @@ export class Model<M> implements ModelContract<M> {
 	static async create<T extends Model<any>>(this: new () => T, attributes: Partial<T>): Promise<T> {
 		let model = new this();
 		model     = model.hydrate(attributes);
+		model     = await model.callHook(ModelHook.BEFORE_CREATE, model);
 
-		return model.hydrate(
-			await model.queryBuilder().create(model.dehydrate())
-		);
-
-		//const collection = model.collection();
-		//
-		//const createdEntIty = await collection.insertOne(
-		//	//dehydrateModel(hydrateModel(attributes, this))
-		//	ModelHelpers.convertObjectIdsInAttributes(model, model.dehydrate())
-		//);
-		//
-		//return model.hydrate(
-		//	await collection.findOne({_id : createdEntIty.insertedId})
-		//);
+		return await model.queryBuilder().create(model.dehydrate());
 	}
 
 	/**
@@ -200,24 +189,24 @@ export class Model<M> implements ModelContract<M> {
 		//If the model hasn't been persisted to the db yet... we'll
 		//dehydrate it, insert it to the db, then add the id to the model
 		if (this.isFresh()) {
-			const plain = this.dehydrateForQuery();
+
+			let model = await this.callHook(ModelHook.BEFORE_CREATE, this);
+
+			const plain = model.dehydrateForQuery();
 
 			const res = await this.collection().insertOne(plain);
 
 			(this as any)._id  = res.insertedId;
 			(plain as any)._id = res.insertedId;
 
-			//			const modelObjectIds = convertEntityObjectIds(this, plain);
-			//			for (let modelObjectIdsKey in modelObjectIds) {
-			//				this[modelObjectIdsKey] = modelObjectIds[modelObjectIdsKey];
-			//			}
-
 			this.assignAttributes(plain as Partial<M>);
 
 			return;
 		}
 
-		await this.update(this.dehydrate());
+		let model = await this.callHook(ModelHook.BEFORE_SAVE, this);
+
+		await this.update(model.dehydrate());
 
 		return this;
 	}
@@ -316,7 +305,7 @@ export class Model<M> implements ModelContract<M> {
 		return attributes;
 	}
 
-	public isAttribute(key: SingleModelProp<M>): boolean {
+	public isAttribute(key: SingleModelProp<M> | string): boolean {
 		return this.getModelFields().includes(key as string);
 	}
 
@@ -519,6 +508,34 @@ export class Model<M> implements ModelContract<M> {
 		} catch (error) {
 			Log.exception(`Error when creating indexes for model: ${this.constructor.name}`, error);
 		}
+	}
+
+	getHooks(): ModelHooksMeta {
+		return this.getMeta<ModelHooksMeta>(ModelDecoratorMeta.MODEL_HOOK);
+	}
+
+	async callHook(hook: ModelHook, model: this): Promise<this> {
+		if (!this.hasHook(hook)) {
+			return model;
+		}
+
+		return await this.getHook(hook).handler(model as any);
+	}
+
+	getHook(hook: ModelHook): ModelHookMetaData {
+		const hooks = this.getHooks();
+
+		return hooks[hook] ?? null;
+	}
+
+	hasHook(hook: ModelHook): boolean {
+		const hooks = this.getHooks();
+
+		if (!hooks) {
+			return false;
+		}
+
+		return hooks[hook]?.type !== undefined;
 	}
 
 }

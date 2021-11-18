@@ -3,7 +3,7 @@
   "display": "Node 14",
   "compilerOptions": {
     "lib": [
-      "ES2016"
+      "ESNext"
     ],
     "module": "commonjs",
     "target": "ESNext",

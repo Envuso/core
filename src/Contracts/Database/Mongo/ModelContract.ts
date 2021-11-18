@@ -3,6 +3,7 @@ import {
 	ObjectId, OptionalId, UpdateOptions, UpdateResult,
 } from "mongodb";
 import {Model, ModelDateField, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
+import {ModelHook, ModelHookMetaData, ModelHooksMeta} from "../../../Database/ModelHooks";
 import {ModelAttributesFilter, SingleModelProp} from "../../../Database/QueryBuilderTypes";
 import {PaginatorContract} from "./PaginatorContract";
 import {QueryBuilderContract} from "./QueryBuilderContract";
@@ -118,7 +119,7 @@ export interface ModelContract<M> {
 
 	getAttributes(): Partial<M>;
 
-	isAttribute(key: SingleModelProp<M>): boolean;
+	isAttribute(key: SingleModelProp<M> | string): boolean;
 
 	hydrate(attributes: Partial<M>): M;
 
@@ -150,4 +151,12 @@ export interface ModelContract<M> {
 	isDateField(field: string, returnBoolean?: boolean): boolean | ModelDateField;
 
 	createIndexes(): Promise<void>;
+
+	getHooks(): ModelHooksMeta;
+
+	callHook(hook: ModelHook, model: this): Promise<this>;
+
+	getHook(hook: ModelHook): ModelHookMetaData;
+
+	hasHook(hook: ModelHook): boolean;
 }

@@ -1,8 +1,8 @@
-import {DateTime} from "@envuso/date-time-helper";
 import {Exclude, Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
 import {belongsTo, date, hasMany, hasOne, id, index, policy} from "../../Database";
+import {hook} from "../../Database/ModelHooks";
 import {UserPolicy} from "../Policies/UserPolicy";
 import {Book} from "./Book";
 
@@ -36,6 +36,8 @@ export class User extends Authenticatable<User> {
 	nameTags: string[] = [];
 
 	tags: string[] = [];
+
+	booleanValue: boolean;
 
 	orderValue: number;
 
@@ -77,6 +79,24 @@ export class User extends Authenticatable<User> {
 	@date()
 	someRandomDate: Date;
 
+	@date()
+	createdAt: Date;
+	@date()
+	updatedAt: Date;
+
+	@hook
+	async beforeCreate(user: User) {
+		user.createdAt = new Date();
+
+		return user;
+	}
+
+	@hook
+	async beforeSave(user: User) {
+		user.updatedAt = new Date();
+
+		return user;
+	}
 
 }
 

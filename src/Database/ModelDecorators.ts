@@ -1,4 +1,3 @@
-import {DateTime} from "@envuso/date-time-helper";
 import {classToPlain, plainToClass, Transform, Type} from "class-transformer";
 import {IndexSpecification, ObjectId} from "mongodb";
 import {Log, Classes, DecoratorHelpers, Obj} from "../Common";
@@ -12,6 +11,7 @@ export enum ModelDecoratorMeta {
 	DATE_PROPERTY            = 'envuso:model:fields:date',
 	IGNORED_PROPERTY         = 'envuso:model:fields:ignored',
 	INDEX                    = 'envuso:model:index',
+	MODEL_HOOK               = 'envuso:model:model-hook',
 	MODEL_OBJECT_ID          = 'envuso:model-object-id',
 	AUTHORIZATION_POLICY_REF = 'envuso:authorization-policy',
 }

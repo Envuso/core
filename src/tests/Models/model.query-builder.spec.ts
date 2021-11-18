@@ -300,7 +300,7 @@ describe('model query builder implementation', () => {
 			{name : 'sam', email : 'someemail@test.com'},
 		);
 
-		await Book.create({title: 'big yeet', userId : user._id});
+		await Book.create({title : 'big yeet', userId : user._id});
 
 
 		const u = await User.query()
@@ -327,6 +327,22 @@ describe('model query builder implementation', () => {
 
 		expect(u).toBeArray();
 
+	});
+
+	test('.where(key, value) using the correct type', async () => {
+		const userOne = await User.create({name : 'sam', booleanValue : true});
+		const userTwo = await User.create({name : 'sam', orderValue : 10});
+
+		const userOneQuery = User.query().where('booleanValue', true);
+		expect(userOneQuery._filter.getQueryAsFilter().booleanValue).toBeBoolean();
+		const userOneResult = await userOneQuery.first();
+
+		const userTwoQuery = User.query().where('orderValue', 10);
+		expect(userTwoQuery._filter.getQueryAsFilter().orderValue).toBeNumber();
+		const userTwoResult = await userTwoQuery.first();
+
+		expect(userOneResult?._id?.equals(userOne._id)).toBeTrue();
+		expect(userTwoResult?._id?.equals(userTwo._id)).toBeTrue();
 	});
 
 });

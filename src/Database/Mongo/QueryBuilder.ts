@@ -190,7 +190,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		// Ex: where('name', 'bruce');
 		if (totalArgs === 2) {
 			const queryKey: string = String(attributes);
-			const queryValue: any  = String(operator);
+			const queryValue: any  = operator;
 
 			this._filter.add(queryKey, queryValue);
 
@@ -273,10 +273,10 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			return this;
 		}
 
-		if(typeof attributes === 'function') {
+		if (typeof attributes === 'function') {
 			const result = attributes(this);
-			if(!(result instanceof QueryBuilder)) {
-				throw new Exception('Using query builder .when() with a callback... but the callback is not returning the builder. Example usage: .when(true, builder => builder.where({x : b})')
+			if (!(result instanceof QueryBuilder)) {
+				throw new Exception('Using query builder .when() with a callback... but the callback is not returning the builder. Example usage: .when(true, builder => builder.where({x : b})');
 			}
 			return result;
 		}
