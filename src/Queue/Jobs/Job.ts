@@ -1,4 +1,4 @@
-import {classToPlain, Exclude, plainToClass} from "class-transformer";
+import {instanceToPlain, Exclude, plainToInstance} from "class-transformer";
 import {Exception, Str} from "../../Common";
 import {DateTime} from "@envuso/date-time-helper";
 import {BaseQueueable} from "./Queueable";
@@ -76,11 +76,11 @@ export class Job implements BaseQueueable {
 		return JSON.stringify({
 			namespace : [namespace, this.constructor.name],
 			attempts  : this.attempts,
-			data      : classToPlain(this, {enableImplicitConversion : true}),
+			data      : instanceToPlain(this, {enableImplicitConversion : true}),
 		});
 	}
 
 	public static deserialize(rawData: string) {
-		return plainToClass(this, rawData, {enableImplicitConversion: true});
+		return plainToInstance(this, rawData, {enableImplicitConversion: true});
 	}
 }

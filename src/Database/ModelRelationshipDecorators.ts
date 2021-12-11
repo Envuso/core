@@ -1,4 +1,4 @@
-import {classToPlain, plainToClass, Transform} from "class-transformer";
+import {instanceToPlain, plainToInstance, Transform} from "class-transformer";
 import {DecoratorHelpers} from "../Common";
 import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 import {Database, ModelDecoratorMeta} from "./index";
@@ -35,13 +35,13 @@ function handleRelationshipTransforms(relatedModel: (new () => ModelContract<any
 	// When serializing object to class, convert the object to our model instance
 	Transform(({value}) => {
 		if (!value) return null;
-		return plainToClass(Database.getModelFromContainer(relatedModel), value);
+		return plainToInstance(Database.getModelFromContainer(relatedModel), value);
 	}, {toClassOnly : true})(target, propertyKey);
 
 	// When de-serializing from class to object, convert the model class to an object
 	Transform(({value}) => {
 		if (!value) return null;
-		return classToPlain(value);
+		return instanceToPlain(value);
 	}, {toPlainOnly : true})(target, propertyKey);
 }
 

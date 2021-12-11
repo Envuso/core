@@ -1,4 +1,4 @@
-import {classToPlain, classToPlainFromExist, plainToClass} from "class-transformer";
+import {instanceToPlain, classToPlainFromExist, plainToInstance} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import _ from 'lodash';
 import {Collection, Filter, FindOptions, ObjectId, OptionalId, UpdateOptions, UpdateResult,} from "mongodb";
@@ -383,14 +383,14 @@ export class Model<M> implements ModelContract<M> {
 	}
 
 	public static hydrate<T extends Model<any>>(this: new() => T, attributes: Partial<T>) {
-		return plainToClass<T, Object>(this, attributes, {
+		return plainToInstance<T, Object>(this, attributes, {
 			ignoreDecorators  : true,
 			exposeUnsetFields : false,
 		});
 	}
 
 	public static hydrateUsing<T extends Model<any>>(model: new() => T, attributes: Partial<T>) {
-		return plainToClass<T, Object>(model, attributes, {
+		return plainToInstance<T, Object>(model, attributes, {
 			ignoreDecorators  : true,
 			exposeUnsetFields : false,
 		});
@@ -410,7 +410,7 @@ export class Model<M> implements ModelContract<M> {
 		if (!model)
 			return model;
 
-		let plain: any = classToPlain(model, {
+		let plain: any = instanceToPlain(model, {
 			enableCircularCheck : true,
 			excludePrefixes     : ['_'],
 			ignoreDecorators    : true
@@ -444,7 +444,7 @@ export class Model<M> implements ModelContract<M> {
 
 	/**
 	 * When this model instance is returned in a
-	 * response, we'll make sure to use classToPlain so
+	 * response, we'll make sure to use instanceToPlain so
 	 * that any @Exclude() properties etc are taken care of.
 	 */
 	public toJSON() {

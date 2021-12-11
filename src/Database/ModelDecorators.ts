@@ -1,4 +1,4 @@
-import {classToPlain, plainToClass, Transform, Type} from "class-transformer";
+import {instanceToPlain, plainToInstance, Transform, Type} from "class-transformer";
 import {IndexSpecification, ObjectId} from "mongodb";
 import {Log, Classes, DecoratorHelpers, Obj} from "../Common";
 import {ClassType, Model, ModelDateField, ModelObjectId, Nested} from "./index";
@@ -35,10 +35,10 @@ export function nested(typeFunction: any) {
 			}
 
 			if (targetType === Array) {
-				return val.value.map(v => plainToClass(typeFunction, v));
+				return val.value.map(v => plainToInstance(typeFunction, v));
 			}
 
-			return plainToClass(typeFunction, val.value);
+			return plainToInstance(typeFunction, val.value);
 		}, {toClassOnly : true})(target, propertyKey);
 
 		Transform((val) => {
@@ -46,10 +46,10 @@ export function nested(typeFunction: any) {
 				return null;
 			}
 			if (targetType === Array) {
-				return val.value.map(v => classToPlain(v));
+				return val.value.map(v => instanceToPlain(v));
 			}
 
-			return classToPlain(val.value);
+			return instanceToPlain(val.value);
 		}, {toPlainOnly : true})(target, propertyKey);
 
 

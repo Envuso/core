@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0-next.88",
+  "version": "2.0.0-next.89",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -29,8 +29,8 @@
     "bcrypt": "^5.0.1",
     "bufferutil": "^4.0.3",
     "chalk": "^4.1.0",
-    "class-transformer": "^0.4.0",
-    "class-validator": "^0.13.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
     "cookies": "^0.8.0",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.4",

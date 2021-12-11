@@ -1,4 +1,4 @@
-import {classToPlain, Exclude, plainToClassFromExist} from "class-transformer";
+import {instanceToPlain, Exclude, plainToClassFromExist} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
 import {validateOrReject} from "class-validator";
 import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
@@ -162,7 +162,7 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 	}
 
 	public toResponse(): object {
-		return classToPlain(this, {
+		return instanceToPlain(this, {
 			excludePrefixes : ['__']
 		});
 	}
