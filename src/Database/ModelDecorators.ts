@@ -227,11 +227,15 @@ export function getModelObjectIds<T>(target: any): ModelObjectId[] {
  */
 export function transformToObjectIds(value: any) {
 
+	if (typeof value === 'string' && ObjectId.isValid(value)) {
+		return new ObjectId(value);
+	}
+
 	if (value instanceof ObjectId) {
 		return value;
 	}
 
-	if (typeof value === 'string' && ObjectId.isValid(value)) {
+	if (ObjectId.isValid(value)) {
 		return new ObjectId(value);
 	}
 
