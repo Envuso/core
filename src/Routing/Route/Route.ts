@@ -301,7 +301,7 @@ export class Route implements RouteContract {
 	 * @private
 	 */
 	static async getResponseResult(controllerResponse: Response | RedirectResponse | any) {
-		const context = RequestContext.get();
+		const context             = RequestContext.get();
 		const {response, inertia} = context;
 
 		if (controllerResponse === undefined || controllerResponse === null) {
@@ -328,13 +328,13 @@ export class Route implements RouteContract {
 		const isResponseOrRedirect = (controllerResponse instanceof Response) || (controllerResponse instanceof RedirectResponse);
 
 		if (!isResponseOrRedirect) {
-			return response.setResponse(
-				controllerResponse,
-				StatusCodes.ACCEPTED
-			).send();
+			return response.setResponse(controllerResponse, StatusCodes.ACCEPTED).send();
 		}
 
 		if (controllerResponse instanceof RedirectResponse) {
+			if (context.inertia.isInertiaRequest() && ['PUT', 'PATCH', 'DELETE'].includes(context.request.method())) {
+				return response.fastifyReply.redirect(StatusCodes.SEE_OTHER, controllerResponse.getRedirectUrl());
+			}
 			return response.fastifyReply.redirect(controllerResponse.getRedirectUrl());
 		}
 
