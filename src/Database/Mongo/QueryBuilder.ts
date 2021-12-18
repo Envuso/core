@@ -226,7 +226,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @param key
 	 * @param values
 	 */
-	public whereIn<F extends (keyof T)>(key: F, values: T[F][]): QueryBuilderContract<T> {
+	public whereIn<F extends (keyof T)>(key: F, values: T[F] extends Array<any> ? T[F] : T[F][]): QueryBuilderContract<T> {
 		this._filter.add(key, {$in : values});
 
 		return this;
