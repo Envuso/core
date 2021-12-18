@@ -301,7 +301,8 @@ export class Route implements RouteContract {
 	 * @private
 	 */
 	static async getResponseResult(controllerResponse: Response | RedirectResponse | any) {
-		const response = RequestContext.response();
+		const context = RequestContext.get();
+		const {response, inertia} = context;
 
 		if (controllerResponse === undefined || controllerResponse === null) {
 			return response.setResponse(null, StatusCodes.NO_CONTENT).send();
@@ -334,10 +335,6 @@ export class Route implements RouteContract {
 		}
 
 		if (controllerResponse instanceof RedirectResponse) {
-			if (RequestContext.request().hasHeader('x-inertia')) {
-				return response.fastifyReply.redirect(StatusCodes.CONFLICT, controllerResponse.getRedirectUrl());
-			}
-
 			return response.fastifyReply.redirect(controllerResponse.getRedirectUrl());
 		}
 

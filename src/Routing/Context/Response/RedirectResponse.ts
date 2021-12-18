@@ -1,4 +1,3 @@
-import {ObjectContainer} from "../../../Common";
 import {CookieContract} from "../../../Contracts/Cookies/CookieContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";

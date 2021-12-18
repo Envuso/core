@@ -1,6 +1,7 @@
 import {StatusCodes} from "../../../Common";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {Middleware} from "../../../Routing";
+import {Inertia} from "../Inertia";
 
 
 export class InertiaMiddleware extends Middleware {
@@ -11,6 +12,14 @@ export class InertiaMiddleware extends Middleware {
 
 		if (this.needsForceUpdate(context)) {
 			return this.getVersionUpdateResponse(context);
+		}
+	}
+
+	public async after(context: RequestContextContract) {
+		this.changeRedirectCode(context);
+
+		if(context.request.method() === 'GET') {
+			context.session.store().setPreviousUrl(context.request.url());
 		}
 	}
 
@@ -39,9 +48,16 @@ export class InertiaMiddleware extends Middleware {
 			context.session.store().reflash();
 		}
 
-		return context.response
-			.setHeader('x-inertia-location', context.request.url())
-			.setResponse({}, StatusCodes.CONFLICT)
-			.send();
+		return Inertia.location(context.request.url());
+	}
+
+	private changeRedirectCode(context: RequestContextContract) {
+		if (
+			context.inertia.isInertiaRequest() &&
+			context.response.code === StatusCodes.MOVED_TEMPORARILY &&
+			['PUT', 'PATCH', 'DELETE'].includes(context.request.method())
+		) {
+			context.response.setCode(StatusCodes.SEE_OTHER);
+		}
 	}
 }

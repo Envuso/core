@@ -24,8 +24,17 @@ export class StartSessionMiddleware extends Middleware {
 	}
 
 	private storeCurrentUrl(context: RequestContextContract) {
-		if (context.request.method() === 'GET' && !context.request.isAjax() && !context.request.prefetch()) {
-			context.session.store().setPreviousUrl(context.request.url());
+		if(context.request.method() !== 'GET') {
+			return;
 		}
+		if (!context.request.isAjax() && !context.request.prefetch()) {
+			context.session.store().setPreviousUrl(context.request.url());
+			return;
+		}
+
+//		if(context.inertia.isInertiaRequest() && context.request.isAjax()) {
+//			context.session.store().setPreviousUrl(context.request.url());
+//		}
+
 	}
 }

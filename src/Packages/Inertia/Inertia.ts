@@ -20,10 +20,10 @@ export class Inertia {
 		return request.hasHeader('x-inertia');
 	}
 
-	public static location(url: string | RedirectResponse): RedirectResponseContract | ResponseContract {
+	public static location(url: string | RedirectResponseContract): RedirectResponseContract | ResponseContract {
 		const redirectTo: string = (url instanceof RedirectResponse)
 			? url.getRedirectUrl()
-			: url;
+			: url as string;
 
 		if (this.isInertiaRequest(request())) {
 			return response()
@@ -35,7 +35,7 @@ export class Inertia {
 			return url;
 		}
 
-		return response().redirectResponse().to(url);
+		return response().redirectResponse().to(url as string);
 	}
 
 	public static render(component: string, data?: any): InertiaResponse {
