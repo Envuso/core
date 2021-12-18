@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 14",
+  "extends": "./tsconfig.json",
+
+  "exclude": [
+    "node_modules",
+    "dist/**/*",
+    "src/tests/**/*"
+  ],
+  "include": [
+    "src/AppContainer/**/*",
+    "src/Authentication/**/*",
+    "src/Authorization/**/*",
+    "src/Cache/**/*",
+    "src/Cli/**/*",
+    "src/Common/**/*",
+    "src/Contracts/**/*",
+    "src/Cookies/**/*",
+    "src/Crypt/**/*",
+    "src/Database/**/*",
+    "src/Events/**/*",
+    "src/OAuthProvider/**/*",
+    "src/Packages/**/*",
+    "src/Routing/**/*",
+    "src/Redis/**/*",
+    "src/Queue/**/*",
+    "src/Security/**/*",
+    "src/Session/**/*",
+    "src/Server/**/*",
+    "src/WebSockets/**/*",
+    "src/Storage/**/*.ts",
+    "src/Authenticatable.ts",
+    "src/Envuso.ts",
+    "src/index.ts"
+  ]
+}

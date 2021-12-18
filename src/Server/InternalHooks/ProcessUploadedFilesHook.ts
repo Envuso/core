@@ -1,4 +1,4 @@
-import {RequestContext, UploadedFile} from "../../Routing";
+import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
 /**
@@ -17,7 +17,14 @@ export class ProcessUploadedFilesHook extends PreHandlerHook {
 			return;
 		}
 
-		await UploadedFile.addToRequest(request);
+		const context = RequestContext.get();
+
+		if (!context)
+			return;
+
+		await context.request.setUploadedFile(
+			await request.file()
+		);
 	}
 
 }

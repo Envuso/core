@@ -1,6 +1,5 @@
 import {User} from "../Models/User";
 
-
 export class UserPolicy {
 
 	public viewUser(authedUser: User, user: User) {

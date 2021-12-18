@@ -1,4 +1,7 @@
+import {isPlural, isSingular, plural, singular} from "pluralize";
+import SimpleCrypto from "../../Crypt/SimpleCryptoJS";
 import Obj from "./Obj";
+
 
 export class Str {
 
@@ -40,11 +43,94 @@ export class Str {
 	}
 
 	/**
-	 * Contributed by https://github.com/73cn0109y
+	 * Contributed by https://github.com/Tecnology73
 	 * Commit was lost during mono-repo merge :(
 	 */
 	static isEmpty(value: any): boolean {
 		return (Obj.isNullOrUndefined(value) || String(value).trim().length === 0);
 	}
 
+	static randomWords(amount: number): string[] {
+		return SimpleCrypto.generateRandomWordArray(amount).words.map(w => w.toString());
+	}
 }
+
+declare global {
+	interface StringConstructor {
+		random(length?: number): string;
+	}
+
+	interface String {
+		isEmpty(): boolean;
+
+		contains(values: string[]): boolean;
+
+		capitalize(): this;
+
+		remove(subStr: string): this;
+
+		plural(): this;
+
+		isPlural(): boolean;
+
+		isSingular(): boolean;
+
+		singular(): this;
+
+		strcasecmp(str): number;
+
+	}
+}
+
+String.random = function (length: number = 10): string {
+	return Str.random(length);
+};
+
+String.prototype.isEmpty = function (): boolean {
+	return Str.isEmpty(this);
+};
+
+String.prototype.contains = function (values: string[]) {
+	for (let value of values) {
+		if (this.includes(value)) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+String.prototype.capitalize = function () {
+	return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+String.prototype.remove = function (subStr: string) {
+	return this.replace(subStr, '');
+};
+
+String.prototype.plural = function () {
+	return plural(this);
+};
+
+String.prototype.isPlural = function (): boolean {
+	return isPlural(this);
+};
+
+String.prototype.isSingular = function (): boolean {
+	return isSingular(this);
+};
+
+String.prototype.singular = function () {
+	return singular(this);
+};
+
+/**
+ * Implementation of php's strcasecmp
+ * @param str
+ * @returns {number}
+ */
+String.prototype.strcasecmp = function (str): number {
+	let lowerThis = this.toLowerCase();
+	let lowerStr  = str.toLowerCase();
+	return lowerThis > lowerStr ? 1 : (lowerThis < lowerStr ? -1 : 0);
+};

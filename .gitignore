@@ -7,3 +7,5 @@ lerna-debug.log
 /.env
 /lerna.json
 /yarn-error.log
+/dist
+/socket-client

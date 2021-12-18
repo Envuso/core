@@ -6,7 +6,7 @@ export class TestingEventDispatcher extends EventDispatcher {
 	public triggers() {
 		return [
 			TestingEventListener,
-		]
+		];
 	}
 
 }

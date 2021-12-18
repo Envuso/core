@@ -1,15 +1,34 @@
 import "reflect-metadata";
-import {App} from "../AppContainer";
-import {Config} from "../Config";
-import {Server} from "../Server/Server";
+import * as path from "path";
+import {ServiceProvider} from "../AppContainer";
+import Environment from '../AppContainer/Config/Environment';
+import 'jest-extended';
 
-const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
+Environment.load(path.join(__dirname, '..', '..', '.env'));
 
-	await app.container().resolve(Server).initialise();
+import Configuration from "../Config/Configuration";
+import {Database} from "../Database";
+import {Envuso} from "../Envuso";
+
+let envuso: Envuso = null;
+
+export const bootApp = async function (serve: boolean = true, ignoredServiceProviders: (new () => ServiceProvider)[] = []) {
+	envuso = new Envuso();
+	await Configuration.initiate();
+	await envuso.boot(ignoredServiceProviders);
+	if (serve) {
+		await envuso.serve();
+	}
 };
 
-beforeAll(() => {
-	return bootApp();
-});
+
+export const unloadApp = async function (exitOnFinish: boolean = false) {
+	await envuso.unload();
+	envuso = null;
+
+	if (exitOnFinish)
+		process.exit(0);
+};
+
+
+export const envusoTestService = envuso;

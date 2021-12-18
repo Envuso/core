@@ -1,22 +1,24 @@
 import {AsyncLocalStorage} from "async_hooks";
 import {FastifyRequest} from "fastify";
 import {METADATA} from "../../Common";
-import {SocketConnection} from "../../Sockets/SocketConnection";
-import {RequestContext} from "./RequestContext";
+import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import {RequestContextStoreContract} from "../../Contracts/Routing/Context/RequestContextStoreContract";
+import {WebSocketConnectionContract} from "../../Contracts/WebSockets/WebSocketConnectionContract";
 
 let instance = null;
 
-export class RequestContextStore {
+export class RequestContextStore implements RequestContextStoreContract {
 
-	private readonly _store: AsyncLocalStorage<RequestContext>;
+	public readonly _store: AsyncLocalStorage<RequestContextContract>;
 
 	constructor() {
-		this._store = new AsyncLocalStorage<RequestContext>();
+		this._store = new AsyncLocalStorage<RequestContextContract>();
 
 		instance = this;
 	}
 
-	static getInstance(): RequestContextStore {
+	static getInstance(): RequestContextStoreContract {
 		if (instance) {
 			return instance;
 		}
@@ -24,12 +26,18 @@ export class RequestContextStore {
 		return new RequestContextStore();
 	}
 
-	context(): RequestContext {
+	public context(): RequestContextContract {
 		return this._store.getStore();
 	}
 
-	bind(request: FastifyRequest|SocketConnection, done: any) {
-		this._store.run(Reflect.getMetadata(METADATA.HTTP_CONTEXT, request), done);
+	public store(): AsyncLocalStorage<RequestContextContract> {
+		return this._store;
+	}
+
+	public bind(request: FastifyRequest | WebSocketConnectionContract<any>, done: any) {
+		const cont = Reflect.getMetadata(METADATA.HTTP_CONTEXT, request);
+
+		this._store.run(cont, done);
 	}
 
 }

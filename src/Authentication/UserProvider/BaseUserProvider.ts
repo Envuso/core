@@ -1,19 +1,25 @@
-import {Authenticatable} from "../../Common";
-import {AuthCredentialContract, AuthenticationIdentifier} from "../../Config/Auth";
+import {resolve} from "../../AppContainer";
+import {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
+import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 import {UserProvider} from "./UserProvider";
 
-export class BaseUserProvider extends UserProvider {
+export class BaseUserProvider extends UserProvider implements UserProviderContract {
 
-	async getUser<T>(id: string): Promise<Authenticatable<T>> {
-		return new Authenticatable().setUser({id}) as Authenticatable<T>;
+	private getInstance<T>(): AuthenticatableContract<T> {
+		return resolve<AuthenticatableContract<T>>('Authenticatable');
 	}
 
-	async userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<Authenticatable<T>> {
-		return new Authenticatable().setUser(identifier) as Authenticatable<T>;
+	public async getUser<T>(id: string): Promise<AuthenticatableContract<T>> {
+		return this.getInstance<T>().setUser({id});
 	}
 
-	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<Authenticatable<T>> {
-		return new Authenticatable().setUser(credentials) as Authenticatable<T>;
+	public async userForIdentifier<T>(identifier: AuthenticationIdentifier): Promise<AuthenticatableContract<T>> {
+		return this.getInstance<T>().setUser(identifier);
+	}
+
+	public async verifyLoginCredentials<T>(credentials: AuthCredentialContract): Promise<AuthenticatableContract<T>> {
+		return this.getInstance<T>().setUser(credentials);
 	}
 
 

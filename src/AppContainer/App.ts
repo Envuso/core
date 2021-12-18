@@ -1,12 +1,14 @@
-//import "reflect-metadata";
 import {Log} from '../Common';
-import path from 'path';
 import {container} from "tsyringe";
 import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import constructor from "tsyringe/dist/typings/types/constructor";
 import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {ConfigRepository} from "./Config/ConfigRepository";
+import ConfigurationFile from "./Config/ConfigurationFile";
 import {FailedToBindException} from "./Exceptions/FailedToBindException";
+import {config} from "./index";
 import {ServiceProvider} from "./ServiceProvider";
 
 let instance: App | null = null;
@@ -16,7 +18,7 @@ interface BaseConfiguration {
 	//	paths: { [key: string]: string };
 }
 
-export class App {
+export class App implements AppContract {
 
 	/**
 	 * The base container instance
@@ -61,13 +63,11 @@ export class App {
 	 * Boot up the App and bind our Config
 	 * Once called, we'll be able to access the app instance via {@see getInstance()}
 	 */
-	static async bootInstance(config: BaseConfiguration): Promise<App> {
+	static async bootInstance(): Promise<App> {
 		if (instance)
 			return instance;
 
 		const app = new App();
-
-		app._baseConfiguration = config;
 
 		await app.boot();
 
@@ -95,7 +95,7 @@ export class App {
 	 *               | container, by default it will use constructor.name
 	 *               | This does not apply to classes that extend ServiceProvider
 	 */
-	bind(binder: (app: App, config: ConfigRepository) => any, bindAs?: string) {
+	bind(binder: (app?: AppContract, config?: ConfigRepositoryContract) => any, bindAs?: string) {
 		const result = binder(this, this.resolve(ConfigRepository));
 
 		if (!result?.constructor) {
@@ -103,17 +103,12 @@ export class App {
 		}
 
 		if (result instanceof ServiceProvider) {
-			this._container.register(
-				'ServiceProvider', {useValue : result}
-			);
+			this._container.register('ServiceProvider', {useValue : result});
 
 			return;
 		}
 
-		this._container.register(
-			bindAs ?? result.constructor.name,
-			{useValue : result}
-		);
+		this._container.register(bindAs ?? result.constructor.name, {useValue : result});
 	}
 
 	/**
@@ -128,7 +123,7 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolve<T>(key: InjectionToken<T>) {
+	resolve<T>(key: InjectionToken<T>): T {
 		return this.container().resolve<T>(key);
 	}
 
@@ -137,7 +132,7 @@ export class App {
 	 *
 	 * @param key
 	 */
-	resolveAll<T>(key: InjectionToken<T>) {
+	resolveAll<T>(key: InjectionToken<T>): T[] {
 		return this.container().resolveAll<T>(key);
 	}
 
@@ -152,59 +147,66 @@ export class App {
 
 		const configRepository = this._container.resolve(ConfigRepository);
 
-		const cwd   = process.cwd();
-		const paths = {
-			root             : cwd,
-			src              : path.join(cwd, 'src'),
-			config           : path.join(cwd, 'Config', 'index.js'),
-			controllers      : path.join(cwd, 'src', 'App', 'Http', 'Controllers'),
-			socketListeners  : path.join(cwd, 'src', 'App', 'Http', 'Sockets'),
-			eventDispatchers : path.join(cwd, 'src', 'App', 'Events', 'Dispatchers'),
-			eventListeners   : path.join(cwd, 'src', 'App', 'Events', 'Listeners'),
-			providers        : path.join(cwd, 'src', 'App', 'Providers'),
-			models           : path.join(cwd, 'src', 'App', 'Models'),
-			storage          : path.join(cwd, 'storage'),
-			temp             : path.join(cwd, 'storage', 'temp'),
-		};
-
-		await configRepository.loadConfigFrom(this._baseConfiguration.config);
-
-		configRepository.set('paths', paths);
+		configRepository.loadConfigFrom(ConfigurationFile.getConfigurationFiles());
 	}
 
 	/**
 	 * Will load all service providers from the app config
 	 */
-	async loadServiceProviders() {
+	async loadServiceProviders(withoutServiceProviders: (new () => ServiceProvider)[] = [], isForQueueWorker: boolean = false) {
 		type Provider = (constructor<ServiceProvider>)
+		const configRepository = this.resolve(ConfigRepository);
 
-		const providers = this.resolve(ConfigRepository).get<Array<Provider>>('app.providers');
-
-		if (!providers) {
+		const serviceProviderList = configRepository.get<string, (new () => ServiceProvider)[]>(
+			isForQueueWorker ? 'queue.providers' : 'app.providers', null
+		);
+		if (!serviceProviderList) {
 			throw new Error('No service providers found.');
 		}
 
-		for (let providerClass of providers) {
+
+		for (let providerClass of serviceProviderList) {
+			if (withoutServiceProviders.map(s => s.name).includes(providerClass.name)) {
+				continue;
+			}
+
 			const provider = new providerClass();
 
 			this.bind(() => provider);
 
-			await provider.register(
-				this, this.resolve(ConfigRepository)
-			);
+			await provider.register(this, this.resolve(ConfigRepository));
 
-			Log.info('Provider registered: ' + provider.constructor.name);
+			if (config('app.logging.providers', false)) {
+				Log.info('Provider registered: ' + provider.constructor.name);
+			}
 		}
 
 		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
 
 		for (let provider of serviceProviders) {
+			await provider.boot(this, this.resolve(ConfigRepository));
+			if (config('app.logging.providers', false)) {
+				Log.info('Service provider booted: ' + provider.constructor.name);
+			}
+		}
+	}
 
-			await provider.boot(
-				this, this.resolve(ConfigRepository)
-			);
+	/**
+	 * Will run the "unload" method on all registered service providers
+	 *
+	 * @returns {Promise<void>}
+	 */
+	async unloadServiceProviders() {
 
-			Log.info('Service provider booted: ' + provider.constructor.name);
+		const serviceProviders = this._container.resolveAll<ServiceProvider>('ServiceProvider');
+
+		for (let provider of serviceProviders) {
+
+			await provider.unload(this, this.resolve(ConfigRepository));
+
+			if (config('app.logging.providers', false)) {
+				Log.info('Service provider unloaded: ' + provider.constructor.name);
+			}
 		}
 	}
 
@@ -233,6 +235,9 @@ export class App {
 	 * The reason this exists is so that when writing tests, you can start from a clean slate.
 	 */
 	async unload() {
+
+		await this.unloadServiceProviders();
+
 		this._booted = false;
 		instance     = null;
 

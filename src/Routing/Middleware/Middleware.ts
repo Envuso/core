@@ -1,9 +1,14 @@
 import {METADATA} from "../../Common";
-import {RequestContext} from "../Context/RequestContext";
+import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import {MiddlewareContract} from "../../Contracts/Routing/Middleware/MiddlewareContract";
 
-export abstract class Middleware {
+export abstract class Middleware implements MiddlewareContract {
 
-	public abstract handle(context: RequestContext): Promise<any>;
+	public abstract handle(context: RequestContextContract): Promise<any>;
+
+	public after(context: RequestContextContract): Promise<any> {
+		return Promise.resolve(true);
+	}
 
 	static getMetadata(controller: any) {
 		return Reflect.getMetadata(METADATA.MIDDLEWARE, controller);

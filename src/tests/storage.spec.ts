@@ -1,27 +1,21 @@
 import "reflect-metadata";
 
-import {config} from 'dotenv';
-
-import path from "path";
-//Load our env file from the dir with all envuso components
-config({path : path.join(__dirname, '..', '..', '.env')});
-
 import fs from "fs";
-import {App} from "../AppContainer";
 import {Storage} from '../Storage';
-import {Config} from '../Config';
+import {bootApp, unloadApp} from "./preptests";
 
-const bootApp = async function () {
-	const app = await App.bootInstance({config : Config});
-	await app.loadServiceProviders();
 
+beforeAll(() => async () => {
 	fs.writeFileSync('./testfile.txt', '12345', {encoding : 'utf-8'});
 	fs.writeFileSync('./testfiletwo.txt', 'abc', {encoding : 'utf-8'});
-};
 
-beforeAll(() => {
-	return bootApp();
+	await bootApp(true);
 });
+
+afterAll(async () => {
+	await unloadApp(false);
+});
+
 
 describe('s3 storage', () => {
 
@@ -148,7 +142,7 @@ describe('s3 storage', () => {
 
 		expect(response.url).toContain(directoryName);
 
-		const url = await Storage.disk('s3').url(directoryName);
+		const url = Storage.disk('s3').url(directoryName);
 		expect(url).toEqual(response.url);
 
 		const deleted = await Storage.disk('s3').remove(directoryName);

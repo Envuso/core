@@ -1,23 +1,16 @@
 import "reflect-metadata";
 import {constructor} from "tsyringe/dist/typings/types";
-import {Config} from "../Config";
-import {App, ConfigRepository, ServiceProvider} from "../AppContainer";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
+import {App} from "../AppContainer/App";
+import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {Server} from "../Server/Server";
 
-async function boot() {
-	if(App.isBooted()){
-		await App.getInstance().unload();
-	}
+import {bootApp, unloadApp} from "./preptests";
 
-	await App.bootInstance({
-		config : Config
-	});
-}
-
-
-beforeEach(done => {
-	return boot().then(done());
-});
-
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
 
 describe('test app binding', () => {
 
@@ -59,14 +52,14 @@ describe('test app binding', () => {
 		class TestingClass extends ServiceProvider {
 			public value = 1234;
 
-			public async boot(app: App, config: ConfigRepository): Promise<void> {
+			public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 			}
 
-			public async register(app: App, config: ConfigRepository): Promise<void> {
+			public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 				app.bind(() => {
 					return new TestingClass();
-				})
+				});
 			}
 		}
 
@@ -84,14 +77,14 @@ describe('test app binding', () => {
 		class TestingRegisterBootProviders extends ServiceProvider {
 			public value = 1234;
 
-			public async boot(app: App, config: ConfigRepository): Promise<void> {
+			public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 			}
 
-			public async register(app: App, config: ConfigRepository): Promise<void> {
+			public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 				app.bind(() => {
 					return new TestingRegisterBootProviders();
-				})
+				});
 			}
 		}
 
@@ -109,28 +102,28 @@ describe('test app binding', () => {
 		class TestingRegisterBootProviders extends ServiceProvider {
 			public value = 1234;
 
-			public async boot(app: App, config: ConfigRepository): Promise<void> {
+			public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 			}
 
-			public async register(app: App, config: ConfigRepository): Promise<void> {
+			public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 				app.bind(() => {
 					return new TestingRegisterBootProviders();
-				})
+				});
 			}
 		}
 
 		class TestingRegisterBootNUMBAHTWOProviders extends ServiceProvider {
 			public value = 1234;
 
-			public async boot(app: App, config: ConfigRepository): Promise<void> {
+			public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 			}
 
-			public async register(app: App, config: ConfigRepository): Promise<void> {
+			public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 				app.bind(() => {
 					return new TestingRegisterBootNUMBAHTWOProviders();
-				})
+				});
 			}
 		}
 
@@ -150,14 +143,14 @@ describe('test app binding', () => {
 		class TestingRegisterBootProviders extends ServiceProvider {
 			public value = 1234;
 
-			public async boot(app: App, config: ConfigRepository): Promise<void> {
+			public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 			}
 
-			public async register(app: App, config: ConfigRepository): Promise<void> {
+			public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 				app.bind(() => {
 					return new TestingRegisterBootProviders();
-				})
+				});
 			}
 		}
 
@@ -177,9 +170,9 @@ describe('test app binding', () => {
 
 		const config = app.resolve(ConfigRepository);
 
-		expect(config.get('paths')).toBeDefined();
-		expect(config.get('paths.root')).toBeDefined();
-		expect(config.has('paths.root')).toBeTruthy();
+		expect(config.get('Paths')).toBeDefined();
+		expect(config.get('Paths.root')).toBeDefined();
+		expect(config.has('Paths.root')).toBeTruthy();
 	});
 
 	test('can add to object config', async () => {
@@ -187,9 +180,9 @@ describe('test app binding', () => {
 
 		const config = app.resolve(ConfigRepository);
 
-		config.set('app.providers', 'testing');
+		config.set('App.providers', 'testing');
 
-		expect(config.get('app.providers')).toBe('testing');
+		expect(config.get('App.providers')).toBe('testing');
 	});
 
 	test('can add to put on array config', async () => {
@@ -197,10 +190,10 @@ describe('test app binding', () => {
 
 		const config = app.resolve(ConfigRepository);
 
-		config.set('app.providers', []);
-		config.put('app.providers', 'testing');
+		config.set('App.providers', []);
+		config.put('App.providers', 'testing');
 
-		expect(config.get('app.providers')).toContainEqual("testing");
+		expect(config.get('App.providers')).toContainEqual("testing");
 	});
 
 });

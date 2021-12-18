@@ -1,5 +1,7 @@
-export abstract class EventListener {
+import {EventListenerContract} from "../Contracts/Events/EventListenerContract";
 
-	abstract handle(): Promise<void | boolean>
+export abstract class EventListener implements EventListenerContract {
+
+	public abstract handle(): Promise<void | boolean>
 
 }

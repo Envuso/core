@@ -1,4 +1,4 @@
-import {StatusCodes} from "http-status-codes";
+import {StatusCodes} from "../Http";
 
 export class Exception extends Error {
 
@@ -12,8 +12,21 @@ export class Exception extends Error {
 			this.code = code;
 
 		this.response = {
-			message : this.message
-		}
+			message : this.message,
+			code    : code,
+		};
+	}
+
+	public handleViewResponse():object {
+		return {};
+	}
+
+	public handleJsonResponse():object {
+		return {};
+	}
+
+	public handleLoggerResponse():object {
+		return {};
 	}
 
 }

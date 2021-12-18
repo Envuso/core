@@ -1,50 +1,52 @@
-import {Request} from "./Context/Request/Request";
+import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
+import {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
+import {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
+import {ResponseContract} from "../Contracts/Routing/Context/Response/ResponseContract";
 import {RequestContext} from "./Context/RequestContext";
-import {Response} from "./Context/Response/Response";
-import {Session} from "./Context/Session";
 
-export * from './RouteServiceProvider';
-export * from './Context/Request/Request';
-export * from './Context/Request/UploadedFile';
-export * from './Context/Session';
-export * from './Context/CookieJar';
-export * from './Context/Response/Response';
-export * from './Context/RequestContext';
-export * from './Context/RequestContextStore';
-export * from './Context/RequestContext';
-export * from './Context/RequestContextStore';
-export * from './Controller/Controller';
-export * from './Controller/ControllerManager';
-export * from './Controller/ControllerDecorators';
-export * from './DataTransferObject/DataTransferObject';
-export * from './DataTransferObject/DtoValidationException';
-export * from './Middleware/Middleware';
-export * from './Middleware/MiddlewareDecorators';
-export * from './Route/RequestInjection/index';
-export * from './Route/Route';
-export * from './Route/RouteDecorators';
-export * from './Route/RouteManager';
-export * from './Middleware/Middlewares/JwtAuthenticationMiddleware';
+export const context  = (): RequestContextContract => RequestContext.get();
+export const response = (): ResponseContract => RequestContext.response();
 
-
-export const context  = (): RequestContext => RequestContext.get();
-export const session  = (): Session => RequestContext.session();
-export const response = (): Response => RequestContext.response();
-
-function request(): Request;
+function request(): RequestContract;
 function request<T>(key: string): T;
-function request<T>(key?: string, _default = null): T | Request {
+function request<T>(key?: string, _default = null): T | RequestContract {
 	if (key)
 		return RequestContext.request().get<T>(key, _default);
 
-	return RequestContext.request() as Request;
+	return RequestContext.request() as RequestContract;
 }
 
-export {request};
+function view(templatePath: string, data?: any): ResponseContract {
+	return response().view(templatePath, data);
+}
 
-//export const request = (): Request => {
-//	return RequestContext.request() as Request;
-//};
-//export const request = <T>(key?: string, _default = null): T => {
-//	return RequestContext.request().get<T>(key, _default);
-//};
+function redirect(url: string): RedirectResponseContract;
+function redirect(): RedirectResponseContract;
+function redirect(url?: string): RedirectResponseContract {
+	if (url !== undefined) {
+		return response().redirect(url);
+	}
+	return response().redirectResponse();
+}
+
+function back(): RedirectResponseContract {
+	return response().redirectResponse().back();
+}
+
+export * from './Controller/Controller';
+export * from './DataTransferObject/DataTransferObject';
+export * from './DataTransferObject/DtoValidationException';
+export * from './Route/RouteDecorators';
+export * from './Route/Route';
+export * from './Route/Routing';
+export * from './Controller/ControllerDecorators';
+export * from './Middleware/Middleware';
+export * from './Middleware/MiddlewareDecorators';
+export * from './Middleware/Middlewares/VerifyCsrfTokenMiddleware';
+export * from './Middleware/Middlewares/JwtAuthenticationMiddleware';
+export * from './Context/Response/Response';
+export * from './Context/Request/Request';
+export * from './ApiResource/ApiResource';
+
+export {request, view, redirect, back, RequestContext};
+

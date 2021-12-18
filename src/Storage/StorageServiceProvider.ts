@@ -1,20 +1,19 @@
-import {App} from "../AppContainer/App";
-import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
-import {StorageConfiguration} from "../Config/Storage";
+import {AppContract} from "../Contracts/AppContainer/AppContract";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {Storage} from "./Storage";
 
 export class StorageServiceProvider extends ServiceProvider {
 
-	public async register(app: App, config: ConfigRepository) {
+	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		app.container().register(Storage, {
 			useFactory : () => {
-				return new Storage(config.get<StorageConfiguration>('storage'));
+				return new Storage(config.get('Storage'));
 			}
-		})
+		});
 	}
 
-	public async boot(app: App, config: ConfigRepository) {
+	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 
 	}
 

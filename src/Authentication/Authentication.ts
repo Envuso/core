@@ -1,21 +1,26 @@
 import {injectable} from "tsyringe";
 import {ConfigRepository} from "../AppContainer";
-import {Authenticatable, Log} from "../Common";
-import {AuthCredentialContract} from "../Config/Auth";
-import {RequestContext} from "../Routing";
+import {Log} from "../Common";
+import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {AuthenticationContract} from "../Contracts/Authentication/AuthenticationContract";
+import {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";
+import {AuthCredentialContract} from "../Contracts/Authentication/UserProvider/AuthCredentials";
+import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {UserProviderContract} from "../Contracts/Authentication/UserProvider/UserProviderContract";
+import {RequestContext} from "../Routing/Context/RequestContext";
 import {AuthenticationProvider} from "./AuthenticationProvider";
 import {JwtAuthenticationProvider} from "./AuthenticationProviders/JwtAuthenticationProvider";
 import {BaseUserProvider} from "./UserProvider/BaseUserProvider";
 import {UserProvider} from "./UserProvider/UserProvider";
 
-type AuthenticationProviderParameter = new (userProvider: UserProvider) => AuthenticationProvider;
+export type AuthenticationProviderParameter = new (userProvider: UserProviderContract) => AuthenticationProviderContract;
 
 @injectable()
-export class Authentication {
+export class Authentication implements AuthenticationContract {
 
-	private _providers: Map<string, AuthenticationProvider> = new Map();
+	public _providers: Map<string, AuthenticationProvider> = new Map();
 
-	private _userProvider: UserProvider = null;
+	public _userProvider: UserProvider = null;
 
 	constructor(config: ConfigRepository) {
 
@@ -28,11 +33,9 @@ export class Authentication {
 
 	}
 
-	private setAuthenticationProviders(config: ConfigRepository) {
+	public setAuthenticationProviders(config: ConfigRepositoryContract) {
 
-		let providers = config.get<AuthenticationProviderParameter[]>(
-			'auth.authenticationProviders', [JwtAuthenticationProvider]
-		);
+		let providers = config.get<string, any>('Auth.authenticationProviders', [JwtAuthenticationProvider]);
 
 		if (!providers || !providers?.length) {
 			throw new Error('No authentication providers are configured.');
@@ -49,10 +52,8 @@ export class Authentication {
 		}
 	}
 
-	private setUserProvider(config: ConfigRepository) {
-		const userProvider = config.get<new () => UserProvider>(
-			'auth.userProvider', BaseUserProvider
-		);
+	public setUserProvider(config: ConfigRepositoryContract) {
+		const userProvider = config.get<string, any>('Auth.userProvider', BaseUserProvider);
 
 		if (!userProvider) {
 			throw new Error('Authentication: No user provider specified in configuration.');
@@ -67,7 +68,7 @@ export class Authentication {
 		this._userProvider = userInstance;
 	}
 
-	private checkContextIsBound() {
+	public checkContextIsBound() {
 		if (!RequestContext.get())
 			throw new Error('Context hasnt been bound');
 	}
@@ -75,7 +76,7 @@ export class Authentication {
 	/**
 	 * Is the user authenticated?
 	 */
-	check() {
+	public check() {
 		this.checkContextIsBound();
 
 		return !!RequestContext.get().user;
@@ -84,8 +85,8 @@ export class Authentication {
 	/**
 	 * Login with the provided credentials
 	 */
-	async attempt(credentials: AuthCredentialContract) {
-		const user: Authenticatable<any> = await this._userProvider.verifyLoginCredentials(credentials);
+	public async attempt(credentials: AuthCredentialContract) {
+		const user: AuthenticatableContract<any> = await this._userProvider.verifyLoginCredentials(credentials);
 
 		if (!user) {
 			return false;
@@ -101,7 +102,7 @@ export class Authentication {
 	 *
 	 * @param user
 	 */
-	public authoriseAs(user: Authenticatable<any>) {
+	public authoriseAs(user: AuthenticatableContract<any>) {
 		this.checkContextIsBound();
 
 		RequestContext.get().setUser(user);
@@ -110,7 +111,7 @@ export class Authentication {
 	/**
 	 * Get the authenticated user
 	 */
-	user<T>(): Authenticatable<T> | null {
+	public user<T>(): AuthenticatableContract<T> | null {
 		this.checkContextIsBound();
 
 		if (!this.check())
@@ -119,19 +120,23 @@ export class Authentication {
 		return RequestContext.get().user;
 	}
 
-	getAuthProvider<T extends AuthenticationProvider>(providerType: AuthenticationProviderParameter): T {
+	public getAuthProvider<T extends AuthenticationProvider>(providerType: AuthenticationProviderParameter | string): T {
+		const prov = typeof providerType === 'string' ? providerType : providerType.name;
+
 		if (!this.isUsingProvider(providerType)) {
-			throw new Error('Trying to use auth provider ' + providerType.name + ' but its not set in the configuration.');
+			throw new Error('Trying to use auth provider ' + prov + ' but its not set in the configuration.');
 		}
 
-		return this._providers.get(providerType.name) as T;
+		return this._providers.get(prov) as T;
 	}
 
-	isUsingProvider(providerType: AuthenticationProviderParameter) {
-		return this._providers.has(providerType.name);
+	public isUsingProvider(providerType: AuthenticationProviderParameter | string) {
+		return this._providers.has(
+			typeof providerType === 'string' ? providerType : providerType.name
+		);
 	}
 
-	getUserProvider(): UserProvider {
+	public getUserProvider(): UserProviderContract {
 		return this._userProvider;
 	}
 

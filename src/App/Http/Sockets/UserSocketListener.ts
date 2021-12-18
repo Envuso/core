@@ -1,35 +1,33 @@
-import {Middleware} from "Routing";
+import {Middleware} from "../../../Routing";
 import {injectable} from "tsyringe";
-import {Authentication} from "../../../Authentication";
 import {Log} from "../../../Common";
-import {SocketConnection} from "../../../Sockets/SocketConnection";
-import {SocketChannelListener} from "../../../Sockets/SocketChannelListener";
-import {SocketPacket} from "../../../Sockets/SocketPacket";
+import {AuthenticatedMiddleware} from "../../../Routing/Middleware/Middlewares/AuthenticatedMiddleware";
+import {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
+import {WebSocketChannelListener} from "../../../WebSockets/WebSocketChannelListener";
+import {WebSocketConnection} from "../../../WebSockets/WebSocketConnection";
 import {User} from "../../Models/User";
 
 @injectable()
-export class UserSocketListener extends SocketChannelListener {
+export class UserSocketListener extends WebSocketChannelListener {
 
-	constructor(private auth?: Authentication) {
-		super();
+	public middlewares(): Middleware[] {
+		return [
+			new AuthenticatedMiddleware(),
+		];
 	}
 
-	middlewares(): Middleware[] {
-		return [];
-	}
-
-	channelName(): string {
+	public channelName(): string {
 		return "user:*";
 	}
 
-	async isAuthorised(connection: SocketConnection, user: User): Promise<boolean> {
-		return this.channelInfo.wildcardValue === user._id.toString();
+	public async isAuthorised(connection: WebSocketConnection<User>): Promise<boolean> {
+		return this.channelInfo.wildcardValue === connection.user?._id?.toString();
 	}
 
-	async hello(connection: SocketConnection, user: User, packet: SocketPacket): Promise<any> {
+	async hello(connection: WebSocketConnection<User>, packet: UserMessageSocketPacket): Promise<any> {
 		Log.success('GREAT SUCCESS HIGH FIVE');
 
-		connection.send('hello', {message : 'Fuck yeah from ' + user._id});
+		UserSocketListener.broadcast(connection.user._id.toString(), 'hello', {message : 'oh hi, it worked woooo'});
 	}
 
 

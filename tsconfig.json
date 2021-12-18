@@ -3,10 +3,10 @@
   "display": "Node 14",
   "compilerOptions": {
     "lib": [
-      "ES2016"
+      "ESNext"
     ],
     "module": "commonjs",
-    "target": "ES2016",
+    "target": "ESNext",
     "moduleResolution": "node",
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -23,7 +23,8 @@
       "jest"
     ],
     "typeRoots": [
-      "node_modules/@types"
+      "node_modules/@types",
+      "src/**"
     ],
     "paths": {
       "class-transformer": [
@@ -36,24 +37,35 @@
   },
   "exclude": [
     "node_modules",
-    "dist/**/*",
-    "Framework/**/*",
-    "packages/**/*"
+    "dist/**/*"
   ],
   "include": [
+    "src/App/**/*",
     "src/AppContainer/**/*",
     "src/Authentication/**/*",
     "src/Authorization/**/*",
-    "src/Common/**/*",
-    "src/Server/**/*",
-    "src/Database/**/*",
-    "src/Routing/**/*",
-    "src/Storage/**/*",
-    "src/Sockets/**/*",
     "src/Cache/**/*",
+    "src/Cli/**/*",
+    "src/Common/**/*",
+    "src/Contracts/**/*",
+    "src/Cookies/**/*",
     "src/Crypt/**/*",
-    "src/Crypt/**/*",
-    "src/Cli/**/*.ts",
+    "src/Database/**/*",
+    "src/Events/**/*",
+    "src/OAuthProvider/**/*",
+    "src/Packages/**/*",
+    "src/Routing/**/*",
+    "src/Redis/**/*",
+    "src/Queue/**/*",
+    "src/Security/**/*",
+    "src/Server/**/*",
+    "src/WebSockets/**/*",
+    "src/Session/**/*",
+    "src/Storage/**/*.ts",
+    "src/Queue/**/*.ts",
+    "src/Authenticatable.ts",
+    "src/Envuso.ts",
+    "src/tests/**/*.ts",
     "src/run-dev.ts",
     "src/index.ts"
   ]

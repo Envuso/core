@@ -1,8 +1,19 @@
 import {DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
-import Request from "fastify/lib/request.js";
 import Reply from "fastify/lib/reply.js";
-import {RequestPayload, HookHandlerDoneFunction,} from "fastify/types/hooks";
+import Request from "fastify/lib/request.js";
+import {RequestPayload} from "fastify/types/hooks";
+import {config} from "../../AppContainer";
 import {Log} from "../../Common";
+import {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
+import {OnErrorHook} from "./HookTypes/OnErrorHook";
+import {OnRequestHook} from "./HookTypes/OnRequestHook";
+import {OnResponseHook} from "./HookTypes/OnResponseHook";
+import {OnSendHook} from "./HookTypes/OnSendHook";
+import {OnTimeoutHook} from "./HookTypes/OnTimeoutHook";
+import {PreHandlerHook} from "./HookTypes/PreHandlerHook";
+import {PreParsingHook} from "./HookTypes/PreParsingHook";
+import {PreSerializationHook} from "./HookTypes/PreSerializationHook";
+import {PreValidationHook} from "./HookTypes/PreValidationHook";
 
 export type FastifyHookName =
 	'onRequest'
@@ -27,12 +38,14 @@ export type FastifyHandlerHookMap = {
 	'onError': (request: FastifyRequest, response: FastifyReply, error: Error) => Promise<boolean>,
 }
 
-type HookRunnerArgs = { request: FastifyRequest, response: FastifyReply, done: DoneFuncWithErrOrRes, error?: Error, payload?: any }
+export type HookRunnerArgs = { request: FastifyRequest, response: FastifyReply, done: DoneFuncWithErrOrRes, error?: Error, payload?: any }
 export type HookHandlerArgs = { request: FastifyRequest, response: FastifyReply, error?: Error, payload?: any, done?: DoneFuncWithErrOrRes }
 
-export class Hook {
+export type HookTypes = OnErrorHook | OnRequestHook | OnResponseHook | OnSendHook | OnTimeoutHook | PreHandlerHook | PreParsingHook | PreSerializationHook | PreValidationHook;
 
-	protected fastifyHookName(): FastifyHookName {
+export class Hook implements HookContract {
+
+	public fastifyHookName(): FastifyHookName {
 		return null;
 	}
 
@@ -48,7 +61,7 @@ export class Hook {
 		return true;
 	}
 
-	private hookHandler({request, response, done, error, payload}: HookRunnerArgs) {
+	public hookHandler({request, response, done, error, payload}: HookRunnerArgs) {
 		if (!this.isAsyncHook()) {
 			this.handle({request, response, payload, error, done});
 			return;
@@ -81,10 +94,12 @@ export class Hook {
 				}
 		);
 
-		Log.success('Successfully registered server hook: ' + this.constructor.name);
+		if (config('app.logging.serverHooks', false)) {
+			Log.success('Successfully registered server hook: ' + this.constructor.name);
+		}
 	}
 
-	private getHookArgs(...args): HookRunnerArgs {
+	public getHookArgs(...args): HookRunnerArgs {
 		const handleObject: any = {};
 
 		for (let arg of args) {

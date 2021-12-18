@@ -10,7 +10,7 @@ export class HandleErrorHook extends OnSendHook {
 	}
 
 	public handle({request, response, payload, error, done}: HookHandlerArgs): boolean {
-	//	Log.exception(error.message, error);
+		//	Log.exception(error.message, error);
 		done();
 
 		return true;

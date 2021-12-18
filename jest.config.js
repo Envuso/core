@@ -9,6 +9,8 @@ module.exports = {
 	moduleDirectories    : [
 		'node_modules',
 		'<rootDir>/node_modules',
+		'<rootDir>/socket-client',
 		'src',
-	]
+	],
+	setupFilesAfterEnv: ["jest-extended"]
 };

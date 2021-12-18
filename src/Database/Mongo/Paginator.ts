@@ -1,48 +1,56 @@
-import {FilterQuery, ObjectId} from "mongodb";
-import {RequestContext} from "../../Routing";
-import {Model} from "./Model";
+import {ObjectId} from "mongodb";
+import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
+import {RequestContextStore} from "../../Routing/Context/RequestContextStore";
+import {ModelAttributesFilter} from "../QueryBuilderTypes";
+import {QueryBuilder} from "./QueryBuilder";
+import {QueryBuilderParts} from "./QueryBuilderParts";
 
-type PageCursor = 'after' | 'before';
+export type PageCursor = 'after' | 'before';
 
-interface PaginatedResponse<T> {
-	data: T[];
-	pagination: {
-		before: string;
-		after: string;
-		hasNext: boolean;
-		hasPrevious: boolean;
-		total: number;
-		limit: number;
-	}
+export type PaginatedResponsePagination = {
+	before: string;
+	after: string;
+	hasNext: boolean;
+	hasPrevious: boolean;
+	total: number;
+	limit: number;
 }
 
-export class Paginator<T> {
+export interface PaginatedResponse<T> {
+	data: T[];
+	pagination: PaginatedResponsePagination;
+}
 
-	private _response: PaginatedResponse<T> = null;
-	private _beforeCursor: string           = null;
-	private _afterCursor: string            = null;
+export class Paginator<T> implements PaginatorContract<T> {
+
+	public _response: PaginatedResponse<T> = null;
+	public _beforeCursor: string           = null;
+	public _afterCursor: string            = null;
 
 	constructor(
-		private model: Model<T>,
-		private query: FilterQuery<T> | Partial<T>,
-		private limit: number
+		public model: ModelContract<T>,
+		public query: QueryBuilderParts<T>,
+		public limit: number
 	) {}
 
 	/**
 	 * Get the results of the paginated request
 	 *
+	 * @template T
 	 * @returns {Promise<Paginator<T>>}
 	 */
-	async getResults(): Promise<this> {
+	public async getResults(queryBuilder: QueryBuilder<any>): Promise<this> {
 		this.setPageCursors();
+
+		const total = await queryBuilder.where(this.query.getQuery()).count();
 
 		this.mergeQuery(this.setupQuery());
 
-
-		const results = await this.model.queryBuilder()
-			.where(this.query)
+		const results = await queryBuilder
+			.where(this.query.getQuery())
 			.limit(this.limit)
-			.get();
+			.get({limit : this.limit});
 
 		this._response = {
 			data       : results,
@@ -59,7 +67,6 @@ export class Paginator<T> {
 		if (!results?.length)
 			return this;
 
-		const total       = await this.model.queryBuilder().where(this.query).count();
 		const hasNext     = (results.length === this.limit) && (total > results.length);
 		const hasPrevious = this.getAfterCursor() !== null;
 
@@ -79,9 +86,19 @@ export class Paginator<T> {
 	 * Attempt to get the before/after cursors specified on the request
 	 * We'll then store them on the class
 	 */
-	private setPageCursors() {
-		this._afterCursor  = RequestContext.request().get<string>('after') ?? null;
-		this._beforeCursor = RequestContext.request().get<string>('before') ?? null;
+	public setPageCursors() {
+		const ctx     = RequestContextStore.getInstance();
+		const context = ctx.context();
+
+		if (!context) {
+			this._afterCursor  = null;
+			this._beforeCursor = null;
+
+			return;
+		}
+
+		this._afterCursor  = context.request.get<string>('after') ?? null;
+		this._beforeCursor = context.request.get<string>('before') ?? null;
 	}
 
 	/**
@@ -89,7 +106,7 @@ export class Paginator<T> {
 	 *
 	 * @returns {string | null}
 	 */
-	getBeforeCursor(): string | null {
+	public getBeforeCursor(): string | null {
 		return this._beforeCursor;
 	}
 
@@ -98,7 +115,7 @@ export class Paginator<T> {
 	 *
 	 * @returns {string | null}
 	 */
-	getAfterCursor(): string | null {
+	public getAfterCursor(): string | null {
 		return this._afterCursor;
 	}
 
@@ -109,7 +126,7 @@ export class Paginator<T> {
 	 * @returns {null | {_id: {}}}
 	 * @private
 	 */
-	private setupQuery(): FilterQuery<T> | Partial<T> {
+	public setupQuery(): ModelAttributesFilter<T> {
 		let query = {
 			'_id' : {}
 		};
@@ -137,33 +154,32 @@ export class Paginator<T> {
 	 *
 	 * @param query
 	 */
-	private mergeQuery(query: any): void {
-		if (this.query === null) {
-			this.query = {};
-		}
+	public mergeQuery(query: any): void {
+		const thisQuery = this.query.getQuery();
 
-		let currentQueryId = (this.query as any)?._id;
+		let currentQueryId = thisQuery?._id;
 
 		if (currentQueryId) {
 			query = {...currentQueryId, ...query._id};
 		}
 
 		if (query._id)
-			(this.query as any)._id = query._id;
+			(thisQuery as any)._id = query._id;
 
-		this.query = {...this.query, ...query};
+		this.query.add(query);
 	}
 
 	/**
 	 * Get the response of the paginator
 	 *
+	 * @template T
 	 * @returns {PaginatedResponse<T>}
 	 */
-	getResponse(): PaginatedResponse<T> {
+	public getResponse(): PaginatedResponse<T> {
 		return this._response;
 	}
 
-	toJSON(): PaginatedResponse<T> {
+	public toJSON(): PaginatedResponse<T> {
 		return this._response;
 	}
 

@@ -1,32 +1,20 @@
-import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import fastify, {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
-import {FastifyCorsOptions} from "fastify-cors";
+import fastify, {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
-import {ConfigRepository, resolve} from "../AppContainer";
-import {Exception, Log} from "../Common";
-import {ControllerManager, Middleware, RequestContext, Response, UploadedFile} from "../Routing";
-import {SocketServer} from "../Sockets/SocketServer";
-import {Hook} from "./ServerHooks";
+import {config, ConfigRepository, resolve} from "../AppContainer";
+import {Exception, Log, StatusCodes} from "../Common";
+import {ExceptionResponse} from "../Common/Exception/ExceptionHandler";
+import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
+import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
+import {ErrorHandlerFn, ServerConfiguration, ServerContract} from "../Contracts/Server/ServerContract";
+import {HookContract} from "../Contracts/Server/ServerHooks/HookContract";
+import {RequestContext} from "../Routing/Context/RequestContext";
+import {RedirectResponse} from "../Routing/Context/Response/RedirectResponse";
+import {Routing} from "../Routing/Route/Routing";
+import {AssetManager} from "../Routing/StaticAssets/AssetManager";
 
-export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<Response>;
 
-interface CorsConfiguration {
-	enabled: boolean;
-	options: FastifyCorsOptions
-}
-
-
-interface ServerConfiguration {
-	port: number;
-	middleware: (new () => Middleware)[]
-	cors: CorsConfiguration;
-	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
-	fastifyOptions: FastifyServerOptions;
-	responseSerialization: ClassTransformOptions;
-}
-
-export class Server {
+export class Server implements ServerContract {
 
 	/**
 	 * Our fastify instance for the server
@@ -44,7 +32,7 @@ export class Server {
 	 *
 	 * @private
 	 */
-	private _customErrorHandler: ErrorHandlerFn | null = null;
+	public _customErrorHandler: ErrorHandlerFn | null = null;
 
 	/**
 	 * Configuration from the Server.ts config file
@@ -52,7 +40,11 @@ export class Server {
 	 * @type {ServerConfiguration}
 	 * @private
 	 */
-	private _config: ServerConfiguration;
+	public _config: ServerConfiguration;
+
+	private _exceptionHandler: ExceptionHandlerConstructorContract = null;
+
+	private _registeredServerHooks: (new () => HookContract)[] = [];
 
 	/**
 	 * Initialise fastify, add all routes to the application and apply any middlewares
@@ -61,7 +53,12 @@ export class Server {
 		if (this._server)
 			throw new Error('Server has already been built');
 
-		this._config = resolve(ConfigRepository).get<ServerConfiguration>('server');
+		const config = resolve(ConfigRepository);
+
+		this._config    = config.get<string, any>('Server');
+		const appConfig = config.get<string, any>('App');
+
+		this._exceptionHandler = appConfig.exceptionHandler;
 
 		this._server = fastify(this._config.fastifyOptions);
 
@@ -73,7 +70,9 @@ export class Server {
 			response.code(404).send({message : "Not found"});
 		});
 
-		this.registerControllers();
+		this.registerRoutes();
+
+		resolve(AssetManager).registerAssetPaths(this._server);
 
 		return this._server;
 	}
@@ -83,42 +82,50 @@ export class Server {
 	 *
 	 * @private
 	 */
-	private registerControllers() {
+	public registerRoutes() {
+		Routing.initiate();
 
-		const controllers = ControllerManager.initiateControllers();
+		const controllers = Routing.get().getControllers();
 
 		for (let controller of controllers) {
 			const routes = controller.routes;
 
 			for (let route of routes) {
-				const handler = route.getMiddlewareHandler();
-				this._server.route({
-					method       : route.getMethod(),
-					handler      : route.getHandlerFactory(),
-					url          : route.getPath(),
-					preHandler   : async function (req, res) {
-						if (handler) {
-							const context = RequestContext.get();
 
-							await handler(context);
-						}
-					},
+				this._server.route({
+					...route.getFastifyRouteBinding(this._config.middleware || []),
+
 					errorHandler : async (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
-						return await this.handleException(error, request, reply);
+						return await this.handleException(RequestContext.get(), error, request, reply);
 					}
 				});
 
-				const controllerName = ((controller?.controller as any)?.name ?? controller.controller.constructor.name);
+				if (config('app.logging.routes', false)) {
+					const controllerName = ((controller?.controller as any)?.name ?? controller.controller.constructor.name);
 
-				Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
+					Log.info(`Route Loaded: ${controllerName}(${route.getMethod()} ${route.getPath()})`);
+				}
+
 			}
 		}
 	}
 
-	public registerHooks(hooks: { new(): Hook }[]) {
+	public registerHooks(hooks: { new(): HookContract }[]) {
 		for (let hook of hooks) {
 			new hook().register(this._server);
+
+			this._registeredServerHooks.push(hook);
 		}
+	}
+
+	/**
+	 * Check if we've registered a specific server hook
+	 *
+	 * @param {{new(): HookContract}} hook
+	 * @returns {boolean}
+	 */
+	public hasRegisteredServerHook(hook: (new () => HookContract)): boolean {
+		return this._registeredServerHooks.includes(hook);
 	}
 
 	/**
@@ -126,7 +133,7 @@ export class Server {
 	 *
 	 * @private
 	 */
-	private registerPlugins() {
+	public registerPlugins() {
 
 		// We have to make sure the cors configuration aligns with the framework configuration.
 		if (this._config.cors.enabled) {
@@ -142,6 +149,11 @@ export class Server {
 			]);
 		}
 
+		this._config.fastifyPlugins.push([
+			require('fastify-formbody'),
+			{}
+		]);
+
 		this._config.fastifyPlugins.forEach(plugin => {
 			this._server.register(plugin[0], plugin[1]);
 		});
@@ -150,14 +162,7 @@ export class Server {
 	/**
 	 * Begin listening for connections
 	 */
-	async listen() {
-
-		const socketServer = resolve(SocketServer);
-
-		if (socketServer.isEnabled()) {
-			await socketServer.initiate(this._server);
-		}
-
+	public async listen() {
 		await this._server.listen(this._config.port);
 
 		Log.success('Server is running at http://127.0.0.1:' + this._config.port);
@@ -167,21 +172,40 @@ export class Server {
 		this._customErrorHandler = handler;
 	}
 
-	private async handleException(error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+	public async handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+		const result = this._exceptionHandler.handle(context.request, error);
 
-		if (!this._customErrorHandler) {
-			const response = (error instanceof Exception) ? error.response : {
-				message : error.message,
-				code    : 500,
-			};
-			const code     = (error instanceof Exception) ? error.code : 500;
-
-			return reply.status(code).send(response);
+		if (result instanceof RedirectResponse) {
+			if (context.inertia.isInertiaRequest() && ['PUT', 'PATCH', 'DELETE'].includes(context.request.method())) {
+				return reply.redirect(StatusCodes.SEE_OTHER, result.getRedirectUrl());
+			}
+			return reply.redirect(result.getRedirectUrl());
 		}
 
-		const response: Response = await this._customErrorHandler(error, request, reply);
+		return reply.status((result as ExceptionResponse).code).send((result as ExceptionResponse));
 
-		response.send();
+		/*if (!this._customErrorHandler) {
+		 const response = (error instanceof Exception) ? error.response : {
+		 message : error.message,
+		 code    : 500,
+		 };
+		 const code     = (error instanceof Exception) ? error.code : 500;
+
+		 return reply.status(code).send(response);
+		 }
+
+		 const response: ResponseContract = await this._customErrorHandler(error, request, reply);
+
+		 response.send();*/
 	}
 
+	public async unload() {
+		if (this._server) {
+			await this._server.close();
+		}
+		this._server             = null;
+		this._config             = null;
+		this._exceptionHandler   = null;
+		this._customErrorHandler = null;
+	}
 }

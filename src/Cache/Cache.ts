@@ -1,6 +1,6 @@
-import {DateTime} from "../Common";
+import {DateTime} from "@envuso/date-time-helper";
+import {DateTimeContract} from "@envuso/date-time-helper";
 import {Redis} from "../Database";
-
 
 export class Cache {
 
@@ -24,9 +24,9 @@ export class Cache {
 	 * @returns {Promise<boolean>}
 	 */
 	public static put(key: string, value: any): Promise<boolean> ;
-	public static put(key: string, value: any, ttl: DateTime): Promise<boolean> ;
+	public static put(key: string, value: any, ttl: DateTimeContract): Promise<boolean> ;
 	public static put(key: string, value: any, ttl: DateTime = undefined): Promise<boolean> {
-		return Redis.put(`redis-cache.${key}`, value, ttl);
+		return Redis.set(`redis-cache.${key}`, value, ttl);
 	}
 
 	/**
@@ -68,11 +68,9 @@ export class Cache {
 	 * @returns {Promise<T>}
 	 */
 	public static async remember<T>(key: string, callback: () => Promise<T>, ttl?: DateTime) {
-		if (await this.has(key)) {
-			return await this.get<T>(key);
+		if (!await this.has(key)) {
+			await this.put(key, await callback(), ttl);
 		}
-
-		await this.put(key, await callback(), ttl);
 
 		return await this.get<T>(key);
 	}

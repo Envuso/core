@@ -1,9 +1,8 @@
-import {plainToClass} from "class-transformer";
 import {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {DataTransferObject} from "../../DataTransferObject/DataTransferObject";
 import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
-
 
 export class DataTransferObjectParam extends MethodParameterDecorator {
 
@@ -14,7 +13,7 @@ export class DataTransferObjectParam extends MethodParameterDecorator {
 		dtoParameter: typeof DataTransferObject,
 		validateOnRequest: boolean = true
 	) {
-		super(dtoParameter)
+		super(dtoParameter);
 		this.dtoParameter      = dtoParameter;
 		this.validateOnRequest = validateOnRequest;
 	}
@@ -26,33 +25,23 @@ export class DataTransferObjectParam extends MethodParameterDecorator {
 
 		if (dtoParameter.prototype instanceof DataTransferObject) {
 			const paramHandler = new DataTransferObjectParam(dtoParameter, validateOnRequest);
-			this.setMetadata(reflector, paramHandler)
+			this.setMetadata(reflector, paramHandler);
 		}
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, dtoParam: DataTransferObjectParam) {
 		const target = reflector.target[reflector.propertyKey];
 
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_DTO, dtoParam, target)
+		Reflect.defineMetadata(METADATA.REQUEST_METHOD_DTO, dtoParam, target);
 	}
 
 	static getMetadata(target: Function): DataTransferObjectParam | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_METHOD_DTO, target);
 	}
 
-	async bind(request: FastifyRequest, response: FastifyReply) {
-		const dtoClass = plainToClass(this.dtoParameter, request.body);
-
-		await dtoClass.validate();
-
-		if (this.validateOnRequest) {
-			dtoClass.throwIfFailed();
-		}
-
-		return dtoClass;
+	async bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
+		return await this.dtoParameter.handleControllerBinding(
+			context, this.validateOnRequest
+		);
 	}
-
-//	static canInject(target: any, key: string | symbol) {
-//		return !!this.getMetadata(target[key]);
-//	}
 }

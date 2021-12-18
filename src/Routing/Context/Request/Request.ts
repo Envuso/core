@@ -1,14 +1,20 @@
 import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
-import {Authenticatable} from "../../../Common";
+import {HttpRequest} from "uWebSockets.js";
+import {config, resolve} from "../../../AppContainer";
+import {Obj, Str} from "../../../Common";
+import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";
+import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import {SessionContract} from "../../../Contracts/Session/SessionContract";
+import {ConvertEmptyStringsToNullHook} from "../../../Server/InternalHooks/ConvertEmptyStringsToNullHook";
+import {Server} from "../../../Server/Server";
 import {Storage} from "../../../Storage";
-import {RequestContext} from "../RequestContext";
+import {RequestResponseContext} from "../RequestResponseContext";
 import {UploadedFile} from "./UploadedFile";
 
-export class Request {
-
-	private readonly _request: FastifyRequest | IncomingMessage;
+export class Request extends RequestResponseContext implements RequestContract {
 
 	/**
 	 * If this request contains files that have been uploaded
@@ -21,57 +27,117 @@ export class Request {
 	 */
 	private _uploadedFiles: UploadedFile[] = [];
 
-	constructor(request: FastifyRequest | IncomingMessage) {
-		this._request = request;
-	}
-
-	isFastifyRequest(request: FastifyRequest | IncomingMessage): request is FastifyRequest {
-		return (this._request as FastifyRequest)?.routerMethod !== undefined;
-	}
-
-	isSocketRequest(request: FastifyRequest | IncomingMessage): request is IncomingMessage {
-		return (this._request as FastifyRequest)?.routerMethod === undefined;
-	}
-
-	get socketRequest(): IncomingMessage {
-		return this.isSocketRequest(this._request) ? this._request : null;
-	}
-
-	get fastifyRequest(): FastifyRequest {
-		return this.isFastifyRequest(this._request) ? this._request : null;
+	constructor(context: RequestContextContract, request: FastifyRequest) {
+		super(context, request);
 	}
 
 	/**
-	 * Get the value of a header from the request
+	 * Get the referer header
 	 *
-	 * @param header
-	 * @param _default
+	 * @returns {string | null}
 	 */
-	header(header: string, _default: any = null): string {
-		return this._request.headers[header] ?? _default;
+	public getReferer(): string | null {
+		return this._headers.get('referer', null) as (string | null);
 	}
 
 	/**
-	 * Get all of the headers from the request
+	 * Check if the specified input is an empty string
+	 *
+	 * @param {string} key
+	 * @returns {boolean}
 	 */
-	headers() {
-		return this._request.headers;
+	public isEmptyString(key: string): boolean {
+		const input = this.all();
+
+		return Str.isEmpty(input[key] ?? null);
+	}
+
+	/**
+	 * Check if the input has the specified key
+	 *
+	 * @param {string} keys
+	 * @returns {boolean}
+	 */
+	public has(...keys: string[]): boolean {
+		const input = this.all();
+
+		for (let key in input) {
+			if (input[key] === undefined) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * The inverse of )has for readability
+	 *
+	 * @param {string} keys
+	 * @returns {boolean}
+	 */
+	public missing(...keys: string[]): boolean {
+		return !this.has(...keys);
+	}
+
+	/**
+	 * Get the specified items from the request body/query
+	 *
+	 * @param {string} keys
+	 * @returns {T[]}
+	 */
+	public only<T extends any>(...keys: string[]): T[] {
+		return Obj.only(this.all(), keys);
+	}
+
+	/**
+	 * Get all items from the request body/query, except the specified items
+	 *
+	 * @param {string} keys
+	 * @returns {T[]}
+	 */
+	public except<T extends any>(...keys: string[]): T[] {
+		return Obj.except(this.all(), keys);
+	}
+
+	/**
+	 * Get the keys of all the inputs on the request, including files
+	 *
+	 * @returns {string[]}
+	 */
+	public keys(): string[] {
+		return [
+			...Object.keys(this.all()),
+			...this.fileKeys(),
+		];
 	}
 
 	/**
 	 * Get the body of the request
 	 */
-	body<T>() {
-		if (!this.isFastifyRequest(this._request))
+	body<T>(): T {
+		if (!this.isFastifyRequest(this._request)) {
 			return null;
+		}
 
 		return <T>this._request.body;
 	}
 
 	/**
+	 * Get all of the query parameters from the request
+	 */
+	query<T>(): T {
+		if (!this.isFastifyRequest(this._request)) {
+			return null;
+		}
+
+		return <T>this._request.query;
+	}
+
+	/**
 	 * Get the ip the request originated from
 	 */
-	ip() {
+	ip(): string {
 		if (!this.isFastifyRequest(this._request))
 			return null;
 
@@ -85,7 +151,7 @@ export class Request {
 	 *
 	 * @see https://www.fastify.io/docs/latest/Request/
 	 */
-	ips() {
+	ips(): string[] {
 		if (!this.isFastifyRequest(this._request))
 			return null;
 
@@ -95,24 +161,50 @@ export class Request {
 	/**
 	 * The full url of the incoming request
 	 */
-	url() {
+	url(): string {
 		return this._request.url;
+	}
+
+	/**
+	 * Is the request using HTTPS?
+	 *
+	 * @returns {boolean}
+	 */
+	public isSecure(): boolean {
+		return this.scheme() === 'https';
+	}
+
+	/**
+	 * Get the current requests scheme
+	 *
+	 * @returns {"http" | "https"}
+	 */
+	public scheme(): 'http' | 'https' {
+		return (this._request as FastifyRequest).protocol.toLowerCase() as 'http' | 'https';
+	}
+
+	/**
+	 * Returns the path of the request, for example, imagine:
+	 * https://example.com/testing/route. This method will return /testing/route
+	 */
+	path(): string {
+		return !(this._request instanceof IncomingMessage) ? this._request.routerPath : null;
 	}
 
 	/**
 	 * The method of the incoming request, GET, PUT etc
 	 */
 	method(): HTTPMethods {
-		return <HTTPMethods>this._request.method;
+		return <HTTPMethods>this._request.method ?? 'GET';
 	}
 
 	/**
 	 * The id assigned to this request
 	 */
-	id() {
-		if (!this.isFastifyRequest(this._request))
+	id(): string {
+		if (!this.isFastifyRequest(this._request)) {
 			return null;
-
+		}
 
 		return this._request.id;
 	}
@@ -124,7 +216,7 @@ export class Request {
 	 * @param _default
 	 */
 	get<T>(key: string, _default: any = null): T {
-		if(!this.isFastifyRequest(this._request))
+		if (!this.isFastifyRequest(this._request))
 			return null;
 
 		if (this._request.body && this._request.body[key]) {
@@ -136,6 +228,45 @@ export class Request {
 		}
 
 		return _default as T;
+	}
+
+	/**
+	 * Get all body/query inputs as one object
+	 *
+	 * @return {T}
+	 */
+	all<T extends object>(): T {
+		if (!this.isFastifyRequest(this._request)) {
+			return null;
+		}
+
+		return {
+			//...(this.filesKeyed()),
+			...(this._request.body as object || {}),
+			...(this._request.query as object || {}),
+		} as T;
+	}
+
+	/**
+	 * Returns true when value is "1", "true", "on", and "yes". Otherwise, returns false.
+	 *
+	 * @param {string} key
+	 * @param {boolean} _default
+	 */
+	getBoolean(key: string, _default: any = false): boolean {
+		const value = this.get(key, null);
+
+		if (value === null) {
+			return _default;
+		}
+
+		const result = Obj.toBoolean(value);
+
+		if (result === null) {
+			return _default;
+		}
+
+		return result;
 	}
 
 	/**
@@ -152,13 +283,35 @@ export class Request {
 		const fileInstance = new UploadedFile(file, tempFileName);
 		await fileInstance.setAdditionalInformation();
 
+		/**
+		 * We need to assign multipart request field data
+		 * to our fastify request object.
+		 *
+		 * Otherwise, we could do request().get('field') and it won't exist.
+		 */
+		for (let key in file.fields) {
+			if (key === file.fieldname) {
+				continue;
+			}
+
+			if (!this._request?.body) {
+				this._request.body = {};
+			}
+
+			this._request.body[key] = (file.fields[key] as any)?.value;
+		}
+
+		if (resolve(Server).hasRegisteredServerHook(ConvertEmptyStringsToNullHook)) {
+			this.convertEmptyStringsToNull();
+		}
+
 		this._uploadedFiles.push(fileInstance);
 	}
 
 	/**
 	 * Does the request contain any files?
 	 */
-	hasFiles() {
+	hasFiles(): boolean {
 		return !!this._uploadedFiles.length;
 	}
 
@@ -167,6 +320,35 @@ export class Request {
 	 */
 	files(): UploadedFile[] {
 		return this._uploadedFiles;
+	}
+
+	/**
+	 * Get all files submitted on the request, but as an object of key -> value
+	 * rather than an array of uploaded files
+	 *
+	 * @returns {{[p: string]: UploadedFile}}
+	 */
+	filesKeyed(): { [key: string]: UploadedFile } {
+		const files: any = {};
+
+		if (!this.hasFiles()) {
+			return {};
+		}
+
+		for (let file of this.files()) {
+			files[file.getFieldName()] = file;
+		}
+
+		return files;
+	}
+
+	/**
+	 * Get all of the file keys defined on the request
+	 *
+	 * @returns {string[]}
+	 */
+	public fileKeys(): string[] {
+		return this._uploadedFiles.map(f => f.getFieldName()) ?? [];
 	}
 
 	/**
@@ -184,13 +366,177 @@ export class Request {
 	}
 
 	/**
+	 * Get the session id from our session cookie
+	 *
+	 * @return {string | null}
+	 */
+	getSessionId(): string | null {
+		const cookie = this.cookieJar().get<string>(
+			config().get<string, any>('Session.sessionCookie.name', 'id')
+		);
+
+		if (!cookie) {
+			return null;
+		}
+
+		return cookie.getValue();
+	}
+
+	/**
+	 * Access the session via the request
+	 *
+	 * @returns {SessionContract}
+	 */
+	public session(): SessionContract {
+		return this._context.session;
+	}
+
+	/**
+	 * Does our request/response contain Content-Type application/json?
+	 * IE; our client is asking for JSON response
+	 *
+	 * Envuso Request and Response classes both extend this class so that they share a
+	 * similar interface without mass code duplication.
+	 *
+	 * @return {boolean}
+	 */
+	public isJson(): boolean {
+		if (!this._headers.has('Content-Type')) {
+			return false;
+		}
+		return (this._headers.get('Content-Type') as string).contains(['/json', '+json']);
+	}
+
+	/**
+	 * Does our request/response contain Content-Type text/html?
+	 * IE; our client is asking for HTML response
+	 *
+	 * Envuso Request and Response classes both extend this class so that they share a
+	 * similar interface without mass code duplication.
+	 *
+	 * @return {boolean}
+	 */
+	public isHtml(): boolean {
+		return (this._headers.get('Content-Type') as string).contains(['/html', '+html']);
+	}
+
+	/**
+	 * @credits: Laravel/Symfony Framework
+	 *
+	 * Returns true if the request is an XMLHttpRequest.
+	 *
+	 * It works if your JavaScript library sets an X-Requested-With HTTP header.
+	 * It is known to work with common JavaScript frameworks:
+	 *
+	 * @see https://wikipedia.org/wiki/List_of_Ajax_frameworks#JavaScript
+	 *
+	 * @return {boolean}
+	 */
+	public isXmlHttpRequest(): boolean {
+		return this._headers.has('X-Requested-With', 'XMLHttpRequest');
+	}
+
+	public isAjax(): boolean {
+		return this.isXmlHttpRequest();
+	}
+
+	public isPjax(): boolean {
+		return this._headers.has('X-PJAX');
+	}
+
+	/**
+	 * Try to correctly detect JSON only requests
+	 *
+	 * @returns {boolean}
+	 */
+	public expectsJson() {
+		return (this.isAjax() && !this.isPjax()) || this.wantsJson();
+	}
+
+	/**
+	 * Determine if the request is the result of a prefetch call
+	 *
+	 * @returns {boolean}
+	 */
+	public prefetch(): boolean {
+		return (this._headers.get('HTTP_X_MOZ', '') as string).strcasecmp('prefect') === 0 ||
+			(this._headers.get('Purpose', '') as string).strcasecmp('prefect') === 0;
+	}
+
+	/**
+	 * Does our request/response contain Accept application/json?
+	 * IE; Is our client willing to accept json?
+	 *
+	 * Envuso Request and Response classes both extend this class so that they share a
+	 * similar interface without mass code duplication.
+	 *
+	 * @return {boolean}
+	 */
+	public wantsJson(): boolean {
+		return this._headers.has('Accept', 'application/json');
+	}
+
+	/**
+	 * Does our request/response contain Accept text/html
+	 * IE; Is our client willing to accept html?
+	 *
+	 * Envuso Request and Response classes both extend this class so that they share a
+	 * similar interface without mass code duplication.
+	 *
+	 * @return {boolean}
+	 */
+	public wantsHtml(): boolean {
+		return this._headers.has('Accept', 'text/html');
+	}
+
+	/**
+	 * Retrieve an item that was flashed onto the session
+	 *
+	 * @param {string} key
+	 * @param _default
+	 */
+	public old<T extends any>(key?: string, _default?: any): T[] {
+		if (!this._context.hasSession()) {
+			return _default;
+		}
+
+		return this._context.session.store().getOldInput<T>(
+			key, _default
+		);
+	}
+
+	/**
 	 * Get the currently authenticated user.
 	 * Returns null if user is not authenticated.
 	 *
-	 * @returns {Authenticatable | null}
+	 * @returns {AuthenticatableContract | null}
 	 */
-	user<T>(): Authenticatable<T> | null {
-		return RequestContext.get().user ?? null;
+	user<T>(): AuthenticatableContract<T> | null {
+		return this._context.user ?? null;
+	}
+
+	public convertEmptyStringsToNull() {
+		const mapValues = (values: any) => {
+			if (!values) {
+				return values;
+			}
+
+			for (let key in values) {
+
+				if (typeof values[key] === 'string') {
+					values[key] = Str.isEmpty(values[key]) ? null : values[key];
+					continue;
+				}
+
+				if (Array.isArray(values[key]) || Obj.isObject(values[key])) {
+					values[key] = mapValues(values[key]);
+				}
+			}
+			return values;
+		};
+
+		this._request.body  = mapValues(this._request.body || {});
+		this._request.query = mapValues(this._request.query || {});
 	}
 
 }

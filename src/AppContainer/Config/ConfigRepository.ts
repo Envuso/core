@@ -1,15 +1,19 @@
-import get from "lodash.get";
-import set from "lodash.set";
-import has from "lodash.has";
+import _ from 'lodash';
+import {injectable} from "tsyringe";
+import {ConfigRepositoryContract} from "../../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {ConfigFile} from "./ConfigurationFile";
 
-export class ConfigRepository {
+@injectable()
+export class ConfigRepository implements ConfigRepositoryContract {
 
 	/**
 	 * All of the Config loaded into the repository
 	 *
 	 * @private
 	 */
-	private _config: any;
+	public _config: any;
+
+	private static pendingConfigurationFiles = [];
 
 	/**
 	 * Load all available Configuration
@@ -20,10 +24,14 @@ export class ConfigRepository {
 	 *
 	 * @private
 	 */
-	async loadConfigFrom(config: object) {
-//		const conf = await import(configDirectory);
+	public loadConfigFrom(configFiles: ConfigFile[]) {
+		const configObject = {};
 
-		this._config = config;
+		for (let configFile of configFiles) {
+			configObject[configFile.name.toLowerCase()] = configFile.resolved;
+		}
+
+		this._config = configObject;
 	}
 
 	/**
@@ -32,10 +40,29 @@ export class ConfigRepository {
 	 * @param key
 	 * @param _default
 	 */
-	get<T>(key: string, _default: any = null): T {
-		return get<T>(this._config, key, _default);
-		//return this._config[key] as T ?? _default;
+	public get<T extends string, R extends any>(key: T, _default: any = null): R {
+		if (key.includes('.')) {
+			const parts = key.split('.');
+			parts[0]    = parts[0].toString().toLowerCase();
+
+			key = parts.join('.') as T;
+		} else {
+			key = key.toLowerCase() as T;
+		}
+
+		return _.get(this._config, key) ?? _default;
 	}
+
+	/**
+	 * Get a config file
+	 *
+	 * @param {T} file
+	 * @param _default
+	 * @return {typeof Config[T]}
+	 */
+	public file<T extends string, R extends any>(file: T, _default: any = null): R {
+		return this._config[file.toLowerCase()] ?? _default;
+	};
 
 	/**
 	 * Set a Config on the repository
@@ -43,29 +70,8 @@ export class ConfigRepository {
 	 * @param key
 	 * @param value
 	 */
-	set(key: string, value: any) {
-		set(this._config, key, value);
-//		const constructedConfig = {};
-//
-//		if(key.includes('.')){
-//			const keys = key.split('.');
-//
-//			let currentConfig = this._config;
-//			for (let key of keys) {
-//				if(!currentConfig[key]){
-//					constructedConfig[key] = {};
-//					currentConfig[key] = {};
-//				}
-//
-//
-//			}
-//		}
-//
-//		constructedConfig[key] = value;
-//
-//		const configToSet = {...dotnotate(constructedConfig), ...constructedConfig};
-//
-//		this._config = {...this._config, ...configToSet};
+	public set(key: string, value: any) {
+		_.set(this._config, key, value);
 	}
 
 	/**
@@ -74,7 +80,8 @@ export class ConfigRepository {
 	 * @param key
 	 * @param value
 	 */
-	put(key: string, value: any) {
+	public put(key: string, value: any) {
+		//@ts-ignore
 		const current = this.get(key);
 
 		if (!current) {
@@ -97,12 +104,13 @@ export class ConfigRepository {
 	 *
 	 * @param key
 	 */
-	has(key: string): boolean {
-		return has(this._config, key);
-//		return !!this._config[key];
+	public has(key: string): boolean {
+		return _.has(this._config, key);
 	}
 
-	reset() {
+	public reset() {
 		this._config = {};
 	}
+
+
 }
