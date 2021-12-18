@@ -2,7 +2,7 @@ import fastify, {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import {FastifyError} from "fastify-error";
 import middie from "middie";
 import {config, ConfigRepository, resolve} from "../AppContainer";
-import {Exception, Log} from "../Common";
+import {Exception, Log, StatusCodes} from "../Common";
 import {ExceptionResponse} from "../Common/Exception/ExceptionHandler";
 import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
 import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
@@ -176,6 +176,9 @@ export class Server implements ServerContract {
 		const result = this._exceptionHandler.handle(context.request, error);
 
 		if (result instanceof RedirectResponse) {
+			if (context.inertia.isInertiaRequest() && ['PUT', 'PATCH', 'DELETE'].includes(context.request.method())) {
+				return reply.redirect(StatusCodes.SEE_OTHER, result.getRedirectUrl());
+			}
 			return reply.redirect(result.getRedirectUrl());
 		}
 
