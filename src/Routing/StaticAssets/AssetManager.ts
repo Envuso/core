@@ -119,37 +119,7 @@ export class AssetManager {
 	private registerAssetViewHelper() {
 		const viewManager = resolve<ViewManagerContract>('ViewManager');
 
-		viewManager.registerGlobal('mix', (asset) => {
-			let relativeAsset = path.join(this.assetDir, asset);
-
-			let hotFileContents = null;
-			if (fs.existsSync(path.join(this.assetPath, 'hot'))) {
-				hotFileContents = fs.readFileSync(path.join(this.assetPath, 'hot'), {encoding : 'utf-8'}).trim();
-			}
-
-			let mixManifest   = null;
-			try {
-				mixManifest = JSON.parse(fs.readFileSync(path.join(this.assetPath, 'mix-manifest.json'), {encoding : 'utf-8'}));
-			} catch (error) {
-				// Probably a file does not exist error...
-			}
-
-			const assetVersionedName = mixManifest[relativeAsset.replace(this.assetDir, '')] ?? null;
-			if (assetVersionedName) {
-				if (hotFileContents !== null) {
-					return (new URL(assetVersionedName, hotFileContents)).toString();
-				}
-
-				return path.join(this.assetDir, assetVersionedName);
-			}
-
-
-			if (!AssetManager.assetPaths.includes(relativeAsset)) {
-				throw new Error(`The asset ${asset} that you're trying to load does not exist in your assets directory(${this.assetPath}). This is what we're looking for: ${relativeAsset}`);
-			}
-
-			return relativeAsset;
-		});
+		viewManager.registerGlobal('mix', this.mixViewHelper.bind(this));
 
 		viewManager.registerGlobal('asset', (asset) => {
 			let relativeAsset = path.join(this.assetDir, asset);
@@ -160,5 +130,37 @@ export class AssetManager {
 
 			return relativeAsset;
 		});
+	}
+
+	private mixViewHelper(asset) {
+		let relativeAsset = path.join(this.assetDir, asset);
+
+		let hotFileContents = null;
+		if (fs.existsSync(path.join(this.assetPath, 'hot'))) {
+			hotFileContents = fs.readFileSync(path.join(this.assetPath, 'hot'), {encoding : 'utf-8'}).trim();
+		}
+
+		let mixManifest   = null;
+		try {
+			mixManifest = JSON.parse(fs.readFileSync(path.join(this.assetPath, 'mix-manifest.json'), {encoding : 'utf-8'}));
+		} catch (error) {
+			// Probably a file does not exist error...
+		}
+
+		const assetVersionedName = mixManifest[relativeAsset.replace(this.assetDir, '')] ?? null;
+		if (assetVersionedName) {
+			if (hotFileContents !== null) {
+				return (new URL(assetVersionedName, hotFileContents)).toString();
+			}
+
+			return path.join(this.assetDir, assetVersionedName);
+		}
+
+
+		if (!AssetManager.assetPaths.includes(relativeAsset)) {
+			throw new Error(`The asset ${asset} that you're trying to load does not exist in your assets directory(${this.assetPath}). This is what we're looking for: ${relativeAsset}`);
+		}
+
+		return relativeAsset;
 	}
 }

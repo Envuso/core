@@ -1,4 +1,5 @@
 import {FastifyReply} from "fastify";
+import {IncomingHttpHeaders} from "http";
 import {resolve} from "../../../AppContainer";
 import {Log, StatusCodes} from "../../../Common";
 import {renderableExceptionData} from "../../../Common/Exception/ExceptionHelpers";
@@ -290,6 +291,12 @@ export class Response extends RequestResponseContext implements ResponseContract
 		} else {
 			this._cookieJar.put(key.name, key, key.signed);
 		}
+
+		return this;
+	}
+
+	public withHeader(header: keyof IncomingHttpHeaders, value: any): ResponseContract {
+		this.setHeader(header, value);
 
 		return this;
 	}

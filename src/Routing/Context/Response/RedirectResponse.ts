@@ -1,3 +1,4 @@
+import {ObjectContainer} from "../../../Common";
 import {CookieContract} from "../../../Contracts/Cookies/CookieContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
@@ -6,6 +7,7 @@ import {session} from "../../../Session";
 export class RedirectResponse implements RedirectResponseContract {
 
 	private _context: RequestContextContract;
+
 
 	constructor(_context: RequestContextContract) {
 		this._context = _context;

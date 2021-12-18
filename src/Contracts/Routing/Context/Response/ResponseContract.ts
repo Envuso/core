@@ -1,4 +1,5 @@
 import {FastifyReply} from "fastify";
+import {IncomingHttpHeaders} from "http";
 import {StatusCodes} from "../../../../Common";
 import {CookieContract} from "../../../Cookies/CookieContract";
 import {RequestResponseContextContract} from "../RequestResponseContextContract";
@@ -161,4 +162,6 @@ export interface ResponseContract extends RequestResponseContextContract {
 	 * @returns {ResponseContract}
 	 */
 	withCookie(key: string | CookieContract<any>, value?: any): ResponseContract;
+
+	withHeader(header: keyof IncomingHttpHeaders, value: any): ResponseContract
 }
