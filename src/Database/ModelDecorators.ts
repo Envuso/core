@@ -227,6 +227,10 @@ export function getModelObjectIds<T>(target: any): ModelObjectId[] {
  */
 export function transformToObjectIds(value: any) {
 
+	if (value instanceof ObjectId) {
+		return value;
+	}
+
 	if (typeof value === 'string' && ObjectId.isValid(value)) {
 		return new ObjectId(value);
 	}
@@ -265,6 +269,7 @@ export function transformToObjectIds(value: any) {
  * @returns {any}
  */
 export function transformFromObjectIds(value: any) {
+
 	if (value instanceof ObjectId && ObjectId.isValid(value)) {
 		return value.toHexString();
 	}
