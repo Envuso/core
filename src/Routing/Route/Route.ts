@@ -18,6 +18,7 @@ import {Responsable} from "../Context/Response/Responsable";
 import {Response} from "../Context/Response/Response";
 import {Controller} from "../Controller/Controller";
 import {AllControllerMeta, ControllerMetadata} from "../Controller/ControllerDecoratorBinding";
+import {response} from "../index";
 import {Middleware} from "../Middleware/Middleware";
 import {MethodParameterDecorator} from "./RequestInjection";
 
@@ -142,8 +143,8 @@ export class Route implements RouteContract {
 			path = path.slice(0, -1);
 		}
 
-		if(path.trim() === '') {
-			path = '/'
+		if (path.trim() === '') {
+			path = '/';
 		}
 
 		this.routePath = path;
@@ -333,6 +334,10 @@ export class Route implements RouteContract {
 		}
 
 		if (controllerResponse instanceof RedirectResponse) {
+			if (RequestContext.request().hasHeader('x-inertia')) {
+				return response.fastifyReply.redirect(StatusCodes.CONFLICT, controllerResponse.getRedirectUrl());
+			}
+
 			return response.fastifyReply.redirect(controllerResponse.getRedirectUrl());
 		}
 
