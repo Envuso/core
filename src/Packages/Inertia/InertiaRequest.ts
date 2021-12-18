@@ -78,7 +78,7 @@ export class InertiaRequest implements InertiaRequestContract {
 			props     : props,
 			component : this.component,
 			version   : this.version,
-			url       : this.context.request.path()
+			url       : this.context.request.url()
 		};
 	}
 
