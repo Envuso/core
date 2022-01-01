@@ -65,7 +65,7 @@ export class AssetManager {
 				.replace(/^\//, '');
 
 			AssetManager.assetPaths.push(
-				encodeURI(path.join(this.assetDir, file)).replace(/\/\//g, '/')
+				encodeURI(path.join(this.assetDir, file).replace(/\\/g, '/')).replace(/\/\//g, '/')
 			);
 		}
 
