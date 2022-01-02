@@ -1,5 +1,6 @@
-import {glob} from "glob";
+import {glob, IOptions} from "glob";
 import path from 'path';
+import util from "util";
 import {Log} from "../Logger/Log";
 import {Classes} from "./Classes";
 
@@ -60,11 +61,20 @@ export class FileLoader {
 	 * Will give an array of files at the path
 	 *
 	 * @param path
+	 * @param {IOptions} options
 	 */
-	static filesInPath(path) {
-		return glob.sync(
-			path, {follow : true}
-		);
+	static filesInPath(path: string, options: IOptions = {follow : true}) {
+		return glob.sync(path, options);
+	}
+
+	/**
+	 * Will give an array of files at the path, but using async instead of sync.
+	 *
+	 * @param path
+	 * @param {IOptions} options
+	 */
+	static filesInPathAsync(path: string, options: IOptions = {follow : true}): Promise<string[]> {
+		return util.promisify(glob)(path, options);
 	}
 
 	/**
@@ -80,7 +90,7 @@ export class FileLoader {
 		}
 
 		const instance = module[moduleInstanceKey];
-		const name = instance.name;
+		const name     = instance.name;
 
 		return {instance, name};
 	}
@@ -124,7 +134,7 @@ export class FileLoader {
 
 		if (!isTS && (pathInformation.dir.includes("/src/") || pathInformation.dir.includes("\\src\\"))) {
 			pathInformation.dir = pathInformation.dir.replace("/src/", "/dist/")
-			                                     .replace("\\src\\", "\\dist\\");
+				.replace("\\src\\", "\\dist\\");
 		}
 
 		return path.format(pathInformation);
@@ -146,13 +156,13 @@ export class FileLoader {
 
 				for (const key in module) {
 					const instance = module[key];
-					const name = instance.name;
+					const name     = instance.name;
 
 					modules.push({
-						instance         : instance,
-						name             : name,
-						originalPath     : path,
-						forRunEnvironment: pathForEnv,
+						instance          : instance,
+						name              : name,
+						originalPath      : path,
+						forRunEnvironment : pathForEnv,
 					});
 				}
 			} catch (error) {
