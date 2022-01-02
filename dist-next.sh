@@ -12,7 +12,7 @@ else
 fi
 
 echo "› Incrementing version"
-npm version patch --no-git-tag-version
+npm version prerelease --preid=next --no-git-tag-version
 
 git add .
 git commit -m ":package: $commitMessage"
