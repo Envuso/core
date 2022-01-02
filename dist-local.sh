@@ -5,6 +5,8 @@ rm -R dist
 echo "› Building..."
 tsc
 
+mv dist/events dist/Events
+
 cp package.json dist/package.json
 cp ./.bin/cli-prod dist/ecli
 

@@ -2,6 +2,8 @@
 echo "› Building..."
 yarn build:dist
 
+mv dist/events dist/Events
+
 echo "› What did you change in this update?"
 read commitMessage
 

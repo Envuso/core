@@ -116,7 +116,6 @@
     "Cookies/**/*",
     "Crypt/**/*",
     "Database/**/*",
-    "events/**/*",
     "Events/**/*",
     "OAuthProvider/**/*",
     "Packages/**/*",
