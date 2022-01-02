@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import path from "path";
-import {User} from "./App/Models/User";
 import Environment from "./AppContainer/Config/Environment";
 
 Environment.load(path.join(__dirname, "..", ".env"));

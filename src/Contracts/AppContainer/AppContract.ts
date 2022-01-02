@@ -91,5 +91,5 @@ export interface AppContract {
 	 *
 	 * The reason this exists is so that when writing tests, you can start from a clean slate.
 	 */
-	unload(): Promise<void>;
+	unload(resetConfiguration?: boolean): Promise<void>;
 }
