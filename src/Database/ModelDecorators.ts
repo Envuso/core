@@ -231,6 +231,14 @@ export function transformToObjectIds(value: any) {
 		return new ObjectId(value);
 	}
 
+	if (value instanceof ObjectId) {
+		return value;
+	}
+
+	if (ObjectId.isValid(value)) {
+		return new ObjectId(value);
+	}
+
 	for (let key in value) {
 		const val = value[key];
 
@@ -265,6 +273,7 @@ export function transformToObjectIds(value: any) {
  * @returns {any}
  */
 export function transformFromObjectIds(value: any) {
+
 	if (value instanceof ObjectId && ObjectId.isValid(value)) {
 		return value.toHexString();
 	}
