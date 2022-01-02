@@ -9,3 +9,5 @@ lerna-debug.log
 /yarn-error.log
 /dist
 /socket-client
+/yarn.lock
+/assets

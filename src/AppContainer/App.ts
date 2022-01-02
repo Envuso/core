@@ -234,17 +234,26 @@ export class App implements AppContract {
 	 *
 	 * The reason this exists is so that when writing tests, you can start from a clean slate.
 	 */
-	async unload() {
+	async unload(resetConfiguration: boolean = true) {
 
 		await this.unloadServiceProviders();
 
 		this._booted = false;
 		instance     = null;
 
-		this.config().reset();
+		if (resetConfiguration) {
+			this.config().reset();
+		}
+
 		this.container().clearInstances();
 		this.container().reset();
 
 		Log.warn('The app has been unloaded and is ready to be booted again.');
+	}
+
+	public static async reboot(resetConfiguration: boolean = false) {
+		await App.getInstance().unload(resetConfiguration);
+		await App.bootInstance();
+		await App.getInstance().loadServiceProviders([]);
 	}
 }

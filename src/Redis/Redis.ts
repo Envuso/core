@@ -44,8 +44,16 @@ export class Redis {
 		return instance;
 	}
 
-	public static shutdown() {
-		return this.getInstance().client.quit();
+	public static async shutdown() {
+		let didQuit = false;
+
+		if (instance) {
+			didQuit = (await instance.client.quit()) === 'OK';
+		}
+
+		instance = null;
+
+		return didQuit;
 	}
 
 	/*

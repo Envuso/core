@@ -110,7 +110,7 @@ export interface QueryBuilderContract<T> {
 	 * @param key
 	 * @param values
 	 */
-	whereIn<F extends (keyof T)>(key: F, values: T[F][]): QueryBuilderContract<T>;
+	whereIn<F extends (keyof T)>(key: F, values: T[F] extends Array<any> ? T[F] : T[F][]): QueryBuilderContract<T>;
 
 	/**
 	 * Imagine if we have some book documents like:
