@@ -148,16 +148,15 @@ describe('test route service provider', () => {
 		}
 
 		try {
-
+			//@ts-ignore
 			await TestDTO.handleControllerBinding({property : ''}, true);
 		} catch (error) {
 			if (error instanceof DtoValidationException) {
 				expect(() => true).toBeTruthy();
 			}
 		}
-
-
 	});
+
 	test('hitting route with global middleware', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);
@@ -188,6 +187,34 @@ describe('test route service provider', () => {
 		});
 
 		expect(res.statusCode).toEqual(202);
+
+	});
+
+	test('using @param decorator on controller method', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method : 'get',
+			url    : '/testing/method-decorator/param/single/yeet',
+		});
+
+		expect(res.statusCode).toEqual(202);
+		expect(res.body).toEqual(JSON.stringify({first : "yeet"}));
+
+	});
+
+	test('using multiple @param decorator on controller method', async () => {
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method : 'get',
+			url    : '/testing/method-decorator/param/multiple/yeet/doubleyeet',
+		});
+
+		expect(res.statusCode).toEqual(202);
+		expect(res.body).toEqual(JSON.stringify({first : "yeet", second: "doubleyeet"}));
 
 	});
 

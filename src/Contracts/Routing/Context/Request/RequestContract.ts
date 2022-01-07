@@ -1,12 +1,21 @@
 import {HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {UploadedFile} from "../../../../Routing/Context/Request/UploadedFile";
+import {RouteParameters} from "../../../../Routing/Route/RouteParameters";
 import {AuthenticatableContract} from "../../../Authentication/UserProvider/AuthenticatableContract";
 import {SessionContract} from "../../../Session/SessionContract";
+import {RouteContract} from "../../Route/RouteContract";
 import {RequestResponseContextContract} from "../RequestResponseContextContract";
 import {UploadedFileContract} from "./UploadedFileContract";
 
 export interface RequestContract extends RequestResponseContextContract {
+
+	/**
+	 * Get the route path parameters manager
+	 *
+	 * @returns {RouteParameters}
+	 */
+	params(): RouteParameters;
 
 	/**
 	 * Get the body of the request
@@ -292,4 +301,6 @@ export interface RequestContract extends RequestResponseContextContract {
 	session(): SessionContract;
 
 	convertEmptyStringsToNull(): void;
+
+	route(): RouteContract;
 }

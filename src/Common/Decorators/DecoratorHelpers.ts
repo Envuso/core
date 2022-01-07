@@ -110,7 +110,7 @@ export class DecoratorHelpers {
 	 */
 	static pushToMetadata(metadataKey: string, values: any[], target: any) {
 		const data: any[] = Reflect.getMetadata(metadataKey, target) || [];
-		Reflect.defineMetadata(metadataKey, data.concat(values), target);
+		Reflect.defineMetadata(metadataKey, [...data, ...values], target);
 	}
 
 	/**
@@ -122,7 +122,7 @@ export class DecoratorHelpers {
 	 * @param valueData
 	 * @param target
 	 */
-	static addToMetadataObject(metadataKey: string, valueKey:string, valueData: any, target: any) {
+	static addToMetadataObject(metadataKey: string, valueKey: string, valueData: any, target: any) {
 		const data: any = Reflect.getMetadata(metadataKey, target) || {};
 
 		data[valueKey] = valueData;

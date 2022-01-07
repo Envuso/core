@@ -29,10 +29,12 @@ export class RouteParameterParam extends MethodParameterDecorator {
 	private static setMetadata(reflector: ReflectControllerMethodParamData, param: RouteParameterParam) {
 		const target = reflector.target[reflector.propertyKey];
 
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_ROUTE_PARAMETER, param, target);
+		DecoratorHelpers.pushToMetadata(METADATA.REQUEST_METHOD_ROUTE_PARAMETER, [param], target);
+
+		//		Reflect.defineMetadata(METADATA.REQUEST_METHOD_ROUTE_PARAMETER, param, target);
 	}
 
-	static getMetadata(target: Function): RouteParameterParam | undefined {
+	static getMetadata(target: Function): RouteParameterParam[] | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_METHOD_ROUTE_PARAMETER, target);
 	}
 
@@ -46,7 +48,8 @@ export class RouteParameterParam extends MethodParameterDecorator {
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
-		const paramValue = request.params[this.parameterName];
+//		const paramValue = request.params[this.parameterName];
+		const paramValue = context.request.params().get(this.parameterName);
 
 		if (!paramValue) {
 			return null;

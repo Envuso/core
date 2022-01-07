@@ -387,9 +387,17 @@ export class TestingController extends Controller {
 	async param(@param test: string) {
 		return test ?? {empty : true};
 	}
+
 	@get('/headers')
 	async headers(@headers test: any) {
 		return test ?? {empty : true};
+	}
+
+	@get('/route')
+	async route() {
+		const route = request().route();
+
+		return route;
 	}
 
 }

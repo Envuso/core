@@ -7,6 +7,7 @@ import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvid
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {ResponseContract} from "../../Contracts/Routing/Context/Response/ResponseContract";
+import {RouteContract} from "../../Contracts/Routing/Route/RouteContract";
 import {SessionContract} from "../../Contracts/Session/SessionContract";
 import {WebSocketConnectionContract} from "../../Contracts/WebSockets/WebSocketConnectionContract";
 import {InertiaRequestContract} from "../../Packages/Inertia/Contracts/InertiaRequestContract";
@@ -32,6 +33,8 @@ export class RequestContext implements RequestContextContract {
 	public inertia: InertiaRequestContract = null;
 
 	private additional: { [key: string]: any } = {};
+
+	private currentRoute: RouteContract = null;
 
 	constructor(
 		request?: FastifyRequest,
@@ -195,5 +198,23 @@ export class RequestContext implements RequestContextContract {
 		return this.additional[key] ?? _default;
 	}
 
+	/**
+	 * Set the currently active route
+	 *
+	 * @internal
+	 * @param {RouteContract} route
+	 */
+	public setCurrentRoute(route: RouteContract) {
+		this.currentRoute = route;
+	}
+
+	/**
+	 * Get the currently active route
+	 *
+	 * @returns {RouteContract}
+	 */
+	public route(): RouteContract {
+		return this.currentRoute;
+	}
 }
 

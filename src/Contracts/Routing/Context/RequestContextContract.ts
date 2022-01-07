@@ -3,6 +3,7 @@ import {InertiaRequestContract} from "../../../Packages/Inertia/Contracts/Inerti
 import {AuthenticatableContract} from "../../Authentication/UserProvider/AuthenticatableContract";
 import {SessionContract} from "../../Session/SessionContract";
 import {WebSocketConnectionContract} from "../../WebSockets/WebSocketConnectionContract";
+import {RouteContract} from "../Route/RouteContract";
 import {RequestContract} from "./Request/RequestContract";
 import {ResponseContract} from "./Response/ResponseContract";
 
@@ -62,4 +63,18 @@ export interface RequestContextContract {
 	 */
 	getAdditional<T extends any>(key: string, _default?: any): T;
 
+	/**
+	 * Set the currently active route
+	 *
+	 * @internal
+	 * @param {RouteContract} route
+	 */
+	setCurrentRoute(route: RouteContract): void;
+
+	/**
+	 * Get the currently active route
+	 *
+	 * @returns {RouteContract}
+	 */
+	route(): RouteContract;
 }

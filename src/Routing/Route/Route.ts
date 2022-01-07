@@ -18,7 +18,6 @@ import {Responsable} from "../Context/Response/Responsable";
 import {Response} from "../Context/Response/Response";
 import {Controller} from "../Controller/Controller";
 import {AllControllerMeta, ControllerMetadata} from "../Controller/ControllerDecoratorBinding";
-import {response} from "../index";
 import {Middleware} from "../Middleware/Middleware";
 import {MethodParameterDecorator} from "./RequestInjection";
 
@@ -221,23 +220,39 @@ export class Route implements RouteContract {
 					metadataKey
 				);
 
+				// @todo - here for @param... we can have multiple @param decorators
+				// currently it only allows for one, they need to be an array
+
 				if (!methodMeta) {
 					continue;
 				}
 
-				const canBind = methodMeta.canBind(
-					this.methodMeta.target[this.methodMeta.key],
-					parameter.type,
-					Number(index)
-				);
+				if (Array.isArray(methodMeta)) {
+					for (let methodMetaElement of methodMeta) {
+						if (methodMetaElement.canBind(this.methodMeta.target[this.methodMeta.key], parameter.type, Number(index))) {
+							const boundMetadata = await methodMetaElement.bind(request, response, context);
+							parameterArgs.push(boundMetadata);
+							boundParameter = true;
+							break;
+						}
+					}
 
-				if (canBind) {
-					const boundMetadata = await methodMeta.bind(request, response, context);
-					parameterArgs.push(boundMetadata);
+					if(boundParameter) {
+						break;
+					}
+				} else {
+					const canBind = methodMeta.canBind(this.methodMeta.target[this.methodMeta.key], parameter.type, Number(index));
 
-					boundParameter = true;
-					break;
+					if (canBind) {
+						const boundMetadata = await methodMeta.bind(request, response, context);
+						parameterArgs.push(boundMetadata);
+
+						boundParameter = true;
+						break;
+					}
 				}
+
+
 			}
 
 			// Route model binding was conflicting with @user decorator... so
@@ -402,11 +417,15 @@ export class Route implements RouteContract {
 	public getFastifyRouteBinding(globalMiddleware: (new () => MiddlewareContract)[]) {
 		const {before, after} = this.getMiddlewareHandlers(globalMiddleware);
 
+		const currentRoute = this;
+
 		const binding: RouteOptions = {
 			method     : this.getMethod(),
 			handler    : this.getHandlerFactory(),
 			url        : this.getPath(),
 			preHandler : async function (req, res) {
+				RequestContext.get().setCurrentRoute(currentRoute);
+
 				if (before) {
 					await before(RequestContext.get());
 				}

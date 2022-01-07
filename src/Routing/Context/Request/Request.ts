@@ -7,10 +7,12 @@ import {Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import {RouteContract} from "../../../Contracts/Routing/Route/RouteContract";
 import {SessionContract} from "../../../Contracts/Session/SessionContract";
 import {ConvertEmptyStringsToNullHook} from "../../../Server/InternalHooks/ConvertEmptyStringsToNullHook";
 import {Server} from "../../../Server/Server";
 import {Storage} from "../../../Storage";
+import {RouteParameters} from "../../Route/RouteParameters";
 import {RequestResponseContext} from "../RequestResponseContext";
 import {UploadedFile} from "./UploadedFile";
 
@@ -27,8 +29,16 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 */
 	private _uploadedFiles: UploadedFile[] = [];
 
+	private _params: RouteParameters = null;
+
 	constructor(context: RequestContextContract, request: FastifyRequest) {
 		super(context, request);
+
+		this._params = new RouteParameters(request.params);
+	}
+
+	public params(): RouteParameters {
+		return this._params;
 	}
 
 	/**
@@ -539,4 +549,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 		this._request.query = mapValues(this._request.query || {});
 	}
 
+	public route(): RouteContract {
+		return this._context.route();
+	}
 }
