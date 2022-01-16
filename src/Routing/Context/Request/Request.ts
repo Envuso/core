@@ -1,7 +1,6 @@
 import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
-import {HttpRequest} from "uWebSockets.js";
 import {config, resolve} from "../../../AppContainer";
 import {Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
@@ -81,7 +80,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 	}
 
 	/**
-	 * The inverse of )has for readability
+	 * The inverse of has for readability
 	 *
 	 * @param {string} keys
 	 * @returns {boolean}

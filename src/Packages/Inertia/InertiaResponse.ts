@@ -1,4 +1,5 @@
 import {config} from "../../AppContainer";
+import {ResponseDataFormatter} from "../../Common/Http/ResponseDataFormatter";
 import {response} from "../../Routing";
 import {InertiaPageData} from "./Contracts/InertiaRequestContract";
 
@@ -80,11 +81,11 @@ export class InertiaResponse {
 		const pageData = await this.getResponse();
 
 		if (this.isResponseType("json")) {
-			return response().json(pageData).send();
+			return response().json(ResponseDataFormatter.clean(pageData)).send();
 		}
 
 		return response().view(config('inertia.rootView', 'index'), {
-			page : JSON.stringify(pageData)
+			page : JSON.stringify(ResponseDataFormatter.clean(pageData))
 		}).send();
 	}
 }

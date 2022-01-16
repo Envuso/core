@@ -9,6 +9,9 @@
 	<Link href="/inertia/dto-validator" method="post">
 		Test validator
 	</Link>
+	<Link href="/inertia/api-resource" method="get">
+		Api Resource
+	</Link>
 
 	<div v-if="errors">
 		<div v-for="(error, key) in errors">

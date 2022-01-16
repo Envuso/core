@@ -1,6 +1,8 @@
 import {IsNotEmpty, IsString} from "class-validator";
 import {Inertia} from "../../../Packages/Inertia/Inertia";
 import {back, controller, Controller, DataTransferObject, dto, get, post, redirect} from "../../../Routing";
+import {User} from "../../Models/User";
+import {UserResource} from "../ApiResources/UserResource";
 
 class TestingDto extends DataTransferObject {
 	@IsNotEmpty()
@@ -22,6 +24,13 @@ export class InertiaTestingController extends Controller {
 			value      : () => 1,
 			asyncValue : async () => 2,
 			message    : 'Wew, a another hello world.'
+		});
+	}
+
+	@get('/api-resource')
+	async testApiResource() {
+		return Inertia.render('ApiResource', {
+			user : UserResource.from(await User.query().first())
 		});
 	}
 

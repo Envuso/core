@@ -16,6 +16,7 @@ import {app, config, resolve} from "../AppContainer";
 import {Authenticatable} from "../Authenticatable";
 import {Authentication, JwtAuthenticationProvider} from "../Authentication";
 import {Obj, FileLoader, Log, Str} from "../Common";
+import {ResponseDataFormatter} from "../Common/Http/ResponseDataFormatter";
 import WebsocketsConfiguration, {uWsBehaviour} from "../Config/WebsocketsConfiguration";
 import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
@@ -448,49 +449,7 @@ export class WebSocketServer {
 	}
 
 	public static transformSocketSendData(data: any) {
-		const format = (d) => {
-			const formatted = Array.isArray(d) ? [] : {};
-
-			if (Array.isArray(d) || Obj.isObject(d)) {
-				for (let key in d) {
-
-					if (d[key]?.toResponse) {
-						formatted[key] = d[key].toResponse();
-						continue;
-					}
-
-					if (d[key] instanceof Model) {
-						formatted[key] = d[key].dehydrate();
-
-						continue;
-					}
-
-					if (d[key] instanceof ObjectId) {
-						formatted[key] = d[key].toString();
-
-						continue;
-					}
-
-					if (typeof d[key] === 'string') {
-						formatted[key] = d[key];
-						continue;
-					}
-
-					if (Array.isArray(d[key]) || Obj.isObject(d[key])) {
-						formatted[key] = format(d[key]);
-						continue;
-					}
-
-					formatted[key] = d[key];
-				}
-			} else {
-				return data;
-			}
-
-			return formatted;
-		};
-
-		return JSON.stringify(format(data));
+		return JSON.stringify(ResponseDataFormatter.clean(data));
 	}
 
 }
