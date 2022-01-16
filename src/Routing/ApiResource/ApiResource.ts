@@ -62,8 +62,9 @@ export abstract class ApiResource<T> implements Responsable {
 
 		if (value instanceof Date && key) {
 			if (this.data instanceof Model) {
-				const dateField = this.data.isDateField(key, false);
-				if (dateField) {
+				const [isDateField, originalDateField, dateField] = this.data.isDateField(key);
+
+				if (dateField && isDateField) {
 					return (dateField as ModelDateField).toPlain(value);
 				}
 

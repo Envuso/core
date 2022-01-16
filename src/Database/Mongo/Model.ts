@@ -480,12 +480,11 @@ export class Model<M> implements ModelContract<M> {
 		return Database.getModelFieldsFromContainer(this.constructor.name);
 	}
 
-	public isDateField(field: string, returnBoolean: boolean = false): boolean | ModelDateField {
+	public isDateField(field: string): [boolean, string, (ModelDateField|undefined)] {
 		const dates = this.getMeta<ModelDateField[]>(ModelDecoratorMeta.DATE_PROPERTY);
+		const date  = dates?.find(f => f.property === field);
 
-		const date = dates.find(f => f.property === field);
-
-		return returnBoolean ? !!date : date;
+		return [date !== undefined, field, date];
 	}
 
 	public async createIndexes() {

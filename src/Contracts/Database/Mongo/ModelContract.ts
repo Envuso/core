@@ -148,7 +148,7 @@ export interface ModelContract<M> {
 
 	getModelFields(): string[];
 
-	isDateField(field: string, returnBoolean?: boolean): boolean | ModelDateField;
+	isDateField(field: string): [boolean, string, (ModelDateField | undefined)];
 
 	createIndexes(): Promise<void>;
 
