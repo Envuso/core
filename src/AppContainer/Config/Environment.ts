@@ -1,6 +1,8 @@
 import {config} from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
-import {Obj} from "../../Common";
+import path from "path";
+import {Log, Obj} from "../../Common";
+import * as fs from 'fs-extra';
 
 export default class Environment {
 
@@ -89,6 +91,70 @@ export default class Environment {
 		return false;
 	}
 
+	private static envPath(envFileLocation?: string) {
+		const cwd = process.cwd();
+
+		if (envFileLocation.startsWith(cwd)) {
+			return envFileLocation;
+		}
+
+		return path.join(process.cwd(), envFileLocation);
+	}
+
+	public static hasEnvFile(envFileLocation?: string) {
+		try {
+			const stat = fs.statSync(this.envPath(envFileLocation));
+
+			return !!stat?.isFile();
+		} catch (error) {
+			return false;
+		}
+	}
+
+	public static loadEnvFile(envFileLocation?: string): [boolean, any] {
+
+		if (!this.hasEnvFile(envFileLocation)) {
+			Log.label('ENVIRONMENT').warn(`No .env file can be found at ${this.envPath(envFileLocation)}`);
+			Log.label('ENVIRONMENT').warn(`Since we cannot access the .env file in this environment. We'll now parse the node.js "process.env" object.`);
+			return [false, null];
+		}
+
+		let envConfig = envFileLocation ? config({path : envFileLocation}) : config();
+
+		if (envConfig?.error) {
+			Log.label('ENVIRONMENT').exception(envConfig.error);
+
+			return [false, null];
+		}
+
+		envConfig = dotenvExpand(envConfig);
+
+		return [true, (envConfig.parsed || {})];
+	}
+
+	private static parseEnvObject(env: any) {
+		const newEnv = JSON.parse(JSON.stringify((env || {})));
+
+		for (let key in newEnv) {
+			if (newEnv[key] === '') {
+				newEnv[key] = null;
+
+				continue;
+			}
+
+			if (Obj.isBoolean(newEnv[key])) {
+				newEnv[key] = Boolean(newEnv[key]);
+			}
+
+			if (Obj.isNumber(newEnv[key])) {
+				newEnv[key] = Number(newEnv[key]);
+			}
+
+		}
+
+		return newEnv;
+	}
+
 	/**
 	 * Load the environment file
 	 * Will load from the project root by default
@@ -97,31 +163,15 @@ export default class Environment {
 	 * @param {string} envFileLocation
 	 */
 	public static load(envFileLocation?: string) {
-		let envConfig = envFileLocation ? config({path : envFileLocation}) : config();
+		this.environment = this.parseEnvObject(process.env);
 
-		envConfig = dotenvExpand(envConfig);
-
-		if (envConfig?.parsed?.NODE_ENV === undefined) {
-			this.environment.NODE_ENV = 'development';
+		const [canLoadEnvFile, envData] = this.loadEnvFile(envFileLocation);
+		if (canLoadEnvFile) {
+			this.environment = {...this.environment, ...this.parseEnvObject(envData)};
 		}
 
-		this.environment = JSON.parse(JSON.stringify(envConfig.parsed));
-		for (let key in this.environment) {
-			if (this.environment[key] === '') {
-				this.environment[key] = null;
-
-				continue;
-			}
-
-			if (Obj.isNumber(this.environment[key])) {
-				this.environment[key] = Number(this.environment[key]);
-
-				continue;
-			}
-
-			if (Obj.isBoolean(this.environment[key])) {
-				this.environment[key] = Boolean(this.environment[key]);
-			}
+		if (this.environment?.NODE_ENV === undefined) {
+			this.environment.NODE_ENV = 'development';
 		}
 
 		return this.environment;

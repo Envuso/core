@@ -36,7 +36,9 @@ export class Obj {
 			return false;
 		}
 
-		return !isNaN(+value);
+		return _.isNumber(value);
+
+		//		return !isNaN(+value);
 	}
 
 	public static isObject(obj: any): boolean {
@@ -228,7 +230,11 @@ export class Obj {
 			return true;
 		}
 
-		return false;
+		return _.isBoolean(value);
+		//		const c = new Boolean(value);
+		//		debugger;
+
+		//		return false;
 	}
 
 	public static filter<T extends object>(obj: any, filterMethod: (value, key?: any) => boolean): Partial<T> {
