@@ -2,13 +2,13 @@ import {
 	AggregationCursor,
 	BulkWriteResult,
 	Collection,
-	DeleteResult,
+	DeleteResult, Filter,
 	FindCursor,
 	FindOptions,
 	ObjectId,
 	UpdateFilter,
 	UpdateOptions,
-	UpdateResult
+	UpdateResult, WithId
 } from "mongodb";
 import {config, resolve} from "../../AppContainer";
 import {Classes, Exception, Log} from "../../Common";
@@ -615,8 +615,8 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 		const result = await this._collection.insertOne(attributes as any);
 
-		const modelAttributes = await this._collection.findOne({
-			_id : result.insertedId
+		const modelAttributes = await this._collection.findOne<T>({
+			_id : result.insertedId as WithId<any>
 		});
 
 		return this._model.hydrate(modelAttributes);
@@ -803,11 +803,11 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		}
 
 		// result = hydrateModel(result, this._model.constructor as any);
-		result = this._model.hydrate(result);
+		const hydratedResult = this._model.hydrate(result);
 
 		this.cleanupBuilder();
 
-		return result;
+		return hydratedResult;
 	}
 
 	/**
@@ -900,7 +900,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			Log.debug(`${this._model.collectionName(false)} collection query: \n${JSON.stringify(this._filter.getQuery(), null, 4)}`);
 		}
 
-		this._builderResult = this._collection.find(this._filter.getQuery(), options);
+		this._builderResult = this._collection.find<T>(this._filter.getQuery(), options);
 
 		if (Object.keys(this._projection).length) {
 			this._builderResult = this._builderResult.project(this._projection);
