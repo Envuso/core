@@ -163,9 +163,9 @@ export class Server implements ServerContract {
 	 * Begin listening for connections
 	 */
 	public async listen() {
-		await this._server.listen(this._config.port);
+		const listenStr = await this._server.listen(this._config.port, this._config.address);
 
-		Log.success('Server is running at http://127.0.0.1:' + this._config.port);
+		Log.success('Server is running at ' + listenStr);
 	}
 
 	public setErrorHandling(handler: ErrorHandlerFn) {

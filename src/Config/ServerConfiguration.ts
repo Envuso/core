@@ -22,6 +22,11 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	port = 3000;
 
 	/**
+	 * The address that fastify will listen on
+	 */
+	address = '0.0.0.0';
+
+	/**
 	 * Global middleware that will run on every application request
 	 */
 	middleware = [

@@ -15,6 +15,7 @@ export interface CorsConfiguration {
 
 export interface ServerConfiguration {
 	port: number;
+	address?: string;
 	middleware: (new () => MiddlewareContract)[];
 	disableCookieEncryption: string[];
 	cors: { options: FastifyCorsOptions; enabled: boolean };
