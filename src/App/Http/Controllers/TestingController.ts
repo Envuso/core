@@ -174,6 +174,7 @@ export class TestingController extends Controller {
 
 	@get('/auth/token')
 	async getToken() {
+		//@ts-ignore
 		const user = await User.query().where({email : 'sam@iffdt.dev'}).first();
 
 		return user.generateToken();
