@@ -1,7 +1,7 @@
 import {sign, SignOptions, verify, VerifyOptions} from 'jsonwebtoken';
 import {config, ConfigRepository, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
-import {JwtAuthenticationProviderContract} from "../../Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
+import {JwtAuthenticationProviderContract, JwtSingingOptions} from "../../Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
 import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
@@ -143,7 +143,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 			.setUser(user.getUser()) as AuthenticatableContract<T>;
 	}
 
-	public issueToken(id: string, additionalPayload?: any): string {
+	public issueToken(id: string, additionalPayload?: JwtSingingOptions): string {
 		return sign(
 			{
 				...additionalPayload,

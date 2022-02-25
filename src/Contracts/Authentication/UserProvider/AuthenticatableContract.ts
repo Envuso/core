@@ -1,10 +1,13 @@
 import {ObjectId} from "mongodb";
 import {ModelConstructorOrInstantiatedModel} from "../../../Authorization/Authorization";
+import {JwtSingingOptions} from "../AuthenticationProviders/JwtAuthenticationProviderContract";
 
 export interface AuthenticatableContract<T> {
 	_user: any;
 
-	generateToken(additionalPayload?: any): string;
+	generateToken(additionalPayload?: JwtSingingOptions): string;
+
+	generateTokenViaProvider(providerName?: string, additionalPayload?: JwtSingingOptions): string;
 
 	sendSocketChannelEvent(channel: string, eventName: string, data: any): void;
 

@@ -1,7 +1,10 @@
+import {SignOptions} from "jsonwebtoken";
 import {JwtAuthenticationConfig, VerifiedTokenInterface} from "../../../Authentication";
 import {RequestContract} from "../../Routing/Context/Request/RequestContract";
 import {AuthenticatableContract} from "../UserProvider/AuthenticatableContract";
 import {UserProviderContract} from "../UserProvider/UserProviderContract";
+
+export type JwtSingingOptions = SignOptions & { [key: string]: any };
 
 export interface JwtAuthenticationProviderContract {
 	_config: JwtAuthenticationConfig;
@@ -14,5 +17,5 @@ export interface JwtAuthenticationProviderContract {
 
 	authoriseRequest<T>(request: RequestContract | null, specifiedToken?: string | null): Promise<AuthenticatableContract<T>>;
 
-	issueToken(id: string, additionalPayload?: any): string;
+	issueToken(id: string, additionalPayload?: JwtSingingOptions): string;
 }

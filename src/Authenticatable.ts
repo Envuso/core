@@ -5,7 +5,7 @@ import {injectable} from "tsyringe";
 import {config, resolve} from "./AppContainer";
 import {Authorization, ModelConstructorOrInstantiatedModel} from "./Authorization/Authorization";
 import {AuthenticationContract} from "./Contracts/Authentication/AuthenticationContract";
-import {JwtAuthenticationProviderContract} from "./Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
+import {JwtAuthenticationProviderContract, JwtSingingOptions} from "./Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
 import {AuthenticatableContract} from "./Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {WebSocketChannelListenerContractConstructor} from "./Contracts/WebSockets/WebSocketChannelListenerContract";
 import {Model} from "./Database/Mongo/Model";
@@ -18,9 +18,13 @@ export class Authenticatable<T> extends Model<T> implements AuthenticatableContr
 	@internalExclude()
 	public _user: any;
 
-	public generateToken(additionalPayload?: any) {
+	public generateToken(additionalPayload?: JwtSingingOptions): string {
+		return this.generateTokenViaProvider("JwtAuthenticationProvider");
+	}
+
+	public generateTokenViaProvider(providerName: string = 'JwtAuthenticationProvider', additionalPayload?: JwtSingingOptions): string {
 		return resolve<AuthenticationContract>('Authentication')
-			.getAuthProvider<JwtAuthenticationProviderContract>('JwtAuthenticationProvider')
+			.getAuthProvider<JwtAuthenticationProviderContract>(providerName)
 			.issueToken((this as any)._id as unknown as string, additionalPayload);
 	}
 
