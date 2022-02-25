@@ -1,3 +1,4 @@
+import {DateTime} from "@envuso/date-time-helper";
 import path from "path";
 import {Log} from "../../Common";
 import {Storage, StorageProviderContract} from "../../Storage";
@@ -8,11 +9,15 @@ export class FileSessionDriver implements SessionStorageDriver {
 
 	private storage: StorageProviderContract;
 
-	constructor() {
-		this.storage = Storage.onDemand<'local'>({
+	public static getStorageDriver() {
+		return Storage.onDemand<'local'>({
 			driver : 'local',
 			root   : path.join(process.cwd(), 'storage', 'sessions'),
 		});
+	}
+
+	constructor() {
+		this.storage = FileSessionDriver.getStorageDriver();
 	}
 
 	private fileName(id: string) {
@@ -62,6 +67,40 @@ export class FileSessionDriver implements SessionStorageDriver {
 
 			return false;
 		}
+	}
+
+
+	public static async cleanOldSessionFiles() {
+		const sessionDriver = new this();
+		const driver        = sessionDriver.storage;
+		const sessionFiles  = await driver.files('');
+
+		for (let sessionFile of sessionFiles) {
+			const sessionId = sessionFile.replace('session_', '').replace('.json', '');
+
+			driver.get(sessionFile)
+				.then(fileContents => {
+					if (!fileContents) {
+						return;
+					}
+
+					const sessionData = JSON.parse(fileContents);
+					if (!sessionData?.___sessionSetAt) {
+						sessionData.___sessionSetAt = DateTime.now().toTime();
+						sessionDriver.writeSessionData(sessionId, sessionData);
+						return;
+					}
+
+					const sessionSavedAt = DateTime.parse(sessionData?.___sessionSetAt);
+					if (sessionSavedAt.diffInDays(DateTime.now()) > 7) {
+						return driver.remove(sessionFile);
+					}
+
+					return false;
+				})
+				.catch(error => Log.exception(error));
+		}
+
 	}
 
 }

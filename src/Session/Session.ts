@@ -1,3 +1,4 @@
+import {DateTime} from "@envuso/date-time-helper";
 import {config, resolve} from "../AppContainer";
 import {Str} from "../Common";
 import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
@@ -74,6 +75,8 @@ export class Session implements SessionContract {
 		}
 
 		this.started = true;
+
+		this.attributes.put("___sessionSetAt", DateTime.now().toTime());
 
 		return this;
 	}

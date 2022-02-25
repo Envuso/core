@@ -1,17 +1,32 @@
-import {SignOptions, VerifyOptions} from "jsonwebtoken";
+import {Jwt, SignOptions, VerifyOptions} from "jsonwebtoken";
 import {config, ConfigRepository, resolve} from "../../AppContainer";
 import {Authenticatable} from "../../Authenticatable";
+import {Exception} from "../../Common";
 import {Log} from "../../Common/Logger/Log";
 import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {AuthenticationProvider} from "../AuthenticationProvider";
+import {VerifiedTokenInterface} from "./JwtAuthenticationProvider";
 
 export class SessionAuthenticationProvider extends AuthenticationProvider {
 
 	constructor(private userProvider: UserProviderContract) {
 		super();
 	}
+
+	getTokenFromHeader(request: RequestContract): string | null {
+		throw new Exception('This method is not implemented on SessionAuthenticationProvider.');
+	}
+
+	verifyToken<T extends Jwt | VerifiedTokenInterface>(token: string, secret?: string, jwtVerifyOptions?: VerifyOptions): T {
+		throw new Exception('This method is not implemented on SessionAuthenticationProvider.');
+	}
+
+	getUserIdFromToken(request: RequestContract | null, specifiedToken?: string | null) {
+		throw new Exception('This method is not implemented on SessionAuthenticationProvider.');
+	}
+
 
 	public async authoriseRequest<T>(request: RequestContract): Promise<AuthenticatableContract<T>> {
 

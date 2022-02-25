@@ -16,7 +16,6 @@ import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
 import {RedisServiceProvider} from "../Redis/RedisServiceProvider";
-import {QueueServiceProvider} from "../Queue/QueueServiceProvider";
 import {WebSocketsServiceProvider} from "../WebSockets/WebSocketsServiceProvider";
 
 

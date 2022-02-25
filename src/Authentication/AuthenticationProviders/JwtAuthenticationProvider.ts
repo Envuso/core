@@ -1,4 +1,4 @@
-import {sign, SignOptions, verify, VerifyOptions} from 'jsonwebtoken';
+import {Jwt, JwtPayload, sign, SignOptions, verify, VerifyOptions} from 'jsonwebtoken';
 import {config, ConfigRepository, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
 import {JwtAuthenticationProviderContract, JwtSingingOptions} from "../../Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
@@ -70,7 +70,7 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 		}
 	}
 
-	public getAuthenticationInformation(request: RequestContract) {
+	public getTokenFromHeader(request: RequestContract): string | null {
 		const authHeader = request.getHeader<string>('authorization');
 
 		if (!authHeader) {
@@ -95,40 +95,42 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 		return null;
 	}
 
-	public validateAuthenticationInformation<T extends VerifiedTokenInterface>(credential: string): T | null {
-		if (!credential) {
+	public getAuthenticationInformation(request: RequestContract): string | null {
+		return this.getTokenFromHeader(request);
+	}
+
+	public verifyToken<T extends Jwt | VerifiedTokenInterface>(token: string, secret?: string, jwtVerifyOptions?: VerifyOptions): T {
+		if (!token) {
 			return null;
 		}
 
 		return <T>verify(
-			credential,
-			this._appKey,
-			this._config.jwtVerifyOptions
+			token,
+			secret ?? this._appKey,
+			jwtVerifyOptions ?? this._config.jwtVerifyOptions
 		);
 	}
 
-	public async authoriseRequest<T>(request: RequestContract | null, specifiedToken?: string | null): Promise<AuthenticatableContract<T>> {
+	public validateAuthenticationInformation<T extends VerifiedTokenInterface>(credential: string): T | null {
+		return this.verifyToken<T>(credential);
+	}
 
-		let token = null;
-
-		if (request === null) {
-			token = specifiedToken;
-		} else {
-			token = this.getAuthenticationInformation(request);
-		}
-
+	public getUserIdFromToken(request: RequestContract|null, specifiedToken?: string | null) {
+		const token = specifiedToken ?? this.getAuthenticationInformation(request);
 		if (!token) {
 			return null;
 		}
 
 		const verifiedToken = this.validateAuthenticationInformation(token);
-
 		if (!verifiedToken) {
 			return null;
 		}
 
-		const userId = verifiedToken?.id;
+		return verifiedToken?.id ?? null;
+	}
 
+	public async authoriseRequest<T>(request: RequestContract | null, specifiedToken?: string | null): Promise<AuthenticatableContract<T>> {
+		const userId = this.getUserIdFromToken(request, specifiedToken);
 		if (!userId) {
 			return null;
 		}

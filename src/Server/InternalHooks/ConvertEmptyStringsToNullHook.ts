@@ -1,5 +1,3 @@
-import {FastifyRequest} from "fastify";
-import {Obj, Str} from "../../Common";
 import {RequestContext} from "../../Routing/Context/RequestContext";
 import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
