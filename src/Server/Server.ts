@@ -12,8 +12,6 @@ import {RequestContext} from "../Routing/Context/RequestContext";
 import {RedirectResponse} from "../Routing/Context/Response/RedirectResponse";
 import {Routing} from "../Routing/Route/Routing";
 import {AssetManager} from "../Routing/StaticAssets/AssetManager";
-import getRawBody from 'raw-body';
-import {RawBodyHook} from "./InternalHooks/RawBodyHook";
 
 export class Server implements ServerContract {
 
@@ -65,12 +63,6 @@ export class Server implements ServerContract {
 
 		await this._server.register(middie);
 
-		//		if (this._config.rawBodyOnRequests) {
-		//			this._server.use(function (req, res, next) {
-		//
-		//			});
-		//		}
-
 		this.registerPlugins();
 
 		this._server.setNotFoundHandler((request: FastifyRequest, response: FastifyReply) => {
@@ -118,11 +110,6 @@ export class Server implements ServerContract {
 	}
 
 	public registerHooks(hooks: { new(): HookContract }[]) {
-		if (this._config?.rawBodyOnRequests) {
-			(new RawBodyHook()).register(this._server);
-			this._registeredServerHooks.push(RawBodyHook);
-		}
-
 		for (let hook of hooks) {
 			new hook().register(this._server);
 
@@ -158,6 +145,14 @@ export class Server implements ServerContract {
 						preflightContinue    : true
 					}
 				}
+			]);
+		}
+
+
+		if (this._config.rawBodyOnRequests) {
+			this._config.fastifyPlugins.push([
+				require('fastify-raw-body'),
+				{field : 'rawBody', runFirst : true}
 			]);
 		}
 

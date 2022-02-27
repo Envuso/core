@@ -420,6 +420,9 @@ export class Route implements RouteContract {
 		const currentRoute = this;
 
 		const binding: RouteOptions = {
+			config : {
+				rawBody: config<boolean>('server.rawBodyOnRequests', false)
+			},
 			method     : this.getMethod(),
 			handler    : this.getHandlerFactory(),
 			url        : this.getPath(),
