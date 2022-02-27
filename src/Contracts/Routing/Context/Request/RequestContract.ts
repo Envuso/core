@@ -62,6 +62,8 @@ export interface RequestContract extends RequestResponseContextContract {
 	 */
 	id(): string;
 
+	rawBody():string;
+
 	/**
 	 * Get a value from the request body
 	 *

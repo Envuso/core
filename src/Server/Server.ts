@@ -12,7 +12,7 @@ import {RequestContext} from "../Routing/Context/RequestContext";
 import {RedirectResponse} from "../Routing/Context/Response/RedirectResponse";
 import {Routing} from "../Routing/Route/Routing";
 import {AssetManager} from "../Routing/StaticAssets/AssetManager";
-
+import getRawBody from 'raw-body';
 
 export class Server implements ServerContract {
 
@@ -63,6 +63,20 @@ export class Server implements ServerContract {
 		this._server = fastify(this._config.fastifyOptions);
 
 		await this._server.register(middie);
+
+		if (this._config.rawBodyOnRequests) {
+			this._server.use(function (req, res, next) {
+				getRawBody(req, {
+					limit    : '3mb',
+					encoding : true
+				}, function (err, string) {
+					if (err) return next(err);
+					//@ts-ignore
+					req.text = string;
+					next();
+				});
+			});
+		}
 
 		this.registerPlugins();
 

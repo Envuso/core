@@ -2,7 +2,7 @@ import {FastifyRequest, HTTPMethods} from "fastify";
 import {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
 import {config, resolve} from "../../../AppContainer";
-import {Obj, Str} from "../../../Common";
+import {Exception, Obj, Str} from "../../../Common";
 import {AuthenticatableContract} from "../../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import {RequestContract} from "../../../Contracts/Routing/Context/Request/RequestContract";
 import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
@@ -216,6 +216,20 @@ export class Request extends RequestResponseContext implements RequestContract {
 		}
 
 		return this._request.id;
+	}
+
+	/**
+	 * Return the raw request body
+	 *
+	 * Only works when `rawBodyOnRequests` is enabled in ServerConfiguration file.
+	 * @returns {string}
+	 */
+	rawBody() {
+		if(!config('server.rawBodyOnRequests')) {
+			throw new Exception('Add `rawBodyOnRequests = true` to ServerConfiguration to use this feature.');
+		}
+
+		return (this.fastifyRequest.raw as any).text
 	}
 
 	/**

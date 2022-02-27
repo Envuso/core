@@ -23,6 +23,7 @@ export interface ServerConfiguration {
 	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
 	fastifyOptions: FastifyServerOptions;
 	responseSerialization: ClassTransformOptions;
+	rawBodyOnRequests: boolean;
 }
 
 export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<ResponseContract>;

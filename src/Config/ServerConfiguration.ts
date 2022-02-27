@@ -101,4 +101,9 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 		//		excludeExtraneousValues : true,
 	};
 
+	/**
+	 * If this is enabled, a middleware will be enabled using "raw-body" on npm
+	 * This will add "text" to the raw request, which allows us to get the raw data.
+	 */
+	rawBodyOnRequests: boolean = true;
 }

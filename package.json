@@ -61,6 +61,7 @@
     "pluralize": "^8.0.0",
     "qs": "^6.10.1",
     "random-bytes": "^1.0.0",
+    "raw-body": "^2.5.0",
     "read-chunk": "^3.2.0",
     "reflect-metadata": "^0.1.10",
     "ts-node": "^10.2.1",
