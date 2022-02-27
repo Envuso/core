@@ -229,7 +229,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 			throw new Exception('Add `rawBodyOnRequests = true` to ServerConfiguration to use this feature.');
 		}
 
-		return (this.fastifyRequest.raw as any).text
+		return (this.fastifyRequest['rawBody'] as any)
 	}
 
 	/**
