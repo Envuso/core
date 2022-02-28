@@ -159,6 +159,18 @@ export class Model<M> implements ModelContract<M> {
 	 */
 	public async update(attributes: ModelAttributesUpdateFilter<M>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult> {
 
+		const tempRelations = {};
+		const relations = this.queryBuilder().joinedRelationsArray();
+
+		for (let relation of relations) {
+			if (!attributes[relation.propertyKey]) {
+				continue;
+			}
+
+			tempRelations[relation.propertyKey] = attributes[relation.propertyKey];
+			delete attributes[relation.propertyKey];
+		}
+
 		const updated = await this.queryBuilder()
 			.where({_id : this.getModelId()})
 			.update(attributes);
@@ -171,6 +183,10 @@ export class Model<M> implements ModelContract<M> {
 			.first();
 
 		this.assignUpdatedAttributes(_.pick(updatedModel, keys), keys, true);
+
+		for (let tempRelationsKey in tempRelations) {
+			this[tempRelationsKey] = tempRelations[tempRelationsKey];
+		}
 
 		return updated;
 	}
@@ -480,7 +496,7 @@ export class Model<M> implements ModelContract<M> {
 		return Database.getModelFieldsFromContainer(this.constructor.name);
 	}
 
-	public isDateField(field: string): [boolean, string, (ModelDateField|undefined)] {
+	public isDateField(field: string): [boolean, string, (ModelDateField | undefined)] {
 		const dates = this.getMeta<ModelDateField[]>(ModelDecoratorMeta.DATE_PROPERTY);
 		const date  = dates?.find(f => f.property === field);
 

@@ -154,4 +154,45 @@ describe('model relationships', () => {
 
 	});
 
+	test('saving model with many related model data loaded', async () => {
+
+		const bruce = await User.create({name : 'bruce'});
+
+
+		await Book.insertMany([
+			{userId : bruce._id, title : 'One of bruce\'s books'},
+			{userId : bruce._id, title : 'Another one of bruce\'s books'},
+		]);
+
+		expect(bruce.books).toBeFalsy();
+
+		await bruce.load('books');
+		await bruce.save();
+
+		const bru = await User.find(bruce._id);
+
+		expect(bru.books).toBeFalsy();
+
+	});
+
+
+	test('saving model with single related model data loaded', async () => {
+
+		const bruce = await User.create({name : 'bruce'});
+		await Book.insertMany([
+			{userId : bruce._id, title : 'One of bruce\'s books'},
+			{userId : bruce._id, title : 'Another one of bruce\'s books'},
+		]);
+
+		expect(bruce.hasOneBook).toBeFalsy();
+
+		await bruce.load('hasOneBook');
+		await bruce.save();
+
+		const bru = await User.find(bruce._id);
+
+		expect(bru.hasOneBook).toBeFalsy();
+
+	});
+
 });
