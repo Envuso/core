@@ -160,10 +160,10 @@ export class Model<M> implements ModelContract<M> {
 	public async update(attributes: ModelAttributesUpdateFilter<M>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult> {
 
 		const tempRelations = {};
-		const relations = this.queryBuilder().joinedRelationsArray();
+		const relations     = this.queryBuilder().joinedRelationsArray();
 
 		for (let relation of relations) {
-			if (!attributes[relation.propertyKey]) {
+			if (attributes[relation.propertyKey] === undefined) {
 				continue;
 			}
 
