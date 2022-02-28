@@ -53,7 +53,7 @@ export function bindControllerMeta(path: string) {
 	};
 }
 
-export function httpMethod(method: HTTPMethods | HTTPMethods[], path: string): HandlerDecorator {
+export function httpMethod(method: HTTPMethods | HTTPMethods[], path: string, fastifyRouteConfig: any = {}): HandlerDecorator {
 	return function (target: any, key: string, value: any) {
 
 		const controllerMethod = target[key];
@@ -70,7 +70,8 @@ export function httpMethod(method: HTTPMethods | HTTPMethods[], path: string): H
 			method,
 			path,
 			target,
-			parameters
+			parameters,
+			fastifyRouteConfig
 		};
 
 		const metadataList: ControllerMethodMetadata[] = Reflect.getMetadata(METADATA.CONTROLLER_METHODS, target.constructor) || [];

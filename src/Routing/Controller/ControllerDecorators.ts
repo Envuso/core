@@ -11,39 +11,28 @@ export function controller(path: string = '') {
 	return bindControllerMeta(path);
 }
 
-
-export function all(path: string = ''): HandlerDecorator {
-	return httpMethod(["GET", "DELETE", "HEAD", "POST", "PATCH", "PUT", "OPTIONS"], path);
+export function all(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod(["GET", "DELETE", "HEAD", "POST", "PATCH", "PUT", "OPTIONS"], path, fastifyRouteConfig);
 }
 
-export function get(path: string = ''): HandlerDecorator {
-	return httpMethod("GET", path);
+export function get(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("GET", path, fastifyRouteConfig);
 }
 
-export function post(path: string = ''): HandlerDecorator {
-	return httpMethod("POST", path);
+export function post(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("POST", path, fastifyRouteConfig);
 }
 
-export function put(path: string = ''): HandlerDecorator {
-	return httpMethod("PUT", path);
+export function put(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("PUT", path, fastifyRouteConfig);
 }
 
-export function patch(path: string = ''): HandlerDecorator {
-	return httpMethod("PATCH", path);
+export function patch(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("PATCH", path, fastifyRouteConfig);
 }
 
-export function head(path: string = ''): HandlerDecorator {
-	return httpMethod("HEAD", path);
-}
-
-/**
- * DELETE http method
- * You can also use @delete_
- * We can't use the name delete in JS/TS.
- * @param path
- */
-export function destroy(path: string = ''): HandlerDecorator {
-	return httpMethod("DELETE", path);
+export function head(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("HEAD", path, fastifyRouteConfig);
 }
 
 /**
@@ -51,18 +40,31 @@ export function destroy(path: string = ''): HandlerDecorator {
  * You can also use @delete_
  * We can't use the name delete in JS/TS.
  * @param path
+ * @param fastifyRouteConfig
  */
-export function remove(path: string = ''): HandlerDecorator {
-	return httpMethod("DELETE", path);
+export function destroy(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("DELETE", path, fastifyRouteConfig);
+}
+
+/**
+ * DELETE http method
+ * You can also use @delete_
+ * We can't use the name delete in JS/TS.
+ * @param path
+ * @param fastifyRouteConfig
+ */
+export function remove(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("DELETE", path, fastifyRouteConfig);
 }
 
 /**
  * DELETE http method
  * If you don't like to use "destroy"/"remove"
  * @param path
+ * @param fastifyRouteConfig
  */
-export function delete_(path: string = ''): HandlerDecorator {
-	return httpMethod("DELETE", path);
+export function delete_(path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod("DELETE", path, fastifyRouteConfig);
 }
 
 /**
@@ -70,9 +72,10 @@ export function delete_(path: string = ''): HandlerDecorator {
  *
  * @param methods
  * @param path
+ * @param fastifyRouteConfig
  */
-export function method(methods: HTTPMethods | HTTPMethods[], path: string = ''): HandlerDecorator {
-	return httpMethod(methods, path);
+export function method(methods: HTTPMethods | HTTPMethods[], path: string = '', fastifyRouteConfig: any = {}): HandlerDecorator {
+	return httpMethod(methods, path, fastifyRouteConfig);
 }
 
 

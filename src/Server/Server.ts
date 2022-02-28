@@ -148,13 +148,10 @@ export class Server implements ServerContract {
 			]);
 		}
 
-
-		if (this._config.rawBodyOnRequests) {
-			this._config.fastifyPlugins.push([
-				require('fastify-raw-body'),
-				{field : 'rawBody', runFirst : true}
-			]);
-		}
+		this._config.fastifyPlugins.push([
+			require('fastify-raw-body'),
+			{field : 'rawBody', runFirst : true, global : false}
+		]);
 
 		this._config.fastifyPlugins.push([
 			require('fastify-formbody'),

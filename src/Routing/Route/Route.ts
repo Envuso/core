@@ -30,6 +30,7 @@ export interface ControllerMethodMetadata extends ControllerMetadata {
 	method: HTTPMethods | HTTPMethods[];
 	key: string;
 	parameters: ControllerMethodParameterMetadata[];
+	fastifyRouteConfig: any,
 }
 
 export class Route implements RouteContract {
@@ -237,7 +238,7 @@ export class Route implements RouteContract {
 						}
 					}
 
-					if(boundParameter) {
+					if (boundParameter) {
 						break;
 					}
 				} else {
@@ -420,8 +421,9 @@ export class Route implements RouteContract {
 		const currentRoute = this;
 
 		const binding: RouteOptions = {
-			config : {
-				rawBody: config<boolean>('server.rawBodyOnRequests', false)
+			config     : {
+				...(this.methodMeta.fastifyRouteConfig || {}),
+				//rawBody: config<boolean>('server.rawBodyOnRequests', false)
 			},
 			method     : this.getMethod(),
 			handler    : this.getHandlerFactory(),

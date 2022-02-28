@@ -221,14 +221,9 @@ export class Request extends RequestResponseContext implements RequestContract {
 	/**
 	 * Return the raw request body
 	 *
-	 * Only works when `rawBodyOnRequests` is enabled in ServerConfiguration file.
 	 * @returns {string}
 	 */
 	rawBody() {
-		if(!config('server.rawBodyOnRequests')) {
-			throw new Exception('Add `rawBodyOnRequests = true` to ServerConfiguration to use this feature.');
-		}
-
 		return (this.fastifyRequest['rawBody'] as any)
 	}
 
