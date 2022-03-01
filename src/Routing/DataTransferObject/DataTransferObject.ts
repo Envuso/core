@@ -1,6 +1,9 @@
+import {dotnotate} from "@zishone/dotnotate";
 import {instanceToPlain, Exclude, plainToClassFromExist} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
-import {validateOrReject} from "class-validator";
+import {validate, ValidationError} from "class-validator";
+import {ValidationUtils} from "class-validator/cjs/validation/ValidationUtils.js";
+import {constraintToString} from "class-validator/cjs/validation/ValidationUtils";
 import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
@@ -46,25 +49,15 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 	 * Validate the data transfer object using class-validator
 	 * If there's an error we'll map the validation errors to a more usable object.
 	 */
-	public async validate() {
-		try {
-			await validateOrReject(this, this.getValidationOptions());
-		} catch (error) {
-			Log.warn(error);
+	public async validate(throwOnFailure: boolean = true) {
+		const validationErrors = await validate(this, this.getValidationOptions());
 
-			if (Array.isArray(error)) {
-				const validationErrorsFormatted = {};
-
-				for (let validationError of error) {
-					validationErrorsFormatted[validationError.property] = Object.values(validationError.constraints)[0] || null;
-				}
-
-				this.__validationErrors = validationErrorsFormatted;
-			}
-
+		if (validationErrors.length) {
+			Log.warn(validationErrors);
+			this.__validationErrors = this.formatValidationErrors(validationErrors);
 		}
 
-		if (this.failed()) {
+		if (this.failed() && throwOnFailure) {
 			this.handleValidationException();
 		}
 	}
@@ -122,6 +115,14 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 		return Object.keys(this.__validationErrors).length > 0;
 	}
 
+	public fieldDidFail(key: string): boolean {
+		if (!this.failed()) {
+			return false;
+		}
+
+		return !!this.__validationErrors[key];
+	}
+
 	/**
 	 * Get the class-validator errors
 	 */
@@ -176,4 +177,50 @@ export class DataTransferObject implements DataTransferObjectContract, Responsab
 
 		throw new DtoValidationException(this.__validationErrors);
 	}
+
+	private formatValidationErrors(errors: ValidationError[]): { [key: string]: string } {
+		const validationErrorsFormatted = {};
+
+		for (let error of errors) {
+			if (error.children.length) {
+				validationErrorsFormatted[error.property] = this.formatValidationErrors(error.children);
+				continue;
+			}
+
+			validationErrorsFormatted[error.property] = Object.values(error.constraints)[0] || null;
+		}
+
+		return dotnotate(validationErrorsFormatted);
+	}
 }
+
+
+ValidationUtils.replaceMessageSpecialTokens = function replaceMessageSpecialTokens(message, validationArguments) {
+	let messageString;
+	if (message instanceof Function) {
+		messageString = message(validationArguments);
+	} else if (typeof message === 'string') {
+		messageString = message;
+	}
+	if (messageString && Array.isArray(validationArguments.constraints)) {
+		validationArguments.constraints.forEach((constraint, index) => {
+			messageString = messageString.replace(new RegExp(`\\$constraint${index + 1}`, 'g'), constraintToString(constraint));
+		});
+	}
+	if (messageString &&
+		validationArguments.value !== undefined &&
+		validationArguments.value !== null &&
+		typeof validationArguments.value === 'string')
+		messageString = messageString.replace(/\$value/g, validationArguments.value);
+	if (messageString) {
+		let propAsTitle = validationArguments.property.toString();
+		propAsTitle = propAsTitle.replace(/\./g,' ')
+		propAsTitle = propAsTitle.titleCase()
+
+		messageString = messageString.replace(/\$property/g, propAsTitle);
+	}
+	if (messageString)
+		messageString = messageString.replace(/\$target/g, validationArguments.targetName);
+	return messageString;
+};
+

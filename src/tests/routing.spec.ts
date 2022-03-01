@@ -139,24 +139,6 @@ describe('test route service provider', () => {
 		expect(middlewareMeta.middlewares[0]).toEqual(new TestMiddleware());
 	});
 
-	test('data transfer object validates', async () => {
-
-		class TestDTO extends DataTransferObject {
-			@MinLength(1)
-			@IsString()
-			property: string;
-		}
-
-		try {
-			//@ts-ignore
-			await TestDTO.handleControllerBinding({property : ''}, true);
-		} catch (error) {
-			if (error instanceof DtoValidationException) {
-				expect(() => true).toBeTruthy();
-			}
-		}
-	});
-
 	test('hitting route with global middleware', async () => {
 		const app    = App.getInstance();
 		const server = app.container().resolve<Server>(Server);

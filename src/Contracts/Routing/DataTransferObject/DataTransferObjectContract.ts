@@ -14,8 +14,9 @@ export interface DataTransferObjectContract {
 	/**
 	 * Validate the data transfer object using class-validator
 	 * If there's an error we'll map the validation errors to a more usable object.
+	 * @param {boolean} throwOnFailure | By default this is set to true - setting it to false, will stop an exception being thrown
 	 */
-	validate(): Promise<void>;
+	validate(throwOnFailure?: boolean): Promise<void>;
 
 	/**
 	 * Convert the request body to the DTO.
@@ -32,6 +33,13 @@ export interface DataTransferObjectContract {
 	 * Did the validation fail?
 	 */
 	failed(): boolean;
+
+	/**
+	 * Check if x field failed validation
+	 * @param {string} key
+	 * @returns {boolean}
+	 */
+	fieldDidFail(key: string): boolean;
 
 	/**
 	 * Get the class-validator errors

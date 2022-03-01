@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {isPlural, isSingular, plural, singular} from "pluralize";
 import SimpleCrypto from "../../Crypt/SimpleCryptoJS";
 import Obj from "./Obj";
@@ -67,6 +68,8 @@ declare global {
 
 		capitalize(): this;
 
+		titleCase(): this;
+
 		remove(subStr: string): this;
 
 		plural(): this;
@@ -102,6 +105,10 @@ String.prototype.contains = function (values: string[]) {
 
 String.prototype.capitalize = function () {
 	return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+String.prototype.titleCase = function () {
+	return _.startCase(this);
 };
 
 String.prototype.remove = function (subStr: string) {
