@@ -5,8 +5,7 @@ import {App, ConfigRepository, resolve} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
 import {FileLoader, Log} from "../../Common";
 import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
-import mime from 'mime';
-import {Envuso} from "../../Envuso";
+import mime, {getType} from 'mime';
 import {Routing} from "../Route/Routing";
 import {assetHelperGlobal} from "./GlobalHandlers/AssetHelperGlobal";
 import {mixViewHelperGlobal} from "./GlobalHandlers/MixViewHelperGlobal";
@@ -173,8 +172,7 @@ export class AssetManager {
 
 			const stream = fs.createReadStream(filePath);
 
-			const mimeType = mime.lookup(filePath);
-
+			const mimeType = mime.getType(filePath);
 			if (!mimeType) {
 				return reply.callNotFound();
 			}
