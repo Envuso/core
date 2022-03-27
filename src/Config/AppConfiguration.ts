@@ -1,4 +1,5 @@
 import Environment from "../AppContainer/Config/Environment";
+import {ConsoleServiceProvider} from "../Console/ConsoleServiceProvider";
 import {ApplicationConfiguration} from "../Contracts/AppContainer/AppContract";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {EncryptionServiceProvider} from "../";
@@ -39,7 +40,8 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		ServerServiceProvider,
 		InertiaServiceProvider,
 		//		QueueServiceProvider,
-		WebSocketsServiceProvider
+		WebSocketsServiceProvider,
+		ConsoleServiceProvider,
 	];
 
 	exceptionHandler: ExceptionHandlerConstructorContract = ExceptionHandler;

@@ -10,6 +10,7 @@ export default class FilesystemPathsConfiguration extends ConfigurationCredentia
 	public socketListeners: string  = path.join(this.root, 'src', 'App', 'Http', 'Sockets');
 	public eventDispatchers: string = path.join(this.root, 'src', 'App', 'Events', 'Dispatchers');
 	public eventListeners: string   = path.join(this.root, 'src', 'App', 'Events', 'Listeners');
+	public commands: string         = path.join(this.root, 'src', 'App', 'Console');
 	public providers: string        = path.join(this.root, 'src', 'App', 'Providers');
 	public models: string           = path.join(this.root, 'src', 'App', 'Models');
 	public policies: string         = path.join(this.root, 'src', 'Policies');
