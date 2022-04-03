@@ -4,6 +4,7 @@ import {FastifyCorsOptions} from "fastify-cors";
 import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
 import {HandleInertiaRequestMiddleware} from "../App/Http/Middleware/HandleInertiaRequestMiddleware";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
+import Environment from "../AppContainer/Config/Environment";
 import {ServerConfiguration as ServerConfig} from "../Contracts/Server/ServerContract";
 import {InjectViewGlobals} from "../Routing/Views/InjectViewGlobals";
 import {BindRequestContextHook} from "../Server/InternalHooks/BindRequestContextHook";
@@ -19,12 +20,12 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	/**
 	 * The port that fastify will listen on
 	 */
-	port = 3000;
+	port = Environment.get<number>("PORT", 3000);
 
 	/**
 	 * The address that fastify will listen on
 	 */
-	address = '0.0.0.0';
+	address = Environment.get<string>('SERVER_ADDRESS', '127.0.0.1');
 
 	/**
 	 * Global middleware that will run on every application request

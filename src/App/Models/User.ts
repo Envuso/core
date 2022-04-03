@@ -98,5 +98,9 @@ export class User extends Authenticatable<User> {
 		return user;
 	}
 
+	hasManyBooksRelation() {
+		return this.hasMany(Book, '_id', 'userId')
+	}
+
 }
 

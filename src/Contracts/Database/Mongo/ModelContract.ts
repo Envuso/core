@@ -4,12 +4,15 @@ import {
 } from "mongodb";
 import {Model, ModelDateField, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
 import {ModelHook, ModelHookMetaData, ModelHooksMeta} from "../../../Database/ModelHooks";
-import {ModelAttributesFilter, SingleModelProp} from "../../../Database/QueryBuilderTypes";
+import {HasMany} from "../../../Database/Mongo/Relationships/HasMany";
+import {ModelAttributesFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
 import {PaginatorContract} from "./PaginatorContract";
 import {QueryBuilderContract} from "./QueryBuilderContract";
 
 export interface ModelContractConstructor<M> {
 	new(): M;
+
+	prototype: M;
 
 	getCollection<T extends Model<any>>(this: new() => T): Collection<T>;
 
@@ -44,6 +47,7 @@ export interface ModelContractConstructor<M> {
 
 export interface ModelContract<M> {
 
+
 	//_queryBuilder: QueryBuilder<M>;
 
 	/**
@@ -65,6 +69,13 @@ export interface ModelContract<M> {
 	update(attributes: ModelAttributesFilter<M> | Partial<M>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult>;
 
 	assignAttributes(attributes: Partial<M>, ignoreFieldChecks?: boolean): void;
+
+	hasMany<T extends Model<any>>(related: (new () => T) | string, localKey: string, foreignKey: string): QueryBuilderContract<T>;
+	hasOne<T extends Model<any>>(related: (new () => T) | string, localKey: string, foreignKey: string): QueryBuilderContract<T>;
+
+	load(...relations: (keyof ModelProps<M>)[]): Promise<this>;
+
+	assignUpdatedAttributes(attributes: Partial<M>, updatedKeys: string[], ignoreFieldChecks?: boolean): void;
 
 	/**
 	 * Check if a relationship is loaded.

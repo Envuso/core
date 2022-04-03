@@ -157,6 +157,11 @@ export class TestingController extends Controller {
 		return dto;
 	}
 
+	@get('/failed/dto/get')
+	public async dtoAsGetRequest(@dto() dt: DTO) {
+		return dt;
+	}
+
 	@post('/file/upload')
 	async testUploadFile() {
 		const file = request().file('file');

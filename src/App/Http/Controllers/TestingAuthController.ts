@@ -1,33 +1,47 @@
-import {OAuthService} from "../../../OAuthProvider/OAuthService";
-import {controller, get, request} from "../../../Routing";
-import {Controller} from "../../../Routing/Controller/Controller";
+import {TwitchOauthProvider} from "../../../OAuthProvider";
+import {Socialite} from "../../../OAuthProvider";
+import {controller, get, redirect, request} from "../../../Routing";
+import {Controller} from "../../../Routing";
 
 
 @controller('/auth')
 export class TestingAuthController extends Controller {
-	private driver: OAuthService;
 
 	constructor() {
 		super();
 
-		this.driver = OAuthService.forService('twitch');
+		// Register a custom built provider
+
+		Socialite.register('twitch', TwitchOauthProvider);
 	}
 
 	@get('/redirect')
 	async redirect() {
-		return this.driver.redirect();
+
+		return redirect().to('x').with('x', 'y');
+
+		return Socialite.driver('twitch')
+			.scopes(['user:read:email'])
+			.redirect();
 	}
 
 	@get('/callback')
 	async callback() {
-		console.log(request().all());
-		console.log(request().get('code'));
+		const user = await Socialite.driver('twitch').user();
 
-		const user = await this.driver.getUser();
+		user.getId();
+		user.getAvatar();
+		user.getEmail();
+		user.getName();
+		user.getUsername();
 
-		console.log(user);
-
-		return {};
+		user.token().getScopes();
+		user.token().getExpiryDate();
+		user.token().getAccessToken();
+		user.token().getRefreshToken();
+		user.token().getExpiresIn();
+		user.token().getExpiryDate();
+		user.token().hasExpired();
 	}
 
 }

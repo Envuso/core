@@ -1,3 +1,4 @@
+import {Url} from "../Common";
 import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
 import {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
@@ -6,6 +7,8 @@ import {RequestContext} from "./Context/RequestContext";
 
 export const context  = (): RequestContextContract => RequestContext.get();
 export const response = (): ResponseContract => RequestContext.response();
+
+export const route = (controllerAndMethod: string, attributes?: any): string => Url.routeUrl(controllerAndMethod, attributes);
 
 function request(): RequestContract;
 function request<T>(key: string): T;

@@ -53,6 +53,20 @@ describe('model relationships', () => {
 		expect(bruceWithBooks.books[0]).toBeInstanceOf(Book);
 	});
 
+	test('has many relationship via this.hasMany', async () => {
+		const bruce    = await User.create({name : 'bruce'});
+		const booksRes = await Book.insertMany([
+			{userId : bruce._id, title : 'One of bruce\'s books'},
+			{userId : bruce._id, title : 'Another one of bruce\'s books'},
+		]);
+
+		const book = await bruce.hasManyBooksRelation()
+			.where('title', 'One of bruce\'s books')
+			.first();
+
+		expect(booksRes.ids[0]).toEqual(book._id);
+	});
+
 	test('has many relation with multiple models at once', async () => {
 
 		await User.insertMany([
@@ -138,6 +152,7 @@ describe('model relationships', () => {
 		expect(bruceWithBooks.belongsToOneBook).toBeInstanceOf(Book);
 
 	});
+
 	test('many relation with order clause', async () => {
 
 		const bruce = await User.create({name : 'bruce'});
@@ -174,7 +189,6 @@ describe('model relationships', () => {
 		expect(bru.books).toBeFalsy();
 
 	});
-
 
 	test('saving model with single related model data loaded', async () => {
 

@@ -5,7 +5,7 @@ import {Collection, Filter, FindOptions, ObjectId, OptionalId, UpdateOptions, Up
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
-import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import {ModelContract, ModelContractConstructor} from "../../Contracts/Database/Mongo/ModelContract";
 import {QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
 import {Database, ModelDateField, ModelDecoratorMeta, ModelIndex} from "../index";
 import {ModelHook, ModelHookMetaData, ModelHooksMeta} from "../ModelHooks";
@@ -13,6 +13,8 @@ import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleMo
 import {convertEntityObjectIds} from "../Serialization/Serializer";
 import {ModelHelpers} from "./ModelHelpers";
 import {QueryBuilder} from "./QueryBuilder";
+import {HasMany} from "./Relationships/HasMany";
+import {HasOne} from "./Relationships/HasOne";
 
 export class Model<M> implements ModelContract<M> {
 
@@ -78,6 +80,14 @@ export class Model<M> implements ModelContract<M> {
 		this.assignAttributes(relationAttributes);
 
 		return this;
+	}
+
+	public hasMany<T extends Model<any>>(related: (new() => T), localKey: string, foreignKey: string): QueryBuilderContract<T> {
+		return HasMany.create<T>(this, related, localKey, foreignKey).query();
+	}
+
+	public hasOne<T extends Model<any>>(related: (new() => T), localKey: string, foreignKey: string): QueryBuilderContract<T> {
+		return HasOne.create<T>(this, related, localKey, foreignKey).query();
 	}
 
 	/**

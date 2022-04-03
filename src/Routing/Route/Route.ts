@@ -2,7 +2,6 @@ import {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
 import {RouteOptions} from "fastify/types/route";
 import {ObjectId} from "mongodb";
 import {match} from "path-to-regexp";
-import qs from "querystring";
 import {App, config} from "../../AppContainer";
 import {Obj, Log, METADATA, StatusCodes} from "../../Common";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
@@ -20,6 +19,7 @@ import {Controller} from "../Controller/Controller";
 import {AllControllerMeta, ControllerMetadata} from "../Controller/ControllerDecoratorBinding";
 import {Middleware} from "../Middleware/Middleware";
 import {MethodParameterDecorator} from "./RequestInjection";
+import {URL} from 'url';
 
 export interface ControllerMethodParameterMetadata {
 	name: string;
@@ -519,7 +519,7 @@ export class Route implements RouteContract {
 	 * @returns {string | null}
 	 */
 	public constructUrl(attributes: any): string | null {
-		const baseUrl = config('app.url');
+		const baseUrl = config<string>('app.url');
 		let routePath = this.getPath();
 
 		// If we've passed in an attribute which is a route parameter
@@ -534,7 +534,8 @@ export class Route implements RouteContract {
 			}
 		}
 
-		let queryStringValues = {};
+		const url = new URL(routePath, baseUrl);
+
 		if (!Obj.isEmpty(attributes)) {
 			for (let attributeKey in attributes) {
 				let attr = attributes[attributeKey];
@@ -543,16 +544,10 @@ export class Route implements RouteContract {
 					attr = attr.getModelId().toHexString();
 				}
 
-				queryStringValues[attributeKey] = attr;
+				url.searchParams.set(attributeKey, attr);
 			}
 		}
 
-		let finalUrl = routePath;
-		if (!Obj.isEmpty(queryStringValues)) {
-			finalUrl += '?';
-			finalUrl += qs.stringify(queryStringValues);
-		}
-
-		return finalUrl;
+		return url.toString();
 	}
 }

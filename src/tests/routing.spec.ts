@@ -394,6 +394,28 @@ describe('test route service provider', () => {
 
 	});
 
+	test('dto failed to validate response as GET request', async () => {
+
+		const app    = App.getInstance();
+		const server = app.container().resolve<Server>(Server);
+
+		const res = await server._server.inject({
+			method  : 'get',
+			url     : '/testing/failed/dto/get',
+			payload : {},
+			headers : {
+				"content-type" : "application/json",
+				"accept"       : "application/json",
+			}
+		});
+
+		const body = JSON.parse(res.body);
+
+		expect(body.data.something).toEqual('something must be longer than or equal to 1 characters');
+		expect(res.statusCode).toEqual(422);
+
+	});
+
 	test('uploading a file', async () => {
 
 		const app    = App.getInstance();

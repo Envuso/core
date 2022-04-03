@@ -1,4 +1,4 @@
-import {Controller, controller, get, request} from "../../../Routing";
+import {Controller, controller, get, request, route} from "../../../Routing";
 
 @controller('')
 export class EmptyTestingController extends Controller {
@@ -7,6 +7,8 @@ export class EmptyTestingController extends Controller {
 		const req = request();
 		const b   = req.rawBody();
 
-		return {};
+		return {
+			twitchAuthUrl : route('TestingAuthController.redirect')
+		};
 	}
 }

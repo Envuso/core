@@ -16,6 +16,7 @@
     "baseUrl": "./src/",
     "strict": false,
     "sourceMap": true,
+    "downlevelIteration": true,
     "declaration": true,
     "types": [
       "node",
@@ -63,6 +64,7 @@
     "src/Session/**/*",
     "src/Storage/**/*.ts",
     "src/Queue/**/*.ts",
+    "src/Model/**/*.ts",
     "src/Authenticatable.ts",
     "src/Envuso.ts",
     "src/tests/**/*.ts",

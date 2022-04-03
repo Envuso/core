@@ -12,6 +12,7 @@ import {SecurityServiceProvider} from "../";
 import {AuthorizationServiceProvider} from "../";
 import {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
 import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
+import {OAuthServiceProvider} from "../OAuthProvider/OAuthServiceProvider";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
@@ -38,7 +39,8 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		StorageServiceProvider,
 		ServerServiceProvider,
 		InertiaServiceProvider,
-		//		QueueServiceProvider,
+		// QueueServiceProvider,
+		OAuthServiceProvider,
 		WebSocketsServiceProvider
 	];
 
@@ -59,7 +61,7 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 		controllers : false,
 		providers   : true,
 		serverHooks : true,
-		models      : true,
+		models      : false,
 
 		socketInformation : true,
 		socketChannels    : true,
