@@ -58,7 +58,7 @@
     "lodash": "^4.17.21",
     "middie": "^5.2.0",
     "mime": "^3.0.0",
-    "mongodb": "4.2.2",
+    "mongodb": "4.17.0",
     "node-fetch": "^2.6.1",
     "path-to-regexp": "^6.2.0",
     "pluralize": "^8.0.0",
