@@ -1,5 +1,4 @@
-import fastify, {FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
-import {FastifyError} from "fastify-error";
+import fastify, {FastifyInstance, FastifyReply, FastifyRequest, FastifyError} from "fastify";
 import middie from "middie";
 import {config, ConfigRepository, resolve} from "../AppContainer";
 import {Exception, Log, StatusCodes} from "../Common";
@@ -137,7 +136,7 @@ export class Server implements ServerContract {
 		// We have to make sure the cors configuration aligns with the framework configuration.
 		if (this._config.cors.enabled) {
 			this._config.fastifyPlugins.push([
-				require('fastify-cors'),
+				require('@fastify/cors'),
 				{
 					...this._config.cors.options,
 					...{
@@ -154,7 +153,7 @@ export class Server implements ServerContract {
 		]);
 
 		this._config.fastifyPlugins.push([
-			require('fastify-formbody'),
+			require('@fastify/formbody'),
 			{}
 		]);
 

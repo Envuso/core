@@ -1,4 +1,4 @@
-import {Multipart} from "fastify-multipart";
+import {MultipartFile} from "@fastify/multipart";
 import {FileExtension, MimeType} from "file-type";
 import {Stats} from "fs";
 import {UploadedFileInformation} from "../../../../Storage";
@@ -7,7 +7,7 @@ export interface UploadedFileContract {
 	_extension: FileExtension;
 	_mimeType: MimeType;
 	_fileStat: Stats;
-	file: Multipart;
+	file: MultipartFile;
 	tempFileName: string;
 
 	/**

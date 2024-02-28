@@ -1,4 +1,4 @@
-import {Multipart} from "fastify-multipart";
+import {MultipartFile} from "@fastify/multipart";
 import {default as FileType, FileExtension, MimeType} from 'file-type';
 import * as fs from "fs";
 import {Stats} from "fs";
@@ -16,7 +16,7 @@ export class UploadedFile implements UploadedFileContract {
 	public _fileStat: Stats = null;
 
 	constructor(
-		public file: Multipart,
+		public file: MultipartFile,
 		public tempFileName: string
 	) { }
 

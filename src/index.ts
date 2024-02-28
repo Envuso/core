@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 export {SecurityServiceProvider} from "./Security/SecurityServiceProvider";
 export {EncryptionServiceProvider, Encryption} from "./Crypt";
 export {RouteServiceProvider} from "./Routing/RouteServiceProvider";

@@ -1,6 +1,6 @@
 import {
 	Collection, Filter, FindOptions,
-	ObjectId, OptionalId, UpdateOptions, UpdateResult,
+	ObjectId, OptionalId, OptionalUnlessRequiredId, UpdateOptions, UpdateResult,
 } from "mongodb";
 import {Model, ModelDateField, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
 import {ModelHook, ModelHookMetaData, ModelHooksMeta} from "../../../Database/ModelHooks";
@@ -134,7 +134,7 @@ export interface ModelContract<M> {
 
 	hydrate(attributes: Partial<M>): M;
 
-	dehydrateForQuery(): OptionalId<M>;
+	dehydrateForQuery(): OptionalUnlessRequiredId<M>;
 
 	dehydrate(): object;
 
