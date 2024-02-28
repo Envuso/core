@@ -1,5 +1,5 @@
 import {FastifyRequest, HTTPMethods} from "fastify";
-import {Multipart} from "fastify-multipart";
+import {Multipart, MultipartFile} from "@fastify/multipart";
 import {IncomingMessage} from "http";
 import {config, resolve} from "../../../AppContainer";
 import {Exception, Obj, Str} from "../../../Common";
@@ -293,7 +293,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 *
 	 * @param file
 	 */
-	async setUploadedFile(file: Multipart) {
+	async setUploadedFile(file: MultipartFile) {
 		const tempFileName = await Storage.saveTemporaryFile(
 			file.filename, file.file
 		);
