@@ -271,10 +271,11 @@ export class Model<M> implements ModelContract<M> {
 	 * Delete the current model instance from the collection
 	 */
 	public async delete(): Promise<boolean> {
-		// @ts-ignore
-		const response = await this.collection().deleteOne({_id : this.getModelId()});
+		const response = await this.queryBuilder()
+			.where({_id: this.getModelId()})
+			.deleteOne();
 
-		return !!response.acknowledged;
+		return response;
 	}
 
 	/**

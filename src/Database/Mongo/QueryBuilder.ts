@@ -700,6 +700,15 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	}
 
 	/**
+	 * Delete one item from the collection specified in the where() clause
+	 */
+	public async deleteOne(): Promise<boolean> {
+		const deleteOperation = await this._collection.deleteOne(this._filter.getQuery());
+
+		return !!deleteOperation.acknowledged;
+	}
+
+	/**
 	 * Returns the count of items, filters if one was specified with .where()
 	 * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#estimatedDocumentCount
 	 * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#countDocuments
