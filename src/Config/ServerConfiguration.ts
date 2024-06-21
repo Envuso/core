@@ -1,7 +1,7 @@
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {FastifyPlugin, FastifyPluginOptions, FastifyServerOptions} from "fastify";
-import {FastifyCorsOptions} from "fastify-cors";
-import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
+import {FastifyPluginCallback, FastifyPluginOptions, FastifyRegister, FastifyServerOptions} from "fastify";
+import {FastifyCorsOptions} from "@fastify/cors";
+import {default as FastifyMultipart, FastifyMultipartOptions} from "@fastify/multipart";
 import {HandleInertiaRequestMiddleware} from "../App/Http/Middleware/HandleInertiaRequestMiddleware";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
@@ -76,9 +76,9 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	/**
 	 * Server providers are Fastify Plugins that you register to the server when it's booted.
 	 */
-	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]> = [
+	fastifyPlugins: Array<[FastifyPluginCallback, FastifyPluginOptions]> = [
 		[FastifyMultipart, {} as FastifyMultipartOptions],
-		[require('fastify-helmet'), {contentSecurityPolicy : false}],
+		[require('@fastify/helmet'), {contentSecurityPolicy : false}],
 	];
 
 	/**

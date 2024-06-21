@@ -1,6 +1,6 @@
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
-import {FastifyCorsOptions} from "fastify-cors";
+import {FastifyInstance, FastifyPluginCallback, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
+import {FastifyCorsOptions} from "@fastify/cors";
 import {Exception} from "../../Common";
 import {HookTypes} from "../../Server/ServerHooks";
 import {RequestContextContract} from "../Routing/Context/RequestContextContract";
@@ -20,7 +20,7 @@ export interface ServerConfiguration {
 	disableCookieEncryption: string[];
 	cors: { options: FastifyCorsOptions; enabled: boolean };
 	hooks: (new () => HookContract)[],
-	fastifyPlugins: Array<[FastifyPlugin, FastifyPluginOptions]>;
+	fastifyPlugins: Array<[FastifyPluginCallback, FastifyPluginOptions]>;
 	fastifyOptions: FastifyServerOptions;
 	responseSerialization: ClassTransformOptions;
 }

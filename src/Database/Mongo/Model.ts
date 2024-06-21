@@ -1,7 +1,7 @@
 import {instanceToPlain, classToPlainFromExist, plainToInstance} from "class-transformer";
 import {ClassTransformOptions} from "class-transformer/types/interfaces";
 import _ from 'lodash';
-import {Collection, Filter, FindOptions, ObjectId, OptionalId, UpdateOptions, UpdateResult,} from "mongodb";
+import {Collection, Filter, FindOptions, ObjectId, OptionalId, OptionalUnlessRequiredId, UpdateOptions, UpdateResult,} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer";
 import {Log} from "../../Common";
@@ -271,9 +271,11 @@ export class Model<M> implements ModelContract<M> {
 	 * Delete the current model instance from the collection
 	 */
 	public async delete(): Promise<boolean> {
-		const response = await this.collection().deleteOne({_id : this.getModelId()});
+		const response = await this.queryBuilder()
+			.where({_id: this.getModelId()})
+			.deleteOne();
 
-		return !!response.acknowledged;
+		return response;
 	}
 
 	/**
@@ -422,7 +424,7 @@ export class Model<M> implements ModelContract<M> {
 		});
 	}
 
-	public dehydrateForQuery(): OptionalId<M> {
+	public dehydrateForQuery(): OptionalUnlessRequiredId<M> {
 		// Also Reeeeeeeee.....
 		return (this.constructor as any).dehydrate(this) as any;
 	}

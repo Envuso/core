@@ -371,7 +371,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 
 			if (!this.isRelation(relation as string) || !meta) {
 				Log.warn(`You're trying to load a relation that is not defined as one. `);
-				Log.warn(`Attempted relation key is: ${relation}. `);
+				Log.warn(`Attempted relation key is: ${String(relation)}. `);
 				Log.warn(`Defined relations are: ${this.joinedRelationsArray().map(r => `${r.propertyKey}(${r.type})`).join(', ')}`);
 				continue;
 			}
@@ -695,6 +695,15 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		if (returnMongoResponse) {
 			return deleteOperation;
 		}
+
+		return !!deleteOperation.acknowledged;
+	}
+
+	/**
+	 * Delete one item from the collection specified in the where() clause
+	 */
+	public async deleteOne(): Promise<boolean> {
+		const deleteOperation = await this._collection.deleteOne(this._filter.getQuery());
 
 		return !!deleteOperation.acknowledged;
 	}

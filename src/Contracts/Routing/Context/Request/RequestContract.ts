@@ -1,5 +1,5 @@
 import {HTTPMethods} from "fastify";
-import {Multipart} from "fastify-multipart";
+import {Multipart} from "@fastify/multipart";
 import {UploadedFile} from "../../../../Routing/Context/Request/UploadedFile";
 import {RouteParameters} from "../../../../Routing/Route/RouteParameters";
 import {AuthenticatableContract} from "../../../Authentication/UserProvider/AuthenticatableContract";

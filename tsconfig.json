@@ -20,7 +20,6 @@
     "declaration": true,
     "types": [
       "node",
-      "reflect-metadata",
       "jest"
     ],
     "typeRoots": [

@@ -302,6 +302,11 @@ export interface QueryBuilderContract<T> {
 	delete(returnMongoResponse?: boolean): Promise<boolean | DeleteResult>;
 
 	/**
+	 * Delete one item from the collection specified in the where() clause
+	 */
+	deleteOne(): Promise<boolean>;
+
+	/**
 	 * Returns the count of items, filters if one was specified with .where()
 	 * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#estimatedDocumentCount
 	 * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#countDocuments
