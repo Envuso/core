@@ -2,7 +2,8 @@ import {ObjectId} from "mongodb";
 import type {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import type {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {RequestContextStore} from "../../Routing/Context/RequestContextStore";
-import type {ModelAttributesFilter} from "../QueryBuilderTypes";
+import {Exception} from "../../Common/Exception/Exception";
+import {StatusCodes} from "../../Common/Http/StatusCodes/StatusCodes";
 import {QueryBuilder} from "./QueryBuilder";
 import {QueryBuilderParts} from "./QueryBuilderParts";
 
@@ -43,43 +44,78 @@ export class Paginator<T> implements PaginatorContract<T> {
 	public async getResults(queryBuilder: QueryBuilder<any>): Promise<this> {
 		this.setPageCursors();
 
-		const total = await queryBuilder.where(this.query.getQuery()).count();
+		// Cursors are _id values, so pages are in _id order (ascending unless orderByDesc('_id'))
+		const order = queryBuilder._collectionOrder;
+		if (order && order.key !== '_id') {
+			throw new Error(
+				`paginate() uses _id cursors and can't page by "${order.key}": the pages would skip or repeat documents. ` +
+				`Remove the orderBy, or use orderByAsc/Desc('_id').`
+			);
+		}
+		const direction: 1 | -1 = order?.direction === -1 ? -1 : 1;
 
-		this.mergeQuery(this.setupQuery());
+		const after  = Paginator.parseCursor('after', this.getAfterCursor());
+		const before = Paginator.parseCursor('before', this.getBeforeCursor());
 
-		const results = await queryBuilder
-			.where(this.query.getQuery())
-			.limit(this.limit)
-			.get({limit : this.limit});
+		const total = await queryBuilder.count();
+
+		// "after" continues in the page direction, "before" goes back: query it reversed, then flip
+		const backwards = !!before && !after;
+		const cursor    = after ?? before;
+		const forward   = (direction === 1) !== backwards;
+
+		if (cursor) {
+			const condition = {_id : forward ? {$gt : cursor} : {$lt : cursor}};
+			const filter    = this.query.getQuery();
+
+			this.query.setQuery(Object.keys(filter ?? {}).length ? {$and : [filter, condition]} : condition);
+		}
+
+		// One extra document tells us whether there is another page
+		let results = await queryBuilder
+			.limit(this.limit + 1)
+			.get({limit : this.limit + 1, sort : {_id : forward ? 1 : -1}});
+
+		const hasMore = results.length > this.limit;
+		results       = results.slice(0, this.limit);
+
+		if (backwards) {
+			results.reverse();
+		}
+
+		const hasNext     = backwards ? true : hasMore;
+		const hasPrevious = backwards ? hasMore : !!after;
+		const first       = (results[0] as any)?._id ?? null;
+		const last        = (results[results.length - 1] as any)?._id ?? null;
 
 		this._response = {
 			data       : results,
 			pagination : {
-				before      : this._beforeCursor,
-				after       : this._afterCursor,
-				hasNext     : false,
-				hasPrevious : false,
-				total       : 0,
+				before      : hasPrevious && first ? String(first) : null,
+				after       : hasNext && last ? String(last) : null,
+				hasNext     : results.length ? hasNext : false,
+				hasPrevious : results.length ? hasPrevious : false,
+				total       : total,
 				limit       : this.limit,
 			}
 		};
 
-		if (!results?.length)
-			return this;
-
-		const hasNext     = (results.length === this.limit) && (total > results.length);
-		const hasPrevious = this.getAfterCursor() !== null;
-
-		this._response.pagination = {
-			before      : hasPrevious ? (results[0] as any)._id : null,
-			after       : hasNext ? (results[results.length - 1] as any)._id : null,
-			hasNext     : hasNext,
-			hasPrevious : hasPrevious,
-			total       : total,
-			limit       : this.limit
-		};
-
 		return this;
+	}
+
+	/**
+	 * A cursor from the request: an _id; anything else is the client's mistake (400), not a 500
+	 */
+	private static parseCursor(name: string, value: any): ObjectId | null {
+		if (value === null || value === undefined || value === '') {
+			return null;
+		}
+
+		if (typeof value !== 'string' || !/^[a-f0-9]{24}$/i.test(value)) {
+			throw new Exception(`The "${name}" cursor is invalid.`, StatusCodes.BAD_REQUEST);
+		}
+
+		return new ObjectId(value);
 	}
 
 	/**
@@ -119,55 +155,6 @@ export class Paginator<T> implements PaginatorContract<T> {
 		return this._afterCursor;
 	}
 
-
-	/**
-	 * Prepare the query and check if we have cursors set on the request
-	 *
-	 * @returns {null | {_id: {}}}
-	 * @private
-	 */
-	public setupQuery(): ModelAttributesFilter<T> {
-		let query = {
-			'_id' : {}
-		};
-
-		// Check if we have a before cursor set, if so lets handle that.
-		if (this.getBeforeCursor()) {
-			query['_id'] = {$lt : new ObjectId(this.getBeforeCursor())};
-
-			return query;
-		}
-
-		// If we didn't have a before... then what about an after?
-		if (this.getAfterCursor()) {
-			query['_id'] = {$gt : new ObjectId(this.getAfterCursor())};
-
-			return query;
-		}
-
-		return {};
-	}
-
-	/**
-	 * Try to ensure that we can assign our pagination filter to the query
-	 * without overwriting any thing else the developer specifies on the query
-	 *
-	 * @param query
-	 */
-	public mergeQuery(query: any): void {
-		const thisQuery = this.query.getQuery();
-
-		let currentQueryId = thisQuery?._id;
-
-		if (currentQueryId) {
-			query = {...currentQueryId, ...query._id};
-		}
-
-		if (query._id)
-			(thisQuery as any)._id = query._id;
-
-		this.query.add(query);
-	}
 
 	/**
 	 * Get the response of the paginator

@@ -1,7 +1,6 @@
 import {QueryBuilder} from "../../../Database/Mongo/QueryBuilder";
 import type {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
-import type {ModelAttributesFilter} from "../../../Database/QueryBuilderTypes";
 import type {ModelContract} from "./ModelContract";
 
 export interface PaginatorContract<T> {
@@ -39,22 +38,6 @@ export interface PaginatorContract<T> {
 	 * @returns {string | null}
 	 */
 	getAfterCursor(): string | null;
-
-	/**
-	 * Prepare the query and check if we have cursors set on the request
-	 *
-	 * @returns {null | {_id: {}}}
-	 * @private
-	 */
-	setupQuery(): ModelAttributesFilter<T>;
-
-	/**
-	 * Try to ensure that we can assign our pagination filter to the query
-	 * without overwriting any thing else the developer specifies on the query
-	 *
-	 * @param query
-	 */
-	mergeQuery(query: any): void;
 
 	/**
 	 * Get the response of the paginator

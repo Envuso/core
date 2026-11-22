@@ -239,6 +239,11 @@ export class TestingController extends Controller {
 		return User.query().paginate(1);
 	}
 
+	@get('/model/pagination/tagged')
+	async testPaginationTagged() {
+		return User.query().where({something : request('tag')}).paginate(2);
+	}
+
 	@get('/model/pagination/filtered')
 	async testPaginationFiltered() {
 		return User.query().where({something : "randomtext"}).paginate(1);

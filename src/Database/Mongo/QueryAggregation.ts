@@ -17,16 +17,18 @@ export class QueryAggregation<T> {
 	 * @returns {this<T>}
 	 */
 	public addQueryOptions(options: FindOptions): QueryAggregation<T> {
-		if (options?.limit) {
-			this.aggregations.push({$limit : options.limit});
-		}
-
+		// Sort, then skip, then limit, like find(): limiting first took an arbitrary N
+		// documents and only sorted those
 		if (options?.sort) {
 			this.aggregations.push({$sort : options.sort});
 		}
 
 		if (options?.skip) {
 			this.aggregations.push({$skip : options.skip});
+		}
+
+		if (options?.limit) {
+			this.aggregations.push({$limit : options.limit});
 		}
 
 		return this;

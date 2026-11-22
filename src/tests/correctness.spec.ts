@@ -257,3 +257,53 @@ describe('model update()', () => {
 		expect(await user.update({name : 'nope'} as any)).toBe(false);
 	});
 });
+
+describe('pagination', () => {
+	const tag = 'paginate-' + Date.now();
+	let ids: string[];
+
+	beforeAll(async () => {
+		const created = await User.createMany(Array.from({length : 5}, (_, i) => ({name : `p${i}`, something : tag})) as any);
+		ids = (created as any).ids.map(String).sort();
+	});
+
+	// The paginator reads its cursors from the request, so these go through a route
+
+	test('walking forward visits every document once, then stops', async () => {
+		const seen: string[] = [];
+		let after: string    = null;
+
+		for (let i = 0; i < 5; i++) {
+			const res  = await inject({method : 'GET', url : `/testing/model/pagination/tagged?tag=${tag}${after ? `&after=${after}` : ''}`, headers : {accept : 'application/json'}});
+			const body = res.json();
+			seen.push(...body.data.map((u: any) => String(u._id)));
+
+			if (!body.pagination.hasNext) {
+				expect(body.pagination.after).toBeNull();
+				break;
+			}
+			after = body.pagination.after;
+		}
+
+		expect(seen).toEqual(ids);
+	});
+
+	test('walking back with "before" returns the previous page in order', async () => {
+		const res  = await inject({method : 'GET', url : `/testing/model/pagination/tagged?tag=${tag}&before=${ids[4]}`, headers : {accept : 'application/json'}});
+		const body = res.json();
+
+		expect(body.data.map((u: any) => String(u._id))).toEqual([ids[2], ids[3]]);
+		expect(body.pagination.hasNext).toBe(true);
+		expect(body.pagination.hasPrevious).toBe(true);
+	});
+
+	test('an invalid cursor is a 400', async () => {
+		const res = await inject({method : 'GET', url : `/testing/model/pagination/tagged?tag=${tag}&after=nope`, headers : {accept : 'application/json'}});
+
+		expect(res.statusCode).toBe(400);
+	});
+
+	test('ordering by another field is refused instead of paging wrongly', async () => {
+		await expect(User.query().orderByDesc('name').paginate(2)).rejects.toThrow(/_id cursors/);
+	});
+});

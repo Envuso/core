@@ -185,6 +185,13 @@ export class QueryBuilderParts<T> {
 		return this.query;
 	}
 
+	/**
+	 * Replace the whole filter (no merging)
+	 */
+	public setQuery(query: object) {
+		this.query = query;
+	}
+
 	getQueryAsFilter(): Filter<T> {
 		return this.query;
 	}
