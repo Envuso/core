@@ -1,5 +1,7 @@
 import {DateTime} from "@envuso/date-time-helper";
-import RedisClient, {type Redis as IRedis, type RedisOptions} from "ioredis";
+import RedisClient, {type RedisOptions} from "ioredis";
+
+type IRedis = RedisClient;
 import {Log} from "../Common/Logger/Log";
 import Obj from "../Common/Utility/Obj";
 
