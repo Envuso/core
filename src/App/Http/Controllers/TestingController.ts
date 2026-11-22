@@ -73,6 +73,16 @@ export class TestingController extends Controller {
 		return message;
 	}
 
+	@get('/query/two')
+	async testTwoQueryParams(@query first: string, @query second: number) {
+		return {first, second};
+	}
+
+	@get('/query/gap')
+	async testQueryParamsAroundUndecorated(@query first: string, unbound: string, @headers headers: any) {
+		return {first, unbound : unbound ?? null, hasHeaders : typeof headers?.get === 'function' || typeof headers === 'object'};
+	}
+
 	@get('/query/number')
 	async testQueryNumber(@query n: number) {
 		return {n, type : typeof n};

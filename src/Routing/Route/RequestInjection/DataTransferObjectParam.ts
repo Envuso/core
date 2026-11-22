@@ -31,12 +31,10 @@ export class DataTransferObjectParam extends MethodParameterDecorator {
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, dtoParam: DataTransferObjectParam) {
-		const target = reflector.target[reflector.propertyKey];
-
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_DTO, dtoParam, target);
+		MethodParameterDecorator.store(METADATA.REQUEST_METHOD_DTO, reflector, dtoParam);
 	}
 
-	static getMetadata(target: Function): DataTransferObjectParam | undefined {
+	static getMetadata(target: Function): DataTransferObjectParam[] | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_METHOD_DTO, target);
 	}
 

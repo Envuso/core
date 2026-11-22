@@ -16,17 +16,11 @@ export class RequestParam extends MethodParameterDecorator {
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, param: RequestParam) {
-		const target = reflector.target[reflector.propertyKey];
-
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_FASTIFY_REQUEST, param, target);
+		MethodParameterDecorator.store(METADATA.REQUEST_METHOD_FASTIFY_REQUEST, reflector, param);
 	}
 
-	static getMetadata(target: Function): RequestParam | undefined {
+	static getMetadata(target: Function): RequestParam[] | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_METHOD_FASTIFY_REQUEST, target);
-	}
-
-	public canBind(target: Function, param: any, parameterIndex: number) {
-		return this instanceof RequestParam;
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {

@@ -17,6 +17,11 @@ export class MethodParameterDecorator {
 	 */
 	public expectedParamType: any;
 
+	/**
+	 * The position of the method parameter this decorator is on
+	 */
+	public parameterIndex: number = null;
+
 	constructor(paramType: any) {
 		this.expectedParamType = paramType;
 	}
@@ -33,6 +38,20 @@ export class MethodParameterDecorator {
 	 */
 	static getMethodMetadata<T>(target: Function, metadata: METADATA): T {
 		return Reflect.getMetadata(metadata, target);
+	}
+
+	/**
+	 * Record this decorator for its parameter. A method keeps a list per decorator type,
+	 * so using one twice (e.g. two @query params) no longer overwrites the first.
+	 */
+	static store(metadata: METADATA, reflector: ReflectControllerMethodParamData, param: MethodParameterDecorator) {
+		const target = reflector.target[reflector.propertyKey];
+		const stored = Reflect.getOwnMetadata(metadata, target);
+		const list   = stored === undefined ? [] : (Array.isArray(stored) ? stored : [stored]);
+
+		param.parameterIndex = reflector.parameterIndex;
+
+		Reflect.defineMetadata(metadata, [...list, param], target);
 	}
 
 	/**
@@ -57,6 +76,11 @@ export class MethodParameterDecorator {
 	 * @param parameterIndex
 	 */
 	public canBind(target: Function, param: any, parameterIndex: number) {
+		// Decorators are per parameter: bind the one at our position
+		if (this.parameterIndex !== null) {
+			return this.parameterIndex === parameterIndex;
+		}
+
 		return this.expectedParamType.prototype === param.prototype;
 	}
 

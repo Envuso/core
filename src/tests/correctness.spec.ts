@@ -307,3 +307,17 @@ describe('pagination', () => {
 		await expect(User.query().orderByDesc('name').paginate(2)).rejects.toThrow(/_id cursors/);
 	});
 });
+
+describe('route parameter decorators', () => {
+	const get = (url: string) => inject({method : 'GET', url, headers : {accept : 'application/json'}});
+
+	test('two @query parameters on one method both bind (the second overwrote the first)', async () => {
+		expect((await get('/testing/query/two?first=a&second=2')).json()).toEqual({first : 'a', second : 2});
+	});
+
+	test('an undecorated parameter does not shift the ones after it', async () => {
+		const body = (await get('/testing/query/gap?first=a')).json();
+
+		expect(body).toEqual({first : 'a', unbound : null, hasHeaders : true});
+	});
+});

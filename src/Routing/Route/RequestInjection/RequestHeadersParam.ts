@@ -5,7 +5,6 @@ import {MethodParameterDecorator, type ReflectControllerMethodParamData} from ".
 
 
 export class RequestHeadersParam extends MethodParameterDecorator {
-	private parameterIndex: number;
 
 	constructor(parameterIndex: number) {
 		super(null)
@@ -17,17 +16,11 @@ export class RequestHeadersParam extends MethodParameterDecorator {
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, dtoParam: RequestHeadersParam) {
-		const target = reflector.target[reflector.propertyKey];
-
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_HEADERS, dtoParam, target)
+		MethodParameterDecorator.store(METADATA.REQUEST_METHOD_HEADERS, reflector, dtoParam);
 	}
 
-	static getMetadata(target: Function): RequestHeadersParam | undefined {
+	static getMetadata(target: Function): RequestHeadersParam[] | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_METHOD_HEADERS, target);
-	}
-
-	public canBind(target: Function, param: any, parameterIndex: number) {
-		return parameterIndex === this.parameterIndex;
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {

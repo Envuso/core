@@ -30,21 +30,11 @@ export class RouteQueryParam extends MethodParameterDecorator {
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, param: RouteQueryParam) {
-		const target = reflector.target[reflector.propertyKey];
-
-		Reflect.defineMetadata(METADATA.REQUEST_METHOD_QUERY_PARAMETER, param, target);
+		MethodParameterDecorator.store(METADATA.REQUEST_METHOD_QUERY_PARAMETER, reflector, param);
 	}
 
-	static getMetadata(target: Function): RouteQueryParam | undefined {
+	static getMetadata(target: Function): RouteQueryParam[] | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_METHOD_QUERY_PARAMETER, target);
-	}
-
-	public canBind(target: Function, param: any, parameterIndex: number) {
-		if (parameterIndex !== this.paramIndex) {
-			return false;
-		}
-
-		return this.expectedParamType === param;
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {

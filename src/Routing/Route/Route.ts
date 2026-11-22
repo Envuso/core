@@ -214,7 +214,9 @@ export class Route implements RouteContract {
 		// 	return [];
 		// }
 
-		const parameterArgs = [];
+		// Arguments go at their parameter's position: push()ing them shifted every later
+		// argument left whenever a parameter wasn't bound (it is passed as undefined now)
+		const parameterArgs = new Array(this.methodMeta.parameters?.length ?? 0).fill(undefined);
 
 		for (let index in this.methodMeta.parameters) {
 			const parameter = this.methodMeta.parameters[index];
@@ -239,7 +241,7 @@ export class Route implements RouteContract {
 					for (let methodMetaElement of methodMeta) {
 						if (methodMetaElement.canBind(this.methodMeta.target[this.methodMeta.key], parameter.type, Number(index))) {
 							const boundMetadata = await methodMetaElement.bind(request, response, context);
-							parameterArgs.push(boundMetadata);
+							parameterArgs[Number(index)] = boundMetadata;
 							boundParameter = true;
 							break;
 						}
@@ -253,7 +255,7 @@ export class Route implements RouteContract {
 
 					if (canBind) {
 						const boundMetadata = await methodMeta.bind(request, response, context);
-						parameterArgs.push(boundMetadata);
+						parameterArgs[Number(index)] = boundMetadata;
 
 						boundParameter = true;
 						break;
@@ -285,7 +287,7 @@ export class Route implements RouteContract {
 					throw new ModelNotFoundException(modelInstance.name);
 				}
 
-				parameterArgs.push(model);
+				parameterArgs[Number(index)] = model;
 			}
 
 		}

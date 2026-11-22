@@ -30,12 +30,10 @@ export class RouteUserParam extends MethodParameterDecorator {
 	}
 
 	private static setMetadata(reflector: ReflectControllerMethodParamData, param: RouteUserParam) {
-		const target = reflector.target[reflector.propertyKey];
-
-		Reflect.defineMetadata(METADATA.REQUEST_AUTHENTICATED_USER, param, target);
+		MethodParameterDecorator.store(METADATA.REQUEST_AUTHENTICATED_USER, reflector, param);
 	}
 
-	static getMetadata(target: Function): RouteUserParam | undefined {
+	static getMetadata(target: Function): RouteUserParam[] | undefined {
 		return Reflect.getMetadata(METADATA.REQUEST_AUTHENTICATED_USER, target);
 	}
 
