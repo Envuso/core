@@ -8,7 +8,7 @@ import Environment from "../../AppContainer/Config/Environment";
 import {FileLoader} from "../../Common/Utility/FileLoader";
 import {Log} from "../../Common/Logger/Log";
 import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
-import mime, {getType} from 'mime';
+import mime from 'mime';
 import {Routing} from "../Route/Routing";
 import {assetHelperGlobal} from "./GlobalHandlers/AssetHelperGlobal";
 import {mixViewHelperGlobal} from "./GlobalHandlers/MixViewHelperGlobal";
