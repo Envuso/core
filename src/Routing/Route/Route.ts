@@ -25,6 +25,8 @@ import {MethodParameterDecorator} from "./RequestInjection/MethodParameterDecora
 import {URL} from 'url';
 import {isObjectId} from "../../Database/isObjectId";
 
+type ParameterBinder = (request: FastifyRequest, response: FastifyReply, context: RequestContextContract) => any;
+
 export interface ControllerMethodParameterMetadata {
 	name: string;
 	type: any;
@@ -206,94 +208,66 @@ export class Route implements RouteContract {
 	 * @param context
 	 */
 	public async parametersForRoute(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
+		// Which decorator (or route model binding) fills each parameter only depends on the
+		// method, so it's worked out on the first request instead of on every one
+		const binders = this._parameterBinders ??= this.compileParameterBinders();
 
-		//TODO: Double check we actually need this, pretty sure that
-		//We figured out last night that, this was basically useless
-		// const parameters = route.getMethodParameterTypes();
-		//
-		// if (!parameters.length) {
-		// 	return [];
-		// }
+		// Arguments go at their parameter's position (an unbound parameter is undefined)
+		const parameterArgs = new Array(binders.length).fill(undefined);
 
-		// Arguments go at their parameter's position: push()ing them shifted every later
-		// argument left whenever a parameter wasn't bound (it is passed as undefined now)
-		const parameterArgs = new Array(this.methodMeta.parameters?.length ?? 0).fill(undefined);
-
-		for (let index in this.methodMeta.parameters) {
-			const parameter = this.methodMeta.parameters[index];
-
-			let boundParameter = false;
-
-			for (let metadataKey of this.methodParamTypesForInjection()) {
-
-				const methodMeta: MethodParameterDecorator = MethodParameterDecorator.getMethodMetadata(
-					this.methodMeta.target[this.methodMeta.key],
-					metadataKey
-				);
-
-				// @todo - here for @param... we can have multiple @param decorators
-				// currently it only allows for one, they need to be an array
-
-				if (!methodMeta) {
-					continue;
-				}
-
-				if (Array.isArray(methodMeta)) {
-					for (let methodMetaElement of methodMeta) {
-						if (methodMetaElement.canBind(this.methodMeta.target[this.methodMeta.key], parameter.type, Number(index))) {
-							const boundMetadata = await methodMetaElement.bind(request, response, context);
-							parameterArgs[Number(index)] = boundMetadata;
-							boundParameter = true;
-							break;
-						}
-					}
-
-					if (boundParameter) {
-						break;
-					}
-				} else {
-					const canBind = methodMeta.canBind(this.methodMeta.target[this.methodMeta.key], parameter.type, Number(index));
-
-					if (canBind) {
-						const boundMetadata = await methodMeta.bind(request, response, context);
-						parameterArgs[Number(index)] = boundMetadata;
-
-						boundParameter = true;
-						break;
-					}
-				}
-
-
+		for (let index = 0; index < binders.length; index++) {
+			if (binders[index]) {
+				parameterArgs[index] = await binders[index](request, response, context);
 			}
-
-			// Route model binding was conflicting with @user decorator... so
-			// When we've handled a decorator for this parameter, we'll set bound
-			// to true. This way, we can then fall-back to attempting route model binding.
-			if (boundParameter) {
-				continue;
-			}
-
-			if (parameter.type.prototype instanceof Model) {
-				const modelInstance: typeof Model = parameter.type;
-
-				const identifier = request.params[parameter.name];
-
-				if (!isObjectId(identifier)) {
-					throw new InvalidObjectIdUsed(modelInstance.name);
-				}
-
-				const model = await modelInstance.find(identifier) ?? null;
-
-				if (model === null) {
-					throw new ModelNotFoundException(modelInstance.name);
-				}
-
-				parameterArgs[Number(index)] = model;
-			}
-
 		}
 
 		return parameterArgs;
+	}
+
+	private _parameterBinders: (ParameterBinder | null)[] = null;
+
+	/**
+	 * One binder per method parameter: the first decorator that can bind it, else route
+	 * model binding for a Model type, else nothing.
+	 */
+	private compileParameterBinders(): (ParameterBinder | null)[] {
+		const method     = this.methodMeta.target[this.methodMeta.key];
+		const parameters = Array.from(this.methodMeta.parameters ?? []) as any[];
+
+		return parameters.map((parameter, index): ParameterBinder | null => {
+			for (const metadataKey of this.methodParamTypesForInjection()) {
+				const stored = MethodParameterDecorator.getMethodMetadata<MethodParameterDecorator | MethodParameterDecorator[]>(method, metadataKey);
+				const list   = stored ? (Array.isArray(stored) ? stored : [stored]) : [];
+
+				for (const decorator of list) {
+					if (decorator.canBind(method, parameter.type, index)) {
+						return (request, response, context) => decorator.bind(request, response, context);
+					}
+				}
+			}
+
+			if (parameter.type?.prototype instanceof Model) {
+				const modelInstance: typeof Model = parameter.type;
+
+				return async (request) => {
+					const identifier = request.params[parameter.name];
+
+					if (!isObjectId(identifier)) {
+						throw new InvalidObjectIdUsed(modelInstance.name);
+					}
+
+					const model = await modelInstance.find(identifier) ?? null;
+
+					if (model === null) {
+						throw new ModelNotFoundException(modelInstance.name);
+					}
+
+					return model;
+				};
+			}
+
+			return null;
+		});
 	}
 
 	/**
