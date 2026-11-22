@@ -25,6 +25,10 @@ All notable changes to Envuso are documented in this file. The format follows [K
   - To load no `.env` at all (e.g. production relying on real env vars), use `bun --no-env-file` or `env = false` in `bunfig.toml`.
 - **Environment variables override `.env`.** Real environment variables take precedence over `.env` values. In 2.x the `.env` file won. If your deployment relies on `.env` overriding the shell environment, that changes. (4421992, 9ea4f00)
 
+- **The package is ESM and compiled with Bun.** `@envuso/core` ships as ES modules (`"type": "module"`) built with Bun's transpiler, plus `.d.ts` files. Deep imports such as `@envuso/core/Routing` keep working. (c5cfae0, 68617cc)
+- **App files are loaded as they are.** `FileLoader.formatPathForRunEnvironment()` no longer rewrites `src/**/*.ts` to `dist/**/*.js`; Bun runs your app's TypeScript directly, so there is no app build step. The method is deprecated. (c5cfae0)
+- **`"false"` in the environment is now `false`.** In 2.x every `"false"` value (any case) was read as `true`. Settings you had set to `false` in `.env` now actually take effect. Numbers are still returned as strings; wrap them in `Number(...)`. (832b7d4)
+
 **Fastify 5**
 
 - Fastify is upgraded from 3 to 5, and the `fastify-*` plugins are replaced by their `@fastify/*` equivalents: `@fastify/cors`, `@fastify/helmet`, `@fastify/multipart`, `@fastify/formbody`, `@fastify/raw-body` (6). `middie` is removed. (50211bd)
@@ -85,6 +89,8 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - `enabled: false` is now honoured. Previously the server ran regardless. (26e2e3a)
 - The `ws` and `@types/ws` packages are removed. (26e2e3a)
 
+- The websocket configuration contract (`WebsocketsConfiguration`, `WebSocketServerOptions`) lives in `@envuso/core/Contracts/Configuration/WebsocketsConfigurationContracts`; implement it in your `WebsocketsConfiguration` class. (c5cfae0)
+
 **Storage (S3)**
 
 - S3 uses AWS SDK v3 (`@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner`). The v2 `aws-sdk` package is removed. Apps that import `aws-sdk` directly must migrate. (a7c1bb2)
@@ -144,6 +150,15 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 - `Relation<T>` type for relation properties. (55123ec)
 
+**Packaging**
+
+- `bun run pack` builds the framework and packs it exactly as it is published (`.pack/envuso-core.tgz`), so an app can install an unpublished build with `"@envuso/core": "file:../core/.pack/envuso-core.tgz"`. A tarball gives a deduplicated install; `bun link` would give the app its own copies of `class-validator`, `reflect-metadata` and `tsyringe`, and validation rules or DI registrations would not be shared. (c5cfae0)
+- Packing checks that every named import from a dependency exists at runtime (`scripts/check-dist-imports.ts`). (68617cc)
+
+**Configuration**
+
+- `ConfigurationFile.appConfigurationPath()` and `ConfigurationFile.initiateAppConfiguration()` locate and load the app's `Configuration.ts` (from `configurationDirectory` in `envuso.json`, default `src/Config`). (c5cfae0)
+
 **Tooling**
 
 - `test` and `typecheck` scripts. The test suite runs on `bun test` and starts MongoDB 8, Redis 8 and an S3-compatible store (RustFS) through Testcontainers, once per run. (4421992, a7c1bb2)
@@ -198,6 +213,29 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 ### Fixed
 
+**Packaging and loading**
+
+- Queue workers and the CLI loaded the framework's own bundled test configuration instead of the app's. They now load the app's `Configuration.ts` (see Added); a worker can also be given `workerData.configurationPath`. (c5cfae0)
+- The worker thread file is resolved with the running extension, so queue workers start when the framework is installed compiled. (c5cfae0)
+- A value import of `BulkWriteResult`, which mongodb 7 only exports as a type, failed to load in the compiled build. (68617cc)
+- Classes imported only for their types no longer become runtime imports in the build, which formed import cycles (`Cannot access 'Hook' before initialization`). (68617cc)
+
+**Routing**
+
+- Async route handlers now return the reply after sending it. Fastify 5 otherwise sent the response a second time (`ERR_HTTP_HEADERS_SENT`). (68617cc)
+
+**Filesystem**
+
+- `FileLoader` returns no files for a missing directory instead of throwing, so an app without, for example, `App/Events` boots again (a regression from the switch to `Bun.Glob`). (68617cc)
+
+**Environment**
+
+- `"false"` (any case) was read as `true` (see Breaking changes). (832b7d4)
+
+**Logging**
+
+- Error logging matches tslog 5's `(message, ...args)` signature, and an intentional Redis `close()` on shutdown is no longer logged as an error. (c5cfae0, 68617cc)
+
 **Queue**
 
 - Jobs could be lost or run twice across processes. Concurrent workers no longer double-reserve a job, and a job from another live process is no longer re-run at boot. (efdf449)
@@ -249,6 +287,7 @@ All notable changes to Envuso are documented in this file. The format follows [K
 Apps that imported any of these directly, or relied on them transitively, need to add them to their own `package.json` or migrate:
 
 - Runtime: `uWebSockets.js` (git dependency), `ioredis` and its types, `aws-sdk` (v2), `axios` (use `fetch`), `chokidar`, `glob`, `path-to-regexp`, `read-chunk`, `is-image`, `is-video`, `mime` (use `Bun.file(path).type`), `ws`, `@types/ws`, `dotenv` and `dotenv-expand` (Bun loads `.env`), `middie`, `cookies`, `dayjs`, `node-fetch`, `qs`, `bufferutil`, `utf-8-validate`.
+- Runtime: `ts-node` (it was listed as a runtime dependency).
 - Dev: `ts-node-dev`, Jest, the `@babel/*` set and `babel-loader`, and stale `@types/*` packages (`node`, `chokidar`, `busboy`, `connect`, `dotenv`, `glob`, `mime`, `ioredis`, `redis`).
 
 **Behaviour**
