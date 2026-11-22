@@ -1,32 +1,17 @@
-import {Buffer} from "buffer";
+import type {Server, ServerWebSocket} from "bun";
 import {JsonWebTokenError} from "jsonwebtoken";
-import {ObjectId} from "mongodb";
 import path from "path";
-import type {
-	HttpRequest,
-	HttpResponse,
-	TemplatedApp,
-	us_listen_socket,
-	us_socket_context_t,
-	WebSocket
-} from 'uWebSockets.js';
-
-// Loaded lazily: uWebSockets.js is a native addon with no build for Bun's ABI,
-// so importing it eagerly would break the whole framework on Bun even without websockets.
-const uWS = () => require('uWebSockets.js') as typeof import('uWebSockets.js');
 import {app, config, resolve} from "../AppContainer/helpers";
-import {Authenticatable} from "../Authenticatable";
+import type {Authenticatable} from "../Authenticatable";
 import {Authentication} from "../Authentication/Authentication";
 import {JwtAuthenticationProvider} from "../Authentication/AuthenticationProviders/JwtAuthenticationProvider";
-import {Obj} from "../Common/Utility/Obj";
 import {FileLoader} from "../Common/Utility/FileLoader";
 import {Log} from "../Common/Logger/Log";
 import {Str} from "../Common/Utility/Str";
 import {ResponseDataFormatter} from "../Common/Http/ResponseDataFormatter";
-import WebsocketsConfiguration, {type uWsBehaviour} from "../Config/WebsocketsConfiguration";
+import type WebsocketsConfiguration from "../Config/WebsocketsConfiguration";
 import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import type {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
-import {Model} from "../Database/Mongo/Model";
 import {RequestContext} from "../Routing/Context/RequestContext";
 import {RequestContextStore} from "../Routing/Context/RequestContextStore";
 import {type BaseEventPacket, type ChannelSubscribeSocketPacket, type ChannelUnsubscribeSocketPacket, SocketEvents, type UserMessageSocketPacket} from "./SocketEventTypes";
@@ -40,135 +25,140 @@ export interface ChannelInformation {
 	wildcardValue: string | null;
 }
 
+/** Attached to each socket on upgrade (ws.data) */
+export interface SocketData {
+	url: string;
+	token: string | null;
+	uuid: string;
+	user: Authenticatable<any> | null;
+	connection: WebSocketConnection<any>;
+}
+
+export type EnvusoWebSocket = ServerWebSocket<SocketData>;
+
 export class WebSocketServer {
 
+	/** One websocket server per process; booting again (e.g. providers re-loaded) replaces it */
+	private static active: WebSocketServer = null;
+
 	private config: WebsocketsConfiguration;
-	private listenSocket: us_listen_socket;
-	private app: TemplatedApp;
+	private server: Server<SocketData> = null;
 	private connections: Map<string, WebSocketConnection<any>>                 = new Map();
 	public _listeners: Map<string, new () => WebSocketChannelListenerContract> = new Map();
 
 	async boot(config: WebsocketsConfiguration) {
 		this.config = config;
 
-		try {
-			this.app = uWS().App(this.config.uWebsocketAppOptions);
-		} catch (error) {
-			// TODO: move websockets onto Bun.serve's built-in (uWS-backed) websocket support
-			Log.warn(`WebSocket server disabled: uWebSockets.js could not be loaded on this runtime (${error?.message?.split('\n')[0]})`);
+		if (config.enabled === false) {
 			return;
 		}
 
+		// Booting twice (this instance or another) would otherwise fail with EADDRINUSE
+		await WebSocketServer.active?.unload();
+		await this.unload();
+
 		await this.prepareEventListeners();
 
-		this.app.ws('/*', {
-			...(Obj.only<uWsBehaviour>(this.config.uWebsocketServerBehaviour, ['maxPayloadLength', 'idleTimeout', 'compression', 'maxBackpressure'])),
+		this.server = Bun.serve<SocketData>({
+			port      : config.port,
+			hostname  : config.hostname,
+			fetch     : (request, server) => this.handleUpgrade(request, server),
+			websocket : {
+				...config.server,
 
-			upgrade : this._handleUpgrade.bind(this),
-			open    : ws => this.handleInContext(ws, () => this._handleOpen(ws as CustomWebSocket)),
-			message : (ws, message, isBinary) => {
-				RequestContextStore.getInstance().store().enterWith(this.connections.get(ws.uuid).context());
+				open    : ws => this.handleInContext(ws, () => this.handleOpen(ws)),
+				message : (ws, message) => {
+					const connection = this.connections.get(ws.data.uuid);
+					if (!connection) {
+						return;
+					}
 
-				this._handleMessage(ws, message, isBinary);
+					RequestContextStore.getInstance().store().enterWith(connection.context());
+
+					return this.handleMessage(ws, message);
+				},
+				close   : ws => {
+					this.connections.delete(ws.data.uuid);
+				},
 			},
-			drain   : ws => {
-				console.log('WebSocket backpressure: ' + ws.getBufferedAmount());
-			},
-			close   : (ws, code, message) => {
-				this.connections.delete(ws.uuid);
-			}
 		});
 
-		this.app.listen(config.port, listenSocket => {
-			Log.success("Sockets server running at: ws://127.0.0.1:" + config.port);
+		WebSocketServer.active = this;
 
-			this.listenSocket = listenSocket;
-		});
+		Log.success(`Sockets server running at: ws://${config.hostname === '0.0.0.0' ? '127.0.0.1' : config.hostname}:${this.server.port}`);
 	}
 
 	public async unload() {
-		if (this.listenSocket) {
-			uWS().us_listen_socket_close(this.listenSocket);
-			this.listenSocket = null;
+		if (this.server) {
+			await this.server.stop(true);
+			this.server = null;
+			this.connections.clear();
+			if (WebSocketServer.active === this) {
+				WebSocketServer.active = null;
+			}
 			Log.info('WebSocket server unloaded successfully.');
 		}
 	}
 
-	private async _handleUpgrade(res: HttpResponse, req: HttpRequest, context: us_socket_context_t) {
-
-		const upgradeAborted = {aborted : false};
-
-		/* You MUST copy data out of req here, as req is only valid within this immediate callback */
-		const url                    = req.getUrl();
-		const secWebSocketKey        = req.getHeader('sec-websocket-key');
-		const secWebSocketProtocol   = req.getHeader('sec-websocket-protocol');
-		const secWebSocketExtensions = req.getHeader('sec-websocket-extensions');
-		let userJwt                  = secWebSocketProtocol.trim() === '' ? null : secWebSocketProtocol;
-		const connectionUuid         = Str.random();
-
-		/* You MUST register an abort handler to know if the upgrade was aborted by peer */
-		res.onAborted(() => {
-			/* We can simply signal that we were aborted */
-			upgradeAborted.aborted = true;
-		});
+	private async handleUpgrade(request: Request, server: Server<SocketData>): Promise<Response | undefined> {
+		// Browsers can't set headers on a websocket, so the JWT comes in as the subprotocol
+		const protocol = request.headers.get('sec-websocket-protocol')?.trim() || null;
+		let userJwt    = protocol;
 
 		const authProvider: JwtAuthenticationProvider = resolve(Authentication).getAuthProvider(JwtAuthenticationProvider);
 
 		let user = null;
-		try {
-			user = await authProvider.authoriseRequest(null, userJwt);
-		} catch (error) {
-			if (error instanceof JsonWebTokenError) {
-				userJwt = null;
-			} else {
-				Log.error('Failed to authenticate...', error);
+		if (userJwt) {
+			try {
+				user = await authProvider.authoriseRequest(null, userJwt);
+			} catch (error) {
+				if (error instanceof JsonWebTokenError) {
+					userJwt = null;
+				} else {
+					Log.error('Failed to authenticate...', error);
+				}
 			}
 		}
 
-		if (upgradeAborted.aborted) {
-			console.log("Ouch! Client disconnected before we could upgrade it!");
-			return;
-		}
-
 		const connection = new WebSocketConnection();
-		connection.setUuid(connectionUuid);
+		connection.setUuid(Str.random());
 		connection.setToken(userJwt);
 		if (user) {
 			connection.setUser(user);
 		}
 
-		this.connections.set(connectionUuid, connection);
-
-		res.upgrade(
-			{
-				url        : url,
+		const upgraded = server.upgrade(request, {
+			// The client only accepts the connection if its requested subprotocol is echoed back
+			headers : protocol ? {'Sec-WebSocket-Protocol' : protocol} : undefined,
+			data    : {
+				url        : new URL(request.url).pathname,
 				token      : userJwt,
-				uuid       : connectionUuid,
+				uuid       : connection.uuid,
 				user       : user ?? null,
 				connection : connection,
 			},
-			secWebSocketKey,
-			secWebSocketProtocol,
-			secWebSocketExtensions,
-			context
-		);
+		});
+
+		// (Bun runs the open handler synchronously inside upgrade())
+		if (!upgraded) {
+			return new Response('Expected a websocket upgrade', {status : 426});
+		}
+
+		return undefined;
 	}
 
-	private handleInContext(ws: WebSocket, handle) {
-		const conn = this.connections.get(ws.uuid);
+	private handleInContext(ws: EnvusoWebSocket, handle) {
+		const conn = ws.data.connection;
 		new RequestContext(null, null, conn).bindToSockets(conn, handle);
 	}
 
-	private _handleOpen(ws: CustomWebSocket) {
-		if (ws.connection) {
-			ws.connection.setWebSocketConnection(ws);
-			this.connections.set(ws.uuid, ws.connection);
-		}
-
-		const webSocketConnection = this.connections.get(ws.uuid);
+	private handleOpen(ws: EnvusoWebSocket) {
+		const webSocketConnection = ws.data.connection;
+		webSocketConnection.setWebSocketConnection(ws);
+		this.connections.set(ws.data.uuid, webSocketConnection);
 
 		const req = RequestContext.get();
-		req.user  = ws.user;
+		req.user  = ws.data.user;
 
 		this.runGlobalMiddleware().then(success => {
 			if (!success) {
@@ -180,12 +170,11 @@ export class WebSocketServer {
 			}
 			webSocketConnection.sendEvent(SocketEvents.SOCKET_READY);
 		});
-
 	}
 
-	private async _handleMessage(ws: WebSocket, messageData: ArrayBuffer, isBinary: boolean) {
-		const webSocketConnection = this.connections.get(ws.uuid);
-		const message             = Buffer.from(messageData).toString('utf-8');
+	private async handleMessage(ws: EnvusoWebSocket, messageData: string | Buffer) {
+		const webSocketConnection = this.connections.get(ws.data.uuid);
+		const message             = typeof messageData === 'string' ? messageData : messageData.toString('utf-8');
 
 		try {
 			const data = JSON.parse(message) as BaseEventPacket;
@@ -201,7 +190,7 @@ export class WebSocketServer {
 					await this.handleChannelMessageEvent(webSocketConnection, <UserMessageSocketPacket>data);
 			}
 		} catch (error) {
-			console.error(error);
+			Log.exception('WebSocket message handling failed', error);
 		}
 	}
 
@@ -310,6 +299,10 @@ export class WebSocketServer {
 
 	public addGlobalMiddleware(middleware: (new () => MiddlewareContract)) {
 		this.config.middleware.push(middleware);
+	}
+
+	public removeGlobalMiddleware(middleware: (new () => MiddlewareContract)) {
+		this.config.middleware = this.config.middleware.filter(m => m !== middleware);
 	}
 
 	private async runGlobalMiddleware() {
@@ -442,7 +435,7 @@ export class WebSocketServer {
 	}
 
 	public sendToUserId(id: string, event: string, data: any) {
-		this.app?.publish(`auth:user:${id}`, WebSocketServer.transformSocketSendData({
+		this.server?.publish(`auth:user:${id}`, WebSocketServer.transformSocketSendData({
 			event : event,
 			data  : data ?? {}
 		}));
@@ -453,7 +446,7 @@ export class WebSocketServer {
 	}
 
 	public broadcast(channel: string, event: string, data: any) {
-		this.app?.publish(channel, WebSocketServer.transformSocketSendData({
+		this.server?.publish(channel, WebSocketServer.transformSocketSendData({
 			event   : event,
 			channel : channel,
 			data    : data ?? {}
@@ -464,12 +457,4 @@ export class WebSocketServer {
 		return JSON.stringify(ResponseDataFormatter.clean(data));
 	}
 
-}
-
-export interface CustomWebSocket extends WebSocket {
-	url: string;
-	token: string | null;
-	uuid: string;
-	user: Authenticatable<any> | null;
-	connection: WebSocketConnection<any>;
 }

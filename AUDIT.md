@@ -14,7 +14,7 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ✅ Major versions behind: fastify 3→5, mongodb 4.2.2 (pinned)→7, ioredis 4→6, jest 26→30, TS 4.5→7, dotenv 8→18, ws 7→8, chalk/glob/file-type etc.
 - ✅ `fastify-*` plugins are pre-rename (now `@fastify/*`). `middie` is registered but `.use()` is never called.
 - ✅ `aws-sdk` v2 is end-of-life. Needs `@aws-sdk/client-s3` plus `@aws-sdk/s3-request-presigner`.
-- ✅ `uWebSockets.js` is fetched from GitHub over git+ssh (`#v19.3.0`), not from the npm registry.
+- ✅ *(fixed: removed, websockets run on `Bun.serve`)* `uWebSockets.js` is fetched from GitHub over git+ssh (`#v19.3.0`), not from the npm registry.
 - ✅ Frontend/build tooling sits in runtime `dependencies`: `laravel-mix`, `ts-node`, `ts-node-dev`, several `@types/*`. Vue/babel/webpack are devDeps of a backend core.
 - ⚠️ Tests: ~160 tests across 17 specs. No `test` script in package.json. They need live MongoDB + Redis + an uncommitted `.env`. `model.spec.ts` drops `users`/`books` in whatever DB `.env` points at. `unloadApp(true)` calls `process.exit`. jest `testRegex` also matches helper files. Queue, Events and the Redis queue have **zero** tests.
 - ✅ No custom TS transformers are used. Parameter names are recovered by parsing `Function.prototype.toString()` (`src/Common/Decorators/DecoratorHelpers.ts:65`), which breaks under minification and with default values that contain commas.
@@ -133,7 +133,7 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ⚠️ DI tokens are class names (breaks under minification). The controller registry is stored as metadata on the global `Reflect`.
 - ⚠️ Global mutable state:
   - Module singletons (`App`, `RequestContextStore`, `Routing`).
-  - Static arrays that grow on re-init (`ConfigurationFile`, `AssetManager`).
+  - Static arrays that grow on re-init (`ConfigurationFile`; `AssetManager` fixed 2026-11-22).
   - The shared global tsyringe container.
 - Relies on legacy decorators: parameter decorators plus `emitDecoratorMetadata` / `design:paramtypes` for injection and route model binding.
 
@@ -183,7 +183,7 @@ Test file: a parameter decorator, a method decorator, and `Reflect.getMetadata("
   - The `fastify/lib/*` deep imports.
 
 ### Bun blockers found while running the suite (2026-11-22)
-- ✅ `uWebSockets.js@19.3.0` has no binary for Bun's ABI, and it was imported eagerly, so nothing loaded. **Fixed**: it is now type-only imports plus a lazy `require` in `WebSocketServer`. WebSockets still won't work on Bun until they're moved to `Bun.serve` websockets.
+- ✅ `uWebSockets.js@19.3.0` has no binary for Bun's ABI, and it was imported eagerly, so nothing loaded. **Fixed**: it is now type-only imports plus a lazy `require` in `WebSocketServer`. **Done 2026-11-22**: websockets now run on `Bun.serve` (own port, as before), `uWebSockets.js` and `ws` are removed, and the testing client uses the standard `WebSocket`. All 12 websocket specs run and pass.
 - ✅ Type re-exported as a value (`DependencyContainer` in `AppContainer/index.ts`). **Fixed**. `isolatedModules: true` is now on, so `tsc` catches these.
 - ✅ **Decorator metadata + circular imports.** Bun emits `design:paramtypes` and `design:type` as direct ESM references. tsc emits a guarded `typeof X !== "undefined"` under CommonJS, which quietly falls back to `Object`. So under Bun, a decorated class that references a class still in the TDZ throws `Cannot access 'X' before initialization`.
   - madge reports **260 cycles**. The largest group is ~151 of 314 files, mostly through barrel `index.ts` files and value-imported contracts.

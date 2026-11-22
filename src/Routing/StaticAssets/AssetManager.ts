@@ -71,6 +71,7 @@ export class AssetManager {
 	private static assetPaths: string[] = [];
 
 	private watcher: fs.FSWatcher = null;
+	private rebootTimer: ReturnType<typeof setTimeout> = null;
 
 	/**
 	 * Load our configuration for asset management
@@ -100,14 +101,19 @@ export class AssetManager {
 	async load() {
 		this.loadConfiguration();
 
+		// Static, so a reboot must start from scratch rather than append duplicates
+		AssetManager.assetPaths = [];
+
 		if (this.watch) {
 			const watchPath = this.assetPath;
-			let rebootTimer: ReturnType<typeof setTimeout> = null;
 
 			this.watcher = fs.watch(watchPath, {...this.watchOptions, recursive : true}, (eventName, filePath) => {
 				// Editors often emit several events per save; reboot once per burst
-				clearTimeout(rebootTimer);
-				rebootTimer = setTimeout(async () => {
+				clearTimeout(this.rebootTimer);
+				this.rebootTimer = setTimeout(async () => {
+					if (!this.watcher || !App.isBooted()) {
+						return;
+					}
 					Log.label('Asset Watcher').info(`Event ${eventName} triggered for path: ${filePath}. Reloading server.`);
 					await App.reboot(false);
 				}, 100);
@@ -212,6 +218,17 @@ export class AssetManager {
 
 	private prepareAssetPath(filePath: string): string {
 		return encodeURI(filePath.replace(/\\/g, '/')).replace(/\/\//g, '/');
+	}
+
+	/**
+	 * Stop watching; called when the app unloads, so a file change can't
+	 * reboot an app that was shut down.
+	 */
+	public unload() {
+		clearTimeout(this.rebootTimer);
+		this.rebootTimer = null;
+		this.watcher?.close();
+		this.watcher = null;
 	}
 
 	public static hasAssetPath(filePath: string): boolean {

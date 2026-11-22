@@ -1,27 +1,23 @@
-import type {AppOptions, CompressOptions} from "uWebSockets.js";
-
-/** uWS.SHARED_COMPRESSOR (inlined so config can load without the native addon) */
-const SHARED_COMPRESSOR = 1 as CompressOptions;
-import type {ServerOptions} from "ws";
+import type {WebSocketHandler} from "bun";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
+import Environment from "../AppContainer/Config/Environment";
 import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 
-export type uWsBehaviour = {
-	/** Maximum length of received message. If a client tries to send you a message larger than this, the connection is immediately closed. Defaults to 16 * 1024. */
-	maxPayloadLength?: number;
-	/** Maximum amount of seconds that may pass without sending or getting a message. Connection is closed if this timeout passes. Resolution (granularity) for timeouts are typically 4 seconds, rounded to closest.
-	 * Disable by using 0. Defaults to 120.
-	 */
-	idleTimeout?: number;
-	/** What permessage-deflate compression to use. uWS.DISABLED, uWS.SHARED_COMPRESSOR or any of the uWS.DEDICATED_COMPRESSOR_xxxKB. Defaults to uWS.DISABLED. */
-	compression?: CompressOptions;
-	/** Maximum length of allowed backpressure per socket when publishing or sending messages. Slow receivers with too high backpressure will be skipped until they catch up or timeout. Defaults to 1024 * 1024. */
-	maxBackpressure?: number;
-}
+/**
+ * Options passed straight to Bun.serve's websocket handler.
+ * See https://bun.com/docs/api/websockets
+ */
+export type WebSocketServerOptions = Pick<WebSocketHandler<any>,
+	'maxPayloadLength' | 'idleTimeout' | 'backpressureLimit' | 'closeOnBackpressureLimit' | 'perMessageDeflate' | 'sendPings' | 'publishToSelf'>;
 
 export default class WebsocketsConfiguration extends ConfigurationCredentials {
 
-	port: number = 3335;
+	/**
+	 * The websocket server runs on its own port, next to the http server
+	 */
+	port: number = Number(Environment.get('WEBSOCKET_PORT', 3335));
+
+	hostname: string = Environment.get('WEBSOCKET_HOST', '0.0.0.0');
 
 	/**
 	 * Disable the websocket implementation
@@ -33,23 +29,13 @@ export default class WebsocketsConfiguration extends ConfigurationCredentials {
 		// AuthenticatedMiddleware,
 	];
 
-	options: ServerOptions = {
-		clientTracking : false
-	};
-
-	uWebsocketAppOptions: AppOptions = {};
-
-	uWebsocketServerBehaviour: uWsBehaviour = {
-		/** Maximum length of received message. If a client tries to send you a message larger than this, the connection is immediately closed. Defaults to 16 * 1024. */
-		maxPayloadLength : 16 * 1024 * 1024,
-		/** Maximum amount of seconds that may pass without sending or getting a message. Connection is closed if this timeout passes. Resolution (granularity) for timeouts are typically 4 seconds, rounded to closest.
-		 * Disable by using 0. Defaults to 120.
-		 */
-		idleTimeout : 32,
-		/** What permessage-deflate compression to use. uWS.DISABLED, uWS.SHARED_COMPRESSOR or any of the uWS.DEDICATED_COMPRESSOR_xxxKB. Defaults to uWS.DISABLED. */
-		compression : SHARED_COMPRESSOR,
-		/** Maximum length of allowed backpressure per socket when publishing or sending messages. Slow receivers with too high backpressure will be skipped until they catch up or timeout. Defaults to 1024 * 1024. */
-		maxBackpressure : null
+	server: WebSocketServerOptions = {
+		/** Maximum length of a received message; larger messages close the connection. */
+		maxPayloadLength  : 16 * 1024 * 1024,
+		/** Seconds without a message before the connection is closed. 0 disables it. */
+		idleTimeout       : 32,
+		/** permessage-deflate compression */
+		perMessageDeflate : true,
 	};
 
 }

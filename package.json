@@ -49,10 +49,8 @@
     "ts-node": "^10.2.1",
     "tslog": "^5.5.0",
     "tsyringe": "^4.10.0",
-    "uWebSockets.js": "uNetworking/uWebSockets.js#v19.3.0",
     "winston": "^3.19.0",
-    "winston-daily-rotate-file": "^5.0.0",
-    "ws": "^8.23.0"
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@inertiajs/inertia": "^0.10.1",
@@ -64,7 +62,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash": "^4.17.27",
     "@types/pluralize": "^0.0.33",
-    "@types/ws": "^8.18.2",
     "@vue/compiler-sfc": "^3.2.9",
     "form-data": "^4.0.6",
     "laravel-mix": "^6.0.29",

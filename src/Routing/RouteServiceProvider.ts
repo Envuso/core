@@ -11,7 +11,10 @@ export class RouteServiceProvider extends ServiceProvider {
 
 	public async register(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
 		app.container().register('ViewManager', {useFactory : () => new ViewManager()});
-		app.container().register('AssetManager', {useFactory : () => new AssetManager()});
+		// One instance per app, so the watcher it owns can be closed on unload
+		const assetManager = new AssetManager();
+		app.container().register('AssetManager', {useValue : assetManager});
+		app.container().register(AssetManager, {useValue : assetManager});
 	}
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
@@ -49,6 +52,10 @@ export class RouteServiceProvider extends ServiceProvider {
 
 		app.container().register('controller.meta', {useValue : controllerMeta});
 
+	}
+
+	public async unload(app: AppContract, config: ConfigRepositoryContract) {
+		app.container().resolve<AssetManager>('AssetManager').unload();
 	}
 
 }

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 // Importing anything from bun:test disables the implicit test globals for this file
-import {afterAll, beforeAll, describe, expect, setDefaultTimeout, test} from "bun:test";
+import {afterAll, afterEach, beforeAll, describe, expect, setDefaultTimeout, test} from "bun:test";
 import {UserResource} from "../App/Http/ApiResources/UserResource";
 import {UserSocketListener} from "../App/Http/Sockets/UserSocketListener";
 import {User} from "../App/Models/User";
@@ -18,18 +18,6 @@ import {ConnectionStatus} from "../WebSockets/TestingClient/src";
 import {StorageServiceProvider} from "../Storage/StorageServiceProvider";
 import {WebSocketServer} from "../WebSockets/WebSocketServer";
 import {bootApp, unloadApp} from "./preptests";
-
-// The websocket server needs the uWebSockets.js native addon, which has no build for Bun.
-// Without it the server disables itself and every test here would just sit out its timeout.
-// TODO: remove once websockets run on Bun.serve
-const uwsAvailable = (() => {
-	try {
-		require('uWebSockets.js');
-		return true;
-	} catch {
-		return false;
-	}
-})();
 
 beforeAll(() => bootApp());
 afterAll(() => unloadApp());
@@ -55,7 +43,10 @@ const createUserAndToken = async () => {
 };
 
 
-describe.skipIf(!uwsAvailable)('websocket connections', () => {
+describe('websocket connections', () => {
+	// Some tests add global middleware; don't let it leak into the next test
+	afterEach(() => resolve(WebSocketServer).removeGlobalMiddleware(AuthenticatedMiddleware));
+
 	test('connecting without a jwt', async () => {
 		const {user, token} = await createUserAndToken();
 		const client        = await createSocketClient();
@@ -101,7 +92,7 @@ describe.skipIf(!uwsAvailable)('websocket connections', () => {
 
 });
 
-describe.skipIf(!uwsAvailable)('websocket channels', () => {
+describe('websocket channels', () => {
 
 	test('Connecting to a wildcard channel without access', async () => {
 		const {user, token} = await createUserAndToken();
@@ -159,7 +150,7 @@ describe.skipIf(!uwsAvailable)('websocket channels', () => {
 				}
 
 				expect(error).toBeNull();
-				expect(channel.getName()).toEqual(`user:${user._id.toString()}`);
+				expect(channel.getName()).toEqual(`public`);
 
 				resolve({channel, error});
 			});

@@ -1,27 +1,26 @@
-import type {WebSocket} from 'uWebSockets.js';
 import {Classes} from "../Common/Utility/Classes";
 import {METADATA} from "../Common/Decorators/RoutingMetaData";
 import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import type {WebSocketChannelListenerContract} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import type {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
 import {type SocketEventPacket, SocketEvents} from "./SocketEventTypes";
-import {WebSocketServer} from "./WebSocketServer";
+import {type EnvusoWebSocket, WebSocketServer} from "./WebSocketServer";
 
 
 export class WebSocketConnection<T> implements WebSocketConnectionContract<T> {
 
-	private connection: WebSocket = null;
+	private connection: EnvusoWebSocket = null;
 	public token: string          = null;
 	public uuid: string           = null;
 	public user: T                = null;
 
 	public subscriptions: Map<string, WebSocketChannelListenerContract> = new Map();
 
-	constructor(connection: WebSocket | null = null) {
+	constructor(connection: EnvusoWebSocket | null = null) {
 		if (connection) {
 			this.setWebSocketConnection(connection);
-			this.setToken(connection.token);
-			this.setUuid(connection.uuid);
+			this.setToken(connection.data.token);
+			this.setUuid(connection.data.uuid);
 		}
 	}
 
@@ -60,7 +59,7 @@ export class WebSocketConnection<T> implements WebSocketConnectionContract<T> {
 	getSubscriptionsForChannel(listener: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): WebSocketChannelListenerContract[] {
 		const channel = Classes.getOrInstantiate<WebSocketChannelListenerContract>(listener);
 
-		return this.connection.getTopics()
+		return this.connection.subscriptions
 			.filter(t => {
 				let channelName = t;
 
@@ -117,10 +116,10 @@ export class WebSocketConnection<T> implements WebSocketConnectionContract<T> {
 	public closeConnection(reason: string = null) {
 		this.sendEvent(SocketEvents.SOCKET_DISCONNECT, {reason : reason ?? 'Force close'});
 
-		this.connection.end(1000, reason ?? 'Force close.');
+		this.connection.close(1000, reason ?? 'Force close.');
 	}
 
-	setWebSocketConnection(connection: WebSocket): this {
+	setWebSocketConnection(connection: EnvusoWebSocket): this {
 		this.connection = connection;
 
 		return this;

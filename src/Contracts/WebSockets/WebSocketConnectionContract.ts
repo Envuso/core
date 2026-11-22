@@ -1,4 +1,4 @@
-import type {WebSocket} from "uWebSockets.js";
+import type {EnvusoWebSocket} from "../../WebSockets/WebSocketServer";
 import type {SocketEventPacket} from "../../WebSockets/SocketEventTypes";
 import type {RequestContextContract} from "../Routing/Context/RequestContextContract";
 import type {WebSocketChannelListenerContract} from "./WebSocketChannelListenerContract";
@@ -25,7 +25,7 @@ export interface WebSocketConnectionContract<T> {
 
 	hasSubscription(channel: (new () => WebSocketChannelListenerContract) | WebSocketChannelListenerContract): boolean;
 
-	setWebSocketConnection(connection: WebSocket);
+	setWebSocketConnection(connection: EnvusoWebSocket);
 
 	closeConnection(reason?: string): void;
 

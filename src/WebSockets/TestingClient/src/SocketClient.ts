@@ -1,8 +1,5 @@
-import {URL} from "url";
-import WebSocket from "ws";
 import {type ChannelSubscribeRequestCallback, type ChannelSubscribeResponsePacket, ConnectionStatus, ServerEventTypes, type SocketPacket, type SocketPacketBody} from "./index";
 import {SocketChannel} from "./SocketChannel";
-import ws from 'ws';
 
 export class SocketClient {
 	private url: string;
@@ -10,7 +7,8 @@ export class SocketClient {
 
 	private protocols: string[] = [];
 
-	private ws: ws;
+	// The standard WebSocket (built into Bun and browsers)
+	private ws: WebSocket;
 
 	private listeners: Map<string, Function>     = new Map();
 	private channels: Map<string, SocketChannel> = new Map();
@@ -273,7 +271,8 @@ export class SocketClient {
 		const respondWithinMs = 30_000 + 10_000;
 
 		this.pingTimeout = setTimeout(() => {
-			this.ws.close(0, 'Server didnt send ping in time.');
+			// 1000 or 3000-4999 are the only codes a client may send
+			this.ws.close(4000, 'Server didnt send ping in time.');
 		}, respondWithinMs);
 	}
 
@@ -388,7 +387,7 @@ export class SocketClient {
 	}
 
 	terminate() {
-		this.ws.close();
-		this.ws.terminate();
+		this.shouldAttemptReconnect = false;
+		this.ws?.close();
 	}
 }
