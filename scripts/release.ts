@@ -76,7 +76,11 @@ try {
 	const tarball = path.join(root, '.pack', 'envuso-core.tgz');
 
 	if (dryRun) {
-		await $`bun publish --dry-run --access public --tag ${tag} ${tarball}`.cwd(root);
+		const files = (await $`tar -tzf ${tarball}`.text()).trim().split(/\r?\n/);
+		console.log(`› Would publish ${files.length} files as @envuso/core@${version} (tag "${tag}")`);
+
+		const loggedIn = (await $`npm whoami`.nothrow().quiet()).exitCode === 0;
+		console.log(loggedIn ? '› npm: logged in' : '› npm: NOT logged in; run `npm login` before releasing');
 		console.log('› Dry run finished; package.json restored, nothing committed or published.');
 		process.exit(0);
 	}

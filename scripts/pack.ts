@@ -27,7 +27,10 @@ fs.rmSync(dist, {recursive : true, force : true});
 // tsc would keep imports of classes that are only used as types, which become real runtime
 // imports in the output and can form import cycles (TDZ errors) that never happen from source.
 const sources = Array.from(new Bun.Glob('**/*.ts').scanSync({cwd : path.join(root, 'src')}))
-	.filter(file => !/^(tests|App|Config)[\/]/.test(file) && file !== 'run-dev.ts' && !file.endsWith('.d.ts'))
+	.map(file => file.replace(/\\/g, '/'))
+	// Core's own test app, config and specs aren't part of the package. (Bun.Glob returns
+	// backslash paths on Windows, which "[\/]" didn't match, so they used to be packed.)
+	.filter(file => !/^(tests|App|Config)\//.test(file) && file !== 'run-dev.ts' && !file.endsWith('.d.ts'))
 	.map(file => path.join('src', file));
 
 console.log(`› Building dist/ (${sources.length} files)`);
