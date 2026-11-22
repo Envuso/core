@@ -10,6 +10,7 @@ import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 import {Database} from "./Database";
 import {getInternallyExcluded} from "./InternalDecorators";
 import {ModelDecoratorMeta} from "./ModelDecorators";
+import {modelFieldNames} from "./ModelFields";
 import {QueryBuilder} from "./Mongo/QueryBuilder";
 import {SeedManager} from "./Seeder/SeedManager";
 import {ClassTransformer} from 'class-transformer';
@@ -90,7 +91,7 @@ export class DatabaseServiceProvider extends ServiceProvider {
 			 */
 			const modelInst    = new module.instance({fromContainer : true}, true);
 			const excludedKeys = Object.keys(getInternallyExcluded(module.instance.prototype as (new () => ModelContract<any>)));
-			const fields       = Object.getOwnPropertyNames(modelInst).filter(property => {
+			const fields       = modelFieldNames(module.instance, modelInst).filter(property => {
 				return !excludedKeys.includes(property);
 			});
 
