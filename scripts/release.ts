@@ -76,7 +76,7 @@ try {
 	const tarball = path.join(root, '.pack', 'envuso-core.tgz');
 
 	if (dryRun) {
-		const files = (await $`tar -tzf ${tarball}`.text()).trim().split(/\r?\n/);
+		const files = (await $`tar -tzf envuso-core.tgz`.cwd(path.dirname(tarball)).text()).trim().split(/\r?\n/);
 		console.log(`› Would publish ${files.length} files as @envuso/core@${version} (tag "${tag}")`);
 
 		const loggedIn = (await $`npm whoami`.nothrow().quiet()).exitCode === 0;
