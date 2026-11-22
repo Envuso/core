@@ -82,7 +82,7 @@ export class SocketClient {
 	private waitForReady(): Promise<boolean> {
 		return new Promise((resolve => {
 			this.ws.addEventListener('message', (event) => {
-				const packet: SocketPacket = JSON.parse(event.data);
+				const packet: SocketPacket = JSON.parse(event.data.toString());
 
 				if (packet.event === ServerEventTypes.SOCKET_DISCONNECT) {
 					this.connectionStatus = ConnectionStatus.DISCONNECTED;
@@ -203,7 +203,7 @@ export class SocketClient {
 	 */
 	private _onMessage(event: any) {
 
-		const packet: SocketPacket = JSON.parse(event.data);
+		const packet: SocketPacket = JSON.parse(event.data.toString());
 
 		switch (packet.event) {
 			case ServerEventTypes.SOCKET_PING:

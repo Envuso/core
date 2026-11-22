@@ -1,5 +1,5 @@
 import {config} from 'dotenv';
-import dotenvExpand from 'dotenv-expand';
+import {expand as dotenvExpand} from 'dotenv-expand';
 import path from "path";
 import {Log} from "../../Common/Logger/Log";
 import {Obj} from "../../Common/Utility/Obj";
@@ -120,7 +120,7 @@ export default class Environment {
 			return [false, null];
 		}
 
-		let envConfig = envFileLocation ? config({path : envFileLocation}) : config();
+		let envConfig = config({path : envFileLocation || undefined, quiet : true});
 
 		if (envConfig?.error) {
 			Log.label('ENVIRONMENT').exception(envConfig.error);
@@ -128,9 +128,9 @@ export default class Environment {
 			return [false, null];
 		}
 
-		envConfig = dotenvExpand(envConfig);
+		const expanded = dotenvExpand(envConfig);
 
-		return [true, (envConfig.parsed || {})];
+		return [true, (expanded.parsed || {})];
 	}
 
 	private static parseEnvObject(env: any) {
