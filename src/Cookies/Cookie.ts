@@ -22,6 +22,8 @@ export class Cookie<T> implements CookieContract<T> {
 	public signed: boolean = false;
 	/** false sends this cookie as-is even when Session.cookie.encrypted is on */
 	public encrypted: boolean = null;
+	/** Parsed from the request's Cookie header (and not replaced since) */
+	public fromRequest: boolean = false;
 
 	static create<V>(name: string, value: V, signed: boolean = false): CookieContract<V> {
 		Cookie.setDefaultSettings();
@@ -84,7 +86,6 @@ export class Cookie<T> implements CookieContract<T> {
 		let value = this.value;
 
 //		if(this.isSigned()) {
-//			value = RabbitEncryption.encrypt(value);
 //		}
 
 		let str = this.name + '=' + value;

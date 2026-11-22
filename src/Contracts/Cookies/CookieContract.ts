@@ -14,6 +14,7 @@ export interface CookieContract<T> {
 	sameSite: CookieSameSiteValue;
 	signed: boolean;
 	encrypted: boolean;
+	fromRequest: boolean;
 
 	isValid(value: any): boolean;
 

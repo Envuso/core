@@ -1,8 +1,7 @@
 import {config} from "../../AppContainer/helpers";
 import {Cookie} from "../../Cookies/Cookie";
 import {CookieJar} from "../../Cookies/CookieJar";
-import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
-import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
+import {Encryption} from "../../Crypt/Encryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
 import type {HookHandlerArgs} from "../ServerHooks/Hook";
 import {PreHandlerHook} from "../ServerHooks/HookTypes/PreHandlerHook";
@@ -34,6 +33,8 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 		const processedCookies = Cookie.fromHeader(context.request.fastifyRequest.raw.headers.cookie || '');
 
 		for (let cookie of processedCookies) {
+			// Not sent back unless the app changes it (re-sending also reset its path/expiry)
+			cookie.fromRequest = true;
 			cookieJar._jar.set(cookie.getName(), cookie);
 		}
 
@@ -46,8 +47,7 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 			return;
 		}
 
-		const cookies = context.request.cookieJar().all();
-
+		const cookies     = context.request.cookieJar().all();
 		const unencrypted = SetResponseCookiesHook.unencryptedCookieNames();
 
 		for (let cookie of cookies) {
@@ -56,19 +56,9 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 				continue;
 			}
 
-			try {
-				const value = RabbitEncryption.decrypt<string>(cookie.value);
-
-				const isValid = value.indexOf(
-					CookieValuePrefix.create(cookie.name, RabbitEncryption.getKey())
-				) === 0;
-
-				cookie.value = isValid ? CookieValuePrefix.remove(value) : null;
-
-				context.request.cookieJar().put(cookie.name, cookie);
-			} catch (e) {
-				console.log(e);
-			}
+			// Bound to the cookie's name, so one cookie's value can't be swapped into another.
+			// Anything that doesn't decrypt (tampered, another key, a 2.x cookie) is null.
+			cookie.value = Encryption.tryDecrypt<string>(cookie.value, `cookie:${cookie.name}`);
 		}
 	}
 

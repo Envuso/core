@@ -8,8 +8,7 @@ export interface EncryptionContract {
 	 * @param content
 	 * @returns {string}
 	 */
-	encrypt(content: string): string;
-	encrypt(content: any): string;
+	encrypt(content: any, context?: string): string;
 
 	/**
 	 * Decrypts some content back to it's original form
@@ -18,8 +17,9 @@ export interface EncryptionContract {
 	 * @param {string} content
 	 * @returns {T}
 	 */
-	decrypt<T extends string>(content: string): T;
-	decrypt<T>(content: string): T;
+	decrypt<T = any>(content: string, context?: string): T;
+
+	tryDecrypt<T = any>(content: string, context?: string): T | null;
 
 	/**
 	 * Generate a random string

@@ -1,8 +1,7 @@
 import {config} from "../../AppContainer/helpers";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {Cookie} from "../../Cookies/Cookie";
-import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
-import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
+import {Encryption} from "../../Crypt/Encryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
 import type {HookHandlerArgs} from "../ServerHooks/Hook";
 import {OnSendHook} from "../ServerHooks/HookTypes/OnSendHook";
@@ -52,6 +51,11 @@ export class SetResponseCookiesHook extends OnSendHook {
 		const cookies = context.response.cookieJar().all();
 
 		for (let cookie of cookies) {
+			// Cookies the browser sent and the app didn't change: nothing to send back
+			if (cookie.fromRequest) {
+				continue;
+			}
+
 			if (!useCookieEncryption || cookie.encrypted === false || SetResponseCookiesHook.unencryptedCookieNames().includes(cookie.name)) {
 				context.response.setHeader('set-cookie', cookie.toHeaderString());
 				continue;
@@ -79,9 +83,7 @@ export class SetResponseCookiesHook extends OnSendHook {
 	}
 
 	private encryptAndSet(context: RequestContextContract, cookie: Cookie<any>) {
-		cookie.value = RabbitEncryption.encrypt(
-			CookieValuePrefix.create(cookie.name, RabbitEncryption.getKey()) + cookie.value
-		);
+		cookie.value = Encryption.encrypt(cookie.value, `cookie:${cookie.name}`);
 
 		context.response.setHeader('set-cookie', cookie.toHeaderString());
 	}
