@@ -10,6 +10,7 @@ import {Log} from "../../Common/Logger/Log";
 import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
 import {Routing} from "../Route/Routing";
 import {assetHelperGlobal} from "./GlobalHandlers/AssetHelperGlobal";
+import {viteViewHelperGlobal, type ViteOptions} from "./GlobalHandlers/ViteViewHelperGlobal";
 import {mixViewHelperGlobal} from "./GlobalHandlers/MixViewHelperGlobal";
 
 export type AssetWatchOptions = Omit<fs.WatchOptions, 'recursive'>;
@@ -200,7 +201,7 @@ export class AssetManager {
 
 	/**
 	 * We'll register some global helpers for edge.js so that we can use
-	 * handy little `mix()` and `asset()` helpers in our template files.
+	 * handy little `mix()`, `asset()` and `vite()` helpers in our template files.
 	 *
 	 * @private
 	 */
@@ -209,6 +210,13 @@ export class AssetManager {
 
 		viewManager.registerGlobal('mix', mixViewHelperGlobal(this.assetDir, this.assetPath));
 		viewManager.registerGlobal('asset', assetHelperGlobal(this.assetDir, this.assetPath));
+
+		const config = resolve(ConfigRepository);
+		viewManager.registerGlobal('vite', viteViewHelperGlobal(
+			this.rootPath,
+			config.get<string, string>('static.assetsPath'),
+			config.get<string, ViteOptions>('static.vite', {}),
+		));
 	}
 
 	private cleanAssetPath(filePath: string): string {

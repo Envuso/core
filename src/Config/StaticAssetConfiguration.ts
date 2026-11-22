@@ -1,4 +1,5 @@
 import type {AssetWatchOptions} from "../Routing/StaticAssets/AssetManager";
+import type {ViteOptions} from "../Routing/StaticAssets/GlobalHandlers/ViteViewHelperGlobal";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 
 export default class StaticAssetConfiguration extends ConfigurationCredentials {
@@ -33,4 +34,14 @@ export default class StaticAssetConfiguration extends ConfigurationCredentials {
 	 * (the asset directory is always watched recursively)
 	 */
 	public watchOptions: AssetWatchOptions = {};
+
+	/**
+	 * For the `{{{ vite('src/Resources/Ts/app.ts') }}}` view helper:
+	 * - hotFile: written by the Vite dev server while it runs (relative to the app root)
+	 * - buildDirectory: Vite's build.outDir, relative to assetsPath (served at /assets/build/)
+	 */
+	public vite: ViteOptions = {
+		hotFile        : 'storage/vite.hot',
+		buildDirectory : 'build',
+	};
 }

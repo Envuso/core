@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://rsms.me/inter/inter.css" rel="stylesheet"/>
+    {{{ vite('src/Resources/Ts/app.ts') }}}
 
 
     <title>Inertia</title>
@@ -72,8 +73,6 @@
 </style>
 <body class="body-wrapper">
 
-<div id="app" data-page="{{page}}"></div>
-</div>
-<script src="{{asset('app.js')}}"></script>
+{{{ inertia(page) }}}
 </body>
 </html>
