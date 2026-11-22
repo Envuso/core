@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import {injectable} from "tsyringe";
 import {Str} from "../Common/Utility/Str";
 import {Url} from "../Common/Http/ExtendedUrl";
@@ -81,6 +82,16 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 	 */
 	private _stateless: boolean = false;
 
+	/**
+	 * Send a PKCE (S256) challenge with the authorize request. Needs the session (it holds the verifier).
+	 */
+	private _pkce: boolean = true;
+
+	/**
+	 * Parameters with() can't override: they're what the code exchange is checked against
+	 */
+	protected static readonly RESERVED_PARAMS = ['client_id', 'redirect_uri', 'response_type', 'state', 'code_challenge', 'code_challenge_method'];
+
 	constructor(config: OAuthProviderConfiguration, serviceName: string) {
 		if (!config) {
 			throw new Error('OAuth service configuration does not exist.');
@@ -131,13 +142,16 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 	 */
 	with(attributes: { [key: string]: any }): this {
 		for (let attributesKey in attributes) {
+			if (BaseOAuthProvider.RESERVED_PARAMS.includes(attributesKey)) {
+				throw new Error(`OAuth: "${attributesKey}" can't be set with with(); it comes from the provider config or is generated.`);
+			}
 			this._urlParams.set(attributesKey, attributes[attributesKey]);
 		}
 
 		return this;
 	}
 
-	protected getAuthFields(state?: string): URLSearchParams {
+	protected getAuthFields(state?: string, codeChallenge?: string): URLSearchParams {
 		const fields = new URLSearchParams({
 			client_id     : this.config.clientId,
 			redirect_uri  : this.config.redirectUrl,
@@ -153,6 +167,11 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 			fields.set('state', state);
 		}
 
+		if (codeChallenge) {
+			fields.set('code_challenge', codeChallenge);
+			fields.set('code_challenge_method', 'S256');
+		}
+
 		return fields;
 	}
 
@@ -162,16 +181,20 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 	 * @param {string|undefined} state
 	 * @returns {string}
 	 */
-	protected buildAuthUrl(state?: string): string {
+	protected buildAuthUrl(state?: string, codeChallenge?: string): string {
 		const url    = new Url(this.config.authorizeEndpoint, this.config.baseUrl);
-		const fields = this.getAuthFields(state);
+		const fields = this.getAuthFields(state, codeChallenge);
 		url.mergeSearchParams(fields);
 
 		return url.toString();
 	}
 
-	protected getAuthUrl(state?: string): string {
-		return this.buildAuthUrl(state);
+	protected getAuthUrl(state?: string, codeChallenge?: string): string {
+		return this.buildAuthUrl(state, codeChallenge);
+	}
+
+	protected sessionKey(name: 'state' | 'verifier') {
+		return `OAuthProvider.${this.service}.${name}`;
 	}
 
 	protected hasInvalidState(): boolean {
@@ -179,16 +202,23 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 			return false;
 		}
 
+		// Without a session there is nothing to check the state against; that used to
+		// skip the check (login CSRF). It's invalid instead
 		if (!RequestContext.isUsingSession()) {
-			return false;
-		}
-
-		const state = session().store().pull<string>(`OAuthProvider.${this.service}.state`);
-		if (!state) {
 			return true;
 		}
 
-		return request('state') !== state;
+		const state    = session().store().pull<string>(this.sessionKey('state'));
+		const returned = request<string>('state');
+
+		if (!state || typeof returned !== 'string') {
+			return true;
+		}
+
+		const expected = Buffer.from(state);
+		const actual   = Buffer.from(returned);
+
+		return expected.length !== actual.length || !crypto.timingSafeEqual(expected, actual);
 	}
 
 	/**
@@ -197,13 +227,25 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 	 * @returns {RedirectResponseContract}
 	 */
 	redirect(): RedirectResponseContract {
-		const state = this.isStateless() ? undefined : this.getState();
-
-		if (this.usesState() && RequestContext.isUsingSession()) {
-			session().store().put(`OAuthProvider.${this.service}.state`, state);
+		if (this.isStateless()) {
+			return response().redirect(this.getAuthUrl());
 		}
 
-		return response().redirect(this.getAuthUrl(state));
+		if (!RequestContext.isUsingSession()) {
+			throw new Error(`OAuth (${this.service}): the state check needs a session. Start one (StartSessionMiddleware), or call stateless().`);
+		}
+
+		const state = this.getState();
+		session().store().put(this.sessionKey('state'), state);
+
+		let challenge: string = undefined;
+		if (this.usesPkce()) {
+			const verifier = crypto.randomBytes(32).toString('base64url');
+			session().store().put(this.sessionKey('verifier'), verifier);
+			challenge = crypto.createHash('sha256').update(verifier).digest('base64url');
+		}
+
+		return response().redirect(this.getAuthUrl(state, challenge));
 	}
 
 	protected getCode(): string | null {
@@ -211,13 +253,22 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 	}
 
 	protected getAccessTokenFields(code: string) {
-		return new URLSearchParams({
+		const fields = new URLSearchParams({
 			client_id     : this.config.clientId,
 			client_secret : this.config.clientSecret,
 			grant_type    : 'authorization_code',
 			code          : code,
 			redirect_uri  : this.config.redirectUrl,
 		});
+
+		if (this.usesPkce() && RequestContext.isUsingSession()) {
+			const verifier = session().store().pull<string>(this.sessionKey('verifier'));
+			if (verifier) {
+				fields.set('code_verifier', verifier);
+			}
+		}
+
+		return fields;
 	}
 
 	protected async getAccessTokenResponse(code: string): Promise<OAuthAccessToken> {
@@ -269,7 +320,12 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 			throw new InvalidStateException();
 		}
 
-		const authorizationCodeResponse = await this.getAccessTokenResponse(this.getCode());
+		const code = this.getCode();
+		if (!code) {
+			throw new InvalidAccessTokenResponseException({error : 'missing_code'});
+		}
+
+		const authorizationCodeResponse = await this.getAccessTokenResponse(code);
 		const userResponse              = await this.getUserByToken(authorizationCodeResponse.getAccessToken());
 
 		this._user = this.mapToUser<T>(userResponse);
@@ -288,6 +344,18 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 
 	isStateless() {
 		return this._stateless;
+	}
+
+	/**
+	 * Don't send a PKCE challenge (for a provider that rejects it)
+	 */
+	withoutPkce() {
+		this._pkce = false;
+		return this;
+	}
+
+	usesPkce() {
+		return this._pkce && !this._stateless;
 	}
 
 	protected getState() {

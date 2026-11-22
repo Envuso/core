@@ -1,4 +1,5 @@
 import {Allow, IsString, MinLength} from "class-validator";
+import {BaseOAuthProvider} from "../../../OAuthProvider/BaseOAuthProvider";
 import {Auth} from "../../../Authentication/Auth";
 import {Authorization} from "../../../Authorization/Authorization";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
@@ -71,6 +72,21 @@ export class TestingController extends Controller {
 	@get('/decorator/param')
 	async testQueryParamDecorator(@query message: string) {
 		return message;
+	}
+
+	@get('/oauth/redirect')
+	async testOAuthRedirect() {
+		return testOAuthProvider().redirect();
+	}
+
+	@get('/oauth/callback')
+	async testOAuthCallback() {
+		try {
+			const user = await testOAuthProvider().user();
+			return {ok : true, id : user.getId()};
+		} catch (error) {
+			return {ok : false, error : error.constructor.name};
+		}
 	}
 
 	@get('/query/two')
@@ -460,3 +476,22 @@ export class TestingController extends Controller {
 	}
 
 }
+
+/**
+ * OAuth provider for the tests; its token endpoint is a mock server the spec starts (OAUTH_TEST_BASE)
+ */
+class TestOAuthProvider extends BaseOAuthProvider {
+	protected async getUserByToken(token: string): Promise<any> {
+		return {id : 'oauth-user', token};
+	}
+}
+
+const testOAuthProvider = () => new TestOAuthProvider({
+	baseUrl           : process.env.OAUTH_TEST_BASE ?? 'http://127.0.0.1:1',
+	authorizeEndpoint : '/authorize',
+	tokenEndpoint     : '/token',
+	redirectUrl       : 'http://127.0.0.1:3000/testing/oauth/callback',
+	clientId          : 'client-id',
+	clientSecret      : 'client-secret',
+}, 'test');
+
