@@ -5,7 +5,7 @@ import {Storage} from '../Storage/Storage';
 import {bootApp, unloadApp} from "./preptests";
 
 
-beforeAll(() => async () => {
+beforeAll(async () => {
 	fs.writeFileSync('./testfile.txt', '12345', {encoding : 'utf-8'});
 	fs.writeFileSync('./testfiletwo.txt', 'abc', {encoding : 'utf-8'});
 

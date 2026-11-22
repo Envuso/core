@@ -146,11 +146,11 @@ export class RequestResponseContext implements RequestResponseContextContract {
 	}
 
 	public isFastifyRequest(request: FastifyRequest | IncomingMessage): request is FastifyRequest {
-		return (this._request as FastifyRequest)?.routerMethod !== undefined;
+		return (this._request as FastifyRequest)?.raw !== undefined;
 	}
 
 	public isSocketRequest(request: FastifyRequest | IncomingMessage): request is IncomingMessage {
-		return (this._request as FastifyRequest)?.routerMethod === undefined;
+		return (this._request as FastifyRequest)?.raw === undefined;
 	}
 
 	public get socketRequest(): IncomingMessage {

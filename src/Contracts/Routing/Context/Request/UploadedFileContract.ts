@@ -1,4 +1,4 @@
-import type {Multipart} from "fastify-multipart";
+import type {MultipartFile as Multipart} from "@fastify/multipart";
 import type {FileExtension, MimeType} from "file-type";
 import {Stats} from "fs";
 import type {UploadedFileInformation} from "../../../../Storage";

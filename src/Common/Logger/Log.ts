@@ -110,20 +110,14 @@ export class Log {
 		this.log("debug", message, ...args);
 	}
 
-	static errorLogger(): Logger {
+	static errorLogger(): Logger<any> {
 		if (this.errorLogHandler) {
 			return this.errorLogHandler;
 		}
 
 		this.errorLogHandler = new Logger({
-			type                                    : 'pretty',
-			colorizePrettyLogs                      : true,
-			exposeErrorCodeFrame                    : true,
-			exposeErrorCodeFrameLinesBeforeAndAfter : 5,
-			displayTypes                            : true,
-			exposeStack                             : false,
-			displayFilePath                         : "displayAll",
-			displayFunctionName                     : true,
+			type : 'pretty',
+			name : 'envuso',
 		});
 
 		return this.errorLogHandler;

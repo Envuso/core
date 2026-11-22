@@ -13,6 +13,4 @@ export interface HookContract {
 	hookHandler({request, response, done, error, payload}: HookRunnerArgs): void;
 
 	register(fastify: FastifyInstance): void;
-
-	getHookArgs(...args): HookRunnerArgs;
 }

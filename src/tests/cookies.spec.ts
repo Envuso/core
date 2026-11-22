@@ -1,9 +1,11 @@
-import "./preptests";
+import {bootApp, unloadApp} from "./preptests";
 import {app} from "../AppContainer/helpers";
 import {Encryption} from "../Crypt/Encryption";
 import {Server} from "../Server/Server";
 
-//container().resolve<Server>(Server);
+beforeAll(() => bootApp());
+afterAll(() => unloadApp());
+
 describe('using cookies', () => {
 
 	test('can add cookie to response', async () => {

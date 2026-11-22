@@ -1,5 +1,5 @@
 import type {FastifyRequest, HTTPMethods} from "fastify";
-import type {Multipart} from "fastify-multipart";
+import type {MultipartFile as Multipart} from "@fastify/multipart";
 import {IncomingMessage} from "http";
 import {config, resolve} from "../../../AppContainer/helpers";
 import {Exception} from "../../../Common/Exception/Exception";
@@ -199,7 +199,7 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 * https://example.com/testing/route. This method will return /testing/route
 	 */
 	path(): string {
-		return !(this._request instanceof IncomingMessage) ? this._request.routerPath : null;
+		return !(this._request instanceof IncomingMessage) ? this._request.routeOptions?.url : null;
 	}
 
 	/**

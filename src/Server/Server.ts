@@ -1,6 +1,7 @@
-import fastify, {type FastifyInstance, type FastifyReply, type FastifyRequest} from "fastify";
-import type {FastifyError} from "fastify-error";
-import middie from "middie";
+import FastifyCors from "@fastify/cors";
+import FastifyFormBody from "@fastify/formbody";
+import fastify, {type FastifyError, type FastifyInstance, type FastifyReply, type FastifyRequest} from "fastify";
+import FastifyRawBody from "fastify-raw-body";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {config, resolve} from "../AppContainer/helpers";
 import {Exception} from "../Common/Exception/Exception";
@@ -63,8 +64,6 @@ export class Server implements ServerContract {
 		this._exceptionHandler = appConfig.exceptionHandler;
 
 		this._server = fastify(this._config.fastifyOptions);
-
-		await this._server.register(middie);
 
 		this.registerPlugins();
 
@@ -140,7 +139,7 @@ export class Server implements ServerContract {
 		// We have to make sure the cors configuration aligns with the framework configuration.
 		if (this._config.cors.enabled) {
 			this._config.fastifyPlugins.push([
-				require('fastify-cors'),
+				FastifyCors,
 				{
 					...this._config.cors.options,
 					...{
@@ -152,12 +151,12 @@ export class Server implements ServerContract {
 		}
 
 		this._config.fastifyPlugins.push([
-			require('fastify-raw-body'),
+			FastifyRawBody,
 			{field : 'rawBody', runFirst : true, global : false}
 		]);
 
 		this._config.fastifyPlugins.push([
-			require('fastify-formbody'),
+			FastifyFormBody,
 			{}
 		]);
 
@@ -170,7 +169,7 @@ export class Server implements ServerContract {
 	 * Begin listening for connections
 	 */
 	public async listen() {
-		const listenStr = await this._server.listen(this._config.port, this._config.address);
+		const listenStr = await this._server.listen({port : this._config.port, host : this._config.address});
 
 		Log.success('Server is running at ' + listenStr);
 	}
@@ -184,7 +183,7 @@ export class Server implements ServerContract {
 
 		if (result instanceof RedirectResponse) {
 			if (context.inertia.isInertiaRequest() && ['PUT', 'PATCH', 'DELETE'].includes(context.request.method())) {
-				return reply.redirect(StatusCodes.SEE_OTHER, result.getRedirectUrl());
+				return reply.redirect(result.getRedirectUrl(), StatusCodes.SEE_OTHER);
 			}
 			return reply.redirect(result.getRedirectUrl());
 		}

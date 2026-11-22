@@ -353,7 +353,7 @@ export class Route implements RouteContract {
 
 		if (controllerResponse instanceof RedirectResponse) {
 			if (context.inertia.isInertiaRequest() && ['PUT', 'PATCH', 'DELETE'].includes(context.request.method())) {
-				return response.fastifyReply.redirect(StatusCodes.SEE_OTHER, controllerResponse.getRedirectUrl());
+				return response.fastifyReply.redirect(controllerResponse.getRedirectUrl(), StatusCodes.SEE_OTHER);
 			}
 			return response.fastifyReply.redirect(controllerResponse.getRedirectUrl());
 		}

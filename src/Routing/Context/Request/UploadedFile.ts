@@ -1,4 +1,4 @@
-import type {Multipart} from "fastify-multipart";
+import type {MultipartFile as Multipart} from "@fastify/multipart";
 import {default as FileType, type FileExtension, type MimeType} from 'file-type';
 import * as fs from "fs";
 import {Stats} from "fs";

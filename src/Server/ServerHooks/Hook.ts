@@ -1,6 +1,4 @@
 import type {DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
-import Reply from "fastify/lib/reply.js";
-import Request from "fastify/lib/request.js";
 import type {RequestPayload} from "fastify/types/hooks";
 import {config} from "../../AppContainer/helpers";
 import {Log} from "../../Common/Logger/Log";
@@ -82,15 +80,16 @@ export class Hook implements HookContract {
 	}
 
 	public register(fastify: FastifyInstance) {
+		const hookName = this.fastifyHookName();
+
 		fastify.addHook(
-			//@ts-ignore
-			this.fastifyHookName(),
+			hookName as any,
 			this.isAsyncHook()
-				? async (...args) => {
-					await this.handleAsync(this.getHookArgs(...args));
+				? async (request: FastifyRequest, response: FastifyReply, ...rest: any[]) => {
+					await this.handleAsync(Hook.hookArgs(hookName, request, response, rest[0]));
 				}
-				: (...args) => {
-					this.handle(this.getHookArgs(...args));
+				: (request: FastifyRequest, response: FastifyReply, third?: any, fourth?: any) => {
+					this.handle(Hook.hookArgs(hookName, request, response, third, fourth));
 				}
 		);
 
@@ -99,29 +98,25 @@ export class Hook implements HookContract {
 		}
 	}
 
-	public getHookArgs(...args): HookRunnerArgs {
-		const handleObject: any = {};
-
-		for (let arg of args) {
-			switch (true) {
-				case (arg instanceof Request):
-					handleObject.request = arg;
-					break;
-				case (arg instanceof Reply):
-					handleObject.response = arg;
-					break;
-				case (typeof arg === 'function' && arg?.name === 'next'):
-					handleObject.done = arg;
-					break;
-				case (typeof arg === 'string'):
-					handleObject.payload = arg;
-					break;
-				default:
-					handleObject.error = arg;
-			}
+	/**
+	 * Map Fastify's positional hook arguments onto our named args.
+	 *
+	 * Fastify's hook signatures are fixed per hook name:
+	 *  - preParsing/preSerialization/onSend: (request, reply, payload, done)
+	 *  - onError:                            (request, reply, error, done)
+	 *  - everything else:                    (request, reply, done)
+	 */
+	public static hookArgs(hookName: FastifyHookName, request: FastifyRequest, response: FastifyReply, third?: any, fourth?: any): HookRunnerArgs {
+		switch (hookName) {
+			case 'preParsing':
+			case 'preSerialization':
+			case 'onSend':
+				return {request, response, payload : third, done : fourth};
+			case 'onError':
+				return {request, response, error : third, done : fourth};
+			default:
+				return {request, response, done : third};
 		}
-
-		return handleObject;
 	}
 
 }
