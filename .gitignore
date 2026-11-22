@@ -13,3 +13,6 @@ lerna-debug.log
 /assets
 data
 /.pack
+
+# Internal review notes (kept locally, not published)
+/AUDIT.md
