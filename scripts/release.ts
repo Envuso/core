@@ -81,24 +81,24 @@ try {
 
 		const loggedIn = (await $`npm whoami`.nothrow().quiet()).exitCode === 0;
 		console.log(loggedIn ? '› npm: logged in' : '› npm: NOT logged in; run `npm login` before releasing');
+		// (no process.exit here: it would skip the finally that restores package.json)
 		console.log('› Dry run finished; package.json restored, nothing committed or published.');
-		process.exit(0);
-	}
-
-	await $`git add package.json`.cwd(root);
-	await $`git commit -m ${`:package: v${version}`}`.cwd(root);
-	await $`git tag -a v${version} -m ${`v${version}`}`.cwd(root);
-
-	console.log(`› Publishing @envuso/core@${version}`);
-	await $`bun publish --access public --tag ${tag} ${tarball}`.cwd(root);
-
-	if (flag('no-push')) {
-		console.log('› Not pushing (--no-push). Push with: git push origin main --follow-tags');
 	} else {
-		await $`git push origin main --follow-tags`.cwd(root);
-	}
+		await $`git add package.json`.cwd(root);
+		await $`git commit -m ${`:package: v${version}`}`.cwd(root);
+		await $`git tag -a v${version} -m ${`v${version}`}`.cwd(root);
 
-	console.log(`› Released @envuso/core@${version}`);
+		console.log(`› Publishing @envuso/core@${version}`);
+		await $`bun publish --access public --tag ${tag} ${tarball}`.cwd(root);
+
+		if (flag('no-push')) {
+			console.log('› Not pushing (--no-push). Push with: git push origin main --follow-tags');
+		} else {
+			await $`git push origin main --follow-tags`.cwd(root);
+		}
+
+		console.log(`› Released @envuso/core@${version}`);
+	}
 } finally {
 	if (dryRun) {
 		fs.writeFileSync(pkgPath, pkgText);
