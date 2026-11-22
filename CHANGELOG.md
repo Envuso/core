@@ -112,6 +112,10 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 - **`QueryBuilder.delete()` without a `where()` throws** instead of deleting every document. Use the new `truncate()` to empty a collection. (4658082)
 - **`delete()` returns whether a document was deleted** (`deletedCount`), on both the query builder and models. It used to return `true` whenever Mongo acknowledged the call, even if nothing matched. (4658082)
+- **`Model.update()` returns whether the document exists** (it returned `acknowledged`), no longer removes relation keys from the object you pass, and passes `options` (e.g. `upsert`) on; it used to ignore them. (e5b3bcb)
+- **`paginate()` always pages in `_id` order** and refuses an `orderBy` on any other field (`_id` cursors can't page by it). Cursors in responses are strings. (6c7ccdd)
+- **`LocalFileProvider.makeDirectory(dir)` creates `dir` itself**; it used to create its parent. Paths that resolve outside a disk's root throw. (5ca3b98)
+- A failed MongoDB connection at boot throws instead of calling `process.exit(0)`, and failing to create a model's indexes stops the boot instead of being logged. (aa6e3ea)
 - **`getModelId()` throws on an unsaved model.** It used to generate a random id, so `refresh()`, `update()` and `delete()` on an unsaved model silently did nothing. (4658082)
 - Relation properties should be typed as `Relation<T>`. Models that import each other (for example `User` and `Book`) otherwise fail at startup under ESM with decorator-metadata errors (TDZ). (55123ec)
   ```ts
@@ -236,6 +240,24 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - `@query` parameters are converted by their declared type: `?n=0` is `0` (was a 500), `?flag=false` is `false` (was `true`), and values that can't be converted are a 400 instead of a 500. (4658082)
 - Fastify's own client errors (invalid JSON 400, 413 payload too large, 415 unsupported media type) keep their status code instead of becoming 500. Errors raised before the request context exists no longer crash the error handler. (4658082)
 - `ExceptionHandler`'s `ignoredExceptions`, `reportableExceptions` and `renderableExceptions` never matched anything (a list of classes was checked for an instance), and an exception in one ignore list was still handled. HTML error pages use the exception's status code instead of always 500. (4658082)
+
+**Requests and uploads**
+
+- Two of the same parameter decorator on one method (e.g. two `@query` params) both bind; the second used to replace the first. Arguments are passed at their parameter's position: an undecorated parameter shifted every later argument left. (65c805e)
+- Multipart requests: every file is kept (only the first was), text fields before and after files reach the body, empty file inputs are skipped, and a form without a file no longer crashes. (aa6e3ea)
+- Uploaded files get a UUID temp name and the extension from the client's filename is reduced to `[a-z0-9]`, so a filename like `x./../../evil` can't write outside the temp directory. The temp directory is created if missing. (aa6e3ea)
+
+**Models and queries**
+
+- Pagination: invalid cursors are a 400 (were a 500), pages no longer skip or repeat documents, `hasNext` is no longer `true` on the last page, and `before` cursors return the previous page. (6c7ccdd)
+- `with()` queries applied `$limit` before `$sort`/`$skip`, so a limit picked arbitrary documents. (6c7ccdd)
+- `Model.update()` makes one round trip instead of two. (e5b3bcb)
+- Model indexes are only created when missing or changed instead of dropped and rebuilt on every boot. (aa6e3ea)
+- `Model.load()` on a document deleted since it was loaded no longer crashes. (aa6e3ea)
+
+**Storage**
+
+- `LocalFileProvider`: on Windows every directory creation failed (paths were split on `/`) and `write()`/`makeDirectory()` never settled on errors; both reject now. `directoryExists()` checked whether `isDirectory` existed instead of calling it. Written files report `file.txt` instead of `file..txt`. (5ca3b98)
 
 **Models**
 
