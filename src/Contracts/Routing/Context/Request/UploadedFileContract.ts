@@ -1,5 +1,8 @@
 import type {MultipartFile as Multipart} from "@fastify/multipart";
-import type {FileExtension, MimeType} from "file-type";
+import type {FileTypeResult} from "file-type";
+
+export type FileExtension = FileTypeResult['ext'];
+export type MimeType = FileTypeResult['mime'];
 import {Stats} from "fs";
 import type {UploadedFileInformation} from "../../../../Storage";
 

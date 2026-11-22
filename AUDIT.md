@@ -213,7 +213,7 @@ Remaining 37 failures, grouped by first error:
 - **No schema-per-route.** Injection stays driven by decorators and type hints (route model binding, DTO params, `@user`, container injection).
 - **Stay on legacy `experimentalDecorators` + `emitDecoratorMetadata` deliberately.** TC39 decorators lack parameter decorators and type metadata, which would force schema-style APIs.
 
-- **Bun is the primary runtime** (decided 2026-11-22). Node compatibility is nice-to-have.
+- **Bun-only** (decided 2026-11-22). Node support is dropped. Prefer Bun built-ins (Bun.password, Bun.s3, Bun.redis, Bun.serve websockets, Bun.Glob, Bun.file, fetch/WebSocket) over npm packages.
 
 ## 9. Open questions
 - Test services: Testcontainers (real Mongo + Redis in Docker) vs mongodb-memory-server + something for Redis. See discussion.

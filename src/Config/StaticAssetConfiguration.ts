@@ -1,4 +1,4 @@
-import type {WatchOptions} from "chokidar";
+import type {AssetWatchOptions} from "../Routing/StaticAssets/AssetManager";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 
 export default class StaticAssetConfiguration extends ConfigurationCredentials {
@@ -29,11 +29,8 @@ export default class StaticAssetConfiguration extends ConfigurationCredentials {
 	public watch: boolean = true;
 
 	/**
-	 * When the above "watch" option is set to true, we can define any options here which will be passed to chokidar
-	 *
-	 * @type {WatchOptions}
+	 * When the above "watch" option is set to true, these options are passed to fs.watch
+	 * (the asset directory is always watched recursively)
 	 */
-	public watchOptions: WatchOptions = {
-		ignoreInitial : true,
-	};
+	public watchOptions: AssetWatchOptions = {};
 }

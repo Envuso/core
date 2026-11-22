@@ -1,8 +1,6 @@
 import {ValidatorConstraint, type ValidatorConstraintInterface, type ValidationArguments, type ValidationOptions, registerDecorator} from 'class-validator';
 import {UploadedFile} from "../../Context/Request/UploadedFile";
 
-const isVideo = require('is-video');
-
 @ValidatorConstraint({name : 'IsVideoFileUpload', async : false})
 export class IsVideoFileUploadValidator implements ValidatorConstraintInterface {
 
@@ -11,7 +9,8 @@ export class IsVideoFileUploadValidator implements ValidatorConstraintInterface 
 			return false;
 		}
 
-		return isVideo(value.getTempFilePath());
+		// Extension-based, same as the previous is-video package
+		return Bun.file(value.getTempFilePath()).type.startsWith('video/');
 	}
 
 	defaultMessage(args: ValidationArguments) {

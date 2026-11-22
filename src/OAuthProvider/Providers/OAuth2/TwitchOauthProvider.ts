@@ -1,4 +1,3 @@
-import axios from "axios";
 import {type OAuthProviderConfiguration, BaseOAuthProvider} from "../../BaseOAuthProvider";
 import {InvalidOAuthGetUserResponseException} from "../../Exceptions/InvalidOAuthGetUserResponseException";
 import type {Oauth2ProviderContract} from "../Oauth2Provider";
@@ -37,20 +36,26 @@ export class TwitchOauthProvider extends BaseOAuthProvider implements Oauth2Prov
 
 	protected async getUserByToken(token: string) {
 		try {
-			const response = await axios.get<{data: TwitchOAuthProviderUserResponse[]}>(
-				'https://api.twitch.tv/helix/users', {
-					headers : {
-						'Content-Type'  : 'application/json',
-						'Accept'        : 'application/json',
-						'Authorization' : `Bearer ${token}`,
-						'Client-Id'     : this.config.clientId,
-					}
+			const response = await fetch('https://api.twitch.tv/helix/users', {
+				headers : {
+					'Content-Type'  : 'application/json',
+					'Accept'        : 'application/json',
+					'Authorization' : `Bearer ${token}`,
+					'Client-Id'     : this.config.clientId,
 				}
-			);
+			});
+			const data     = await response.json().catch(() => ({})) as { data?: TwitchOAuthProviderUserResponse[] };
 
-			return response.data?.data[0];
-		} catch(error) {
-			throw new InvalidOAuthGetUserResponseException(error?.response?.data || {});
+			if (!response.ok) {
+				throw new InvalidOAuthGetUserResponseException(data);
+			}
+
+			return data?.data?.[0];
+		} catch (error) {
+			if (error instanceof InvalidOAuthGetUserResponseException) {
+				throw error;
+			}
+			throw new InvalidOAuthGetUserResponseException({});
 		}
 	}
 

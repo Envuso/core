@@ -1,7 +1,4 @@
-import axios from "axios";
-import * as https from 'https';
 import {injectable} from "tsyringe";
-import {URLSearchParams} from 'url';
 import {Str} from "../Common/Utility/Str";
 import {Url} from "../Common/Http/ExtendedUrl";
 import type {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
@@ -12,8 +9,6 @@ import {InvalidAccessTokenResponseException} from "./Exceptions/InvalidAccessTok
 import {InvalidStateException} from "./Exceptions/InvalidStateException";
 import {OAuthAccessToken, type OAuthAccessTokenRaw} from "./OAuthAccessToken";
 import {Oauth2User} from "./Providers/OAuth2/Oauth2User";
-
-https.globalAgent.options.rejectUnauthorized = false;
 
 export interface OAuthProviderConfiguration {
 	baseUrl: string;
@@ -229,13 +224,23 @@ export class BaseOAuthProvider implements OAuthServiceContract {
 		const url = new Url(this.config.tokenEndpoint, this.config.baseUrl);
 
 		try {
-			const response = await axios.post<OAuthAccessTokenRaw>(url.toString(), this.getAccessTokenFields(code), {
-				headers : {'Accept' : 'application/json'}
+			const response = await fetch(url.toString(), {
+				method  : 'POST',
+				body    : this.getAccessTokenFields(code),
+				headers : {'Accept' : 'application/json'},
 			});
+			const data     = await response.json().catch(() => ({}));
 
-			return new OAuthAccessToken(response?.data);
+			if (!response.ok) {
+				throw new InvalidAccessTokenResponseException(data);
+			}
+
+			return new OAuthAccessToken(data as OAuthAccessTokenRaw);
 		} catch (error) {
-			throw new InvalidAccessTokenResponseException(error?.response?.data || {});
+			if (error instanceof InvalidAccessTokenResponseException) {
+				throw error;
+			}
+			throw new InvalidAccessTokenResponseException({});
 		}
 	}
 

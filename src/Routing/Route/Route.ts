@@ -1,7 +1,6 @@
 import type {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
 import type {RouteOptions} from "fastify/types/route";
 import {ObjectId} from "mongodb";
-import {match} from "path-to-regexp";
 import {App} from "../../AppContainer/App";
 import {config} from "../../AppContainer/helpers";
 import {Obj} from "../../Common/Utility/Obj";
@@ -66,9 +65,10 @@ export class Route implements RouteContract {
 	) {
 		this.storePreparedPath();
 
-		this.routePathParameters = this.routePath.includes(':')
-			? (<any>match(this.routePath)(this.routePath))?.params
-			: {};
+		// "/user/:username/view" -> {username : ':username'}
+		this.routePathParameters = Object.fromEntries(
+			Array.from(this.routePath.matchAll(/:([A-Za-z_$][\w$]*)/g), ([param, name]) => [name, param])
+		);
 	}
 
 	/**

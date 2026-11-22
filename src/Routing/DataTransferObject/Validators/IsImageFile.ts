@@ -1,8 +1,6 @@
 import {ValidatorConstraint, type ValidatorConstraintInterface, type ValidationArguments, type ValidationOptions, registerDecorator} from 'class-validator';
 import {UploadedFile} from "../../Context/Request/UploadedFile";
 
-const isImage = require('is-image');
-
 @ValidatorConstraint({name : 'IsImageFileUpload', async : false})
 export class IsImageFileUploadValidator implements ValidatorConstraintInterface {
 
@@ -11,7 +9,8 @@ export class IsImageFileUploadValidator implements ValidatorConstraintInterface 
 			return false;
 		}
 
-		return isImage(value.getTempFilePath());
+		// Extension-based, same as the previous is-image package
+		return Bun.file(value.getTempFilePath()).type.startsWith('image/');
 	}
 
 	defaultMessage(args: ValidationArguments) {

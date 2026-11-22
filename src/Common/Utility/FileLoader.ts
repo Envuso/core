@@ -1,8 +1,11 @@
-import {glob, type IOptions} from "glob";
 import path from 'path';
-import util from "util";
 import {Log} from "../Logger/Log";
 import {Classes} from "./Classes";
+
+export interface FilesInPathOptions {
+	/** Only return files, not directories (default true) */
+	onlyFiles?: boolean;
+}
 
 export interface FormatPathInformation {
 	//When running in ts-node, we can use a .ts file extension
@@ -58,23 +61,59 @@ export class FileLoader {
 	}
 
 	/**
-	 * Will give an array of files at the path
+	 * Will give an array of files matching the glob pattern, e.g. path.join(dir, '**', '*.ts')
 	 *
-	 * @param path
-	 * @param {IOptions} options
+	 * @param pattern
+	 * @param {FilesInPathOptions} options
 	 */
-	static filesInPath(path: string, options: IOptions = {follow : true}) {
-		return glob.sync(path, options);
+	static filesInPath(pattern: string, options: FilesInPathOptions = {}): string[] {
+		const {cwd, glob} = this.splitGlobPattern(pattern);
+
+		return Array.from(new Bun.Glob(glob).scanSync({
+			cwd,
+			absolute       : path.isAbsolute(cwd),
+			onlyFiles      : options.onlyFiles ?? true,
+			followSymlinks : true,
+		}));
 	}
 
 	/**
-	 * Will give an array of files at the path, but using async instead of sync.
+	 * Will give an array of files matching the glob pattern, but using async instead of sync.
 	 *
-	 * @param path
-	 * @param {IOptions} options
+	 * @param pattern
+	 * @param {FilesInPathOptions} options
 	 */
-	static filesInPathAsync(path: string, options: IOptions = {follow : true}): Promise<string[]> {
-		return util.promisify(glob)(path, options);
+	static async filesInPathAsync(pattern: string, options: FilesInPathOptions = {}): Promise<string[]> {
+		const {cwd, glob} = this.splitGlobPattern(pattern);
+		const files       = [];
+
+		for await (const file of new Bun.Glob(glob).scan({
+			cwd,
+			absolute       : path.isAbsolute(cwd),
+			onlyFiles      : options.onlyFiles ?? true,
+			followSymlinks : true,
+		})) {
+			files.push(file);
+		}
+
+		return files;
+	}
+
+	// Bun.Glob matches relative to a cwd and treats backslashes as escapes, so split a
+	// (possibly absolute, possibly Windows) pattern into its literal base directory and
+	// the glob part, e.g. F:\app\src\**\*.ts -> cwd "F:/app/src", glob "**/*.ts"
+	private static splitGlobPattern(pattern: string): { cwd: string, glob: string } {
+		const segments = pattern.replace(/\\/g, '/').split('/');
+		const firstGlob = segments.findIndex(segment => /[*?[\]{}!]/.test(segment));
+
+		if (firstGlob === -1) {
+			return {cwd : path.dirname(pattern) || '.', glob : path.basename(pattern)};
+		}
+
+		return {
+			cwd  : segments.slice(0, firstGlob).join('/') || '.',
+			glob : segments.slice(firstGlob).join('/'),
+		};
 	}
 
 	/**

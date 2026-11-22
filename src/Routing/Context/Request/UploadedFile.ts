@@ -1,15 +1,14 @@
 import type {MultipartFile as Multipart} from "@fastify/multipart";
-import {default as FileType, type FileExtension, type MimeType} from 'file-type';
+import {fileTypeFromFile} from 'file-type';
 import * as fs from "fs";
 import {Stats} from "fs";
 import path from "path";
-import * as readChunk from "read-chunk";
 import {ConfigRepository} from "../../../AppContainer/Config/ConfigRepository";
 import {resolve} from "../../../AppContainer/helpers";
 import {Exception} from "../../../Common/Exception/Exception";
 import {Log} from "../../../Common/Logger/Log";
 import {StatusCodes} from "../../../Common/Http/StatusCodes/StatusCodes";
-import type {UploadedFileContract} from "../../../Contracts/Routing/Context/Request/UploadedFileContract";
+import type {FileExtension, MimeType, UploadedFileContract} from "../../../Contracts/Routing/Context/Request/UploadedFileContract";
 import {Storage} from "../../../Storage/Storage";
 import type {UploadedFileInformation} from "../../../Storage/StorageProviderContract";
 
@@ -212,8 +211,7 @@ export class UploadedFile implements UploadedFileContract {
 		try {
 
 			const filePath        = path.join('storage', 'temp', this.tempFileName);
-			const buffer          = readChunk.sync(filePath, 0, 4100);
-			const fileInformation = await FileType.fromBuffer(buffer);
+			const fileInformation = await fileTypeFromFile(filePath);
 
 			this._extension = fileInformation?.ext;
 			this._mimeType  = fileInformation?.mime;

@@ -8,11 +8,11 @@ import Environment from "../../AppContainer/Config/Environment";
 import {FileLoader} from "../../Common/Utility/FileLoader";
 import {Log} from "../../Common/Logger/Log";
 import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
-import mime from 'mime';
 import {Routing} from "../Route/Routing";
 import {assetHelperGlobal} from "./GlobalHandlers/AssetHelperGlobal";
 import {mixViewHelperGlobal} from "./GlobalHandlers/MixViewHelperGlobal";
-import {FSWatcher, watch, type WatchOptions} from 'chokidar';
+
+export type AssetWatchOptions = Omit<fs.WatchOptions, 'recursive'>;
 
 export class AssetManager {
 
@@ -57,11 +57,9 @@ export class AssetManager {
 	private watch: boolean = false;
 
 	/**
-	 * When the above "watch" option is set to true, we can define any options here which will be passed to chokidar
-	 *
-	 * @type {WatchOptions}
+	 * When the above "watch" option is set to true, these options are passed to fs.watch
 	 */
-	private watchOptions: WatchOptions = {};
+	private watchOptions: AssetWatchOptions = {};
 
 	/**
 	 * A list of assets we want to create paths for
@@ -72,7 +70,7 @@ export class AssetManager {
 	 */
 	private static assetPaths: string[] = [];
 
-	private watcher: FSWatcher = null;
+	private watcher: fs.FSWatcher = null;
 
 	/**
 	 * Load our configuration for asset management
@@ -85,7 +83,7 @@ export class AssetManager {
 		this.assetDir  = this.assetPath.replace(this.rootPath, '');
 
 		this.watch        = config.get<string, boolean>('static.watch');
-		this.watchOptions = config.get<string, WatchOptions>('static.watchOptions', {});
+		this.watchOptions = config.get<string, AssetWatchOptions>('static.watchOptions', {});
 		if (Environment.isProduction()) {
 			this.watch = false;
 		}
@@ -103,18 +101,22 @@ export class AssetManager {
 		this.loadConfiguration();
 
 		if (this.watch) {
-			const watchPath = path.join(this.assetPath, '**/*');
-			this.watcher    = watch(watchPath, this.watchOptions);
+			const watchPath = this.assetPath;
+			let rebootTimer: ReturnType<typeof setTimeout> = null;
+
+			this.watcher = fs.watch(watchPath, {...this.watchOptions, recursive : true}, (eventName, filePath) => {
+				// Editors often emit several events per save; reboot once per burst
+				clearTimeout(rebootTimer);
+				rebootTimer = setTimeout(async () => {
+					Log.label('Asset Watcher').info(`Event ${eventName} triggered for path: ${filePath}. Reloading server.`);
+					await App.reboot(false);
+				}, 100);
+			});
 
 			Log.label('Asset Watcher').success(`Watching path: ${watchPath}`);
-
-			this.watcher.on('all', async (eventName: 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir', filePath: string, stats?: fs.Stats) => {
-				Log.label('Asset Watcher').info(`Event ${eventName} triggered for path: ${filePath}. Reloading server.`);
-				await App.reboot(false);
-			});
 		}
 
-		const files = await FileLoader.filesInPathAsync(path.join(this.assetPath, '**/*'), {nodir : true});
+		const files = await FileLoader.filesInPathAsync(path.join(this.assetPath, '**/*'), {onlyFiles : true});
 
 		for (let file of files) {
 			AssetManager.assetPaths.push(
@@ -173,14 +175,14 @@ export class AssetManager {
 				return reply.callNotFound();
 			}
 
-			const stream = fs.createReadStream(filePath);
-
-			const mimeType = mime.getType(filePath);
+			// Bun resolves the type from the extension; unknown extensions come back as octet-stream
+			const type     = Bun.file(filePath).type;
+			const mimeType = type === 'application/octet-stream' ? null : type;
 			if (!mimeType) {
 				return reply.callNotFound();
 			}
 
-			reply.type(mimeType).send(stream);
+			reply.type(mimeType).send(fs.createReadStream(filePath));
 		};
 
 		server.get(route, {prefixTrailingSlash : 'no-slash'}, (request, reply) => handlerStream(request, reply, assetPath));
