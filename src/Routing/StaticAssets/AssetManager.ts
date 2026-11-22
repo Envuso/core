@@ -1,9 +1,12 @@
 import type {FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction} from "fastify";
 import fs from "fs";
 import * as path from "path";
-import {App, ConfigRepository, resolve} from "../../AppContainer";
+import {App} from "../../AppContainer/App";
+import {ConfigRepository} from "../../AppContainer/Config/ConfigRepository";
+import {resolve} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
-import {FileLoader, Log} from "../../Common";
+import {FileLoader} from "../../Common/Utility/FileLoader";
+import {Log} from "../../Common/Logger/Log";
 import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
 import mime, {getType} from 'mime';
 import {Routing} from "../Route/Routing";

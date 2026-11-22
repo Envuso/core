@@ -1,6 +1,6 @@
 import path from "path";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
-import {FileLoader} from "../Common";
+import {FileLoader} from "../Common/Utility/FileLoader";
 import type {AppContract} from "../Contracts/AppContainer/AppContract";
 import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {EventDispatcher} from "./EventDispatcher";

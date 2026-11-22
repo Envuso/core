@@ -1,6 +1,6 @@
 import {injectable} from "tsyringe";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
-import {Log} from "../Common";
+import {Log} from "../Common/Logger/Log";
 import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import type {AuthenticationContract} from "../Contracts/Authentication/AuthenticationContract";
 import type {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";

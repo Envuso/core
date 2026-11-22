@@ -1,4 +1,4 @@
-import {ServiceProvider} from "../AppContainer";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import type {AppContract} from "../Contracts/AppContainer/AppContract";
 import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {Redis} from "./Redis";

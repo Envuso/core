@@ -1,5 +1,5 @@
 import type {FastifyRequest} from "fastify";
-import {Cookie} from "../../Cookies";
+import {Cookie} from "../../Cookies/Cookie";
 import type {SessionConfiguration} from "../Session/Types";
 import type {CookieContract} from "./CookieContract";
 

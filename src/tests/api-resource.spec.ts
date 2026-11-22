@@ -1,16 +1,16 @@
 import "reflect-metadata";
 import {User} from "../App/Models/User";
-import {AuthenticationServiceProvider} from "../Authentication";
+import {AuthenticationServiceProvider} from "../Authentication/AuthenticationServiceProvider";
 import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
 import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
-import {EncryptionServiceProvider} from "../Crypt";
-import {EventServiceProvider} from "../Events";
+import {EncryptionServiceProvider} from "../Crypt/EncryptionServiceProvider";
+import {EventServiceProvider} from "../Events/EventServiceProvider";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";
-import {ApiResource} from "../Routing";
+import {ApiResource} from "../Routing/ApiResource/ApiResource";
 import {RouteServiceProvider} from "../Routing/RouteServiceProvider";
 import {SecurityServiceProvider} from "../Security/SecurityServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
-import {StorageServiceProvider} from "../Storage";
+import {StorageServiceProvider} from "../Storage/StorageServiceProvider";
 
 import {bootApp, unloadApp} from "./preptests";
 

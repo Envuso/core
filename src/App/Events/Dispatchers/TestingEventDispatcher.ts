@@ -1,4 +1,4 @@
-import {EventDispatcher} from "../../../Events";
+import {EventDispatcher} from "../../../Events/EventDispatcher";
 import {TestingEventListener} from "../Listeners/TestingEventListener";
 
 export class TestingEventDispatcher extends EventDispatcher {

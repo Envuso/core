@@ -1,4 +1,4 @@
-import {Session} from "../../Session";
+import {Session} from "../../Session/Session";
 import type {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
 import type {AuthenticatableContract} from "../Authentication/UserProvider/AuthenticatableContract";
 import type {SessionStoreContract} from "./SessionStoreContract";

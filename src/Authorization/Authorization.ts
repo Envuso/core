@@ -1,9 +1,9 @@
 import {injectable} from "tsyringe";
 import {resolve} from "../AppContainer";
-import {Authentication} from "../Authentication";
-import {Classes} from "../Common";
+import {Authentication} from "../Authentication/Authentication";
+import {Classes} from "../Common/Utility/Classes";
 import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
-import {ModelDecoratorMeta} from "../Database";
+import {ModelDecoratorMeta} from "../Database/ModelDecorators";
 import {PolicyNotFound} from "./Exceptions/PolicyNotFound";
 import {PolicyPermissionNotFound} from "./Exceptions/PolicyPermissionNotFound";
 

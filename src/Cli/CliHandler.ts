@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import path from "path";
-import {AuthenticationServiceProvider} from "../Authentication";
+import {AuthenticationServiceProvider} from "../Authentication/AuthenticationServiceProvider";
 import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";
 import {RouteServiceProvider} from "../Routing/RouteServiceProvider";
@@ -8,8 +8,9 @@ import {ServerServiceProvider} from "../Server/ServerServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import Environment from './../AppContainer/Config/Environment';
 import {config, resolve} from "../AppContainer";
-import {Log} from "../Common";
-import {Database, SeedManager} from "../Database";
+import {Log} from "../Common/Logger/Log";
+import {Database} from "../Database/Database";
+import {SeedManager} from "../Database/Seeder/SeedManager";
 import {Envuso} from "../Envuso";
 
 

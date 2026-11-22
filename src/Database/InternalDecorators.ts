@@ -1,5 +1,5 @@
 import {Exclude} from "class-transformer";
-import {DecoratorHelpers} from "../Common";
+import {DecoratorHelpers} from "../Common/Decorators/DecoratorHelpers";
 import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 
 export enum InternalModelDecoratorMeta {

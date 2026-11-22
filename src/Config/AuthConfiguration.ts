@@ -1,6 +1,8 @@
 import type {SignOptions, VerifyOptions} from "jsonwebtoken";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
-import {JwtAuthenticationProvider, ModelUserProvider, SessionAuthenticationProvider} from "../Authentication";
+import {JwtAuthenticationProvider} from "../Authentication/AuthenticationProviders/JwtAuthenticationProvider";
+import {ModelUserProvider} from "../Authentication/UserProvider/ModelUserProvider";
+import {SessionAuthenticationProvider} from "../Authentication/AuthenticationProviders/SessionAuthenticationProvider";
 import type {AuthenticationIdentifier} from "../Contracts/Authentication/UserProvider/AuthCredentials";
 
 export default class AuthConfiguration extends ConfigurationCredentials {

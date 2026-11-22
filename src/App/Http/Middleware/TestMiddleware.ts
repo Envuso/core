@@ -1,8 +1,8 @@
-import {Authentication} from "../../../Authentication";
-import {Exception} from "../../../Common";
+import {Authentication} from "../../../Authentication/Authentication";
+import {Exception} from "../../../Common/Exception/Exception";
 import type {AuthenticationContract} from "../../../Contracts/Authentication/AuthenticationContract";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
-import {Middleware} from "../../../Routing";
+import {Middleware} from "../../../Routing/Middleware/Middleware";
 
 export class TestMiddleware extends Middleware {
 

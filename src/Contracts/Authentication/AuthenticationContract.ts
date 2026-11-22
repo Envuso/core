@@ -1,4 +1,5 @@
-import {AuthenticationProvider, type AuthenticationProviderParameter} from "../../Authentication";
+import {AuthenticationProvider} from "../../Authentication/AuthenticationProvider";
+import {type AuthenticationProviderParameter} from "../../Authentication/Authentication";
 import type {ConfigRepositoryContract} from "../AppContainer/Config/ConfigRepositoryContract";
 import type {AuthenticationProviderContract} from "./AuthenticationProviderContract";
 import type {AuthCredentialContract} from "./UserProvider/AuthCredentials";

@@ -1,7 +1,8 @@
 import {config} from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import path from "path";
-import {Log, Obj} from "../../Common";
+import {Log} from "../../Common/Logger/Log";
+import {Obj} from "../../Common/Utility/Obj";
 import * as fs from 'fs-extra';
 
 export default class Environment {

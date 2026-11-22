@@ -1,7 +1,7 @@
 import path from "path";
 import qs from "querystring";
 import {config} from "../../AppContainer";
-import {Obj} from "../../Common";
+import {Obj} from "../../Common/Utility/Obj";
 import {Log} from "../../Common/Logger/Log";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {RequestContext} from "../Context/RequestContext";

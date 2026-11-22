@@ -1,4 +1,4 @@
-import {METADATA} from "../../Common";
+import {METADATA} from "../../Common/Decorators/RoutingMetaData";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import type {MiddlewareContract} from "../../Contracts/Routing/Middleware/MiddlewareContract";
 

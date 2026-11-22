@@ -1,4 +1,4 @@
-import {QueryBuilder} from "../../../Database";
+import {QueryBuilder} from "../../../Database/Mongo/QueryBuilder";
 import type {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
 import type {ModelAttributesFilter} from "../../../Database/QueryBuilderTypes";

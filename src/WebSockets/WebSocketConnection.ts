@@ -1,5 +1,6 @@
 import type {WebSocket} from 'uWebSockets.js';
-import {Classes, METADATA} from "../Common";
+import {Classes} from "../Common/Utility/Classes";
+import {METADATA} from "../Common/Decorators/RoutingMetaData";
 import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import type {WebSocketChannelListenerContract} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import type {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";

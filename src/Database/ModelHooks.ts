@@ -1,4 +1,4 @@
-import {DecoratorHelpers} from "../Common";
+import {DecoratorHelpers} from "../Common/Decorators/DecoratorHelpers";
 import {ModelDecoratorMeta} from "./ModelDecorators";
 import {Model} from "./Mongo/Model";
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import * as https from 'https';
 import {injectable} from "tsyringe";
 import {URLSearchParams} from 'url';
-import {Str} from "../Common";
+import {Str} from "../Common/Utility/Str";
 import {Url} from "../Common/Http/ExtendedUrl";
 import type {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {request, RequestContext, response} from "../Routing";

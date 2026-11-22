@@ -1,5 +1,6 @@
 import {resolve} from "../AppContainer";
-import {Classes, Log} from "../Common";
+import {Classes} from "../Common/Utility/Classes";
+import {Log} from "../Common/Logger/Log";
 import type {EventDispatcherContract} from "../Contracts/Events/EventDispatcherContract";
 import type {EventListenerContract} from "../Contracts/Events/EventListenerContract";
 import type {EventManagerContract} from "../Contracts/Events/EventManagerContract";

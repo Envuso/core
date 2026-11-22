@@ -1,4 +1,5 @@
-import {App, ServiceProvider} from "../AppContainer";
+import {App} from "../AppContainer/App";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {Server} from "../Server/Server";
 import type {ErrorHandlerFn} from "./Server/ServerContract";
 import type {HookContract} from "./Server/ServerHooks/HookContract";

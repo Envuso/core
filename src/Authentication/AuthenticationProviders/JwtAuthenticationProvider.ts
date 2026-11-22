@@ -1,6 +1,7 @@
 import {type Jwt, type JwtPayload, sign, type SignOptions, verify, type VerifyOptions} from 'jsonwebtoken';
-import {config, ConfigRepository, resolve} from "../../AppContainer";
-import {Log} from "../../Common";
+import {ConfigRepository} from "../../AppContainer/Config/ConfigRepository";
+import {config, resolve} from "../../AppContainer";
+import {Log} from "../../Common/Logger/Log";
 import type {JwtAuthenticationProviderContract, JwtSingingOptions} from "../../Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";
 import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";

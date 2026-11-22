@@ -1,7 +1,8 @@
 import {instanceToPlain, plainToInstance, Transform} from "class-transformer";
-import {DecoratorHelpers} from "../Common";
+import {DecoratorHelpers} from "../Common/Decorators/DecoratorHelpers";
 import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
-import {Database, ModelDecoratorMeta} from "./index";
+import {Database} from "./Database";
+import {ModelDecoratorMeta} from "./ModelDecorators";
 
 export enum ModelRelationType {
 	HAS_MANY        = 'has-many',

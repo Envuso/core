@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import fs from "fs";
-import {Storage} from '../Storage';
+import {Storage} from '../Storage/Storage';
 import {bootApp, unloadApp} from "./preptests";
 
 

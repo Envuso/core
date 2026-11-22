@@ -1,4 +1,4 @@
-import {StatusCodes} from "../../Http";
+import {StatusCodes} from "../../Http/StatusCodes/StatusCodes";
 import {Exception} from "../Exception";
 
 export class AssetNotFound extends Exception {

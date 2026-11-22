@@ -1,4 +1,4 @@
-import {Exception} from "../../Common";
+import {Exception} from "../../Common/Exception/Exception";
 
 export class InvalidRefSpecified extends Exception {
 	constructor(entityName: string, ref: string) {

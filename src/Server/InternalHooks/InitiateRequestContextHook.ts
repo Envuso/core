@@ -1,9 +1,11 @@
 import {config} from "../../AppContainer";
-import {Cookie, CookieJar} from "../../Cookies";
+import {Cookie} from "../../Cookies/Cookie";
+import {CookieJar} from "../../Cookies/CookieJar";
 import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
 import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {type HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
+import {type HookHandlerArgs} from "../ServerHooks/Hook";
+import {PreHandlerHook} from "../ServerHooks/HookTypes/PreHandlerHook";
 
 /**
  * This hook will initiate our request context

@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import {User} from "../../App/Models/User";
 import {UserPolicy} from "../../App/Policies/UserPolicy";
-import {App} from "../../AppContainer";
-import {ModelDecoratorMeta} from "../../Database";
+import {App} from "../../AppContainer/App";
+import {ModelDecoratorMeta} from "../../Database/ModelDecorators";
 import {Server} from "../../Server/Server";
 import {bootApp, unloadApp} from "../preptests";
 

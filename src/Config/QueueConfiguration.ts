@@ -1,10 +1,10 @@
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import type {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
 import type {QueueConfiguration as QueueConfig} from "../Contracts/Configuration/QueueConfigurationContracts";
-import {EncryptionServiceProvider} from "../Crypt";
-import {DatabaseServiceProvider} from "../Database";
+import {EncryptionServiceProvider} from "../Crypt/EncryptionServiceProvider";
+import {DatabaseServiceProvider} from "../Database/DatabaseServiceProvider";
 import {RedisServiceProvider} from "../Redis/RedisServiceProvider";
-import {StorageServiceProvider} from "../Storage";
+import {StorageServiceProvider} from "../Storage/StorageServiceProvider";
 
 export default class QueueConfiguration extends ConfigurationCredentials implements QueueConfig {
 	waitTimeMs = 1_000;

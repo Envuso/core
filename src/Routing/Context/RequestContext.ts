@@ -1,8 +1,8 @@
 import type {FastifyReply, FastifyRequest} from "fastify";
 import type {DependencyContainer} from "tsyringe";
-import {App} from "../../AppContainer";
+import {App} from "../../AppContainer/App";
 import {Authenticatable} from "../../Authenticatable";
-import {METADATA} from "../../Common";
+import {METADATA} from "../../Common/Decorators/RoutingMetaData";
 import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";

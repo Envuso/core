@@ -1,4 +1,4 @@
-import {Log} from '../Common';
+import {Log} from '../Common/Logger/Log';
 import {container} from "tsyringe";
 import type InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import type constructor from "tsyringe/dist/typings/types/constructor";

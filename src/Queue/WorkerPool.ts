@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 import {Worker} from "worker_threads";
-import {FileLoader, Log} from "../Common";
+import {FileLoader} from "../Common/Utility/FileLoader";
+import {Log} from "../Common/Logger/Log";
 import {type IWorkerResult, WorkerEvent} from "./IWorkerResult";
 
 let instance: WorkerPool = null;

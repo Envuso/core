@@ -6,7 +6,7 @@ Environment.load(path.join(__dirname, "..", ".env"));
 
 import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";
-import {Log} from "./Common";
+import {Log} from "./Common/Logger/Log";
 
 const envuso = new Envuso();
 

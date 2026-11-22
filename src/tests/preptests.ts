@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import * as path from "path";
-import {ServiceProvider} from "../AppContainer";
+import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import Environment from '../AppContainer/Config/Environment';
 
 Environment.load(path.join(__dirname, '..', '..', '.env'));
 
 import Configuration from "../Config/Configuration";
-import {Database} from "../Database";
+import {Database} from "../Database/Database";
 import {Envuso} from "../Envuso";
 
 let envuso: Envuso = null;

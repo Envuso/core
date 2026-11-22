@@ -1,8 +1,8 @@
 import type {IWorkerResult} from "./IWorkerResult";
 import {Job} from "./Jobs/Job";
-import {App} from "../AppContainer";
+import {App} from "../AppContainer/App";
 import Redis from "../Redis/Redis";
-import {Log} from "../Common";
+import {Log} from "../Common/Logger/Log";
 import {DateTime} from "@envuso/date-time-helper";
 import type {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
 import LuaScripts from "./LuaScripts";

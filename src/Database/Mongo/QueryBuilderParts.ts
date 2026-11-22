@@ -1,5 +1,5 @@
 import {type Filter, ObjectId} from "mongodb";
-import {Obj} from "../../Common";
+import {Obj} from "../../Common/Utility/Obj";
 import {getModelObjectIds} from "../ModelDecorators";
 import _ from 'lodash';
 import type {ModelRelationMeta} from "../ModelRelationshipDecorators";

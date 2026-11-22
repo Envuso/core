@@ -1,7 +1,8 @@
 import {Exclude, Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
-import {belongsTo, date, hasMany, hasOne, id, index, policy} from "../../Database";
+import {belongsTo, hasMany, hasOne} from "../../Database/ModelRelationshipDecorators";
+import {date, id, index, policy} from "../../Database/ModelDecorators";
 import {hook} from "../../Database/ModelHooks";
 import {UserPolicy} from "../Policies/UserPolicy";
 import {Book} from "./Book";

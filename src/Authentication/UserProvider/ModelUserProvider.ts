@@ -1,9 +1,10 @@
-import {ConfigRepository, resolve} from "../../AppContainer";
+import {ConfigRepository} from "../../AppContainer/Config/ConfigRepository";
+import {resolve} from "../../AppContainer";
 import type {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
 import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 import type {ModelContractConstructor} from "../../Contracts/Database/Mongo/ModelContract";
-import {Hash} from "../../Crypt";
+import {Hash} from "../../Crypt/Hash";
 import {UserProvider} from "./UserProvider";
 
 export class ModelUserProvider extends UserProvider implements UserProviderContract {

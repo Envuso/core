@@ -11,11 +11,16 @@ import {
 	type UpdateResult, type WithId
 } from "mongodb";
 import {config, resolve} from "../../AppContainer";
-import {Classes, Exception, Log} from "../../Common";
+import {Classes} from "../../Common/Utility/Classes";
+import {Exception} from "../../Common/Exception/Exception";
+import {Log} from "../../Common/Logger/Log";
 import type {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import type {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import type {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database, Model, ModelDecoratorMeta, type ModelRelationMeta, ModelRelationType} from "../index";
+import {Database} from "../Database";
+import {Model} from "./Model";
+import {ModelDecoratorMeta} from "../ModelDecorators";
+import {type ModelRelationMeta, ModelRelationType} from "../ModelRelationshipDecorators";
 import type {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {ModelHelpers} from "./ModelHelpers";
 import {type PaginatedResponse, Paginator} from "./Paginator";

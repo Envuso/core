@@ -1,5 +1,5 @@
 import path from "path";
-import {Str} from "../../Common";
+import {Str} from "../../Common/Utility/Str";
 import fs from 'fs';
 import {FileDoesNotExistException} from "../Exceptions/FileDoesNotExistException";
 import {type LocalStorageProviderConfiguration, StorageProviderContract, type StoragePutOptions, type UploadedFileInformation} from "../StorageProviderContract";

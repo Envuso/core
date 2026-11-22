@@ -3,7 +3,7 @@ import Reply from "fastify/lib/reply.js";
 import Request from "fastify/lib/request.js";
 import type {RequestPayload} from "fastify/types/hooks";
 import {config} from "../../AppContainer";
-import {Log} from "../../Common";
+import {Log} from "../../Common/Logger/Log";
 import type {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
 import {OnErrorHook} from "./HookTypes/OnErrorHook";
 import {OnRequestHook} from "./HookTypes/OnRequestHook";

@@ -1,4 +1,4 @@
-import {Obj} from "../Common";
+import {Obj} from "../Common/Utility/Obj";
 import {Arr} from "../Common/Utility/Arr";
 import type {SessionStoreContract} from "../Contracts/Session/SessionStoreContract";
 

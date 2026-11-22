@@ -1,4 +1,4 @@
-import {Classes} from "../../Common";
+import {Classes} from "../../Common/Utility/Classes";
 import path from "path";
 
 export function job(constructor: Function) {

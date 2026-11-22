@@ -1,9 +1,14 @@
 import "reflect-metadata";
 import type {FastifyRequest} from "fastify";
-import {App, ConfigRepository} from "../AppContainer";
+import {App} from "../AppContainer/App";
+import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {Authenticatable} from "../Authenticatable";
-import {Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider, type VerifiedTokenInterface} from "../Authentication";
-import {request, Request, RequestContext} from "../Routing";
+import {Authentication} from "../Authentication/Authentication";
+import {BaseUserProvider} from "../Authentication/UserProvider/BaseUserProvider";
+import {JwtAuthenticationProvider, type VerifiedTokenInterface} from "../Authentication/AuthenticationProviders/JwtAuthenticationProvider";
+import {UserProvider} from "../Authentication/UserProvider/UserProvider";
+import {Request} from "../Routing/Context/Request/Request";
+import {request, RequestContext} from "../Routing";
 
 import {bootApp, unloadApp} from "./preptests";
 

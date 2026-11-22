@@ -1,10 +1,8 @@
 import "reflect-metadata";
 
 import {IsObject, IsString, MinLength, ValidateNested} from "class-validator";
-import {
-	DataTransferObject,
-	DtoValidationException,
-} from "../Routing";
+import {DataTransferObject} from "../Routing/DataTransferObject/DataTransferObject";
+import {DtoValidationException} from "../Routing/DataTransferObject/DtoValidationException";
 import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp(false));

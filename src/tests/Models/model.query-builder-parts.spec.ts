@@ -1,17 +1,17 @@
 import "reflect-metadata";
 import {ObjectId} from "mongodb";
 import {User} from "../../App/Models/User";
-import {AuthenticationServiceProvider} from "../../Authentication";
+import {AuthenticationServiceProvider} from "../../Authentication/AuthenticationServiceProvider";
 import {AuthorizationServiceProvider} from "../../Authorization/AuthorizationServiceProvider";
-import {EncryptionServiceProvider} from "../../Crypt";
+import {EncryptionServiceProvider} from "../../Crypt/EncryptionServiceProvider";
 import {type GeoNearAggregation, QueryAggregation} from "../../Database/Mongo/QueryAggregation";
 import {QueryBuilderParts} from "../../Database/Mongo/QueryBuilderParts";
-import {EventServiceProvider} from "../../Events";
+import {EventServiceProvider} from "../../Events/EventServiceProvider";
 import {InertiaServiceProvider} from "../../Packages/Inertia/InertiaServiceProvider";
 import {RouteServiceProvider} from "../../Routing/RouteServiceProvider";
 import {SecurityServiceProvider} from "../../Security/SecurityServiceProvider";
 import {SessionServiceProvider} from "../../Session/SessionServiceProvider";
-import {StorageServiceProvider} from "../../Storage";
+import {StorageServiceProvider} from "../../Storage/StorageServiceProvider";
 import {bootApp, unloadApp} from "../preptests";
 
 

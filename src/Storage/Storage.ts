@@ -1,6 +1,7 @@
 import fs from "fs";
-import {ConfigRepository, resolve} from "../AppContainer";
-import {Str} from "../Common";
+import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
+import {resolve} from "../AppContainer";
+import {Str} from "../Common/Utility/Str";
 import {
 	type DiskConfiguration,
 	type DisksList,

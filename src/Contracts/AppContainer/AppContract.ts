@@ -1,5 +1,5 @@
 import type InjectionToken from "tsyringe/dist/typings/providers/injection-token";
-import {ServiceProvider} from "../../AppContainer";
+import {ServiceProvider} from "../../AppContainer/ServiceProvider";
 import type DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
 import type {ExceptionHandlerConstructorContract} from "../Common/Exception/ExceptionHandlerContract";
 import type {ConfigRepositoryContract} from "./Config/ConfigRepositoryContract";

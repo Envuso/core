@@ -1,8 +1,9 @@
-import {StatusCodes} from "../../Common";
+import {StatusCodes} from "../../Common/Http/StatusCodes/StatusCodes";
 import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import type {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import type {ResponseContract} from "../../Contracts/Routing/Context/Response/ResponseContract";
-import {request, RequestContext, Response, response} from "../../Routing";
+import {Response} from "../../Routing/Context/Response/Response";
+import {request, RequestContext, response} from "../../Routing";
 import {RedirectResponse} from "../../Routing/Context/Response/RedirectResponse";
 import {InertiaResponse} from "./InertiaResponse";
 

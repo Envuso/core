@@ -1,7 +1,8 @@
 import type {FastifyReply} from "fastify";
 import type {IncomingHttpHeaders} from "http";
 import {resolve} from "../../../AppContainer";
-import {Log, StatusCodes} from "../../../Common";
+import {Log} from "../../../Common/Logger/Log";
+import {StatusCodes} from "../../../Common/Http/StatusCodes/StatusCodes";
 import {renderableExceptionData} from "../../../Common/Exception/ExceptionHelpers";
 import type {CookieContract} from "../../../Contracts/Cookies/CookieContract";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";

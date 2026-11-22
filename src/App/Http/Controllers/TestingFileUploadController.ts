@@ -1,5 +1,8 @@
 import {debug} from "winston";
-import {response, request, DataTransferObject, controller, dto, get, destroy, patch, put, post} from "../../../Routing";
+import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
+import {controller, get, destroy, patch, put, post} from "../../../Routing/Controller/ControllerDecorators";
+import {dto} from "../../../Routing/Route/RouteDecorators";
+import {response, request} from "../../../Routing";
 import {UploadedFile} from "../../../Routing/Context/Request/UploadedFile";
 import {Controller} from "../../../Routing/Controller/Controller";
 import {IsFileUpload} from "../../../Routing/DataTransferObject/Validators/IsFileUpload";

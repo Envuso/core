@@ -1,6 +1,8 @@
 import {Type} from "class-transformer";
 import {ObjectId} from "mongodb";
-import {belongsTo, id, Model} from "../../Database";
+import {belongsTo} from "../../Database/ModelRelationshipDecorators";
+import {id} from "../../Database/ModelDecorators";
+import {Model} from "../../Database/Mongo/Model";
 import {User} from "./User";
 
 

@@ -1,4 +1,4 @@
-import {ConfigRepository} from "../AppContainer";
+import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {Authenticatable} from "../Authenticatable";
 import type {AppContract} from "../Contracts/AppContainer/AppContract";

@@ -1,4 +1,4 @@
-import {EventListener} from "../../../Events";
+import {EventListener} from "../../../Events/EventListener";
 
 export class TestingEventListener extends EventListener {
 	constructor(public message: string) {

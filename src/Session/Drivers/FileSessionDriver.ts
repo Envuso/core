@@ -1,7 +1,8 @@
 import {DateTime} from "@envuso/date-time-helper";
 import path from "path";
-import {Log} from "../../Common";
-import {Storage, StorageProviderContract} from "../../Storage";
+import {Log} from "../../Common/Logger/Log";
+import {Storage} from "../../Storage/Storage";
+import {StorageProviderContract} from "../../Storage/StorageProviderContract";
 import {FileDoesNotExistException} from "../../Storage/Exceptions/FileDoesNotExistException";
 import type {SessionStorageDriver} from "./SessionStorageDriver";
 

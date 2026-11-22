@@ -1,6 +1,6 @@
 import {DateTime} from "@envuso/date-time-helper";
 import type {DateTimeContract} from "@envuso/date-time-helper";
-import {Redis} from "../Database";
+import {Redis} from "../Redis/Redis";
 
 export class Cache {
 

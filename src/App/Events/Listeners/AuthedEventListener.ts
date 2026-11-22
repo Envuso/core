@@ -1,4 +1,4 @@
-import {EventListener} from "../../../Events";
+import {EventListener} from "../../../Events/EventListener";
 
 export class AuthedEventListener extends EventListener {
 	constructor(public message: string) {

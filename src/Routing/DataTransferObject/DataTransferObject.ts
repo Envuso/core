@@ -6,7 +6,7 @@ import {ValidationUtils} from "class-validator/cjs/validation/ValidationUtils.js
 import {constraintToString} from "class-validator/cjs/validation/ValidationUtils";
 import type {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 import {config} from "../../AppContainer";
-import {Log} from "../../Common";
+import {Log} from "../../Common/Logger/Log";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import type {DataTransferObjectContract} from "../../Contracts/Routing/DataTransferObject/DataTransferObjectContract";
 import {RequestContext} from "../Context/RequestContext";

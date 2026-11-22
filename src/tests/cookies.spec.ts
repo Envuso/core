@@ -1,6 +1,6 @@
 import "./preptests";
 import {app} from "../AppContainer";
-import {Encryption} from "../Crypt";
+import {Encryption} from "../Crypt/Encryption";
 import {Server} from "../Server/Server";
 
 //container().resolve<Server>(Server);

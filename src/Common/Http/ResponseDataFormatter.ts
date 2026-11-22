@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {Model} from "../../Database";
+import {Model} from "../../Database/Mongo/Model";
 import Obj from "../Utility/Obj";
 
 export class ResponseDataFormatter {

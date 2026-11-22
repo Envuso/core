@@ -1,5 +1,5 @@
 import {ObjectId} from 'mongodb';
-import {getModelObjectIds, transformToObjectIds} from "../index";
+import {getModelObjectIds, transformToObjectIds} from "../ModelDecorators";
 
 
 export function convertEntityObjectIds<T>(entity: T, plain: any): Object {

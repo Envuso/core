@@ -1,5 +1,5 @@
 import {UnauthorisedException} from "../../../AppContainer/Exceptions/UnauthorisedException";
-import {Auth} from "../../../Authentication";
+import {Auth} from "../../../Authentication/Auth";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {Middleware} from "../Middleware";
 

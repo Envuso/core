@@ -1,6 +1,8 @@
 import {resolve} from "../../../AppContainer";
 import {UnauthorisedException} from "../../../AppContainer/Exceptions/UnauthorisedException";
-import {Authentication, JwtAuthenticationProvider, SessionAuthenticationProvider} from "../../../Authentication";
+import {Authentication} from "../../../Authentication/Authentication";
+import {JwtAuthenticationProvider} from "../../../Authentication/AuthenticationProviders/JwtAuthenticationProvider";
+import {SessionAuthenticationProvider} from "../../../Authentication/AuthenticationProviders/SessionAuthenticationProvider";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {Middleware} from "../Middleware";
 

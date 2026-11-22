@@ -1,5 +1,5 @@
 import {DateTime} from "@envuso/date-time-helper";
-import {Redis} from "../../Database";
+import {Redis} from "../../Redis/Redis";
 import type {SessionStorageDriver} from "./SessionStorageDriver";
 
 export class RedisSessionDriver implements SessionStorageDriver {

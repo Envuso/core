@@ -1,4 +1,4 @@
-import {StatusCodes} from "../Http";
+import {StatusCodes} from "../Http/StatusCodes/StatusCodes";
 
 export class Exception extends Error {
 

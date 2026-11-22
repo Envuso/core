@@ -1,4 +1,4 @@
-import {SeedManager} from "../../../Database";
+import {SeedManager} from "../../../Database/Seeder/SeedManager";
 import type {SeederContract} from "./SeederContract";
 
 export interface DatabaseSeederContract {

@@ -1,5 +1,6 @@
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {type HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
+import {type HookHandlerArgs} from "../ServerHooks/Hook";
+import {PreHandlerHook} from "../ServerHooks/HookTypes/PreHandlerHook";
 
 /**
  * If the current request is a multipart request(ie contains a file upload)

@@ -1,10 +1,8 @@
-import {
-	RouteQueryParam,
-	DataTransferObjectParam,
-	RequestBodyParam,
-	RequestHeadersParam,
-	RouteParameterParam,
-} from "./RequestInjection";
+import {RouteQueryParam} from "./RequestInjection/RouteQueryParam";
+import {DataTransferObjectParam} from "./RequestInjection/DataTransferObjectParam";
+import {RequestBodyParam} from "./RequestInjection/RequestBodyParam";
+import {RequestHeadersParam} from "./RequestInjection/RequestHeadersParam";
+import {RouteParameterParam} from "./RequestInjection/RouteParameterParam";
 import {RouteUserParam} from "./RequestInjection/RouteUserParam";
 
 export function dto(validateOnRequest?: boolean): ParameterDecorator {

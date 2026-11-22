@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import type {CsrfContract} from "../Contracts/Security/CsrfContract";
-import {timeSafeCompare, Uid} from "../Crypt";
+import {timeSafeCompare} from "../Crypt/Compare";
+import {Uid} from "../Crypt/Uid";
 import {csrfRandom} from "./CsrfRandom";
 
 

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Classes} from "../../../Common";
+import {Classes} from "../../../Common/Utility/Classes";
 import type {ModelContractConstructor} from "../../../Contracts/Database/Mongo/ModelContract";
 import type {RelationSortOption} from "../../ModelRelationshipDecorators";
 import {Model} from "../Model";

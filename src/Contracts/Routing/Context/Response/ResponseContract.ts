@@ -1,6 +1,6 @@
 import type {FastifyReply} from "fastify";
 import type {IncomingHttpHeaders} from "http";
-import {StatusCodes} from "../../../../Common";
+import {StatusCodes} from "../../../../Common/Http/StatusCodes/StatusCodes";
 import type {CookieContract} from "../../../Cookies/CookieContract";
 import type {RequestResponseContextContract} from "../RequestResponseContextContract";
 import type {RedirectResponseContract} from "./RedirectResponseContract";

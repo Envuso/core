@@ -1,4 +1,6 @@
-import {Controller, controller, get, request, route} from "../../../Routing";
+import {Controller} from "../../../Routing/Controller/Controller";
+import {controller, get} from "../../../Routing/Controller/ControllerDecorators";
+import {request, route} from "../../../Routing";
 
 @controller('')
 export class EmptyTestingController extends Controller {

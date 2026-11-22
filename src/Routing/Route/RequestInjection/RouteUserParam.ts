@@ -1,6 +1,7 @@
 import type {FastifyReply, FastifyRequest} from "fastify";
-import {Auth} from "../../../Authentication";
-import {DecoratorHelpers, METADATA} from "../../../Common";
+import {Auth} from "../../../Authentication/Auth";
+import {DecoratorHelpers} from "../../../Common/Decorators/DecoratorHelpers";
+import {METADATA} from "../../../Common/Decorators/RoutingMetaData";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, type ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 

@@ -1,6 +1,6 @@
-import {StatusCodes} from "../../../Common";
+import {StatusCodes} from "../../../Common/Http/StatusCodes/StatusCodes";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
-import {Middleware} from "../../../Routing";
+import {Middleware} from "../../../Routing/Middleware/Middleware";
 import {Inertia} from "../Inertia";
 
 

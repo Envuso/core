@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {Classes} from "../../Common";
+import {Classes} from "../../Common/Utility/Classes";
 import {Obj} from "../../Common/Utility/Obj";
 import {getModelObjectIds, ModelDecoratorMeta} from "../ModelDecorators";
 import {Model} from "./Model";

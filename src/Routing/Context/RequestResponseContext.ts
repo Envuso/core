@@ -3,12 +3,12 @@ import Reply from "fastify/lib/reply.js";
 import Request from "fastify/lib/request.js";
 import {type IncomingHttpHeaders, IncomingMessage} from "http";
 import type {HttpRequest} from "uWebSockets.js";
-import {ObjectContainer, type ObjectContainerObject} from "../../Common";
+import {ObjectContainer, type ObjectContainerObject} from "../../Common/ObjectContainer";
 import type {CookieJarContract} from "../../Contracts/Cookies/CookieJarContract";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import type {RequestResponseContextContract} from "../../Contracts/Routing/Context/RequestResponseContextContract";
 import type {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
-import {CookieJar} from "../../Cookies";
+import {CookieJar} from "../../Cookies/CookieJar";
 import {UrlGenerator} from "../Route/UrlGenerator";
 import {RedirectResponse} from "./Response/RedirectResponse";
 

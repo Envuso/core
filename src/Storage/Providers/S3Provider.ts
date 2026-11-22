@@ -1,6 +1,6 @@
 import {S3} from "aws-sdk";
 import fs from "fs";
-import {Str} from "../../Common";
+import {Str} from "../../Common/Utility/Str";
 import {type S3StorageProviderConfiguration, StorageProviderContract, type StoragePutOptions, type UploadedFileInformation} from "../StorageProviderContract";
 
 export class S3Provider extends StorageProviderContract {

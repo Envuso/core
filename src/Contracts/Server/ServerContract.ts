@@ -1,7 +1,7 @@
 import type {ClassTransformOptions} from "class-transformer/types/interfaces";
 import type {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
 import type {FastifyCorsOptions} from "fastify-cors";
-import {Exception} from "../../Common";
+import {Exception} from "../../Common/Exception/Exception";
 import type {HookTypes} from "../../Server/ServerHooks";
 import type {RequestContextContract} from "../Routing/Context/RequestContextContract";
 import type {ResponseContract} from "../Routing/Context/Response/ResponseContract";

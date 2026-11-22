@@ -1,6 +1,10 @@
 import {IsNotEmpty, IsString} from "class-validator";
 import {Inertia} from "../../../Packages/Inertia/Inertia";
-import {back, controller, Controller, DataTransferObject, dto, get, post, redirect} from "../../../Routing";
+import {controller, get, post} from "../../../Routing/Controller/ControllerDecorators";
+import {Controller} from "../../../Routing/Controller/Controller";
+import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
+import {dto} from "../../../Routing/Route/RouteDecorators";
+import {back, redirect} from "../../../Routing";
 import {User} from "../../Models/User";
 import {UserResource} from "../ApiResources/UserResource";
 

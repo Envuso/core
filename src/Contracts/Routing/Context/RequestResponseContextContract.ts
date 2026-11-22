@@ -1,6 +1,6 @@
 import type {FastifyReply, FastifyRequest} from "fastify";
 import {type IncomingHttpHeaders, IncomingMessage} from "http";
-import {ObjectContainer, type ObjectContainerObject} from "../../../Common";
+import {ObjectContainer, type ObjectContainerObject} from "../../../Common/ObjectContainer";
 import {UrlGenerator} from "../../../Routing/Route/UrlGenerator";
 import type {CookieJarContract} from "../../Cookies/CookieJarContract";
 import type {RedirectResponseContract} from "./Response/RedirectResponseContract";

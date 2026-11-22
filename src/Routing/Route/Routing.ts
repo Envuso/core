@@ -1,6 +1,7 @@
 import type {HTTPMethods} from "fastify";
-import {App} from "../../AppContainer";
-import {Log, METADATA} from "../../Common";
+import {App} from "../../AppContainer/App";
+import {Log} from "../../Common/Logger/Log";
+import {METADATA} from "../../Common/Decorators/RoutingMetaData";
 import type {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
 import type {RouteContract} from "../../Contracts/Routing/Route/RouteContract";
 import type {RoutingContract} from "../../Contracts/Routing/Route/RoutingContract";

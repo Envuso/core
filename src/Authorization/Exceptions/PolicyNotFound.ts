@@ -1,4 +1,5 @@
-import {Exception, StatusCodes} from "../../Common";
+import {Exception} from "../../Common/Exception/Exception";
+import {StatusCodes} from "../../Common/Http/StatusCodes/StatusCodes";
 
 export class PolicyNotFound extends Exception {
 	constructor(entityName: string) {

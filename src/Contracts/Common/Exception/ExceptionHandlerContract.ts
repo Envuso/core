@@ -1,4 +1,4 @@
-import {Exception} from "../../../Common";
+import {Exception} from "../../../Common/Exception/Exception";
 import type {ExceptionResponse} from "../../../Common/Exception/ExceptionHandler";
 import type {RequestContract} from "../../Routing/Context/Request/RequestContract";
 import type {RedirectResponseContract} from "../../Routing/Context/Response/RedirectResponseContract";

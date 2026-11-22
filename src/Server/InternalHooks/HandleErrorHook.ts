@@ -1,4 +1,5 @@
-import {type HookHandlerArgs, OnSendHook} from "../ServerHooks";
+import {type HookHandlerArgs} from "../ServerHooks/Hook";
+import {OnSendHook} from "../ServerHooks/HookTypes/OnSendHook";
 
 /**
  * If our application has any unhandled errors, we'll log an exception here.

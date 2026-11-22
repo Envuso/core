@@ -5,17 +5,14 @@ import * as fs from "fs";
 import * as path from "path";
 import {TestingController} from "../App/Http/Controllers/TestingController";
 import {User} from "../App/Models/User";
-import {App} from "../AppContainer";
-import {Authentication} from "../Authentication";
-import {
-	Controller,
-	controller,
-	DataTransferObject,
-	DtoValidationException,
-	get,
-	middleware,
-	Middleware,
-} from "../Routing";
+import {App} from "../AppContainer/App";
+import {Authentication} from "../Authentication/Authentication";
+import {Controller} from "../Routing/Controller/Controller";
+import {controller, get} from "../Routing/Controller/ControllerDecorators";
+import {DataTransferObject} from "../Routing/DataTransferObject/DataTransferObject";
+import {DtoValidationException} from "../Routing/DataTransferObject/DtoValidationException";
+import {middleware} from "../Routing/Middleware/MiddlewareDecorators";
+import {Middleware} from "../Routing/Middleware/Middleware";
 import {Routing} from "../Routing/Route/Routing";
 import {Server} from "../Server/Server";
 import {bootApp, unloadApp} from "./preptests";

@@ -1,6 +1,6 @@
-import {Middleware} from "../../../Routing";
+import {Middleware} from "../../../Routing/Middleware/Middleware";
 import {injectable} from "tsyringe";
-import {Log} from "../../../Common";
+import {Log} from "../../../Common/Logger/Log";
 import {AuthenticatedMiddleware} from "../../../Routing/Middleware/Middlewares/AuthenticatedMiddleware";
 import type {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
 import {WebSocketChannelListener} from "../../../WebSockets/WebSocketChannelListener";

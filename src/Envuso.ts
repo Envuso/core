@@ -1,10 +1,12 @@
-import {App, resolve, ServiceProvider} from "./AppContainer";
-import {Log} from "./Common";
+import {App} from "./AppContainer/App";
+import {ServiceProvider} from "./AppContainer/ServiceProvider";
+import {resolve} from "./AppContainer";
+import {Log} from "./Common/Logger/Log";
 import type {EnvusoContract} from "./Contracts/EnvusoContract";
 import type {ErrorHandlerFn} from "./Contracts/Server/ServerContract";
 import type {HookContract} from "./Contracts/Server/ServerHooks/HookContract";
 import {Server} from "./Server/Server";
-import {Hook} from "./Server/ServerHooks";
+import {Hook} from "./Server/ServerHooks/Hook";
 
 export class Envuso implements EnvusoContract {
 
