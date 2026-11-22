@@ -6,6 +6,7 @@ import {app} from "../AppContainer/helpers";
 import {Exception} from "../Common/Exception/Exception";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
 import {Server} from "../Server/Server";
+import {Storage} from "../Storage/Storage";
 import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp());
@@ -199,5 +200,26 @@ describe('model indexes', () => {
 
 		drop.mockRestore();
 		create.mockRestore();
+	});
+});
+
+describe('local storage', () => {
+	test('makeDirectory creates the directory itself, nested', async () => {
+		const disk = Storage.disk('storage');
+
+		expect(await disk.makeDirectory('correctness/nested/dir')).toBe(true);
+		expect(await (disk as any).directoryExists('correctness/nested/dir')).toBe(true);
+		await disk.deleteDirectory('correctness');
+	});
+
+	test('paths cannot escape the disk root', async () => {
+		await expect(Storage.disk('storage').write('../../escaped.txt', 'nope')).rejects.toThrow(/outside of the storage disk root/);
+	});
+
+	test("written files report their real name (was 'file..txt')", async () => {
+		const result = await Storage.disk('storage').write('correctness-name/file.txt', 'x');
+
+		expect(result.originalName).toBe('file.txt');
+		await Storage.disk('storage').deleteDirectory('correctness-name');
 	});
 });

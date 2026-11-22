@@ -75,62 +75,33 @@ export class LocalFileProvider extends StorageProviderContract {
 	}
 
 	public pathWithoutFileName(directory: string) {
-		return directory.substr(0, directory.lastIndexOf('/'));
-	}
-
-	public directoryExists(directory: string): Promise<boolean> {
-		directory = this.formatPath(directory);
-
-		return new Promise((resolve, reject) => {
-			fs.stat(this.pathWithoutFileName(directory), (error, stat) => {
-				if (error) {
-					if (error.code === 'ENOENT') {
-						return resolve(false);
-					}
-				}
-
-				if (!stat.isDirectory) {
-					return resolve(false);
-				}
-
-				return resolve(stat.isDirectory());
-			});
-		});
+		// path.dirname: the paths are OS paths (backslashes on Windows), so searching for "/" found nothing
+		return path.dirname(directory);
 	}
 
 	/**
-	 * Create a new directory
+	 * Is there a directory at this path?
+	 */
+	public async directoryExists(directory: string): Promise<boolean> {
+		try {
+			return (await fs.promises.stat(this.formatPath(directory))).isDirectory();
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+				return false;
+			}
+			throw error;
+		}
+	}
+
+	/**
+	 * Create a directory (and any missing parents)
 	 *
 	 * @param directory
 	 */
-	public makeDirectory(directory: string): Promise<boolean> {
-		directory = this.formatPath(directory);
-		return new Promise((resolve, reject) => {
+	public async makeDirectory(directory: string): Promise<boolean> {
+		await fs.promises.mkdir(this.formatPath(directory), {recursive : true});
 
-			this.directoryExists(directory).then(exists => {
-				const dirName = this.pathWithoutFileName(directory);
-
-				fs.mkdir(dirName, {recursive : true}, (error, created) => {
-					if (error) {
-						return reject(error);
-					}
-
-					resolve(true);
-				});
-			});
-
-			//			fs.stat(directory, (error, exists) => {
-			//				if (error) {
-			//					return reject(error);
-			//				}
-			//
-			//				if (!exists) {
-			//
-			//				}
-			//
-			//				resolve(true);
-			//			});
-		});
+		return true;
 	}
 
 	/**
@@ -202,32 +173,20 @@ export class LocalFileProvider extends StorageProviderContract {
 	 * @param {string} contents
 	 * @return {Promise<UploadedFileInformation>}
 	 */
-	public write(location: string, contents: string): Promise<UploadedFileInformation> {
-		return new Promise((resolve, reject) => {
-			const storagePath = this.formatPath(location);
+	public async write(location: string, contents: string): Promise<UploadedFileInformation> {
+		const storagePath = this.formatPath(location);
 
-			this.makeDirectory(storagePath).then(() => {
-				fs.writeFile(storagePath, contents, {encoding : 'utf-8'}, (error) => {
-					if (error) {
-						reject(error);
-						return;
-					}
+		await fs.promises.mkdir(path.dirname(storagePath), {recursive : true});
+		await fs.promises.writeFile(storagePath, contents, {encoding : 'utf-8'});
 
-					const pathInfo = path.parse(storagePath);
+		const pathInfo = path.parse(storagePath);
 
-					resolve({
-						url          : location,
-						path         : storagePath,
-						originalName : `${pathInfo.name}.${pathInfo.ext}`
-					});
-				});
-			}).catch(error => {
-				//				console.error('file not found?????', error, dirPath);
-				//				console.log('write: ', `${pathInfo.dir}.${pathInfo.ext}`);
-
-				reject(error);
-			});
-		});
+		return {
+			url          : location,
+			path         : storagePath,
+			// pathInfo.ext includes the dot ("file..txt" before)
+			originalName : pathInfo.base,
+		};
 	}
 
 	/**
@@ -306,11 +265,23 @@ export class LocalFileProvider extends StorageProviderContract {
 	}
 
 	private formatPath(definedPath: string) {
-		if (definedPath.includes(this.basePath)) {
-			// Don't even
-			definedPath = definedPath.replace(this.basePath, '');
+		const root    = path.resolve(this.basePath);
+		const inside  = (candidate: string) => {
+			const relative = path.relative(root, candidate);
+			return !relative.startsWith('..') && !path.isAbsolute(relative);
+		};
+
+		// A full path already inside the disk is used as-is; anything else (including
+		// "/uploads/x") is relative to the disk root, as before
+		const resolved = inside(path.resolve(definedPath)) && path.isAbsolute(definedPath)
+			? path.resolve(definedPath)
+			: path.resolve(path.join(root, definedPath));
+
+		// "../" must not reach outside the disk's root
+		if (!inside(resolved)) {
+			throw new Error(`Path "${definedPath}" is outside of the storage disk root (${root}).`);
 		}
 
-		return path.resolve(path.join(this.basePath, definedPath));
+		return resolved;
 	}
 }
