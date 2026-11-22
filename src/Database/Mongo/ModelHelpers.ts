@@ -4,6 +4,7 @@ import {Obj} from "../../Common/Utility/Obj";
 import {getModelObjectIds, ModelDecoratorMeta} from "../ModelDecorators";
 import {Model} from "./Model";
 import _ from 'lodash';
+import {isObjectId} from "../isObjectId";
 
 export class ModelHelpers {
 
@@ -55,24 +56,27 @@ export class ModelHelpers {
 			objectIdInformation = meta;
 		}
 
+		if (!_.isPlainObject(attributes)) {
+			return attributes;
+		}
+
+		// A copy: converting in place changed the caller's object (e.g. the one given to create())
+		const converted = {};
+
 		for (let key in attributes) {
 			const value = attributes[key];
 
-			if (this.keyContainsObjectId(key, objectIdInformation) && _.isString(value)) {
-				if (!ObjectId.isValid(value)) {
-					continue;
-				}
-
-				attributes[key] = new ObjectId(value);
+			if (this.keyContainsObjectId(key, objectIdInformation) && _.isString(value) && isObjectId(value)) {
+				converted[key] = new ObjectId(value);
+				continue;
 			}
 
-			if (_.isPlainObject(value)) {
-				attributes[key] = this.convertObjectIdsInAttributes(model, attributes[key], objectIdInformation);
-			}
-
+			converted[key] = _.isPlainObject(value)
+				? this.convertObjectIdsInAttributes(model, value, objectIdInformation)
+				: value;
 		}
 
-		return attributes;
+		return converted;
 
 	}
 

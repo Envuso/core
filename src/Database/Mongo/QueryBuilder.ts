@@ -398,7 +398,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 						meta.foreignKey,
 						meta.propertyKey,
 						meta.isLocalKeyArray,
-						[{$sort : meta.sort}]
+						[{$sort : meta.sort}, {$limit : 1}]
 					)
 					.addArrayValueFirstField(
 						meta.propertyKey, meta.propertyKey
@@ -416,7 +416,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 						meta.localKey,
 						meta.propertyKey,
 						meta.isLocalKeyArray,
-						[{$sort : meta.sort}]
+						[{$sort : meta.sort}, {$limit : 1}]
 					)
 					.addArrayValueFirstField(meta.propertyKey, meta.propertyKey);
 			}
@@ -649,7 +649,8 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 			return response as UpdateResult;
 		}
 
-		return !!response?.acknowledged;
+		// Whether anything matched (acknowledged was true even when nothing did)
+		return response.matchedCount > 0;
 	}
 
 	/**

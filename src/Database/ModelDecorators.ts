@@ -6,6 +6,7 @@ import {DecoratorHelpers} from "../Common/Decorators/DecoratorHelpers";
 import {Obj} from "../Common/Utility/Obj";
 import {Model} from "./Mongo/Model";
 import type {ClassType, ModelDateField, ModelObjectId, Nested} from "./index";
+import {isObjectId} from "./isObjectId";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',
@@ -231,7 +232,7 @@ export function getModelObjectIds<T>(target: any): ModelObjectId[] {
  */
 export function transformToObjectIds(value: any) {
 
-	if (typeof value === 'string' && ObjectId.isValid(value)) {
+	if (typeof value === 'string' && isObjectId(value)) {
 		return new ObjectId(value);
 	}
 
@@ -239,7 +240,7 @@ export function transformToObjectIds(value: any) {
 		return value;
 	}
 
-	if (ObjectId.isValid(value)) {
+	if (isObjectId(value)) {
 		return new ObjectId(value);
 	}
 
@@ -247,7 +248,7 @@ export function transformToObjectIds(value: any) {
 		const val = value[key];
 
 		if (!val) {
-			if (!ObjectId.isValid(val)) {
+			if (!isObjectId(val)) {
 				Log.warn('Field ' + key + ' is being converted to an ObjectID... but ' + val + ' is not able to be converted to an ObjectID.');
 				Log.warn('Full value: ', value);
 			}
@@ -259,7 +260,7 @@ export function transformToObjectIds(value: any) {
 			continue;
 		}
 
-		if (typeof val === 'string' && ObjectId.isValid(val)) {
+		if (typeof val === 'string' && isObjectId(val)) {
 			value[key] = new ObjectId(val);
 		} else if (Array.isArray(val) || Obj.isObject(val)) {
 			value[key] = transformToObjectIds(val);
@@ -278,7 +279,7 @@ export function transformToObjectIds(value: any) {
  */
 export function transformFromObjectIds(value: any) {
 
-	if (value instanceof ObjectId && ObjectId.isValid(value)) {
+	if (value instanceof ObjectId && isObjectId(value)) {
 		return value.toHexString();
 	}
 

@@ -1,5 +1,7 @@
 import {afterAll, beforeAll, describe, expect, spyOn, test} from "bun:test";
+import {ObjectId} from "mongodb";
 import {Book} from "../App/Models/Book";
+import {isObjectId} from "../Database/isObjectId";
 import {User} from "../App/Models/User";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {app} from "../AppContainer/helpers";
@@ -319,5 +321,40 @@ describe('route parameter decorators', () => {
 		const body = (await get('/testing/query/gap?first=a')).json();
 
 		expect(body).toEqual({first : 'a', unbound : null, hasHeaders : true});
+	});
+});
+
+describe('object ids and query building', () => {
+	test('only real ObjectIds count as ObjectIds', () => {
+		expect(isObjectId('507f1f77bcf86cd799439011')).toBe(true);
+		expect(isObjectId(new ObjectId())).toBe(true);
+		// ObjectId.isValid() accepts these
+		expect(isObjectId('hello world!')).toBe(false);
+		expect(isObjectId(123)).toBe(false);
+	});
+
+	test("where() doesn't change the object it's given", async () => {
+		const id     = new ObjectId().toHexString();
+		const filter = {_id : id, nested : {userId : id}};
+
+		await User.query().where(filter as any).first();
+
+		expect(filter).toEqual({_id : id, nested : {userId : id}});
+	});
+
+	test('a 12 character string in an id field is not turned into an ObjectId', async () => {
+		const query = User.query().where({_id : 'hello world!'} as any);
+
+		expect(query._filter.getQuery()._id).toBe('hello world!');
+	});
+
+	test('query builder update() is false when nothing matched', async () => {
+		expect(await User.query().where({_id : new ObjectId()}).update({name : 'nobody'} as any)).toBe(false);
+	});
+
+	test('one-to-one lookups fetch a single related document', () => {
+		const pipeline = JSON.stringify((User.query().with('hasOneBook' as any) as any)._aggregation.aggregations);
+
+		expect(pipeline).toContain('"$limit":1');
 	});
 });

@@ -23,6 +23,7 @@ import type {AllControllerMeta, ControllerMetadata} from "../Controller/Controll
 import {Middleware} from "../Middleware/Middleware";
 import {MethodParameterDecorator} from "./RequestInjection/MethodParameterDecorator";
 import {URL} from 'url';
+import {isObjectId} from "../../Database/isObjectId";
 
 export interface ControllerMethodParameterMetadata {
 	name: string;
@@ -277,7 +278,7 @@ export class Route implements RouteContract {
 
 				const identifier = request.params[parameter.name];
 
-				if (!ObjectId.isValid(identifier)) {
+				if (!isObjectId(identifier)) {
 					throw new InvalidObjectIdUsed(modelInstance.name);
 				}
 

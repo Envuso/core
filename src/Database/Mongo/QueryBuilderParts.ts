@@ -4,6 +4,7 @@ import {getModelObjectIds} from "../ModelDecorators";
 import _ from 'lodash';
 import type {ModelRelationMeta} from "../ModelRelationshipDecorators";
 import {ModelHelpers} from "./ModelHelpers";
+import {isObjectId} from "../isObjectId";
 
 export class QueryBuilderParts<T> {
 
@@ -84,45 +85,46 @@ export class QueryBuilderParts<T> {
 	//	}
 
 	private convertObjectValuesToObjectId(objectValue: any) {
+		if (!_.isPlainObject(objectValue)) {
+			return objectValue;
+		}
+
+		// A copy: this used to write into the object passed to where()/update()
+		const converted = {};
+
 		for (let key in objectValue) {
 			const value = objectValue[key];
 
-			if (ModelHelpers.keyContainsObjectId(key, this.objectIds) && _.isString(value)) {
-				if (!ObjectId.isValid(value)) {
-					continue;
-				}
-
-				objectValue[key] = new ObjectId(value);
+			if (ModelHelpers.keyContainsObjectId(key, this.objectIds) && _.isString(value) && isObjectId(value)) {
+				converted[key] = new ObjectId(value);
+				continue;
 			}
 
-			if (_.isPlainObject(value)) {
-				objectValue[key] = this.convertObjectValuesToObjectId(objectValue[key]);
-			}
-
+			converted[key] = _.isPlainObject(value) ? this.convertObjectValuesToObjectId(value) : value;
 		}
 
-		return objectValue;
+		return converted;
 	}
 
 	private convertToObjectId(key: string, value: any) {
 		if (this.isDotAccess(key)) {
 			const pathToObjectId = this.getDotAccessObjectIdPath(key);
 
-			if (!ObjectId.isValid(value) && _.isString(value)) {
+			if (!isObjectId(value) && _.isString(value)) {
 				return value;
 			}
 
 			switch (true) {
 				case _.isPlainObject(value):
 					//					let objectId = _.get(value, pathToObjectId);
-					//					if (!ObjectId.isValid(objectId)) {
+					//					if (!isObjectId(objectId)) {
 					//						return value;
 					//					}
 					//					return _.set(value, pathToObjectId, new ObjectId(_.get(value, pathToObjectId)));
 					return this.convertObjectValuesToObjectId(value);
 
 				case _.isString(value):
-					if (!ObjectId.isValid(value)) {
+					if (!isObjectId(value)) {
 						return value;
 					}
 
@@ -130,7 +132,7 @@ export class QueryBuilderParts<T> {
 
 				case _.isArray(value):
 					value = value.map(v => {
-						if (ObjectId.isValid(v)) {
+						if (isObjectId(v)) {
 							v = new ObjectId(v);
 						}
 
@@ -141,7 +143,7 @@ export class QueryBuilderParts<T> {
 		}
 
 
-		if (!ObjectId.isValid(value)) {
+		if (!isObjectId(value)) {
 			return value;
 		}
 
