@@ -1,7 +1,7 @@
 import {AsyncLocalStorage} from "async_hooks";
-import {FastifyRequest} from "fastify";
-import {WebSocketConnectionContract} from "../../WebSockets/WebSocketConnectionContract";
-import {RequestContextContract} from "./RequestContextContract";
+import type {FastifyRequest} from "fastify";
+import type {WebSocketConnectionContract} from "../../WebSockets/WebSocketConnectionContract";
+import type {RequestContextContract} from "./RequestContextContract";
 
 export interface RequestContextStoreContract {
 	_store: AsyncLocalStorage<RequestContextContract>;

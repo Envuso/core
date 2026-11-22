@@ -1,7 +1,7 @@
-import {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
-import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
+import type {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
+import type {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
-import {DataTransferObjectSerialization} from "../Routing";
+import type {DataTransferObjectSerialization} from "../Routing";
 
 
 export default class SerializationConfiguration extends ConfigurationCredentials {

@@ -2,13 +2,13 @@ import fs from "fs";
 import {ConfigRepository, resolve} from "../AppContainer";
 import {Str} from "../Common";
 import {
-	DiskConfiguration,
-	DisksList,
-	DriverTypes,
-	StorageConfiguration,
+	type DiskConfiguration,
+	type DisksList,
+	type DriverTypes,
+	type StorageConfiguration,
 	StorageProviderContract,
-	StoragePutOptions,
-	UploadedFileInformation
+	type StoragePutOptions,
+	type UploadedFileInformation
 } from "./StorageProviderContract";
 import path from "path";
 import {pipeline} from "stream";

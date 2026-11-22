@@ -1,6 +1,6 @@
-import {ChannelInformation} from "../../WebSockets/WebSocketServer";
-import {MiddlewareContract} from "../Routing/Middleware/MiddlewareContract";
-import {WebSocketConnectionContract} from "./WebSocketConnectionContract";
+import type {ChannelInformation} from "../../WebSockets/WebSocketServer";
+import type {MiddlewareContract} from "../Routing/Middleware/MiddlewareContract";
+import type {WebSocketConnectionContract} from "./WebSocketConnectionContract";
 
 
 export interface WebSocketChannelListenerContract {

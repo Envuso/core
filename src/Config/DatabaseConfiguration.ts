@@ -1,6 +1,6 @@
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
-import {
+import type {
 	DatabaseConfiguration as DbConfig,
 	MongoConnectionConfiguration,
 } from './../Contracts/Configuration/DatabaseConfigurationContracts';

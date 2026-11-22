@@ -1,11 +1,11 @@
-import {DependencyContainer} from "tsyringe";
-import {InertiaRequestContract} from "../../../Packages/Inertia/Contracts/InertiaRequestContract";
-import {AuthenticatableContract} from "../../Authentication/UserProvider/AuthenticatableContract";
-import {SessionContract} from "../../Session/SessionContract";
-import {WebSocketConnectionContract} from "../../WebSockets/WebSocketConnectionContract";
-import {RouteContract} from "../Route/RouteContract";
-import {RequestContract} from "./Request/RequestContract";
-import {ResponseContract} from "./Response/ResponseContract";
+import type {DependencyContainer} from "tsyringe";
+import type {InertiaRequestContract} from "../../../Packages/Inertia/Contracts/InertiaRequestContract";
+import type {AuthenticatableContract} from "../../Authentication/UserProvider/AuthenticatableContract";
+import type {SessionContract} from "../../Session/SessionContract";
+import type {WebSocketConnectionContract} from "../../WebSockets/WebSocketConnectionContract";
+import type {RouteContract} from "../Route/RouteContract";
+import type {RequestContract} from "./Request/RequestContract";
+import type {ResponseContract} from "./Response/ResponseContract";
 
 export interface RequestContextContract {
 	request: RequestContract;

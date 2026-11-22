@@ -1,4 +1,4 @@
-import {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
+import type {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
 
 export abstract class Seeder implements SeederContract {
 

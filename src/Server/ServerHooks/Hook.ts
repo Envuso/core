@@ -1,10 +1,10 @@
-import {DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
+import type {DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest} from "fastify";
 import Reply from "fastify/lib/reply.js";
 import Request from "fastify/lib/request.js";
-import {RequestPayload} from "fastify/types/hooks";
+import type {RequestPayload} from "fastify/types/hooks";
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
-import {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
+import type {HookContract} from "../../Contracts/Server/ServerHooks/HookContract";
 import {OnErrorHook} from "./HookTypes/OnErrorHook";
 import {OnRequestHook} from "./HookTypes/OnRequestHook";
 import {OnResponseHook} from "./HookTypes/OnResponseHook";

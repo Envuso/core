@@ -1,7 +1,7 @@
 import {StatusCodes} from "../../Common";
-import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
-import {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
-import {ResponseContract} from "../../Contracts/Routing/Context/Response/ResponseContract";
+import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import type {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
+import type {ResponseContract} from "../../Contracts/Routing/Context/Response/ResponseContract";
 import {request, RequestContext, Response, response} from "../../Routing";
 import {RedirectResponse} from "../../Routing/Context/Response/RedirectResponse";
 import {InertiaResponse} from "./InertiaResponse";

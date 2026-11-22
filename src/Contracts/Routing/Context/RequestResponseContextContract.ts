@@ -1,9 +1,9 @@
-import {FastifyReply, FastifyRequest} from "fastify";
-import {IncomingHttpHeaders, IncomingMessage} from "http";
-import {ObjectContainer, ObjectContainerObject} from "../../../Common";
+import type {FastifyReply, FastifyRequest} from "fastify";
+import {type IncomingHttpHeaders, IncomingMessage} from "http";
+import {ObjectContainer, type ObjectContainerObject} from "../../../Common";
 import {UrlGenerator} from "../../../Routing/Route/UrlGenerator";
-import {CookieJarContract} from "../../Cookies/CookieJarContract";
-import {RedirectResponseContract} from "./Response/RedirectResponseContract";
+import type {CookieJarContract} from "../../Cookies/CookieJarContract";
+import type {RedirectResponseContract} from "./Response/RedirectResponseContract";
 
 export interface RequestResponseContextContract {
 	_response: FastifyReply;

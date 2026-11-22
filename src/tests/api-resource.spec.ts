@@ -2,7 +2,7 @@ import "reflect-metadata";
 import {User} from "../App/Models/User";
 import {AuthenticationServiceProvider} from "../Authentication";
 import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
-import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
 import {EncryptionServiceProvider} from "../Crypt";
 import {EventServiceProvider} from "../Events";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";

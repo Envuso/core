@@ -1,4 +1,4 @@
-import {RequestContextContract} from "../Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../Routing/Context/RequestContextContract";
 
 export interface CsrfTokenManagerContract {
 

@@ -1,7 +1,7 @@
-import {Jwt, VerifyOptions} from "jsonwebtoken";
-import {VerifiedTokenInterface} from "../../Authentication";
-import {RequestContract} from "../Routing/Context/Request/RequestContract";
-import {AuthenticatableContract} from "./UserProvider/AuthenticatableContract";
+import type {Jwt, VerifyOptions} from "jsonwebtoken";
+import type {VerifiedTokenInterface} from "../../Authentication";
+import type {RequestContract} from "../Routing/Context/Request/RequestContract";
+import type {AuthenticatableContract} from "./UserProvider/AuthenticatableContract";
 
 export interface AuthenticationProviderContract {
 	getTokenFromHeader?(request: RequestContract): string | null

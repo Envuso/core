@@ -1,4 +1,4 @@
-import {FastifyHookName, HookHandlerArgs} from "../../../../Server/ServerHooks";
+import type {FastifyHookName, HookHandlerArgs} from "../../../../Server/ServerHooks";
 
 export interface HookHandlerContract {
 	fastifyHookName(): FastifyHookName;

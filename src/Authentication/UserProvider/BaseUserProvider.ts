@@ -1,7 +1,7 @@
 import {resolve} from "../../AppContainer";
-import {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
-import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
+import type {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
+import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 import {UserProvider} from "./UserProvider";
 
 export class BaseUserProvider extends UserProvider implements UserProviderContract {

@@ -2,7 +2,7 @@ import path from "path";
 import {Str} from "../../Common";
 import fs from 'fs';
 import {FileDoesNotExistException} from "../Exceptions/FileDoesNotExistException";
-import {LocalStorageProviderConfiguration, StorageProviderContract, StoragePutOptions, UploadedFileInformation} from "../StorageProviderContract";
+import {type LocalStorageProviderConfiguration, StorageProviderContract, type StoragePutOptions, type UploadedFileInformation} from "../StorageProviderContract";
 
 export class LocalFileProvider extends StorageProviderContract {
 	public basePath: string;

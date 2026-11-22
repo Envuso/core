@@ -1,6 +1,6 @@
 import {DateTime} from "@envuso/date-time-helper";
-import {DateTimeContract} from "@envuso/date-time-helper";
-import {CookieSameSiteValue} from "../Session/Types";
+import type {DateTimeContract} from "@envuso/date-time-helper";
+import type {CookieSameSiteValue} from "../Session/Types";
 
 export interface CookieContract<T> {
 	name: string;

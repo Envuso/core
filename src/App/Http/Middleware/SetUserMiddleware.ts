@@ -1,5 +1,5 @@
 import {Auth} from "../../../Authentication";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {Middleware} from "../../../Routing";
 import {User} from "../../Models/User";
 

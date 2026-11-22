@@ -1,8 +1,8 @@
 import {resolve} from "../AppContainer";
 import {Classes, Log} from "../Common";
-import {EventDispatcherContract} from "../Contracts/Events/EventDispatcherContract";
-import {EventListenerContract} from "../Contracts/Events/EventListenerContract";
-import {EventManagerContract} from "../Contracts/Events/EventManagerContract";
+import type {EventDispatcherContract} from "../Contracts/Events/EventDispatcherContract";
+import type {EventListenerContract} from "../Contracts/Events/EventListenerContract";
+import type {EventManagerContract} from "../Contracts/Events/EventManagerContract";
 
 export type EventModule<T> = {
 	name: string;

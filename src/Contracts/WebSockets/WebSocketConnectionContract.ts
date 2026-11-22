@@ -1,7 +1,7 @@
 import type {WebSocket} from "uWebSockets.js";
-import {SocketEventPacket} from "../../WebSockets/SocketEventTypes";
-import {RequestContextContract} from "../Routing/Context/RequestContextContract";
-import {WebSocketChannelListenerContract} from "./WebSocketChannelListenerContract";
+import type {SocketEventPacket} from "../../WebSockets/SocketEventTypes";
+import type {RequestContextContract} from "../Routing/Context/RequestContextContract";
+import type {WebSocketChannelListenerContract} from "./WebSocketChannelListenerContract";
 
 export interface WebSocketConnectionContract<T> {
 	token: string;

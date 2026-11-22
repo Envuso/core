@@ -1,10 +1,10 @@
 import {AsyncLocalStorage} from "async_hooks";
-import {FastifyRequest} from "fastify";
+import type {FastifyRequest} from "fastify";
 import {METADATA} from "../../Common";
-import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
-import {RequestContextStoreContract} from "../../Contracts/Routing/Context/RequestContextStoreContract";
-import {WebSocketConnectionContract} from "../../Contracts/WebSockets/WebSocketConnectionContract";
+import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextStoreContract} from "../../Contracts/Routing/Context/RequestContextStoreContract";
+import type {WebSocketConnectionContract} from "../../Contracts/WebSockets/WebSocketConnectionContract";
 
 let instance = null;
 

@@ -1,4 +1,4 @@
-import {ObjectContainerContract} from "../Contracts/Common/ObjectContainerContract";
+import type {ObjectContainerContract} from "../Contracts/Common/ObjectContainerContract";
 
 export type ObjectContainerObject<T> = { [key: string]: T };
 export type ObjectContainerConfiguration = {

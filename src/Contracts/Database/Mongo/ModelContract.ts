@@ -1,13 +1,13 @@
 import {
-	Collection, Filter, FindOptions,
-	ObjectId, OptionalId, UpdateOptions, UpdateResult,
+	Collection, type Filter, type FindOptions,
+	ObjectId, type OptionalId, type UpdateOptions, type UpdateResult,
 } from "mongodb";
-import {Model, ModelDateField, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
-import {ModelHook, ModelHookMetaData, ModelHooksMeta} from "../../../Database/ModelHooks";
+import {Model, type ModelDateField, ModelDecoratorMeta, QueryBuilder} from "../../../Database";
+import {ModelHook, type ModelHookMetaData, type ModelHooksMeta} from "../../../Database/ModelHooks";
 import {HasMany} from "../../../Database/Mongo/Relationships/HasMany";
-import {ModelAttributesFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
-import {PaginatorContract} from "./PaginatorContract";
-import {QueryBuilderContract} from "./QueryBuilderContract";
+import type {ModelAttributesFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
+import type {PaginatorContract} from "./PaginatorContract";
+import type {QueryBuilderContract} from "./QueryBuilderContract";
 
 export interface ModelContractConstructor<M> {
 	new(): M;

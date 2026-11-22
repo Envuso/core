@@ -1,7 +1,7 @@
-import {FastifyRequest} from "fastify";
+import type {FastifyRequest} from "fastify";
 import {ConfigRepository, resolve} from "../AppContainer";
-import {CookieJarContract} from "../Contracts/Cookies/CookieJarContract";
-import {SessionConfiguration} from "../Contracts/Session/Types";
+import type {CookieJarContract} from "../Contracts/Cookies/CookieJarContract";
+import type {SessionConfiguration} from "../Contracts/Session/Types";
 import {Cookie} from "./Cookie";
 
 

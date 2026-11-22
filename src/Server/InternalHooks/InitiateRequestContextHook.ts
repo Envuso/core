@@ -3,7 +3,7 @@ import {Cookie, CookieJar} from "../../Cookies";
 import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
 import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
+import {type HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
 /**
  * This hook will initiate our request context

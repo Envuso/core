@@ -1,4 +1,4 @@
-import {TagContract} from "edge.js/build/src/Contracts";
+import type {TagContract} from "edge.js/build/src/Contracts";
 import {Edge} from "edge.js/build/src/Edge";
 
 export interface ViewManagerContract {

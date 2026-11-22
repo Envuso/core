@@ -1,8 +1,8 @@
-import {WebSocketConnectionContract} from "../../../Contracts/WebSockets/WebSocketConnectionContract";
+import type {WebSocketConnectionContract} from "../../../Contracts/WebSockets/WebSocketConnectionContract";
 import {Middleware} from "../../../Routing";
 import {injectable} from "tsyringe";
 import {Log} from "../../../Common";
-import {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
+import type {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
 import {WebSocketChannelListener} from "../../../WebSockets/WebSocketChannelListener";
 import {WebSocketConnection} from "../../../WebSockets/WebSocketConnection";
 import {User} from "../../Models/User";

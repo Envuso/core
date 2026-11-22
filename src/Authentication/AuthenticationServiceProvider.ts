@@ -1,8 +1,8 @@
 import {ConfigRepository} from "../AppContainer";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {Authenticatable} from "../Authenticatable";
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {Authentication} from "./Authentication";
 
 

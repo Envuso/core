@@ -1,4 +1,4 @@
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {InertiaMiddleware} from "../../../Packages/Inertia/Middleware/InertiaMiddleware";
 
 export class HandleInertiaRequestMiddleware extends InertiaMiddleware {

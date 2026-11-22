@@ -1,4 +1,4 @@
-import {ObjectContainerConfiguration, ObjectContainerObject} from "../../Common";
+import type {ObjectContainerConfiguration, ObjectContainerObject} from "../../Common";
 
 export interface ObjectContainerContract<T> {
 	data: ObjectContainerObject<T>;

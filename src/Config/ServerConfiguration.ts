@@ -1,11 +1,11 @@
-import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {FastifyPlugin, FastifyPluginOptions, FastifyServerOptions} from "fastify";
-import {FastifyCorsOptions} from "fastify-cors";
-import {default as FastifyMultipart, FastifyMultipartOptions} from "fastify-multipart";
+import type {ClassTransformOptions} from "class-transformer/types/interfaces";
+import type {FastifyPlugin, FastifyPluginOptions, FastifyServerOptions} from "fastify";
+import type {FastifyCorsOptions} from "fastify-cors";
+import {default as FastifyMultipart, type FastifyMultipartOptions} from "fastify-multipart";
 import {HandleInertiaRequestMiddleware} from "../App/Http/Middleware/HandleInertiaRequestMiddleware";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
-import {ServerConfiguration as ServerConfig} from "../Contracts/Server/ServerContract";
+import type {ServerConfiguration as ServerConfig} from "../Contracts/Server/ServerContract";
 import {InjectViewGlobals} from "../Routing/Views/InjectViewGlobals";
 import {BindRequestContextHook} from "../Server/InternalHooks/BindRequestContextHook";
 import {ConvertEmptyStringsToNullHook} from "../Server/InternalHooks/ConvertEmptyStringsToNullHook";

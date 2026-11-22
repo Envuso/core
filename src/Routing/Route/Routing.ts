@@ -1,10 +1,10 @@
-import {HTTPMethods} from "fastify";
+import type {HTTPMethods} from "fastify";
 import {App} from "../../AppContainer";
 import {Log, METADATA} from "../../Common";
-import {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
-import {RouteContract} from "../../Contracts/Routing/Route/RouteContract";
-import {RoutingContract} from "../../Contracts/Routing/Route/RoutingContract";
-import {AllControllerMeta} from "../Controller/ControllerDecoratorBinding";
+import type {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
+import type {RouteContract} from "../../Contracts/Routing/Route/RouteContract";
+import type {RoutingContract} from "../../Contracts/Routing/Route/RoutingContract";
+import type {AllControllerMeta} from "../Controller/ControllerDecoratorBinding";
 import {Route} from "./Route";
 
 let instance: Routing = null;

@@ -1,7 +1,7 @@
 import {instanceToPlain, Exclude, plainToInstance} from "class-transformer";
 import {Exception, Str} from "../../Common";
 import {DateTime} from "@envuso/date-time-helper";
-import {BaseQueueable} from "./Queueable";
+import type {BaseQueueable} from "./Queueable";
 import {Queue} from "../Queue";
 
 export class Job implements BaseQueueable {

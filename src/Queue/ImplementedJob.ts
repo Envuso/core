@@ -1,7 +1,7 @@
 import {resolve} from "../AppContainer";
 import {Encryption} from "../Crypt";
 import {Job} from "./Jobs/Job";
-import {Queueable} from "./Jobs/Queueable";
+import type {Queueable} from "./Jobs/Queueable";
 import {job} from "./Jobs/JobDecorators";
 
 @job

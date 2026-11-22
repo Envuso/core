@@ -1,7 +1,7 @@
 import Environment from "../../AppContainer/Config/Environment";
-import {ExceptionHandlerContract} from "../../Contracts/Common/Exception/ExceptionHandlerContract";
-import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
-import {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
+import type {ExceptionHandlerContract} from "../../Contracts/Common/Exception/ExceptionHandlerContract";
+import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import type {RedirectResponseContract} from "../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {DtoValidationException} from "../../Routing";
 import {getReasonPhrase, StatusCodes} from "../Http";
 import Log from "../Logger/Log";

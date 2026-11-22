@@ -1,4 +1,4 @@
-import {AbstractOAuthUser, OAuthUserContract} from "../../AbstractOAuthUser";
+import {AbstractOAuthUser, type OAuthUserContract} from "../../AbstractOAuthUser";
 import {OAuthAccessToken} from "../../OAuthAccessToken";
 
 export class Oauth2User extends AbstractOAuthUser implements OAuthUserContract {

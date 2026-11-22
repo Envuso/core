@@ -1,5 +1,5 @@
-import {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
-import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
+import type {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
+import type {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 
 export interface DataTransferObjectConstructorContract {
 	new();

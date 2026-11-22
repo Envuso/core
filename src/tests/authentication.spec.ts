@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import {FastifyRequest} from "fastify";
+import type {FastifyRequest} from "fastify";
 import {App, ConfigRepository} from "../AppContainer";
 import {Authenticatable} from "../Authenticatable";
-import {Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider, VerifiedTokenInterface} from "../Authentication";
+import {Authentication, BaseUserProvider, JwtAuthenticationProvider, UserProvider, type VerifiedTokenInterface} from "../Authentication";
 import {request, Request, RequestContext} from "../Routing";
 
 import {bootApp, unloadApp} from "./preptests";

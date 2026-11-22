@@ -1,4 +1,4 @@
-import {ModelContractConstructor} from "../../../Contracts/Database/Mongo/ModelContract";
+import type {ModelContractConstructor} from "../../../Contracts/Database/Mongo/ModelContract";
 import {Database} from "../../Database";
 import {Model} from "../Model";
 import {BaseModelRelation} from "./BaseModelRelation";

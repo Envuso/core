@@ -1,5 +1,5 @@
 import Environment from "../AppContainer/Config/Environment";
-import {ApplicationConfiguration} from "../Contracts/AppContainer/AppContract";
+import type {ApplicationConfiguration} from "../Contracts/AppContainer/AppContract";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {EncryptionServiceProvider} from "../";
 import {DatabaseServiceProvider} from "../";
@@ -10,8 +10,8 @@ import {ServerServiceProvider} from "../";
 import {EventServiceProvider} from "../";
 import {SecurityServiceProvider} from "../";
 import {AuthorizationServiceProvider} from "../";
-import {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
-import {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
+import type {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
+import type {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
 import {OAuthServiceProvider} from "../OAuthProvider/OAuthServiceProvider";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";

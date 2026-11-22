@@ -1,5 +1,5 @@
-import {DispatchEventName, EventDispatcher, EventListener, EventListenerConstructor, EventMap, EventModule} from "../../Events";
-import {EventDispatcherContract} from "./EventDispatcherContract";
+import {type DispatchEventName, EventDispatcher, EventListener, type EventListenerConstructor, type EventMap, type EventModule} from "../../Events";
+import type {EventDispatcherContract} from "./EventDispatcherContract";
 
 export interface EventManagerContract {
 	prepared: boolean;

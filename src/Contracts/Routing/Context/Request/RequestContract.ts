@@ -1,12 +1,12 @@
-import {HTTPMethods} from "fastify";
-import {Multipart} from "fastify-multipart";
+import type {HTTPMethods} from "fastify";
+import type {Multipart} from "fastify-multipart";
 import {UploadedFile} from "../../../../Routing/Context/Request/UploadedFile";
 import {RouteParameters} from "../../../../Routing/Route/RouteParameters";
-import {AuthenticatableContract} from "../../../Authentication/UserProvider/AuthenticatableContract";
-import {SessionContract} from "../../../Session/SessionContract";
-import {RouteContract} from "../../Route/RouteContract";
-import {RequestResponseContextContract} from "../RequestResponseContextContract";
-import {UploadedFileContract} from "./UploadedFileContract";
+import type {AuthenticatableContract} from "../../../Authentication/UserProvider/AuthenticatableContract";
+import type {SessionContract} from "../../../Session/SessionContract";
+import type {RouteContract} from "../../Route/RouteContract";
+import type {RequestResponseContextContract} from "../RequestResponseContextContract";
+import type {UploadedFileContract} from "./UploadedFileContract";
 
 export interface RequestContract extends RequestResponseContextContract {
 

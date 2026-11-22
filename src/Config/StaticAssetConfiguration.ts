@@ -1,4 +1,4 @@
-import {WatchOptions} from "chokidar";
+import type {WatchOptions} from "chokidar";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 
 export default class StaticAssetConfiguration extends ConfigurationCredentials {

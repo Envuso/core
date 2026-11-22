@@ -1,12 +1,12 @@
 import {
-	ChannelSubscribeRequestCallback,
-	ChannelSubscribeRequestPacket,
-	ChannelSubscribeResponsePacket,
-	ChannelUnsubscribeRequest,
+	type ChannelSubscribeRequestCallback,
+	type ChannelSubscribeRequestPacket,
+	type ChannelSubscribeResponsePacket,
+	type ChannelUnsubscribeRequest,
 	ConnectionStatus,
 	ServerEventTypes,
-	SocketPacket,
-	SocketPacketBody
+	type SocketPacket,
+	type SocketPacketBody
 } from "./index";
 import {SocketClient} from "./SocketClient";
 

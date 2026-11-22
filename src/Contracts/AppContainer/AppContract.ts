@@ -1,9 +1,9 @@
-import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
+import type InjectionToken from "tsyringe/dist/typings/providers/injection-token";
 import {ServiceProvider} from "../../AppContainer";
-import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
-import {ExceptionHandlerConstructorContract} from "../Common/Exception/ExceptionHandlerContract";
-import {ConfigRepositoryContract} from "./Config/ConfigRepositoryContract";
-import {ServiceProviderContract} from "./ServiceProviderContract";
+import type DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import type {ExceptionHandlerConstructorContract} from "../Common/Exception/ExceptionHandlerContract";
+import type {ConfigRepositoryContract} from "./Config/ConfigRepositoryContract";
+import type {ServiceProviderContract} from "./ServiceProviderContract";
 
 export interface BaseConfiguration {
 	config: { [key: string]: any };

@@ -1,7 +1,7 @@
-import {FastifyRequest} from "fastify";
+import type {FastifyRequest} from "fastify";
 import {Cookie} from "../../Cookies";
-import {SessionConfiguration} from "../Session/Types";
-import {CookieContract} from "./CookieContract";
+import type {SessionConfiguration} from "../Session/Types";
+import type {CookieContract} from "./CookieContract";
 
 export interface CookieJarContract {
 	_config: SessionConfiguration;

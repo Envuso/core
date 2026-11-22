@@ -1,7 +1,7 @@
-import {DateTime, DateTimeContract} from "@envuso/date-time-helper";
+import {DateTime, type DateTimeContract} from "@envuso/date-time-helper";
 import {config} from "../AppContainer";
-import {CookieContract} from "../Contracts/Cookies/CookieContract";
-import {CookieConfiguration, CookieSameSiteValue} from "../Contracts/Session/Types";
+import type {CookieContract} from "../Contracts/Cookies/CookieContract";
+import type {CookieConfiguration, CookieSameSiteValue} from "../Contracts/Session/Types";
 
 const fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 

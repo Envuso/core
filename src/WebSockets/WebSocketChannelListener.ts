@@ -1,9 +1,9 @@
 import {resolve} from "../AppContainer";
-import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
-import {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
-import {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
+import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
+import type {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
+import type {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
 import {WebSocketConnection} from "./WebSocketConnection";
-import {ChannelInformation, WebSocketServer} from "./WebSocketServer";
+import {type ChannelInformation, WebSocketServer} from "./WebSocketServer";
 
 export abstract class WebSocketChannelListener implements WebSocketChannelListenerContract {
 

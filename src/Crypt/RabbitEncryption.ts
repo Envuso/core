@@ -1,5 +1,5 @@
 import {Rabbit} from 'crypto-js';
-import {EncryptionContract} from "../Contracts/Crypt/EncryptionContract";
+import type {EncryptionContract} from "../Contracts/Crypt/EncryptionContract";
 
 let instance: RabbitEncryption = null;
 

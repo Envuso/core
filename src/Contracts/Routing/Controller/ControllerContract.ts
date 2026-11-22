@@ -1,5 +1,5 @@
-import {ModelContract} from "../../Database/Mongo/ModelContract";
-import {ResponseContract} from "../Context/Response/ResponseContract";
+import type {ModelContract} from "../../Database/Mongo/ModelContract";
+import type {ResponseContract} from "../Context/Response/ResponseContract";
 
 export interface ControllerContract {
 

@@ -1,6 +1,6 @@
-import {CookieContract} from "../../../Contracts/Cookies/CookieContract";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
-import {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
+import type {CookieContract} from "../../../Contracts/Cookies/CookieContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RedirectResponseContract} from "../../../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {session} from "../../../Session";
 
 export class RedirectResponse implements RedirectResponseContract {

@@ -19,13 +19,13 @@ import {Authenticatable} from "../Authenticatable";
 import {Authentication, JwtAuthenticationProvider} from "../Authentication";
 import {Obj, FileLoader, Log, Str} from "../Common";
 import {ResponseDataFormatter} from "../Common/Http/ResponseDataFormatter";
-import WebsocketsConfiguration, {uWsBehaviour} from "../Config/WebsocketsConfiguration";
-import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
-import {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
+import WebsocketsConfiguration, {type uWsBehaviour} from "../Config/WebsocketsConfiguration";
+import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
+import type {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import {Model} from "../Database";
 import {RequestContext} from "../Routing";
 import {RequestContextStore} from "../Routing/Context/RequestContextStore";
-import {BaseEventPacket, ChannelSubscribeSocketPacket, ChannelUnsubscribeSocketPacket, SocketEvents, UserMessageSocketPacket} from "./SocketEventTypes";
+import {type BaseEventPacket, type ChannelSubscribeSocketPacket, type ChannelUnsubscribeSocketPacket, SocketEvents, type UserMessageSocketPacket} from "./SocketEventTypes";
 import {WebSocketChannelListener} from "./WebSocketChannelListener";
 import {WebSocketConnection} from "./WebSocketConnection";
 

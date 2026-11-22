@@ -1,5 +1,5 @@
-import {HookHandlerContract} from "../../../Contracts/Server/ServerHooks/HookTypes/HookHandlerContract";
-import {FastifyHookName, Hook, HookHandlerArgs} from "../Hook";
+import type {HookHandlerContract} from "../../../Contracts/Server/ServerHooks/HookTypes/HookHandlerContract";
+import {type FastifyHookName, Hook, type HookHandlerArgs} from "../Hook";
 
 export class PreParsingHook extends Hook implements HookHandlerContract {
 

@@ -1,6 +1,6 @@
 import {METADATA} from "../../Common";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
-import {MiddlewareContract} from "../../Contracts/Routing/Middleware/MiddlewareContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {MiddlewareContract} from "../../Contracts/Routing/Middleware/MiddlewareContract";
 
 export abstract class Middleware implements MiddlewareContract {
 

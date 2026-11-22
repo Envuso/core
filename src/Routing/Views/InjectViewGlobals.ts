@@ -1,8 +1,8 @@
 import {resolve} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
 import {Url} from "../../Common/Utility/Url";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
-import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
 import {Middleware} from "../Middleware/Middleware";
 
 export class InjectViewGlobals extends Middleware {

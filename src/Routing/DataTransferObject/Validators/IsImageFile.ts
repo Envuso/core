@@ -1,4 +1,4 @@
-import {ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, ValidationOptions, registerDecorator} from 'class-validator';
+import {ValidatorConstraint, type ValidatorConstraintInterface, type ValidationArguments, type ValidationOptions, registerDecorator} from 'class-validator';
 import {UploadedFile} from "../../Context/Request/UploadedFile";
 
 const isImage = require('is-image');

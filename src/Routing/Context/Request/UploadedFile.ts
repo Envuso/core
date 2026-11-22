@@ -1,13 +1,13 @@
-import {Multipart} from "fastify-multipart";
-import {default as FileType, FileExtension, MimeType} from 'file-type';
+import type {Multipart} from "fastify-multipart";
+import {default as FileType, type FileExtension, type MimeType} from 'file-type';
 import * as fs from "fs";
 import {Stats} from "fs";
 import path from "path";
 import * as readChunk from "read-chunk";
 import {ConfigRepository, resolve} from "../../../AppContainer";
 import {Exception, Log, StatusCodes} from "../../../Common";
-import {UploadedFileContract} from "../../../Contracts/Routing/Context/Request/UploadedFileContract";
-import {Storage, UploadedFileInformation} from "../../../Storage";
+import type {UploadedFileContract} from "../../../Contracts/Routing/Context/Request/UploadedFileContract";
+import {Storage, type UploadedFileInformation} from "../../../Storage";
 
 export class UploadedFile implements UploadedFileContract {
 

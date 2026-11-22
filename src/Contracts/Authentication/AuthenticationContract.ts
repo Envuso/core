@@ -1,9 +1,9 @@
-import {AuthenticationProvider, AuthenticationProviderParameter} from "../../Authentication";
-import {ConfigRepositoryContract} from "../AppContainer/Config/ConfigRepositoryContract";
-import {AuthenticationProviderContract} from "./AuthenticationProviderContract";
-import {AuthCredentialContract} from "./UserProvider/AuthCredentials";
-import {AuthenticatableContract} from "./UserProvider/AuthenticatableContract";
-import {UserProviderContract} from "./UserProvider/UserProviderContract";
+import {AuthenticationProvider, type AuthenticationProviderParameter} from "../../Authentication";
+import type {ConfigRepositoryContract} from "../AppContainer/Config/ConfigRepositoryContract";
+import type {AuthenticationProviderContract} from "./AuthenticationProviderContract";
+import type {AuthCredentialContract} from "./UserProvider/AuthCredentials";
+import type {AuthenticatableContract} from "./UserProvider/AuthenticatableContract";
+import type {UserProviderContract} from "./UserProvider/UserProviderContract";
 
 export interface AuthenticationContract {
 	_providers: Map<string, AuthenticationProviderContract>;

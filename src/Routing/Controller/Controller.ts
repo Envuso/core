@@ -1,6 +1,6 @@
 import {Authorization} from "../../Authorization/Authorization";
-import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
-import {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
+import type {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import type {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
 import {Model} from "../../Database";
 import {response} from "../index";
 

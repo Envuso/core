@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {Classes} from "../../../Common";
-import {ModelContractConstructor} from "../../../Contracts/Database/Mongo/ModelContract";
-import {RelationSortOption} from "../../ModelRelationshipDecorators";
+import type {ModelContractConstructor} from "../../../Contracts/Database/Mongo/ModelContract";
+import type {RelationSortOption} from "../../ModelRelationshipDecorators";
 import {Model} from "../Model";
 
 export type RelationOptions = {

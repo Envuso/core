@@ -1,9 +1,9 @@
-import {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
-import {RouteOptions} from "fastify/types/route";
-import {AllControllerMeta} from "../../../Routing/Controller/ControllerDecoratorBinding";
-import {ControllerMethodMetadata, ControllerMethodParameterMetadata} from "../../../Routing/Route/Route";
-import {RequestContextContract} from "../Context/RequestContextContract";
-import {MiddlewareContract} from "../Middleware/MiddlewareContract";
+import type {FastifyReply, FastifyRequest, HTTPMethods} from "fastify";
+import type {RouteOptions} from "fastify/types/route";
+import type {AllControllerMeta} from "../../../Routing/Controller/ControllerDecoratorBinding";
+import type {ControllerMethodMetadata, ControllerMethodParameterMetadata} from "../../../Routing/Route/Route";
+import type {RequestContextContract} from "../Context/RequestContextContract";
+import type {MiddlewareContract} from "../Middleware/MiddlewareContract";
 
 export type RouteMiddlewareHandlers = {
 	before: (context: RequestContextContract) => Promise<void>;

@@ -4,7 +4,7 @@ import {User} from "../../App/Models/User";
 import {AuthenticationServiceProvider} from "../../Authentication";
 import {AuthorizationServiceProvider} from "../../Authorization/AuthorizationServiceProvider";
 import {EncryptionServiceProvider} from "../../Crypt";
-import {GeoNearAggregation, QueryAggregation} from "../../Database/Mongo/QueryAggregation";
+import {type GeoNearAggregation, QueryAggregation} from "../../Database/Mongo/QueryAggregation";
 import {QueryBuilderParts} from "../../Database/Mongo/QueryBuilderParts";
 import {EventServiceProvider} from "../../Events";
 import {InertiaServiceProvider} from "../../Packages/Inertia/InertiaServiceProvider";

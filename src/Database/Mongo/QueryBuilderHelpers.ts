@@ -1,5 +1,5 @@
-import {ModelAttributesFilter} from "../QueryBuilderTypes";
-import {QueryOperator} from "./QueryBuilder";
+import type {ModelAttributesFilter} from "../QueryBuilderTypes";
+import type {QueryOperator} from "./QueryBuilder";
 
 export class QueryBuilderHelpers {
 

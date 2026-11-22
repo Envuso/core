@@ -1,4 +1,4 @@
-import {RequestContextContract} from "../Context/RequestContextContract";
+import type {RequestContextContract} from "../Context/RequestContextContract";
 
 export interface MiddlewareContract {
 	handle(context: RequestContextContract): Promise<any>;

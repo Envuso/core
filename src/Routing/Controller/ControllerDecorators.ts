@@ -1,5 +1,5 @@
-import {HTTPMethods} from "fastify";
-import {bindControllerMeta, HandlerDecorator, httpMethod} from "./ControllerDecoratorBinding";
+import type {HTTPMethods} from "fastify";
+import {bindControllerMeta, type HandlerDecorator, httpMethod} from "./ControllerDecoratorBinding";
 
 /**
  * Allows us to use an @controller('/path') decorator

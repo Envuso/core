@@ -1,8 +1,8 @@
-import {Jwt, SignOptions, VerifyOptions} from "jsonwebtoken";
-import {JwtAuthenticationConfig, VerifiedTokenInterface} from "../../../Authentication";
-import {RequestContract} from "../../Routing/Context/Request/RequestContract";
-import {AuthenticatableContract} from "../UserProvider/AuthenticatableContract";
-import {UserProviderContract} from "../UserProvider/UserProviderContract";
+import type {Jwt, SignOptions, VerifyOptions} from "jsonwebtoken";
+import type {JwtAuthenticationConfig, VerifiedTokenInterface} from "../../../Authentication";
+import type {RequestContract} from "../../Routing/Context/Request/RequestContract";
+import type {AuthenticatableContract} from "../UserProvider/AuthenticatableContract";
+import type {UserProviderContract} from "../UserProvider/UserProviderContract";
 
 export type JwtSingingOptions = SignOptions & { [key: string]: any };
 

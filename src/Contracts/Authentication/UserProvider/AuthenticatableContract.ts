@@ -1,6 +1,6 @@
 import {ObjectId} from "mongodb";
-import {ModelConstructorOrInstantiatedModel} from "../../../Authorization/Authorization";
-import {JwtSingingOptions} from "../AuthenticationProviders/JwtAuthenticationProviderContract";
+import type {ModelConstructorOrInstantiatedModel} from "../../../Authorization/Authorization";
+import type {JwtSingingOptions} from "../AuthenticationProviders/JwtAuthenticationProviderContract";
 
 export interface AuthenticatableContract<T> {
 	_user: any;

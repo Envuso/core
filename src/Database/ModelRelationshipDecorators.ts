@@ -1,6 +1,6 @@
 import {instanceToPlain, plainToInstance, Transform} from "class-transformer";
 import {DecoratorHelpers} from "../Common";
-import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
+import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 import {Database, ModelDecoratorMeta} from "./index";
 
 export enum ModelRelationType {

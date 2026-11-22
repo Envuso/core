@@ -1,9 +1,9 @@
-import {FastifyReply} from "fastify";
-import {IncomingHttpHeaders} from "http";
+import type {FastifyReply} from "fastify";
+import type {IncomingHttpHeaders} from "http";
 import {StatusCodes} from "../../../../Common";
-import {CookieContract} from "../../../Cookies/CookieContract";
-import {RequestResponseContextContract} from "../RequestResponseContextContract";
-import {RedirectResponseContract} from "./RedirectResponseContract";
+import type {CookieContract} from "../../../Cookies/CookieContract";
+import type {RequestResponseContextContract} from "../RequestResponseContextContract";
+import type {RedirectResponseContract} from "./RedirectResponseContract";
 
 export interface ResponseContract extends RequestResponseContextContract {
 

@@ -1,7 +1,7 @@
-import {SessionContract} from "../Contracts/Session/SessionContract";
-import {SessionManagerContract} from "../Contracts/Session/SessionManagerContract";
-import {SessionConfiguration} from "../Contracts/Session/Types";
-import {SessionStorageDriver} from "./Drivers/SessionStorageDriver";
+import type {SessionContract} from "../Contracts/Session/SessionContract";
+import type {SessionManagerContract} from "../Contracts/Session/SessionManagerContract";
+import type {SessionConfiguration} from "../Contracts/Session/Types";
+import type {SessionStorageDriver} from "./Drivers/SessionStorageDriver";
 import {Session} from "./Session";
 
 export class SessionManager implements SessionManagerContract {

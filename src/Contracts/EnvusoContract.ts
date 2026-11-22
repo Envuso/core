@@ -1,7 +1,7 @@
 import {App, ServiceProvider} from "../AppContainer";
 import {Server} from "../Server/Server";
-import {ErrorHandlerFn} from "./Server/ServerContract";
-import {HookContract} from "./Server/ServerHooks/HookContract";
+import type {ErrorHandlerFn} from "./Server/ServerContract";
+import type {HookContract} from "./Server/ServerHooks/HookContract";
 
 export interface EnvusoContract {
 	_app: App;

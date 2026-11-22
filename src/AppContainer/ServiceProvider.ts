@@ -1,6 +1,6 @@
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
 
 export abstract class ServiceProvider implements ServiceProviderContract {
 

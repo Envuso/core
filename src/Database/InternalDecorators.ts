@@ -1,6 +1,6 @@
 import {Exclude} from "class-transformer";
 import {DecoratorHelpers} from "../Common";
-import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
+import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 
 export enum InternalModelDecoratorMeta {
 	INTERNALLY_EXCLUDED = 'envuso:model:internally-excluded-property',

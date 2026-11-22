@@ -4,12 +4,12 @@ import {injectable} from "tsyringe";
 import {URLSearchParams} from 'url';
 import {Str} from "../Common";
 import {Url} from "../Common/Http/ExtendedUrl";
-import {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
+import type {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
 import {request, RequestContext, response} from "../Routing";
 import {session} from "../Session";
 import {InvalidAccessTokenResponseException} from "./Exceptions/InvalidAccessTokenResponseException";
 import {InvalidStateException} from "./Exceptions/InvalidStateException";
-import {OAuthAccessToken, OAuthAccessTokenRaw} from "./OAuthAccessToken";
+import {OAuthAccessToken, type OAuthAccessTokenRaw} from "./OAuthAccessToken";
 import {Oauth2User} from "./Providers/OAuth2/Oauth2User";
 
 https.globalAgent.options.rejectUnauthorized = false;

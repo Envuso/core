@@ -1,8 +1,8 @@
-import {Jwt, VerifyOptions} from "jsonwebtoken";
-import {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";
-import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
-import {VerifiedTokenInterface} from "./AuthenticationProviders/JwtAuthenticationProvider";
+import type {Jwt, VerifyOptions} from "jsonwebtoken";
+import type {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";
+import type {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import type {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
+import type {VerifiedTokenInterface} from "./AuthenticationProviders/JwtAuthenticationProvider";
 
 
 export abstract class AuthenticationProvider implements AuthenticationProviderContract {

@@ -1,5 +1,5 @@
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
-import {RedisOptions} from "ioredis";
+import type {RedisOptions} from "ioredis";
 import Environment from "../AppContainer/Config/Environment";
 
 export default class RedisConfiguration extends ConfigurationCredentials implements RedisOptions {

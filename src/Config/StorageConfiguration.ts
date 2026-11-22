@@ -1,9 +1,9 @@
 import path from "path";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
-import {DisksList, DriversList, LocalFileProvider} from "../Storage";
+import {type DisksList, type DriversList, LocalFileProvider} from "../Storage";
 import {S3Provider} from "../Storage";
-import {StorageConfiguration as StorageConfig} from './../Storage/StorageProviderContract';
+import type {StorageConfiguration as StorageConfig} from './../Storage/StorageProviderContract';
 
 export default class StorageConfiguration extends ConfigurationCredentials implements StorageConfig {
 

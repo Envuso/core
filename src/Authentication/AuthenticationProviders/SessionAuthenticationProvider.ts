@@ -1,13 +1,13 @@
-import {Jwt, SignOptions, VerifyOptions} from "jsonwebtoken";
+import type {Jwt, SignOptions, VerifyOptions} from "jsonwebtoken";
 import {config, ConfigRepository, resolve} from "../../AppContainer";
 import {Authenticatable} from "../../Authenticatable";
 import {Exception} from "../../Common";
 import {Log} from "../../Common/Logger/Log";
-import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
-import {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
+import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
+import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {AuthenticationProvider} from "../AuthenticationProvider";
-import {VerifiedTokenInterface} from "./JwtAuthenticationProvider";
+import type {VerifiedTokenInterface} from "./JwtAuthenticationProvider";
 
 export class SessionAuthenticationProvider extends AuthenticationProvider {
 

@@ -1,15 +1,15 @@
-import {FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction} from "fastify";
+import type {FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction} from "fastify";
 import fs from "fs";
 import * as path from "path";
 import {App, ConfigRepository, resolve} from "../../AppContainer";
 import Environment from "../../AppContainer/Config/Environment";
 import {FileLoader, Log} from "../../Common";
-import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
+import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
 import mime, {getType} from 'mime';
 import {Routing} from "../Route/Routing";
 import {assetHelperGlobal} from "./GlobalHandlers/AssetHelperGlobal";
 import {mixViewHelperGlobal} from "./GlobalHandlers/MixViewHelperGlobal";
-import {FSWatcher, watch, WatchOptions} from 'chokidar';
+import {FSWatcher, watch, type WatchOptions} from 'chokidar';
 
 export class AssetManager {
 

@@ -1,9 +1,9 @@
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {Classes} from "../Common";
 import Log from "../Common/Logger/Log";
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {SessionManagerContract} from "../Contracts/Session/SessionManagerContract";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {SessionManagerContract} from "../Contracts/Session/SessionManagerContract";
 import {FileSessionDriver} from "./Drivers/FileSessionDriver";
 import {SessionManager} from "./SessionManager";
 

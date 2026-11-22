@@ -1,10 +1,10 @@
-import {IWorkerResult} from "./IWorkerResult";
+import type {IWorkerResult} from "./IWorkerResult";
 import {Job} from "./Jobs/Job";
 import {App} from "../AppContainer";
 import Redis from "../Redis/Redis";
 import {Log} from "../Common";
 import {DateTime} from "@envuso/date-time-helper";
-import {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
+import type {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
 import LuaScripts from "./LuaScripts";
 import {TaskWorker, WorkerPool} from "./WorkerPool";
 

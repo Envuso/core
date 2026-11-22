@@ -1,6 +1,6 @@
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
-import {OAuthProviderConfiguration} from "../OAuthProvider/BaseOAuthProvider";
+import type {OAuthProviderConfiguration} from "../OAuthProvider/BaseOAuthProvider";
 
 
 export default class ServicesConfiguration extends ConfigurationCredentials {

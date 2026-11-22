@@ -1,4 +1,4 @@
-import {EventListenerContract} from "../Contracts/Events/EventListenerContract";
+import type {EventListenerContract} from "../Contracts/Events/EventListenerContract";
 
 export abstract class EventListener implements EventListenerContract {
 

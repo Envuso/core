@@ -1,8 +1,8 @@
-import {Filter, ObjectId} from "mongodb";
+import {type Filter, ObjectId} from "mongodb";
 import {Obj} from "../../Common";
 import {getModelObjectIds} from "../ModelDecorators";
 import _ from 'lodash';
-import {ModelRelationMeta} from "../ModelRelationshipDecorators";
+import type {ModelRelationMeta} from "../ModelRelationshipDecorators";
 import {ModelHelpers} from "./ModelHelpers";
 
 export class QueryBuilderParts<T> {

@@ -1,4 +1,4 @@
-import {IndexSpecification} from "mongodb";
+import type {IndexSpecification} from "mongodb";
 
 export * from './DatabaseServiceProvider';
 export * from './Database';

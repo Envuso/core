@@ -1,7 +1,7 @@
 import {Allow, IsString, MinLength} from "class-validator";
 import {Auth} from "../../../Authentication";
 import {Authorization} from "../../../Authorization/Authorization";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {EventManager} from "../../../Events";
 import {ApiResource, headers, param, redirect, request, response, view} from "../../../Routing";
 import {Controller} from "../../../Routing/Controller/Controller";

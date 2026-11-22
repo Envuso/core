@@ -1,6 +1,6 @@
 //import {ApplicationRouteAttributeObject} from "../../../../Meta/ApplicationRouteMeta";
 
-import {CookieContract} from "../../../Cookies/CookieContract";
+import type {CookieContract} from "../../../Cookies/CookieContract";
 
 export interface RedirectResponseContract {
 	/**

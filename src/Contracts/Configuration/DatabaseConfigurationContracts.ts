@@ -1,5 +1,5 @@
-import {MongoClientOptions} from "mongodb";
-import {DatabaseSeederContract} from "../Database/Seeder/DatabaseSeederContract";
+import type {MongoClientOptions} from "mongodb";
+import type {DatabaseSeederContract} from "../Database/Seeder/DatabaseSeederContract";
 
 export interface MongoConnectionConfiguration {
 	name: string;

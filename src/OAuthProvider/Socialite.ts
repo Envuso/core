@@ -1,6 +1,6 @@
 import {config} from "../AppContainer";
 import {Classes} from "../Common";
-import {BaseOAuthProvider, OAuthProviderConfiguration} from "./BaseOAuthProvider";
+import {BaseOAuthProvider, type OAuthProviderConfiguration} from "./BaseOAuthProvider";
 import {TwitchOauthProvider} from "./Providers/OAuth2/TwitchOauthProvider";
 
 export type BaseSocialiteDriverNames = 'twitch';

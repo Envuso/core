@@ -1,8 +1,8 @@
 import {App, resolve, ServiceProvider} from "./AppContainer";
 import {Log} from "./Common";
-import {EnvusoContract} from "./Contracts/EnvusoContract";
-import {ErrorHandlerFn} from "./Contracts/Server/ServerContract";
-import {HookContract} from "./Contracts/Server/ServerHooks/HookContract";
+import type {EnvusoContract} from "./Contracts/EnvusoContract";
+import type {ErrorHandlerFn} from "./Contracts/Server/ServerContract";
+import type {HookContract} from "./Contracts/Server/ServerHooks/HookContract";
 import {Server} from "./Server/Server";
 import {Hook} from "./Server/ServerHooks";
 

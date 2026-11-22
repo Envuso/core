@@ -1,5 +1,5 @@
-import {FastifyInstance} from "fastify";
-import {FastifyHookName, HookHandlerArgs, HookRunnerArgs} from "../../../Server/ServerHooks";
+import type {FastifyInstance} from "fastify";
+import type {FastifyHookName, HookHandlerArgs, HookRunnerArgs} from "../../../Server/ServerHooks";
 
 export interface HookContract {
 	fastifyHookName(): FastifyHookName;

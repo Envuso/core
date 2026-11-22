@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
-import {SeedManagerContract} from "../../Contracts/Database/Seeder/SeedManagerContract";
+import type {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
+import type {SeedManagerContract} from "../../Contracts/Database/Seeder/SeedManagerContract";
 
 export class SeedManager implements SeedManagerContract {
 

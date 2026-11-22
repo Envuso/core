@@ -2,7 +2,7 @@ import {Collection, Db, MongoClient} from "mongodb";
 import pluralize from "pluralize";
 import {app, config, resolve} from "../AppContainer";
 import {Classes, Log} from "../Common";
-import {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
+import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";
 
 
 export class Database {

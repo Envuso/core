@@ -1,7 +1,7 @@
-import {Multipart} from "fastify-multipart";
-import {FileExtension, MimeType} from "file-type";
+import type {Multipart} from "fastify-multipart";
+import type {FileExtension, MimeType} from "file-type";
 import {Stats} from "fs";
-import {UploadedFileInformation} from "../../../../Storage";
+import type {UploadedFileInformation} from "../../../../Storage";
 
 export interface UploadedFileContract {
 	_extension: FileExtension;

@@ -5,7 +5,7 @@ import Environment from "../AppContainer/Config/Environment";
 import {FileLoader, Log} from "../Common";
 import Configuration from "../Config/Configuration";
 import {Envuso} from "../Envuso";
-import {IWorkerJob, WorkerEvent} from "./IWorkerResult";
+import {type IWorkerJob, WorkerEvent} from "./IWorkerResult";
 import {MaxAttemptsExceededException} from "./Jobs/Exceptions/MaxAttemptsExceededException";
 import {Job} from "./Jobs/Job";
 

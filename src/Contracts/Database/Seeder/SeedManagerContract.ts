@@ -1,4 +1,4 @@
-import {SeederContract} from "./SeederContract";
+import type {SeederContract} from "./SeederContract";
 
 export interface SeedManagerContract {
 	seeders: (new () => SeederContract)[];

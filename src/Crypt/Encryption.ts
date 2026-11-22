@@ -1,4 +1,4 @@
-import {EncryptionContract} from "../Contracts/Crypt/EncryptionContract";
+import type {EncryptionContract} from "../Contracts/Crypt/EncryptionContract";
 import SimpleCrypto from './SimpleCryptoJS'
 
 export class Encryption implements EncryptionContract {

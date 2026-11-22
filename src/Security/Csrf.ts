@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import {CsrfContract} from "../Contracts/Security/CsrfContract";
+import type {CsrfContract} from "../Contracts/Security/CsrfContract";
 import {timeSafeCompare, Uid} from "../Crypt";
 import {csrfRandom} from "./CsrfRandom";
 

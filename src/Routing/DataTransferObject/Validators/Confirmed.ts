@@ -1,4 +1,4 @@
-import {ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, ValidationOptions, registerDecorator} from 'class-validator';
+import {ValidatorConstraint, type ValidatorConstraintInterface, type ValidationArguments, type ValidationOptions, registerDecorator} from 'class-validator';
 
 @ValidatorConstraint({name : 'confirmed', async : false})
 export class ConfirmedValidator implements ValidatorConstraintInterface {

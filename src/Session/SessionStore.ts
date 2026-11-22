@@ -1,6 +1,6 @@
 import {Obj} from "../Common";
 import {Arr} from "../Common/Utility/Arr";
-import {SessionStoreContract} from "../Contracts/Session/SessionStoreContract";
+import type {SessionStoreContract} from "../Contracts/Session/SessionStoreContract";
 
 export class SessionStore implements SessionStoreContract {
 

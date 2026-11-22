@@ -1,10 +1,10 @@
 import {config} from "../../AppContainer";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {Cookie} from "../../Cookies";
 import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
 import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {HookHandlerArgs, OnSendHook} from "../ServerHooks";
+import {type HookHandlerArgs, OnSendHook} from "../ServerHooks";
 
 /**
  * Set any cookies on the response that have been defined by the user or session middlewares

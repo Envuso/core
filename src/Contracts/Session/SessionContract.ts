@@ -1,7 +1,7 @@
 import {Session} from "../../Session";
-import {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
-import {AuthenticatableContract} from "../Authentication/UserProvider/AuthenticatableContract";
-import {SessionStoreContract} from "./SessionStoreContract";
+import type {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
+import type {AuthenticatableContract} from "../Authentication/UserProvider/AuthenticatableContract";
+import type {SessionStoreContract} from "./SessionStoreContract";
 
 export interface SessionContract {
 	driver: SessionStorageDriver;

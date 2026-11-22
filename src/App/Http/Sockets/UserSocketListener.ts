@@ -2,7 +2,7 @@ import {Middleware} from "../../../Routing";
 import {injectable} from "tsyringe";
 import {Log} from "../../../Common";
 import {AuthenticatedMiddleware} from "../../../Routing/Middleware/Middlewares/AuthenticatedMiddleware";
-import {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
+import type {UserMessageSocketPacket} from "../../../WebSockets/SocketEventTypes";
 import {WebSocketChannelListener} from "../../../WebSockets/WebSocketChannelListener";
 import {WebSocketConnection} from "../../../WebSockets/WebSocketConnection";
 import {User} from "../../Models/User";

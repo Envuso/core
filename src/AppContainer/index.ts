@@ -1,6 +1,6 @@
-import {constructor} from "tsyringe/dist/typings/types";
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {constructor} from "tsyringe/dist/typings/types";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 
 import {App} from "./App";
 

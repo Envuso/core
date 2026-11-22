@@ -1,4 +1,4 @@
-import {glob, IOptions} from "glob";
+import {glob, type IOptions} from "glob";
 import path from 'path';
 import util from "util";
 import {Log} from "../Logger/Log";

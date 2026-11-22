@@ -2,23 +2,23 @@ import {
 	AggregationCursor,
 	BulkWriteResult,
 	Collection,
-	DeleteResult, Filter,
+	type DeleteResult, type Filter,
 	FindCursor,
-	FindOptions,
+	type FindOptions,
 	ObjectId,
-	UpdateFilter,
-	UpdateOptions,
-	UpdateResult, WithId
+	type UpdateFilter,
+	type UpdateOptions,
+	type UpdateResult, type WithId
 } from "mongodb";
 import {config, resolve} from "../../AppContainer";
 import {Classes, Exception, Log} from "../../Common";
-import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
-import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
-import {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
-import {Database, Model, ModelDecoratorMeta, ModelRelationMeta, ModelRelationType} from "../index";
-import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
+import type {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import type {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
+import type {CollectionOrder, QueryBuilderContract} from "../../Contracts/Database/Mongo/QueryBuilderContract";
+import {Database, Model, ModelDecoratorMeta, type ModelRelationMeta, ModelRelationType} from "../index";
+import type {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../QueryBuilderTypes";
 import {ModelHelpers} from "./ModelHelpers";
-import {PaginatedResponse, Paginator} from "./Paginator";
+import {type PaginatedResponse, Paginator} from "./Paginator";
 import {QueryAggregation} from "./QueryAggregation";
 import {QueryBuilderHelpers} from "./QueryBuilderHelpers";
 import {QueryBuilderParts} from "./QueryBuilderParts";

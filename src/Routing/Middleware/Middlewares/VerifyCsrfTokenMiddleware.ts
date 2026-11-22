@@ -1,7 +1,7 @@
 import {resolve} from "../../../AppContainer";
 import {CsrfTokenMismatch} from "../../../AppContainer/Exceptions/CsrfTokenMismatch";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
-import {CsrfContract} from "../../../Contracts/Security/CsrfContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {CsrfContract} from "../../../Contracts/Security/CsrfContract";
 import {Middleware} from "../Middleware";
 
 

@@ -1,8 +1,8 @@
 import edge from 'edge.js';
-import {TagContract} from "edge.js/build/src/Contracts";
+import type {TagContract} from "edge.js/build/src/Contracts";
 import {Edge} from "edge.js/build/src/Edge";
 import {config} from "../../AppContainer";
-import {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
+import type {ViewManagerContract} from "../../Contracts/Routing/Views/ViewManagerContract";
 
 export class ViewManager implements ViewManagerContract {
 

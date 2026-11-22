@@ -1,10 +1,10 @@
 import {Log} from '../Common';
 import {container} from "tsyringe";
-import InjectionToken from "tsyringe/dist/typings/providers/injection-token";
-import constructor from "tsyringe/dist/typings/types/constructor";
-import DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type InjectionToken from "tsyringe/dist/typings/providers/injection-token";
+import type constructor from "tsyringe/dist/typings/types/constructor";
+import type DependencyContainer from "tsyringe/dist/typings/types/dependency-container";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {ConfigRepository} from "./Config/ConfigRepository";
 import ConfigurationFile from "./Config/ConfigurationFile";
 import {FailedToBindException} from "./Exceptions/FailedToBindException";

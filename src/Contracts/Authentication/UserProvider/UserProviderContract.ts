@@ -1,5 +1,5 @@
-import {AuthCredentialContract, AuthenticationIdentifier} from "./AuthCredentials";
-import {AuthenticatableContract} from "./AuthenticatableContract";
+import type {AuthCredentialContract, AuthenticationIdentifier} from "./AuthCredentials";
+import type {AuthenticatableContract} from "./AuthenticatableContract";
 
 export interface UserProviderContract {
 	getUser<T>(id: string): Promise<AuthenticatableContract<T>>;

@@ -1,8 +1,8 @@
 import {resolve} from "../AppContainer";
-import {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";
-import {AuthCredentialContract} from "../Contracts/Authentication/UserProvider/AuthCredentials";
-import {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {UserProviderContract} from "../Contracts/Authentication/UserProvider/UserProviderContract";
+import type {AuthenticationProviderContract} from "../Contracts/Authentication/AuthenticationProviderContract";
+import type {AuthCredentialContract} from "../Contracts/Authentication/UserProvider/AuthCredentials";
+import type {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import type {UserProviderContract} from "../Contracts/Authentication/UserProvider/UserProviderContract";
 import {Authentication} from "./Authentication";
 import {AuthenticationProvider} from "./AuthenticationProvider";
 

@@ -1,6 +1,6 @@
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
-import {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
-import {QueueConfiguration as QueueConfig} from "../Contracts/Configuration/QueueConfigurationContracts";
+import type {ServiceProviderContract} from "../Contracts/AppContainer/ServiceProviderContract";
+import type {QueueConfiguration as QueueConfig} from "../Contracts/Configuration/QueueConfigurationContracts";
 import {EncryptionServiceProvider} from "../Crypt";
 import {DatabaseServiceProvider} from "../Database";
 import {RedisServiceProvider} from "../Redis/RedisServiceProvider";

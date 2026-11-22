@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {injectable} from "tsyringe";
-import {ConfigRepositoryContract} from "../../Contracts/AppContainer/Config/ConfigRepositoryContract";
-import {ConfigFile} from "./ConfigurationFile";
+import type {ConfigRepositoryContract} from "../../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {ConfigFile} from "./ConfigurationFile";
 
 @injectable()
 export class ConfigRepository implements ConfigRepositoryContract {

@@ -1,8 +1,8 @@
 import {QueryBuilder} from "../../../Database";
-import {PaginatedResponse} from "../../../Database/Mongo/Paginator";
+import type {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
-import {ModelAttributesFilter} from "../../../Database/QueryBuilderTypes";
-import {ModelContract} from "./ModelContract";
+import type {ModelAttributesFilter} from "../../../Database/QueryBuilderTypes";
+import type {ModelContract} from "./ModelContract";
 
 export interface PaginatorContract<T> {
 	_response: PaginatedResponse<T>;

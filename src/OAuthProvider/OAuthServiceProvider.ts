@@ -1,6 +1,6 @@
 import {ServiceProvider} from "../AppContainer";
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {Socialite} from "./Socialite";
 
 export class OAuthServiceProvider extends ServiceProvider {

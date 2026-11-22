@@ -3,7 +3,7 @@ import qs from "querystring";
 import {config} from "../../AppContainer";
 import {Obj} from "../../Common";
 import {Log} from "../../Common/Logger/Log";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {RequestContext} from "../Context/RequestContext";
 import {Routing} from "./Routing";
 

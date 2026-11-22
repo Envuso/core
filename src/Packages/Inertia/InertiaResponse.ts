@@ -1,7 +1,7 @@
 import {config} from "../../AppContainer";
 import {ResponseDataFormatter} from "../../Common/Http/ResponseDataFormatter";
 import {response} from "../../Routing";
-import {InertiaPageData} from "./Contracts/InertiaRequestContract";
+import type {InertiaPageData} from "./Contracts/InertiaRequestContract";
 
 export class InertiaResponse {
 

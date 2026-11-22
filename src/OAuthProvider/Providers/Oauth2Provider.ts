@@ -1,4 +1,4 @@
-import {OAuthProviderConfiguration} from "../BaseOAuthProvider";
+import type {OAuthProviderConfiguration} from "../BaseOAuthProvider";
 import type {OAuthServiceContract} from "../BaseOAuthProvider";
 
 export interface Oauth2ProviderContract<User extends Object> extends OAuthServiceContract {

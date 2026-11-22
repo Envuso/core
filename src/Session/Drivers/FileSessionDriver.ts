@@ -3,7 +3,7 @@ import path from "path";
 import {Log} from "../../Common";
 import {Storage, StorageProviderContract} from "../../Storage";
 import {FileDoesNotExistException} from "../../Storage/Exceptions/FileDoesNotExistException";
-import {SessionStorageDriver} from "./SessionStorageDriver";
+import type {SessionStorageDriver} from "./SessionStorageDriver";
 
 export class FileSessionDriver implements SessionStorageDriver {
 

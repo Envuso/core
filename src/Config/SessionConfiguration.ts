@@ -1,9 +1,9 @@
 import {DateTime} from "@envuso/date-time-helper";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
-import {CookieConfiguration, SessionConfiguration as SessionConfig, SessionCookie} from "../Contracts/Session/Types";
+import type {CookieConfiguration, SessionConfiguration as SessionConfig, SessionCookie} from "../Contracts/Session/Types";
 import {FileSessionDriver} from "../Session/Drivers/FileSessionDriver";
 import {RedisSessionDriver} from "../Session/Drivers/RedisSessionDriver";
-import {SessionStorageDriver} from "../Session/Drivers/SessionStorageDriver";
+import type {SessionStorageDriver} from "../Session/Drivers/SessionStorageDriver";
 
 
 export default class SessionConfiguration extends ConfigurationCredentials implements SessionConfig {

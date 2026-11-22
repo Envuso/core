@@ -1,9 +1,9 @@
 import type {WebSocket} from 'uWebSockets.js';
 import {Classes, METADATA} from "../Common";
-import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
-import {WebSocketChannelListenerContract} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
-import {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
-import {SocketEventPacket, SocketEvents} from "./SocketEventTypes";
+import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
+import type {WebSocketChannelListenerContract} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
+import type {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";
+import {type SocketEventPacket, SocketEvents} from "./SocketEventTypes";
 import {WebSocketServer} from "./WebSocketServer";
 
 

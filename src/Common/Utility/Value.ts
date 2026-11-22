@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {ClassType} from "../../Database";
+import type {ClassType} from "../../Database";
 
 export class Value {
 

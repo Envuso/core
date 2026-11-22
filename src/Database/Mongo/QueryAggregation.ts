@@ -1,4 +1,4 @@
-import {FindOptions} from "mongodb";
+import type {FindOptions} from "mongodb";
 import {QueryBuilderParts} from "./QueryBuilderParts";
 import _ from 'lodash';
 

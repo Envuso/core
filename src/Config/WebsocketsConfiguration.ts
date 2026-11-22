@@ -2,9 +2,9 @@ import type {AppOptions, CompressOptions} from "uWebSockets.js";
 
 /** uWS.SHARED_COMPRESSOR (inlined so config can load without the native addon) */
 const SHARED_COMPRESSOR = 1 as CompressOptions;
-import {ServerOptions} from "ws";
+import type {ServerOptions} from "ws";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
-import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
+import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 
 export type uWsBehaviour = {
 	/** Maximum length of received message. If a client tries to send you a message larger than this, the connection is immediately closed. Defaults to 16 * 1024. */

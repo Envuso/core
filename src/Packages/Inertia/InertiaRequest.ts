@@ -1,7 +1,7 @@
-import {FastifyRequest} from "fastify";
+import type {FastifyRequest} from "fastify";
 import {Obj} from "../../Common";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
-import {InertiaPageData, InertiaRequestContract} from "./Contracts/InertiaRequestContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {InertiaPageData, InertiaRequestContract} from "./Contracts/InertiaRequestContract";
 import {InertiaResponse} from "./InertiaResponse";
 
 

@@ -1,7 +1,7 @@
 import {Exception} from "../../../Common";
-import {ExceptionResponse} from "../../../Common/Exception/ExceptionHandler";
-import {RequestContract} from "../../Routing/Context/Request/RequestContract";
-import {RedirectResponseContract} from "../../Routing/Context/Response/RedirectResponseContract";
+import type {ExceptionResponse} from "../../../Common/Exception/ExceptionHandler";
+import type {RequestContract} from "../../Routing/Context/Request/RequestContract";
+import type {RedirectResponseContract} from "../../Routing/Context/Response/RedirectResponseContract";
 
 export interface ExceptionHandlerConstructorContract {
 	new();

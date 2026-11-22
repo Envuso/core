@@ -1,6 +1,6 @@
 import {URL} from "url";
 import WebSocket from "ws";
-import {ChannelSubscribeRequestCallback, ChannelSubscribeResponsePacket, ConnectionStatus, ServerEventTypes, SocketPacket, SocketPacketBody} from "./index";
+import {type ChannelSubscribeRequestCallback, type ChannelSubscribeResponsePacket, ConnectionStatus, ServerEventTypes, type SocketPacket, type SocketPacketBody} from "./index";
 import {SocketChannel} from "./SocketChannel";
 import ws from 'ws';
 

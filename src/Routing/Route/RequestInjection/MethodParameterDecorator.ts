@@ -1,6 +1,6 @@
-import {FastifyReply, FastifyRequest} from "fastify";
+import type {FastifyReply, FastifyRequest} from "fastify";
 import {METADATA} from "../../../Common";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 
 export interface ReflectControllerMethodParamData {
 	propertyKey: string | symbol;

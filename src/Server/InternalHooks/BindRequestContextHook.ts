@@ -1,5 +1,5 @@
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
+import {type HookHandlerArgs, PreHandlerHook} from "../ServerHooks";
 
 /**
  * This hook will bind our request context to fastify

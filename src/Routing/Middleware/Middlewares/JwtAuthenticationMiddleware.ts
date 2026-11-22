@@ -1,7 +1,7 @@
 import {resolve} from "../../../AppContainer";
 import {UnauthorisedException} from "../../../AppContainer/Exceptions/UnauthorisedException";
 import {Authentication, JwtAuthenticationProvider} from "../../../Authentication";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {Middleware} from "../Middleware";
 
 

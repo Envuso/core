@@ -1,7 +1,7 @@
 import axios from "axios";
-import {OAuthProviderConfiguration, BaseOAuthProvider} from "../../BaseOAuthProvider";
+import {type OAuthProviderConfiguration, BaseOAuthProvider} from "../../BaseOAuthProvider";
 import {InvalidOAuthGetUserResponseException} from "../../Exceptions/InvalidOAuthGetUserResponseException";
-import {Oauth2ProviderContract} from "../Oauth2Provider";
+import type {Oauth2ProviderContract} from "../Oauth2Provider";
 import {Oauth2User} from "./Oauth2User";
 
 export interface TwitchOAuthProviderUserResponse {

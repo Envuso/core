@@ -1,5 +1,5 @@
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {HookHandlerArgs, OnResponseHook} from "../ServerHooks";
+import {type HookHandlerArgs, OnResponseHook} from "../ServerHooks";
 
 /**
  * Set any cookies on the response that have been defined by the user or session middlewares

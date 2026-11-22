@@ -1,8 +1,8 @@
 import {ConfigRepository, resolve} from "../../AppContainer";
-import {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
-import {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
-import {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
-import {ModelContractConstructor} from "../../Contracts/Database/Mongo/ModelContract";
+import type {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
+import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
+import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
+import type {ModelContractConstructor} from "../../Contracts/Database/Mongo/ModelContract";
 import {Hash} from "../../Crypt";
 import {UserProvider} from "./UserProvider";
 

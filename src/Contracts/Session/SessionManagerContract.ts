@@ -1,6 +1,6 @@
-import {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
-import {SessionContract} from "./SessionContract";
-import {SessionConfiguration} from "./Types";
+import type {SessionStorageDriver} from "../../Session/Drivers/SessionStorageDriver";
+import type {SessionContract} from "./SessionContract";
+import type {SessionConfiguration} from "./Types";
 
 export interface SessionManagerContract {
 	_config: SessionConfiguration;

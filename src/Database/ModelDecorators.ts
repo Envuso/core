@@ -1,7 +1,7 @@
 import {instanceToPlain, plainToInstance, Transform, Type} from "class-transformer";
-import {IndexSpecification, ObjectId} from "mongodb";
+import {type IndexSpecification, ObjectId} from "mongodb";
 import {Log, Classes, DecoratorHelpers, Obj} from "../Common";
-import {ClassType, Model, ModelDateField, ModelObjectId, Nested} from "./index";
+import {type ClassType, Model, type ModelDateField, type ModelObjectId, type Nested} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',

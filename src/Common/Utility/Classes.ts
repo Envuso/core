@@ -1,4 +1,4 @@
-import {CallSite} from "./Classes.types";
+import type {CallSite} from "./Classes.types";
 
 
 type Constructor<T = {}> = new (...args: any[]) => T;

@@ -1,7 +1,7 @@
-import {HTTPMethods} from "fastify";
-import {AllControllerMeta} from "../../../Routing/Controller/ControllerDecoratorBinding";
-import {ControllerAndRoutes, StoredRouteInformation} from "../../../Routing/Route/Routing";
-import {RouteContract} from "./RouteContract";
+import type {HTTPMethods} from "fastify";
+import type {AllControllerMeta} from "../../../Routing/Controller/ControllerDecoratorBinding";
+import type {ControllerAndRoutes, StoredRouteInformation} from "../../../Routing/Route/Routing";
+import type {RouteContract} from "./RouteContract";
 
 export interface RoutingContract {
 	initiated: boolean;

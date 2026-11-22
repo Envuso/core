@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import {constructor} from "tsyringe/dist/typings/types";
+import type {constructor} from "tsyringe/dist/typings/types";
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import {App} from "../AppContainer/App";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
-import {AppContract} from "../Contracts/AppContainer/AppContract";
-import {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import type {AppContract} from "../Contracts/AppContainer/AppContract";
+import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
 import {Server} from "../Server/Server";
 
 import {bootApp, unloadApp} from "./preptests";

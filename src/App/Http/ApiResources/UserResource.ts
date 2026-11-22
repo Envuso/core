@@ -1,4 +1,4 @@
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {ApiResource} from "../../../Routing";
 import {User} from "../../Models/User";
 

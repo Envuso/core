@@ -1,12 +1,12 @@
-import {ClassTransformOptions} from "class-transformer/types/interfaces";
-import {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
-import {FastifyCorsOptions} from "fastify-cors";
+import type {ClassTransformOptions} from "class-transformer/types/interfaces";
+import type {FastifyInstance, FastifyPlugin, FastifyPluginOptions, FastifyReply, FastifyRequest, FastifyServerOptions} from "fastify";
+import type {FastifyCorsOptions} from "fastify-cors";
 import {Exception} from "../../Common";
-import {HookTypes} from "../../Server/ServerHooks";
-import {RequestContextContract} from "../Routing/Context/RequestContextContract";
-import {ResponseContract} from "../Routing/Context/Response/ResponseContract";
-import {MiddlewareContract} from "../Routing/Middleware/MiddlewareContract";
-import {HookContract} from "./ServerHooks/HookContract";
+import type {HookTypes} from "../../Server/ServerHooks";
+import type {RequestContextContract} from "../Routing/Context/RequestContextContract";
+import type {ResponseContract} from "../Routing/Context/Response/ResponseContract";
+import type {MiddlewareContract} from "../Routing/Middleware/MiddlewareContract";
+import type {HookContract} from "./ServerHooks/HookContract";
 
 export interface CorsConfiguration {
 	enabled: boolean;

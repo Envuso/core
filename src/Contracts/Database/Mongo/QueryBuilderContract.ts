@@ -2,21 +2,21 @@ import {
 	AggregationCursor,
 	BulkWriteResult,
 	Collection,
-	DeleteResult,
+	type DeleteResult,
 	FindCursor,
-	FindOptions,
+	type FindOptions,
 	ObjectId,
-	UpdateFilter,
-	UpdateOptions,
-	UpdateResult
+	type UpdateFilter,
+	type UpdateOptions,
+	type UpdateResult
 } from "mongodb";
-import {ModelDecoratorMeta, ModelRelationMeta, ModelRelationType, QueryOperator, QueryResolveType} from "../../../Database";
-import {PaginatedResponse} from "../../../Database/Mongo/Paginator";
+import {ModelDecoratorMeta, type ModelRelationMeta, ModelRelationType, type QueryOperator, type QueryResolveType} from "../../../Database";
+import type {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryAggregation} from "../../../Database/Mongo/QueryAggregation";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";
-import {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
-import {ModelContract} from "./ModelContract";
-import {PaginatorContract} from "./PaginatorContract";
+import type {ModelAttributesFilter, ModelAttributesUpdateFilter, ModelProps, SingleModelProp} from "../../../Database/QueryBuilderTypes";
+import type {ModelContract} from "./ModelContract";
+import type {PaginatorContract} from "./PaginatorContract";
 
 
 export interface CollectionOrder {

@@ -1,4 +1,4 @@
-import {Filter, UpdateFilter} from "mongodb";
+import type {Filter, UpdateFilter} from "mongodb";
 
 export type ModelAttributesFilter<T> = Filter<T> | Partial<T | { _id: any }>
 

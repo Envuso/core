@@ -1,7 +1,7 @@
-import {HTTPMethods} from "fastify";
+import type {HTTPMethods} from "fastify";
 import {injectable} from "tsyringe";
 import {DecoratorHelpers, METADATA} from "../../Common";
-import {ControllerMethodMetadata} from "../Route/Route";
+import type {ControllerMethodMetadata} from "../Route/Route";
 
 
 export interface HandlerDecorator {

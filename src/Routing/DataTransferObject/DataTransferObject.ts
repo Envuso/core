@@ -1,16 +1,16 @@
 import {dotnotate} from "@zishone/dotnotate";
 import {instanceToPlain, Exclude, plainToClassFromExist} from "class-transformer";
-import {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
+import type {ClassTransformOptions} from "class-transformer/types/interfaces/class-transformer-options.interface";
 import {validate, ValidationError} from "class-validator";
 import {ValidationUtils} from "class-validator/cjs/validation/ValidationUtils.js";
 import {constraintToString} from "class-validator/cjs/validation/ValidationUtils";
-import {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
+import type {ValidatorOptions} from "class-validator/types/validation/ValidatorOptions";
 import {config} from "../../AppContainer";
 import {Log} from "../../Common";
-import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
-import {DataTransferObjectContract} from "../../Contracts/Routing/DataTransferObject/DataTransferObjectContract";
+import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
+import type {DataTransferObjectContract} from "../../Contracts/Routing/DataTransferObject/DataTransferObjectContract";
 import {RequestContext} from "../Context/RequestContext";
-import {Responsable} from "../Context/Response/Responsable";
+import type {Responsable} from "../Context/Response/Responsable";
 import {DtoValidationException} from "./DtoValidationException";
 
 export interface DataTransferObjectSerialization {

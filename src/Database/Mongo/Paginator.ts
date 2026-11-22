@@ -1,8 +1,8 @@
 import {ObjectId} from "mongodb";
-import {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
-import {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
+import type {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
+import type {PaginatorContract} from "../../Contracts/Database/Mongo/PaginatorContract";
 import {RequestContextStore} from "../../Routing/Context/RequestContextStore";
-import {ModelAttributesFilter} from "../QueryBuilderTypes";
+import type {ModelAttributesFilter} from "../QueryBuilderTypes";
 import {QueryBuilder} from "./QueryBuilder";
 import {QueryBuilderParts} from "./QueryBuilderParts";
 

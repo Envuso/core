@@ -1,8 +1,8 @@
-import {FastifyReply, FastifyRequest} from "fastify";
+import type {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers, METADATA} from "../../../Common";
 import {Value} from "../../../Common/Utility/Value";
-import {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
-import {MethodParameterDecorator, ReflectControllerMethodParamData} from "./MethodParameterDecorator";
+import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
+import {MethodParameterDecorator, type ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
 export class RouteQueryParam extends MethodParameterDecorator {
 	private parameterName: string;

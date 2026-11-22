@@ -1,8 +1,8 @@
 import {Url} from "../Common";
-import {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
-import {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
-import {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
-import {ResponseContract} from "../Contracts/Routing/Context/Response/ResponseContract";
+import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
+import type {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
+import type {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
+import type {ResponseContract} from "../Contracts/Routing/Context/Response/ResponseContract";
 import {RequestContext} from "./Context/RequestContext";
 
 export const context  = (): RequestContextContract => RequestContext.get();
