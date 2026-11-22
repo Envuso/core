@@ -350,6 +350,9 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **`reflect-metadata` is imported by the package entry**, so apps no longer have to import it first. (e360856)
 - **The queue only waits between polls when nothing was picked up.** It slept `waitTimeMs` after every pass, capping short jobs at about one per worker per second.
 
+- **Decorated model fields under Bun.** Bun leaves class fields that have a decorator and no initialiser off the instance, so `_id`, `@id` fields, relations and `@Exclude()`d fields weren't model fields: `load()` attached no relations, extra `@id` fields weren't converted, and fields with only class-transformer decorators (e.g. `User.password` with `@Exclude()`) were never saved. Field names now also come from decorator metadata. (19894eb)
+- **S3 `deleteDirectory()` deletes the files in the directory**, not just the `dir/` marker object, and refuses `/`. (94df217)
+
 ### Security
 
 - **CSRF protection was a no-op**: the middleware compared the session's secret with the session's own token and never read what the client sent. CSRF salts used `Math.random`; they now use `crypto.randomInt`. (5b76c3a)
