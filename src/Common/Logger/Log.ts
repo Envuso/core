@@ -70,7 +70,7 @@ export class Log {
 			args.unshift(error);
 		}
 
-		Log.errorLogger().error(error, message);
+		Log.logError(message, error);
 		this.log("error", message, ...args);
 	}
 
@@ -80,7 +80,7 @@ export class Log {
 			args.unshift(error);
 		}
 
-		this.errorLogger().error(error, message);
+		this.logError(message, error);
 		this.log("error", message, ...args);
 	}
 
@@ -90,7 +90,7 @@ export class Log {
 	}
 
 	static exception(message: string | Error, error?: Error) {
-		this.errorLogger().error(message, error);
+		this.logError(message, error);
 		this.log("error", message, error);
 	}
 
@@ -108,6 +108,16 @@ export class Log {
 
 	static debug(message, ...args) {
 		this.log("debug", message, ...args);
+	}
+
+	/**
+	 * tslog takes (message: string, ...args); Envuso's API also accepts an Error as the message.
+	 */
+	private static logError(message: string | Error, error?: unknown) {
+		const text  = message instanceof Error ? message.message : String(message);
+		const extra = [message instanceof Error ? message : undefined, error].filter(value => value !== undefined);
+
+		this.errorLogger().error(text, ...extra);
 	}
 
 	static errorLogger(): Logger<any> {

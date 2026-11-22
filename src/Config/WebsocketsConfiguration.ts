@@ -1,16 +1,9 @@
-import type {WebSocketHandler} from "bun";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
+import type {WebsocketsConfiguration as WebsocketsConfig, WebSocketServerOptions} from "../Contracts/Configuration/WebsocketsConfigurationContracts";
 import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 
-/**
- * Options passed straight to Bun.serve's websocket handler.
- * See https://bun.com/docs/api/websockets
- */
-export type WebSocketServerOptions = Pick<WebSocketHandler<any>,
-	'maxPayloadLength' | 'idleTimeout' | 'backpressureLimit' | 'closeOnBackpressureLimit' | 'perMessageDeflate' | 'sendPings' | 'publishToSelf'>;
-
-export default class WebsocketsConfiguration extends ConfigurationCredentials {
+export default class WebsocketsConfiguration extends ConfigurationCredentials implements WebsocketsConfig {
 
 	/**
 	 * The websocket server runs on its own port, next to the http server

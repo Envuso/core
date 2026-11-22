@@ -1,9 +1,9 @@
 import "reflect-metadata";
-import {parentPort} from "worker_threads";
+import {parentPort, workerData} from "worker_threads";
 import Environment from "../AppContainer/Config/Environment";
 import {FileLoader} from "../Common/Utility/FileLoader";
 import {Log} from "../Common/Logger/Log";
-import Configuration from "../Config/Configuration";
+import ConfigurationFile from "../AppContainer/Config/ConfigurationFile";
 import {Envuso} from "../Envuso";
 import {type IWorkerError, type IWorkerResult, type IWorkerTask, WorkerEvent} from "./IWorkerResult";
 import {MaxAttemptsExceededException} from "./Jobs/Exceptions/MaxAttemptsExceededException";
@@ -14,7 +14,8 @@ Environment.load();
 (async function () {
 	const envuso = new Envuso();
 
-	await Configuration.initiate();
+	// The app's configuration, not the framework's own test config
+	await ConfigurationFile.initiateAppConfiguration(workerData?.configurationPath);
 	await envuso.bootInWorker();
 
 	parentPort.on("message", processJob);

@@ -1,5 +1,5 @@
 {
-  "version": "2.0.19",
+  "version": "3.0.0-alpha.0",
   "name": "@envuso/core",
   "author": "Sam Parton @iDevelopThings",
   "description": "Envuso is a backend framework focusing building apis using Fastify and MongoDB support.",
@@ -7,17 +7,13 @@
   "scripts": {
     "front:build": "npx mix",
     "front:watch": "npx mix watch",
-    "build": "tsc -b --clean && tsc -b",
-    "build:dist": "tsc --build tsconfig-dist.json --clean && tsc --build tsconfig-dist.json",
-    "build-commit-version": "yarn build && git add . && git commit -m \":package: Build before versioning\" && npm version prerelease --preid=alpha",
+    "build": "tsc -p tsconfig-dist.json",
     "commit-files-for-publish": "cp package.json dist && cp readme.md dist && git add . && git commit -m \":package: Build and Increased version\"",
-    "prep-old": "yarn build-commit-version && yarn commit-files-for-publish",
-    "link-old": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn link",
-    "dist-old": "yarn build && cp package.json dist && cp ./.bin/cli-prod dist/ecli && cp readme.md dist && cd dist && yarn publish",
     "dev": "bun --watch src/run-dev.ts",
     "devo": "bun src/run-dev.ts",
     "test": "bun test --timeout 30000",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "pack": "bun scripts/pack.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",
@@ -44,7 +40,6 @@
     "pluralize": "^8.0.0",
     "random-bytes": "^1.0.0",
     "reflect-metadata": "^0.2.2",
-    "ts-node": "^10.2.1",
     "tslog": "^5.5.0",
     "tsyringe": "^4.10.0",
     "winston": "^3.19.0",
@@ -68,33 +63,5 @@
     "vue": "^3.2.9",
     "vue-loader": "^16.2.0"
   },
-  "files": [
-    "AppContainer/**/*",
-    "Authentication/**/*",
-    "Authorization/**/*",
-    "Cache/**/*",
-    "Cli/**/*",
-    "Common/**/*",
-    "Contracts/**/*",
-    "Cookies/**/*",
-    "Crypt/**/*",
-    "Database/**/*",
-    "Events/**/*",
-    "OAuthProvider/**/*",
-    "Packages/**/*",
-    "Routing/**/*",
-    "Redis/**/*",
-    "Queue/**/*",
-    "Security/**/*",
-    "Server/**/*",
-    "Session/**/*",
-    "WebSockets/**/*",
-    "Model/**/*",
-    "Storage/**/*",
-    "Authenticatable.*",
-    "Envuso.*",
-    "index.*",
-    "ecli"
-  ],
   "types": "./"
 }

@@ -152,37 +152,19 @@ export class FileLoader {
 	}
 
 	/**
-	 * When we're running with ts-node,
-	 * we want to use .ts extensions and resolve files from /src/
+	 * App files are loaded as they are: Bun runs the app's TypeScript directly.
+	 * (2.x rewrote src/*.ts to dist/*.js when the framework itself was compiled,
+	 * which broke apps once the framework ships as compiled JavaScript.)
 	 *
-	 * When we've compiled and are running via node /dist/main.js for ex
-	 * We want to use .js extensions and resolve files from /dist/
-	 *
+	 * @deprecated use {@see normalizePath}
 	 * @param pathToFormat
-	 * @param extensions
+	 * @param extensions unused
 	 */
 	static formatPathForRunEnvironment(
 		pathToFormat: string,
-		extensions: FormatPathInformation = {forTsNode : 'ts', forNode : 'js'}
+		extensions?: FormatPathInformation
 	) {
-		const isTS            = this.isTypescript();
-		pathToFormat          = this.normalizePath(pathToFormat);
-		const pathInformation = path.parse(pathToFormat);
-
-		pathInformation.ext = isTS ? extensions.forTsNode : extensions.forNode;
-
-		if (!isTS)
-			pathInformation.base = pathInformation.base.replace(
-				`${pathInformation.name}.${extensions.forTsNode}`,
-				`${pathInformation.name}.${extensions.forNode}`,
-			);
-
-		if (!isTS && (pathInformation.dir.includes("/src/") || pathInformation.dir.includes("\\src\\"))) {
-			pathInformation.dir = pathInformation.dir.replace("/src/", "/dist/")
-				.replace("\\src\\", "\\dist\\");
-		}
-
-		return path.format(pathInformation);
+		return this.normalizePath(pathToFormat);
 	}
 
 	/**

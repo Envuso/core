@@ -111,8 +111,8 @@ export class WorkerPool extends EventEmitter {
 	}
 
 	private createWorker() {
-		// Bun runs the TypeScript worker file directly
-		const worker = new TaskWorker(path.join(import.meta.dir, 'Worker.ts'));
+		// Worker.ts from source, Worker.js when the framework is installed compiled
+		const worker = new TaskWorker(path.join(import.meta.dir, 'Worker' + path.extname(import.meta.path)));
 
 		worker.on("message", (result: IWorkerResult) => {
 			switch (result.event) {

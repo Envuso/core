@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import path from "path";
 import {AuthenticationServiceProvider} from "../Authentication/AuthenticationServiceProvider";
 import {AuthorizationServiceProvider} from "../Authorization/AuthorizationServiceProvider";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";
@@ -12,6 +11,7 @@ import {Log} from "../Common/Logger/Log";
 import {Database} from "../Database/Database";
 import {SeedManager} from "../Database/Seeder/SeedManager";
 import {Envuso} from "../Envuso";
+import ConfigurationFile from "../AppContainer/Config/ConfigurationFile";
 
 
 Environment.load();
@@ -23,10 +23,7 @@ const envuso = new Envuso();
 
 const runFrameworkLogic = async (dev: boolean = false, logic: () => Promise<void>) => {
 
-	const moduleImport = await (dev ? import('./../Config/Configuration')
-		: import(path.join(process.cwd(), 'dist', 'Config', 'Configuration.js')));
-
-	moduleImport.default.initiate()
+	ConfigurationFile.initiateAppConfiguration()
 		.then(() => envuso.initiateWithoutServing([
 			SessionServiceProvider,
 			AuthenticationServiceProvider,

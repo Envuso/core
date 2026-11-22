@@ -9,7 +9,7 @@ import {FileLoader} from "../Common/Utility/FileLoader";
 import {Log} from "../Common/Logger/Log";
 import {Str} from "../Common/Utility/Str";
 import {ResponseDataFormatter} from "../Common/Http/ResponseDataFormatter";
-import type WebsocketsConfiguration from "../Config/WebsocketsConfiguration";
+import type {WebsocketsConfiguration} from "../Contracts/Configuration/WebsocketsConfigurationContracts";
 import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import type {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import {RequestContext} from "../Routing/Context/RequestContext";
