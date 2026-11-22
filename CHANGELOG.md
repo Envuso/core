@@ -145,6 +145,7 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 ### Added
 
+- **`vite()` and `inertia()` view helpers.** `{{{ vite('src/Resources/Ts/app.ts') }}}` outputs the Vite dev server's tags while it runs, otherwise the entries' CSS, preloads and scripts from the build manifest (`StaticAssetConfiguration.vite`: `hotFile`, `buildDirectory`). `{{{ inertia(page) }}}` outputs Inertia 1+'s initial page as an escaped JSON `<script>` plus the mount element; Inertia 0.x's `data-page` attribute is no longer read by current Inertia clients. The framework skeleton now uses Vite, Tailwind 4 and Inertia 3.
 **Queue**
 
 - Visibility timeouts: running jobs keep extending their reservation, and only jobs from a dead process are retried. (efdf449)
@@ -352,6 +353,8 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 - **Decorated model fields under Bun.** Bun leaves class fields that have a decorator and no initialiser off the instance, so `_id`, `@id` fields, relations and `@Exclude()`d fields weren't model fields: `load()` attached no relations, extra `@id` fields weren't converted, and fields with only class-transformer decorators (e.g. `User.password` with `@Exclude()`) were never saved. Field names now also come from decorator metadata. (19894eb)
 - **S3 `deleteDirectory()` deletes the files in the directory**, not just the `dir/` marker object, and refuses `/`. (94df217)
+
+- **HTML error pages were sent with status 200.** `response().view()` always used 200, so 404/500 pages rendered for browsers (and the error page for a view that fails to render) went out as successes. `view()` takes a status code.
 
 ### Security
 
