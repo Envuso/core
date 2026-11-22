@@ -87,18 +87,18 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 ### Database / ORM (Mongo)
 - ✅ **Fixed 2026-11-22** — **`Model.save()` returns `undefined` on insert** — `src/Database/Mongo/Model.ts:230`. The update branch returns `this`.
 - ✅ **Fixed 2026-11-22** — `new ObjectId(undefined)` on an unsaved model generates a random id, so delete/update/refresh silently target nothing.
-- ⚠️ Write methods return `true` based on `acknowledged`, not on matched or modified counts. *(delete and Model.update fixed 2026-11-22; QueryBuilder.update remains.)*
+- ✅ **Fixed 2026-11-22** — Write methods return `true` based on `acknowledged`, not on matched or modified counts.
 - ✅ **Fixed 2026-11-22** — **`QueryBuilder.delete()` with no where calls `deleteMany({})`**, which wipes the collection (`QueryBuilder.ts:693`).
 - ✅ **Fixed 2026-11-22** — `Model.load()` dereferences a null result (`Model.ts:61-69`).
 - ✅ **Fixed 2026-11-22** — `update()` makes two extra round trips and mutates the caller's object.
-- ⚠️ `ObjectId.isValid` accepts numbers and any 12-char string (query parts, decorators, route model binding).
-- ⚠️ `toJSON` and query building mutate source objects in place.
+- ✅ **Fixed 2026-11-22** — `ObjectId.isValid` accepts numbers and any 12-char string (query parts, decorators, route model binding).
+- ✅ **Fixed 2026-11-22** — `toJSON` and query building mutate source objects in place. *(Query building and attribute conversion; `toJSON` writes into a new object.)*
 - ✅ **Fixed 2026-11-22** — Paginator:
   - `new ObjectId(cursor)` on user input causes a 500 on bad input.
   - Cursor paging assumes `_id` order but only sorts when `orderBy` is set, so pages can skip or repeat.
 - ✅ **Fixed 2026-11-22** — `createIndexes` drops and recreates all indexes on every boot and swallows errors.
 - ✅ **Fixed 2026-11-22** — `DatabaseServiceProvider.ts:27` calls `process.exit(0)` on connection failure, which exits with a success code.
-- ⚠️ `HAS_ONE` lookup has no `$limit`. Calling `load()`/`hasMany` in a loop is N+1 (`with()` is fine: it uses a single `$lookup`).
+- ✅ **Fixed 2026-11-22** (`$limit`) — `HAS_ONE` lookup has no `$limit`. ⚠️ Still open: calling `load()`/`hasMany` in a loop is N+1 (`with()` is fine: it uses a single `$lookup`).
 
 ### Queue
 > **Fixed 2026-11-22**: the queue was rebuilt on Bun.redis (`QueueStore`: ZSET visibility timeout that running jobs keep extending, every state change one Lua script, retries with `backoff`/`retryDelay()`, a failed list, configurable `workers`, crashed workers released and respawned). Every item below is resolved and covered by `queue.spec.ts`.
@@ -111,11 +111,11 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ⚠️ Non-atomic `lRem` + `rpush`. No backoff. Requires Redis 6.2+.
 
 ### Events / Cache / Redis / Storage
-- ⚠️ `dispatch` is async but typed `void`, so callers can't await it. Events are keyed by class name, so same-named classes collide.
-- ⚠️ `Cache.remember` has no lock, so concurrent misses stampede.
-- ⚠️ `Redis.ts:94` throws on a null TTL. `shutdown()` assumes the client exists.
+- ✅ **Fixed 2026-11-22** — `dispatch` is async but typed `void`, so callers can't await it. Events are keyed by class name, so same-named classes collide.
+- ✅ **Fixed 2026-11-22** — `Cache.remember` has no lock, so concurrent misses stampede.
+- ✅ **Fixed 2026-11-22** — `Redis.ts:94` throws on a null TTL. `shutdown()` assumes the client exists.
 - ✅ **Fixed 2026-11-22** — `LocalFileProvider.makeDirectory` never rejects, so errors hang forever. `originalName` produces `file..txt`.
-- ⚠️ S3 `files`/`directories` don't paginate past 1000 keys. `ACL: 'public-read'` fails on buckets with ACLs disabled.
+- ✅ **Fixed 2026-11-22** — S3 `files`/`directories` don't paginate past 1000 keys. `ACL: 'public-read'` fails on buckets with ACLs disabled.
 
 ---
 

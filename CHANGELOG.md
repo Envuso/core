@@ -116,6 +116,9 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **`paginate()` always pages in `_id` order** and refuses an `orderBy` on any other field (`_id` cursors can't page by it). Cursors in responses are strings. (6c7ccdd)
 - **`LocalFileProvider.makeDirectory(dir)` creates `dir` itself**; it used to create its parent. Paths that resolve outside a disk's root throw. (5ca3b98)
 - A failed MongoDB connection at boot throws instead of calling `process.exit(0)`, and failing to create a model's indexes stops the boot instead of being logged. (aa6e3ea)
+- **`QueryBuilder.update()` returns whether anything matched** (it returned `acknowledged`). (ed36da5)
+- **Strings are only treated as ObjectIds when they are 24 hex characters.** `ObjectId.isValid()` also accepted any 12-character string and numbers, so values like `"hello world!"` in id fields were converted. Use `isObjectId()` from `@envuso/core/Database/isObjectId`. (ed36da5)
+- **`EventDispatcher.dispatch()` and `EventManager.dispatch()` return a promise** you can await. Dispatcher classes are keyed by the class, so two dispatchers with the same name no longer share listeners. (9209174)
 - **`getModelId()` throws on an unsaved model.** It used to generate a random id, so `refresh()`, `update()` and `delete()` on an unsaved model silently did nothing. (4658082)
 - Relation properties should be typed as `Relation<T>`. Models that import each other (for example `User` and `Book`) otherwise fail at startup under ESM with decorator-metadata errors (TDZ). (55123ec)
   ```ts
@@ -166,6 +169,10 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 - `Relation<T>` type for relation properties. (55123ec)
 - `QueryBuilder.truncate()` deletes every document and returns how many. (4658082)
+
+**Cache**
+
+- `Cache.remember()` runs the callback once for concurrent misses, in one process and across processes (a short Redis lock, `lockTimeoutMs`, default 10s). A hit is one Redis read, and a cached `null` counts as a hit. (9209174)
 
 **CSRF**
 
@@ -252,6 +259,8 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - Pagination: invalid cursors are a 400 (were a 500), pages no longer skip or repeat documents, `hasNext` is no longer `true` on the last page, and `before` cursors return the previous page. (6c7ccdd)
 - `with()` queries applied `$limit` before `$sort`/`$skip`, so a limit picked arbitrary documents. (6c7ccdd)
 - `Model.update()` makes one round trip instead of two. (e5b3bcb)
+- `where()`, `update()` and `create()` no longer change the object you pass when converting ids. (ed36da5)
+- `hasOne`/`belongsTo` lookups fetch one related document instead of all of them. (ed36da5)
 - Model indexes are only created when missing or changed instead of dropped and rebuilt on every boot. (aa6e3ea)
 - `Model.load()` on a document deleted since it was loaded no longer crashes. (aa6e3ea)
 
