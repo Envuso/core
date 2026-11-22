@@ -1,6 +1,12 @@
 import {afterAll, beforeAll, describe, expect, spyOn, test} from "bun:test";
 import {ObjectId} from "mongodb";
 import {Book} from "../App/Models/Book";
+import {Cache} from "../Cache/Cache";
+import {Redis} from "../Redis/Redis";
+import {TestingEventDispatcher} from "../App/Events/Dispatchers/TestingEventDispatcher";
+import {EventDispatcher} from "../Events/EventDispatcher";
+import {EventListener} from "../Events/EventListener";
+import {EventManager} from "../Events/EventManager";
 import {isObjectId} from "../Database/isObjectId";
 import {User} from "../App/Models/User";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
@@ -356,5 +362,77 @@ describe('object ids and query building', () => {
 		const pipeline = JSON.stringify((User.query().with('hasOneBook' as any) as any)._aggregation.aggregations);
 
 		expect(pipeline).toContain('"$limit":1');
+	});
+});
+
+describe('events', () => {
+	test('a dispatcher class reaches its listeners, and dispatch() can be awaited', async () => {
+		const log = spyOn(console, 'log').mockImplementation(() => {});
+
+		await TestingEventDispatcher.dispatch('awaited');
+
+		// handle() ran before dispatch() resolved
+		expect(log.mock.calls.some(call => call.includes('awaited'))).toBe(true);
+		log.mockRestore();
+	});
+
+	test('dispatchers are told apart by class, not by name', async () => {
+		const manager = app().resolve(EventManager);
+		const ran: string[] = [];
+
+		const makeDispatcher = () => class SameName extends EventDispatcher {
+			triggers() { return []; }
+		};
+		const First  = makeDispatcher();
+		const Second = makeDispatcher();
+
+		manager.registerListener(First as any, class extends EventListener { async handle() { ran.push('first'); } } as any);
+		manager.registerListener(Second as any, class extends EventListener { async handle() { ran.push('second'); } } as any);
+
+		await manager.dispatch(First as any, []);
+
+		expect(ran).toEqual(['first']);
+	});
+});
+
+describe('Cache.remember', () => {
+	test('concurrent misses run the callback once', async () => {
+		const key   = 'remember-' + Date.now();
+		let calls   = 0;
+		const slow  = async () => { calls++; await Bun.sleep(50); return {n : 42}; };
+
+		const results = await Promise.all(Array.from({length : 10}, () => Cache.remember(key, slow)));
+
+		expect(calls).toBe(1);
+		expect(results.every(r => r.n === 42)).toBe(true);
+		await Cache.remove(key);
+	});
+
+	test('a waiter picks up the value another holder writes (cross-process lock)', async () => {
+		const key = 'remember-lock-' + Date.now();
+		const redis = Redis.getInstance();
+
+		// Pretend another process holds the lock and writes the value shortly
+		await redis.getClient().send('SET', [redis.key(`redis-cache-lock.${key}`), 'someone-else', 'PX', '5000', 'NX']);
+		setTimeout(() => Cache.put(key, 'from-other-process'), 60);
+
+		let ran = false;
+		const value = await Cache.remember(key, async () => { ran = true; return 'mine'; });
+
+		expect(value).toBe('from-other-process');
+		expect(ran).toBe(false);
+		await Cache.remove(key);
+		await redis.getClient().del(redis.key(`redis-cache-lock.${key}`));
+	});
+
+	test('a cached null is a hit', async () => {
+		const key = 'remember-null-' + Date.now();
+		let calls = 0;
+
+		await Cache.remember(key, async () => { calls++; return null; });
+		await Cache.remember(key, async () => { calls++; return null; });
+
+		expect(calls).toBe(1);
+		await Cache.remove(key);
 	});
 });

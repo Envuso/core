@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import {DateTime} from "@envuso/date-time-helper";
 import type {DateTimeContract} from "@envuso/date-time-helper";
 import {Redis} from "../Redis/Redis";
@@ -67,11 +68,90 @@ export class Cache {
 	 * @param {DateTime|undefined} ttl
 	 * @returns {Promise<T>}
 	 */
-	public static async remember<T>(key: string, callback: () => Promise<T>, ttl?: DateTime) {
-		if (!await this.has(key)) {
-			await this.put(key, await callback(), ttl);
+	public static async remember<T>(key: string, callback: () => Promise<T>, ttl?: DateTime, lockTimeoutMs: number = 10_000): Promise<T> {
+		const cached = await this.lookup<T>(key);
+		if (cached.hit) {
+			return cached.value;
 		}
 
-		return await this.get<T>(key);
+		// Concurrent misses in this process share one callback run
+		const pending = this.inflight.get(key);
+		if (pending) {
+			return pending;
+		}
+
+		const work = this.computeOnce(key, callback, ttl, lockTimeoutMs)
+			.finally(() => this.inflight.delete(key));
+
+		this.inflight.set(key, work);
+
+		return work;
 	}
+
+	private static inflight = new Map<string, Promise<any>>();
+
+	private static readonly RELEASE_LOCK = `
+		if redis.call('GET', KEYS[1]) == ARGV[1] then
+			return redis.call('DEL', KEYS[1])
+		end
+		return 0
+	`;
+
+	/**
+	 * One read: a cached null is a hit, unlike has() followed by get()
+	 */
+	private static async lookup<T>(key: string): Promise<{ hit: boolean, value?: T }> {
+		const redis = Redis.getInstance();
+		const raw   = await redis.getClient().get(redis.key(`redis-cache.${key}`));
+
+		if (raw === null || raw === undefined) {
+			return {hit : false};
+		}
+
+		return {hit : true, value : JSON.parse(raw).value};
+	}
+
+	/**
+	 * Run the callback in one process at a time (across processes, via a Redis lock).
+	 * Others wait for the value; if the holder takes longer than the lock timeout
+	 * (or died), they compute it themselves.
+	 */
+	private static async computeOnce<T>(key: string, callback: () => Promise<T>, ttl: DateTime, lockTimeoutMs: number): Promise<T> {
+		const redis    = Redis.getInstance();
+		const lockKey  = `redis-cache-lock.${key}`;
+		const token    = crypto.randomUUID();
+		const deadline = Date.now() + lockTimeoutMs;
+
+		const compute = async () => {
+			const value = await callback();
+			await this.put(key, value, ttl);
+			return value;
+		};
+
+		while (true) {
+			const acquired = await redis.getClient().send('SET', [redis.key(lockKey), token, 'PX', String(lockTimeoutMs), 'NX']);
+
+			if (acquired === 'OK') {
+				try {
+					// Another process may have filled it between our miss and the lock
+					const cached = await this.lookup<T>(key);
+					return cached.hit ? cached.value : await compute();
+				} finally {
+					await redis.eval(this.RELEASE_LOCK, [lockKey], [token]);
+				}
+			}
+
+			await Bun.sleep(25);
+
+			const cached = await this.lookup<T>(key);
+			if (cached.hit) {
+				return cached.value;
+			}
+
+			if (Date.now() > deadline) {
+				return compute();
+			}
+		}
+	}
+
 }

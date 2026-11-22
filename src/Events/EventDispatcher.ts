@@ -14,8 +14,9 @@ export abstract class EventDispatcher implements EventDispatcherContract {
 	 *
 	 * @param args
 	 */
-	public static dispatch(...args: any[]): void {
-		resolve(EventManager).dispatch(
+	public static dispatch(...args: any[]): Promise<void> {
+		// Returned so callers can await the listeners (it was fire-and-forget)
+		return resolve(EventManager).dispatch(
 			Classes.getConstructor(this), args
 		);
 	}
