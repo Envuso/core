@@ -160,7 +160,7 @@ describe('model query builder object id conversions', () => {
 
 		const restwo = qtwo.resolveCursor({}, 'get');
 
-		expect(qtwo.aggregationPipelineBuilder().aggregations[0]).toEqual({"$match" : {'_id' : objId, 'name' : objId.toString()}});
+		expect(qtwo.aggregationPipelineBuilder().aggregations[0]).toEqual({"$match" : {'_id' : objId, 'name' : objId}});
 		expect(qtwo.aggregationPipelineBuilder().aggregations[1]).toEqual({"$match" : {'someUserId' : objId}});
 
 

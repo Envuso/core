@@ -311,7 +311,11 @@ describe('model query builder implementation', () => {
 			.get();
 
 		expect(u).toBeArray();
-		expect(u[0].books.userId.equals(user._id));
+		// Only users whose hasOneBook matches, with the relation loaded
+		expect(u.some(found => found._id.equals(user._id))).toBe(true);
+		for (const found of u) {
+			expect(found.hasOneBook.title).toBe('big yeet');
+		}
 
 	});
 
