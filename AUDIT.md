@@ -33,23 +33,23 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ✅ **Fixed 2026-11-22** — **Session fixation** — the session is never regenerated on login (`Authentication.ts:88-109`). Client-supplied session ids are accepted if they are 32 chars long (`Session.ts:184`).
 
 ### Medium
-- ⚠️ Cookie encryption uses Rabbit (`src/Crypt/RabbitEncryption.ts:21`), a stream cipher with no MAC, so ciphertext is malleable. The only integrity check is a prefix match.
-- ⚠️ Homemade AES in `src/Crypt/SimpleCryptoJS.ts`:
+- ✅ **Fixed 2026-11-22** — Cookie encryption uses Rabbit (`src/Crypt/RabbitEncryption.ts:21`), a stream cipher with no MAC, so ciphertext is malleable. The only integrity check is a prefix match.
+- ✅ **Fixed 2026-11-22** — *(AES-256-GCM + HKDF, 6648b7f)* Homemade AES in `src/Crypt/SimpleCryptoJS.ts`:
   - Non-constant-time MAC compare (`:190`).
   - Same key for AES and HMAC (`:207-226`; there is a TODO).
   - PBKDF2 with only 100 iterations (`:49`).
-- ⚠️ OAuth flaws:
+- ✅ **Fixed 2026-11-22** — *(982ca6f)* OAuth flaws:
   - No PKCE.
   - The state check is skipped when there is no session (`BaseOAuthProvider.ts:181-188`), which allows login CSRF.
   - Non-constant-time state compare.
   - `with()` can override `redirect_uri` and `client_id`.
-- ⚠️ WebSockets: `subscription[event]` is dispatched with a client-supplied event name and no allowlist (`src/WebSockets/WebSocketServer.ts:347-353`).
-- ⚠️ JWT is passed in `Sec-WebSocket-Protocol`, echoed back in the upgrade response, and likely logged. There is no aud/iss check and no revocation. HS256 is pinned (good).
-- ⚠️ CORS reflects any origin with `credentials: true` (`src/Config/ServerConfiguration.ts:69-72`).
+- ✅ **Fixed 2026-11-22** — *(288ea75)* WebSockets: `subscription[event]` is dispatched with a client-supplied event name and no allowlist (`src/WebSockets/WebSocketServer.ts:347-353`).
+- ✅ **Fixed 2026-11-22** — *(not echoed any more; aud/iss and revocation still open)* JWT is passed in `Sec-WebSocket-Protocol`, echoed back in the upgrade response, and likely logged. There is no aud/iss check and no revocation. HS256 is pinned (good).
+- ✅ **Fixed 2026-11-22** — *(8e91aa0)* CORS reflects any origin with `credentials: true` (`src/Config/ServerConfiguration.ts:69-72`).
 
 ### Low
-- ⚠️ `Math.random` is used for `Str.random` (WebSocket connection ids). *(CSRF salt fixed 2026-11-22.)*
-- ⚠️ CSRF token hash is plain SHA-256 (was SHA-1, fixed 2026-11-22) rather than HMAC. `Compare.ts` uses the deprecated `pseudoRandomBytes`.
+- ✅ **Fixed 2026-11-22** — `Math.random` is used for `Str.random` (WebSocket connection ids). *(CSRF salt fixed 2026-11-22.)*
+- ✅ **Fixed 2026-11-22** — *(HMAC, node:crypto; 3db0d56)* CSRF token hash is plain SHA-256 (was SHA-1, fixed 2026-11-22) rather than HMAC. `Compare.ts` uses the deprecated `pseudoRandomBytes`.
 - ✅ **Fixed 2026-11-22** — `Hash.ts:12` ignored the `rounds` argument (always 10); Bun.password uses it.
 
 ---
@@ -120,10 +120,10 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 ---
 
 ## 3. Performance
-- ⚠️ Per request, each controller parameter loops over up to 7 metadata keys via `Reflect.getMetadata` (`Route.ts:212-257`). Binders should be compiled once per route.
+- ✅ **Fixed 2026-11-22** — *(compiled on first request, 50219ae)* Per request, each controller parameter loops over up to 7 metadata keys via `Reflect.getMetadata` (`Route.ts:212-257`). Binders should be compiled once per route.
 - ⚠️ The controller is resolved and its method re-bound per request. A child container and an `InertiaRequest` are created per request.
-- ⚠️ Every cookie is decrypted on every request.
-- ⚠️ `AssetManager` calls `statSync` per request. `createReadStream` has no error listener.
+- ⚠️ Every cookie is decrypted on every request. *(Still eager, but AES-GCM is cheap and unchanged cookies are no longer re-encrypted and re-sent.)*
+- ✅ **Fixed 2026-11-22** — *(e2fa404; asset routes also failed to boot on Fastify 5 and were absolute paths on Windows)* `AssetManager` calls `statSync` per request. `createReadStream` has no error listener.
 - ⚠️ Queue loop sleeps 1s every iteration. Worker pool is hard-coded to 1 worker.
 
 ---
@@ -141,7 +141,7 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 
 ## 5. Redesign candidates (proposed)
 1. **Param injection**: keep the decorator + type-hint ergonomics (no per-route schemas — see Design principles). Compile per-route binders once at registration, indexed by position, so each request just runs a precomputed list. Isolate all `Reflect`/`design:*` reads behind one internal module so the metadata source can be swapped later without touching the user-facing API.
-2. **Crypto**: replace CryptoJS/Rabbit/SimpleCryptoJS with `node:crypto` AES-256-GCM, with HKDF-derived subkeys for encryption and signing. Require a strong `APP_KEY` at boot.
+2. ✅ *(done)* **Crypto**: replace CryptoJS/Rabbit/SimpleCryptoJS with `node:crypto` AES-256-GCM, with HKDF-derived subkeys for encryption and signing. Require a strong `APP_KEY` at boot.
 3. ✅ *(done: rebuilt on ZSET visibility timeouts, see Queue)* **Queue**: replace with BullMQ (locking, stalled-job recovery, backoff, multi-instance), or rebuild on ZSET-based visibility timeouts.
 4. **Fastify 5**: move to the `@fastify/*` plugins and remove the deep imports of Fastify internals.
 5. **Tests**: Vitest (or `bun test`) with Testcontainers or `mongodb-memory-server`, an isolated DB per run, and a `test` script.

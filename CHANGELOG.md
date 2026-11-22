@@ -120,6 +120,11 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **Strings are only treated as ObjectIds when they are 24 hex characters.** `ObjectId.isValid()` also accepted any 12-character string and numbers, so values like `"hello world!"` in id fields were converted. Use `isObjectId()` from `@envuso/core/Database`. (ed36da5)
 - **`EventDispatcher.dispatch()` and `EventManager.dispatch()` return a promise** you can await. Dispatcher classes are keyed by the class, so two dispatchers with the same name no longer share listeners. (9209174)
 - **`getModelId()` throws on an unsaved model.** It used to generate a random id, so `refresh()`, `update()` and `delete()` on an unsaved model silently did nothing. (4658082)
+- **CORS only allows listed origins.** The reference `ServerConfiguration` reflected any origin with `credentials: true`. It now allows the comma-separated `CORS_ORIGINS`, falling back to `APP_URL`. Add your frontends' origins to `CORS_ORIGINS`. (8e91aa0)
+- **Encryption is AES-256-GCM.** `Encryption` (and cookie encryption, which used Rabbit) now use AES-256-GCM with a key derived from `APP_KEY` by HKDF. Anything encrypted by 2.x can't be decrypted: encrypted cookies from 2.x read as `null` (users are logged out once), and values you stored with `Encryption.encrypt()` must be re-encrypted. `RabbitEncryption`, `SimpleCryptoJS` and `CookieValuePrefix` are removed. `decrypt()` throws on tampered input; use `tryDecrypt()` for `null`. (6648b7f)
+- **Cookies the browser sent aren't sent back** unless the app changes them. Each response used to re-send every request cookie with the default path, domain and expiry. (6648b7f)
+- **OAuth needs a session unless `stateless()`.** `redirect()` throws without one, and a callback without a session fails the state check (it used to skip it). PKCE (S256) is sent by default; call `withoutPkce()` for a provider that rejects it. `with()` throws for `client_id`, `redirect_uri`, `response_type`, `state` and the PKCE parameters. (982ca6f)
+- **WebSocket JWTs use the `envuso` subprotocol.** Clients offer `["envuso", token]` and the server answers `envuso`; the token is no longer echoed in the upgrade response. A token offered on its own still works, with a deprecation warning. Channel events only dispatch to methods the channel listener defines itself. (288ea75)
 - Relation properties should be typed as `Relation<T>`. Models that import each other (for example `User` and `Book`) otherwise fail at startup under ESM with decorator-metadata errors (TDZ). (55123ec)
   ```ts
   import type {Relation} from '@envuso/core/Database';
@@ -352,13 +357,19 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **`class-validator` 0.15** resolves a critical finding from the dependency audit. (10d6260)
 - **`dotenv-expand` is removed.** Its newer versions (1000.0.0+) run shell command substitution (`$(...)`) while expanding `.env` values; Bun's own expansion does not. (9ea4f00)
 
+- **OAuth login CSRF**: without a session the state check was skipped. State is now compared in constant time and is single-use, and PKCE is on by default. `with()` could override `redirect_uri`. (982ca6f)
+- **Cookie encryption had no integrity** (Rabbit, with a prefix check). `Encryption` used CryptoJS AES with one key for AES and HMAC, a non-constant-time MAC compare and 100 PBKDF2 iterations. Both are replaced by AES-256-GCM; cookies are bound to their name. (6648b7f)
+- **CORS reflected any origin with credentials.** (8e91aa0)
+- **WebSockets**: clients could dispatch any method on a channel listener by event name (now only its own methods), the JWT was echoed back in `Sec-WebSocket-Protocol`, and connection ids used `Math.random` (now `crypto.randomUUID`). (288ea75)
+- **CSRF tokens are an HMAC** of the salt keyed by the session secret (were a plain hash). `timeSafeCompare` no longer uses the deprecated `pseudoRandomBytes`. (3db0d56)
+
 ### Removed
 
 **Packages**
 
 Apps that imported any of these directly, or relied on them transitively, need to add them to their own `package.json` or migrate:
 
-- Runtime: `uWebSockets.js` (git dependency), `ioredis` and its types, `aws-sdk` (v2), `axios` (use `fetch`), `chokidar`, `glob`, `path-to-regexp`, `read-chunk`, `is-image`, `is-video`, `mime` (use `Bun.file(path).type`), `ws`, `@types/ws`, `dotenv` and `dotenv-expand` (Bun loads `.env`), `middie`, `cookies`, `dayjs`, `node-fetch`, `qs`, `bufferutil`, `utf-8-validate`.
+- Runtime: `uWebSockets.js` (git dependency), `ioredis` and its types, `aws-sdk` (v2), `axios` (use `fetch`), `chokidar`, `glob`, `path-to-regexp`, `read-chunk`, `is-image`, `is-video`, `mime` (use `Bun.file(path).type`), `ws`, `@types/ws`, `dotenv` and `dotenv-expand` (Bun loads `.env`), `middie`, `cookies`, `dayjs`, `node-fetch`, `qs`, `bufferutil`, `utf-8-validate`, `crypto-js` and its types, `random-bytes`.
 - Runtime: `ts-node` (it was listed as a runtime dependency).
 - Dev: `ts-node-dev`, Jest, the `@babel/*` set and `babel-loader`, and stale `@types/*` packages (`node`, `chokidar`, `busboy`, `connect`, `dotenv`, `glob`, `mime`, `ioredis`, `redis`).
 
