@@ -190,44 +190,24 @@ describe('model', () => {
 		expect(user.someUserId).toBeInstanceOf(ObjectId);
 	});
 
+	// This suite boots without the router/HTTP server, so paginate() is tested directly here;
+	// the HTTP side (cursors, before/after) is in correctness.spec.ts
 	test('test regular paginating', async () => {
-		const app    = App.getInstance();
-		const server = app.container().resolve<Server>(Server);
+		const name = 'paginate-' + Date.now();
+		await User.insertMany([{name}, {name}, {name}] as any);
 
-		const res = await server._server.inject({
-			method  : 'get',
-			url     : '/testing/model/pagination',
-			headers : {
-				"content-type" : "application/json",
-				"accept"       : "application/json",
-			}
-		});
+		const page: any = await User.query().where({name}).paginate(2);
 
-		const json = res.json();
-
-		expect(json.data).toBeDefined();
-		expect(res).toBeDefined();
-
+		expect(page.data).toHaveLength(2);
+		expect(page.pagination.hasNext).toBe(true);
+		expect(page.pagination.after).toBeTruthy();
 	});
 
 	test('test paginating with filter', async () => {
-		const app    = App.getInstance();
-		const server = app.container().resolve<Server>(Server);
+		const page: any = await User.query().where({something : 'no-user-has-this-' + Date.now()}).paginate(1);
 
-		const res = await server._server.inject({
-			method  : 'get',
-			url     : '/testing/model/pagination/filtered',
-			headers : {
-				"content-type" : "application/json",
-				"accept"       : "application/json",
-			}
-		});
-
-		const json = res.json();
-
-		expect(json.data).toBeDefined();
-		expect(res).toBeDefined();
-
+		expect(page.data).toEqual([]);
+		expect(page.pagination.hasNext).toBe(false);
 	});
 
 	test('saving a model with multiple @id tags', async () => {

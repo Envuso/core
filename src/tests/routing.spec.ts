@@ -55,10 +55,15 @@ describe('test route service provider', () => {
 			url     : '/testing/get',
 			payload : {
 				something : ''
-			}
+			},
+			headers : {accept : 'application/json'},
 		});
 
 		expect(res.statusCode).toEqual(422);
+
+		// A form submit (not asking for JSON) is redirected back with the errors flashed
+		const form = await server._server.inject({method : 'POST', url : '/testing/get', payload : {something : ''}});
+		expect(form.statusCode).toEqual(302);
 
 	});
 
@@ -141,13 +146,13 @@ describe('test route service provider', () => {
 
 		const res = await server._server.inject({
 			method  : 'GET',
-			url     : '/testing/get',
-			payload : {
-				something : ''
-			}
+			url     : '/testing/session/get',
 		});
 
-		expect(res.statusCode).toEqual(500);
+		// StartSessionMiddleware is global (ServerConfiguration.middleware): every route gets a session
+		const sessionCookie = app.config().get<string, any>('Session.sessionCookie.name');
+		expect(res.statusCode).toBeLessThan(300);
+		expect(res.cookies.some((c: any) => c.name === sessionCookie)).toBe(true);
 
 	});
 
@@ -385,7 +390,7 @@ describe('test route service provider', () => {
 
 		const body = JSON.parse(res.body);
 
-		expect(body.data.something).toEqual('something must be longer than or equal to 1 characters');
+		expect(body.data.something).toEqual('Something must be longer than or equal to 1 characters');
 		expect(res.statusCode).toEqual(422);
 
 	});
@@ -407,7 +412,7 @@ describe('test route service provider', () => {
 
 		const body = JSON.parse(res.body);
 
-		expect(body.data.something).toEqual('something must be longer than or equal to 1 characters');
+		expect(body.data.something).toEqual('Something must be longer than or equal to 1 characters');
 		expect(res.statusCode).toEqual(422);
 
 	});

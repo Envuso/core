@@ -66,9 +66,14 @@ describe('s3 storage', () => {
 
 		expect(make).toBeTruthy();
 
+		// Files inside go too, not just the directory marker
+		await Storage.disk('s3').put(directoryName, {filename : 'testfile.txt', tempFilePath : './testfile.txt', storeAs : 'inside.txt'});
+		expect(await Storage.disk('s3').files(directoryName)).not.toHaveLength(0);
+
 		const deletedDirectory = await Storage.disk('s3').deleteDirectory(directoryName);
 
-		expect(deletedDirectory).toEqual({});
+		expect(deletedDirectory).toBe(true);
+		expect(await Storage.disk('s3').files(directoryName)).toHaveLength(0);
 
 		const dir = await Storage.disk('s3').directories(directoryName);
 
