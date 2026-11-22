@@ -33,6 +33,14 @@ export class Session implements SessionContract {
 	public userId: string = null;
 
 	/**
+	 * Set when the id was rotated during this request (e.g. on login); the data stored
+	 * under the old id is destroyed when the session is saved.
+	 */
+	private rotatedFromId: string = null;
+
+	private tokenNeedsRegenerating: boolean = false;
+
+	/**
 	 * Whether our session has been initiated or not yet.
 	 *
 	 * @type {boolean}
@@ -90,9 +98,15 @@ export class Session implements SessionContract {
 	public async loadSession() {
 		this.attributes = new SessionStore();
 
-		this.attributes.populate(
-			await this.driver.getSessionData(this.id)
-		);
+		const data = await this.driver.getSessionData(this.id) ?? {};
+
+		// An id we never issued (or one that expired) gets a fresh id, so a client
+		// can't choose its own session id (session fixation)
+		if (Object.keys(data).length === 0) {
+			this.id = this.generateSessionId();
+		}
+
+		this.attributes.populate(data);
 	}
 
 	/**
@@ -108,6 +122,16 @@ export class Session implements SessionContract {
 	 * Save all values in the session store on redis against the session id
 	 */
 	public async save(): Promise<void> {
+
+		if (this.rotatedFromId) {
+			await this.driver.destroy(this.rotatedFromId);
+			this.rotatedFromId = null;
+		}
+
+		if (this.tokenNeedsRegenerating) {
+			this.tokenNeedsRegenerating = false;
+			await this.regenerateToken();
+		}
 
 		this.attributes.ageFlashData();
 
@@ -182,7 +206,8 @@ export class Session implements SessionContract {
 	 * @return {boolean}
 	 */
 	public isValidSessionId(id: any): boolean {
-		return (typeof id === 'string') && id.length === 32;
+		// generateSessionId() is 32 hex characters; anything else (e.g. "../" for the file driver) is rejected
+		return (typeof id === 'string') && /^[a-f0-9]{32}$/i.test(id);
 	}
 
 	/**
@@ -255,9 +280,29 @@ export class Session implements SessionContract {
 	 * @param {AuthenticatableContract<any>} user
 	 */
 	public setUser(user: AuthenticatableContract<any>) {
-		this.userId = user?._user?._id ?? (user as any)._id;
+		const userId = user?._user?._id ?? (user as any)?._id;
+
+		// Logging in (or switching user) rotates the session id and CSRF token, so an id
+		// obtained before login can't be used to ride the authenticated session
+		if (String(userId) !== String(this.store().get('user_id', null))) {
+			this.rotateId();
+		}
+
+		this.userId = userId;
 
 		this.store().put('user_id', this.userId);
+	}
+
+	/**
+	 * Give the session a new id, keeping its data. The old id is destroyed on save.
+	 */
+	public rotateId() {
+		if (!this.rotatedFromId) {
+			this.rotatedFromId = this.id;
+		}
+
+		this.id                     = this.generateSessionId();
+		this.tokenNeedsRegenerating = true;
 	}
 
 }

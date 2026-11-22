@@ -7,6 +7,7 @@ import type {AuthenticatableContract} from "../../Contracts/Authentication/UserP
 import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";
 import type {RequestContract} from "../../Contracts/Routing/Context/Request/RequestContract";
 import {AuthenticationProvider} from "../AuthenticationProvider";
+import {appKey} from "../../Crypt/AppKey";
 
 
 export interface JwtAuthenticationConfig {
@@ -33,12 +34,8 @@ export class JwtAuthenticationProvider extends AuthenticationProvider implements
 		super();
 		this._userProvider = userProvider;
 
-		this._appKey = resolve(ConfigRepository).get<string, any>('App.appKey');
-
-		if (!this._appKey) {
-			Log.warn('You are trying to use JWT Auth. But there is no app key defined in config(Config/App.ts), which is needed to sign Json Web Tokens.');
-			return;
-		}
+		// Throws for a missing or weak key, instead of signing tokens with it
+		this._appKey = appKey();
 
 		const authConf = config().get<string, any>('Auth');
 

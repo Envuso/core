@@ -16,7 +16,7 @@ export interface CsrfContract {
 	verify(secret: string, token: string): boolean;
 
 	/**
-	 * Hash a string with SHA1, returning url-safe base64
+	 * Hash a string with SHA-256, returning url-safe base64
 	 * @param {string} str
 	 * @private
 	 */

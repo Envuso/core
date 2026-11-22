@@ -100,6 +100,24 @@ export class TestingController extends Controller {
 		};
 	}
 
+	@get('/session/csrf')
+	async testSessionCsrfToken() {
+		return {token : session().getCsrfToken()};
+	}
+
+	@middleware(new VerifyCsrfTokenMiddleware())
+	@post('/session/csrf-protected')
+	async testCsrfProtected() {
+		return {ok : true};
+	}
+
+	@get('/session/login-as')
+	async testSessionLoginAs() {
+		session().setUser({_id : request('id')} as any);
+
+		return {token : session().getCsrfToken()};
+	}
+
 	@get('/session/set')
 	async testSettingSessionValue() {
 		const value = request('value');

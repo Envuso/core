@@ -1,4 +1,4 @@
-import {DateTime} from "@envuso/date-time-helper";
+import Environment from "../AppContainer/Config/Environment";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import type {CookieConfiguration, SessionConfiguration as SessionConfig, SessionCookie} from "../Contracts/Session/Types";
 import {FileSessionDriver} from "../Session/Drivers/FileSessionDriver";
@@ -13,10 +13,11 @@ export default class SessionConfiguration extends ConfigurationCredentials imple
 	 */
 	cookie: CookieConfiguration = {
 		path      : '/',
-		httpOnly  : false,
-		secure    : false,
-		expires   : DateTime.now().addYears(5),
-		maxAge    : DateTime.now().addYears(5),
+		httpOnly  : true,
+		// HTTPS only in production
+		secure    : Environment.isProduction(),
+		// seconds, counted from when each cookie is set
+		lifetime  : 60 * 60 * 24 * 7,
 		sameSite  : "Lax",
 		signed    : true,
 		encrypted : true,

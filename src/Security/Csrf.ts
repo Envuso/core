@@ -75,13 +75,13 @@ export class Csrf implements CsrfContract {
 	}
 
 	/**
-	 * Hash a string with SHA1, returning url-safe base64
+	 * Hash a string with SHA-256, returning url-safe base64
 	 * @param {string} str
 	 * @private
 	 */
 	public hash(str: string): string {
 		return crypto
-			.createHash('sha1')
+			.createHash('sha256')
 			.update(str, 'ascii')
 			.digest('base64')
 			.replace(PLUS_GLOBAL_REGEXP, '-')

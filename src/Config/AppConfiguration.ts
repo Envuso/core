@@ -24,7 +24,8 @@ export default class AppConfiguration extends ConfigurationCredentials implement
 
 	environment: string = Environment.getEnv();
 
-	appKey = Environment.get<string>('APP_KEY', '1234');
+	// Required, at least 32 characters (the app refuses to boot otherwise)
+	appKey = Environment.get<string>('APP_KEY');
 
 	providers: (new () => ServiceProviderContract)[] = [
 		SecurityServiceProvider,

@@ -53,7 +53,16 @@ export class Cookie<T> implements CookieContract<T> {
 	 */
 	public setDefaultCookieSettings() {
 		for (let key in Cookie.defaultCookieSettings) {
+			if (key === 'lifetime') {
+				continue;
+			}
 			this[key] = Cookie.defaultCookieSettings[key];
+		}
+
+		const lifetime = Cookie.defaultCookieSettings.lifetime;
+		if (typeof lifetime === 'number' && lifetime > 0) {
+			this.maxAge  = DateTime.now().addSeconds(lifetime);
+			this.expires = DateTime.now().addSeconds(lifetime);
 		}
 
 		if (!Cookie.defaultCookieSettings.signedCookiePrefix) {

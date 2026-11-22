@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 const base62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const base36 = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const base10 = '0123456789';
@@ -14,13 +16,12 @@ export const csrfRandom10 = (charLength: number): string => {
 	return getRandomBase(base10, charLength);
 };
 
-const getRandomBase = (chars, returnLength) => {
-	let length  = Buffer.byteLength(chars);
-
+// Cryptographically secure and unbiased (crypto.randomInt), unlike Math.random
+const getRandomBase = (chars: string, returnLength: number) => {
 	let salt = '';
 	for (let i = 0; i < returnLength; i++) {
-		salt += chars[Math.floor(length * Math.random())];
+		salt += chars[crypto.randomInt(chars.length)];
 	}
 
 	return salt;
-}
+};

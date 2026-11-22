@@ -4,6 +4,7 @@ import {resolve} from "../AppContainer/helpers";
 import type {CookieJarContract} from "../Contracts/Cookies/CookieJarContract";
 import type {SessionConfiguration} from "../Contracts/Session/Types";
 import {Cookie} from "./Cookie";
+import {appKey} from "../Crypt/AppKey";
 
 
 export class CookieJar implements CookieJarContract {
@@ -18,7 +19,7 @@ export class CookieJar implements CookieJarContract {
 		const configRepository = resolve(ConfigRepository);
 
 		this._config = configRepository.get<string, any>('Session');
-		this._secret = configRepository.get<string, any>('App.appKey');
+		this._secret = appKey();
 	}
 
 	/**
