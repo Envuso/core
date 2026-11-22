@@ -17,6 +17,8 @@ import {SocketClient} from "../WebSockets/TestingClient/src/SocketClient";
 import {ConnectionStatus} from "../WebSockets/TestingClient/src";
 import {StorageServiceProvider} from "../Storage/StorageServiceProvider";
 import {WebSocketServer} from "../WebSockets/WebSocketServer";
+import {WEBSOCKET_PROTOCOL} from "../WebSockets/WebSocketProtocol";
+import {PublicSocketListener} from "../App/Http/Sockets/PublicSocketListener";
 import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp());
@@ -283,3 +285,36 @@ describe('websocket channels', () => {
 
 });
 
+
+describe('websocket security', () => {
+	const open = (protocols: string[]) => new Promise<WebSocket>((resolveOpen, reject) => {
+		const ws   = new WebSocket('ws://127.0.0.1:3335', protocols);
+		ws.onopen  = () => resolveOpen(ws);
+		ws.onerror = (e) => reject(e);
+	});
+
+	test('the JWT is not echoed back: the server answers with "envuso"', async () => {
+		const {token} = await createUserAndToken();
+		const ws      = await open([WEBSOCKET_PROTOCOL, token]);
+
+		expect(ws.protocol).toBe(WEBSOCKET_PROTOCOL);
+		ws.close();
+	});
+
+	test('a JWT on its own still connects (deprecated)', async () => {
+		const {token} = await createUserAndToken();
+		const ws      = await open([token]);
+
+		expect(ws.protocol).toBe(token);
+		ws.close();
+	});
+
+	test("clients can only call the listener's own event handlers", () => {
+		const listener = new PublicSocketListener();
+
+		expect(WebSocketServer.isEventHandler(listener, 'hello')).toBe(true);
+		for (const name of ['constructor', 'isAuthorised', 'channelName', 'middlewares', 'broadcast', 'send', 'setChannelInformation', 'toString', '__proto__', '']) {
+			expect(WebSocketServer.isEventHandler(listener, name)).toBe(false);
+		}
+	});
+});

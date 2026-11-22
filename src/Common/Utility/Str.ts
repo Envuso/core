@@ -15,19 +15,16 @@ export class Str {
 	 * @param length
 	 */
 	static random(length = 10): string {
-		const getRandom = () => Math.random().toString(20).substr(2, length);
+		// crypto, not Math.random (these end up as ids); and exactly `length` characters:
+		// one Math.random() gave ~13 at most, so random(32) returned a short string
+		const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+		let result     = '';
 
-		let currentStr = getRandom();
-
-		if (currentStr.length <= length) {
-			return currentStr.slice(0, length);
+		for (let i = 0; i < length; i++) {
+			result += alphabet[require('crypto').randomInt(alphabet.length)];
 		}
 
-		while (currentStr.length < length) {
-			currentStr += getRandom();
-		}
-
-		return currentStr.slice(0, length);
+		return result;
 	}
 
 	/**

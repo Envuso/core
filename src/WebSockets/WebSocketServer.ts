@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import type {Server, ServerWebSocket} from "bun";
 import {JsonWebTokenError} from "jsonwebtoken";
 import path from "path";
@@ -17,6 +18,7 @@ import {RequestContextStore} from "../Routing/Context/RequestContextStore";
 import {type BaseEventPacket, type ChannelSubscribeSocketPacket, type ChannelUnsubscribeSocketPacket, SocketEvents, type UserMessageSocketPacket} from "./SocketEventTypes";
 import {WebSocketChannelListener} from "./WebSocketChannelListener";
 import {WebSocketConnection} from "./WebSocketConnection";
+import {WEBSOCKET_PROTOCOL} from "./WebSocketProtocol";
 
 
 export interface ChannelInformation {
@@ -101,9 +103,19 @@ export class WebSocketServer {
 	}
 
 	private async handleUpgrade(request: Request, server: Server<SocketData>): Promise<Response | undefined> {
-		// Browsers can't set headers on a websocket, so the JWT comes in as the subprotocol
-		const protocol = request.headers.get('sec-websocket-protocol')?.trim() || null;
-		let userJwt    = protocol;
+		// Browsers can't set headers on a websocket, so the JWT comes in as a subprotocol:
+		// "envuso, <jwt>", and we echo "envuso". (Echoing the token put it in a response
+		// header that proxies log.) A token on its own still works, but is deprecated.
+		const offered  = (request.headers.get('sec-websocket-protocol') ?? '')
+			.split(',').map(p => p.trim()).filter(Boolean);
+		const usesName = offered.includes(WEBSOCKET_PROTOCOL);
+		let userJwt    = usesName ? (offered.find(p => p !== WEBSOCKET_PROTOCOL) ?? null) : (offered[0] ?? null);
+		const protocol = usesName ? WEBSOCKET_PROTOCOL : (offered[0] ?? null);
+
+		if (!usesName && userJwt && !WebSocketServer.warnedLegacyProtocol) {
+			WebSocketServer.warnedLegacyProtocol = true;
+			Log.warn(`WebSocket clients should offer the subprotocols ["${WEBSOCKET_PROTOCOL}", <jwt>]; a JWT on its own is echoed back in the response headers.`);
+		}
 
 		const authProvider: JwtAuthenticationProvider = resolve(Authentication).getAuthProvider(JwtAuthenticationProvider);
 
@@ -121,7 +133,7 @@ export class WebSocketServer {
 		}
 
 		const connection = new WebSocketConnection();
-		connection.setUuid(Str.random());
+		connection.setUuid(crypto.randomUUID());
 		connection.setToken(userJwt);
 		if (user) {
 			connection.setUser(user);
@@ -350,12 +362,41 @@ export class WebSocketServer {
 		}
 
 		const event = packet.event;
-		if (!subscription[event]) {
+		// Only the listener's own event handlers: the event name comes from the client, and
+		// subscription[event] could call any method (constructor, isAuthorised, broadcast...)
+		if (!WebSocketServer.isEventHandler(subscription, event)) {
 			Log.warn('Received event for listener, but it doesnt have a handler... add "' + event + '(connection: WebSocketConnection<User>, packet : UserMessageSocketPacket): Promise<any>)" to ' + listener.constructor.name + ' class.');
 			return;
 		}
 
 		await subscription[event](webSocketConnection, packet);
+	}
+
+	private static warnedLegacyProtocol = false;
+
+	/**
+	 * Is `event` a handler the listener class defines itself? Excludes everything on the
+	 * WebSocketChannelListener base, the constructor, the required channelName/isAuthorised/
+	 * middlewares methods, and names starting with "_".
+	 */
+	public static isEventHandler(listener: object, event: unknown): boolean {
+		if (typeof event !== 'string' || event === '' || event.startsWith('_') || event === 'constructor') {
+			return false;
+		}
+
+		if (event in WebSocketChannelListener.prototype || ['channelName', 'isAuthorised', 'middlewares'].includes(event)) {
+			return false;
+		}
+
+		let proto = Object.getPrototypeOf(listener);
+		while (proto && proto !== WebSocketChannelListener.prototype && proto !== Object.prototype) {
+			if (Object.prototype.hasOwnProperty.call(proto, event)) {
+				return typeof proto[event] === 'function';
+			}
+			proto = Object.getPrototypeOf(proto);
+		}
+
+		return false;
 	}
 
 	/**

@@ -1,5 +1,7 @@
 import {type ChannelSubscribeRequestCallback, type ChannelSubscribeResponsePacket, ConnectionStatus, ServerEventTypes, type SocketPacket, type SocketPacketBody} from "./index";
 import {SocketChannel} from "./SocketChannel";
+import {WEBSOCKET_PROTOCOL} from "../../WebSocketProtocol";
+
 
 export class SocketClient {
 	private url: string;
@@ -27,8 +29,8 @@ export class SocketClient {
 		this.protocols = protocols || [];
 	}
 
-	public addProtocol(protocol: any): this {
-		this.protocols.push(this.token);
+	public addProtocol(protocol: string): this {
+		this.protocols.push(protocol);
 
 		return this;
 	}
@@ -42,6 +44,10 @@ export class SocketClient {
 	public usingJwt(token: string): this {
 		this.token = token;
 
+		// "envuso" is what the server echoes back, so the token isn't repeated in its response
+		if (!this.protocols.includes(WEBSOCKET_PROTOCOL)) {
+			this.addProtocol(WEBSOCKET_PROTOCOL);
+		}
 		this.addProtocol(this.token);
 
 		return this;
