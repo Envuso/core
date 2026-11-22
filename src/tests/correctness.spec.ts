@@ -223,3 +223,37 @@ describe('local storage', () => {
 		await Storage.disk('storage').deleteDirectory('correctness-name');
 	});
 });
+
+describe('model update()', () => {
+	test("updates the model in one round trip without changing the caller's object", async () => {
+		const user  = await User.create({name : 'before', something : 'x'} as any);
+		const input = {name : 'after', books : []} as any;
+		const find  = spyOn(user.collection(), 'find');
+
+		expect(await user.update(input)).toBe(true);
+
+		expect(user.name).toBe('after');
+		expect(input).toEqual({name : 'after', books : []});
+		expect(find).not.toHaveBeenCalled();
+		find.mockRestore();
+
+		expect((await User.find((user as any)._id))?.name).toBe('after');
+		await user.delete();
+	});
+
+	test('atomic operators update the model with the stored value', async () => {
+		const user = await User.create({someCount : 1} as any);
+
+		await user.update({$inc : {someCount : 2}} as any);
+
+		expect(user.someCount).toBe(3);
+		await user.delete();
+	});
+
+	test('is false when the document no longer exists', async () => {
+		const user = await User.create({name : 'gone'} as any);
+		await User.query().where({_id : (user as any)._id}).delete();
+
+		expect(await user.update({name : 'nope'} as any)).toBe(false);
+	});
+});

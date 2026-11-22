@@ -176,10 +176,13 @@ export class Model<M> implements ModelContract<M> {
 	 */
 	public async update(attributes: ModelAttributesUpdateFilter<M>, options?: UpdateOptions & { returnMongoResponse: boolean }): Promise<boolean | UpdateResult> {
 
-		const tempRelations = {};
-		const relations     = this.queryBuilder().joinedRelationsArray();
+		// Work on a copy: relations were deleted from the caller's object
+		attributes = {...attributes};
 
-		for (let relation of relations) {
+		const tempRelations = {};
+		const queryBuilder  = this.queryBuilder();
+
+		for (let relation of queryBuilder.joinedRelationsArray()) {
 			if (attributes[relation.propertyKey] === undefined) {
 				continue;
 			}
@@ -188,24 +191,69 @@ export class Model<M> implements ModelContract<M> {
 			delete attributes[relation.propertyKey];
 		}
 
-		const updated = await this.queryBuilder()
-			.where({_id : this.getModelId()})
-			.update(attributes);
+		const id     = this.getModelId();
+		const update = queryBuilder.parseAttributesForUpdateQuery(attributes);
+		const keys   = Model.updatedTopLevelKeys(attributes);
 
-		const keys = Object.keys(attributes);
+		const restoreRelations = () => {
+			for (let tempRelationsKey in tempRelations) {
+				this[tempRelationsKey] = tempRelations[tempRelationsKey];
+			}
+		};
 
-		const updatedModel = await this.queryBuilder()
-			.where({_id : this.getModelId()})
-			.selectFields(...keys)
-			.first();
+		if (options?.returnMongoResponse) {
+			const {returnMongoResponse, ...updateOptions} = options;
+			const result = await this.collection().updateOne({_id : id} as Filter<M>, update as any, updateOptions);
+			await this.refreshKeys(keys);
+			restoreRelations();
 
-		this.assignUpdatedAttributes(_.pick(updatedModel, keys), keys, true);
-
-		for (let tempRelationsKey in tempRelations) {
-			this[tempRelationsKey] = tempRelations[tempRelationsKey];
+			return result;
 		}
 
-		return updated;
+		// One round trip: update and read back the changed fields (it was an update, then a find)
+		const {returnMongoResponse, ...updateOptions} = (options ?? {}) as any;
+		const document = await this.collection().findOneAndUpdate({_id : id} as Filter<M>, update as any, {
+			...updateOptions,
+			returnDocument : 'after',
+			projection     : Object.fromEntries(keys.map(key => [key, 1])),
+		});
+
+		if (document) {
+			const hydrated = this.hydrate(document as any);
+			this.assignUpdatedAttributes(_.pick(hydrated, keys), keys, true);
+		}
+
+		restoreRelations();
+
+		return !!document;
+	}
+
+	/**
+	 * Top-level fields an update touches: {name: 'x'} -> name; {$inc: {'stats.views': 1}} -> stats
+	 */
+	private static updatedTopLevelKeys(attributes: object): string[] {
+		const keys = new Set<string>();
+
+		for (const [key, value] of Object.entries(attributes)) {
+			if (key.startsWith('$') && value && typeof value === 'object') {
+				Object.keys(value).forEach(field => keys.add(field.split('.')[0]));
+			} else {
+				keys.add(key.split('.')[0]);
+			}
+		}
+
+		return [...keys];
+	}
+
+	private async refreshKeys(keys: string[]) {
+		const updatedModel = await this.queryBuilder()
+			.where({_id : this.getModelId()})
+			.selectFields(...keys as any)
+			.first();
+
+		if (updatedModel) {
+			this.assignUpdatedAttributes(_.pick(updatedModel, keys), keys, true);
+		}
 	}
 
 	/**
