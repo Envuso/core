@@ -189,6 +189,25 @@ Test file: a parameter decorator, a method decorator, and `Reflect.getMetadata("
     1. **Framework-internal** (barrels, contracts): fixable by importing concrete files and using `import type` (enforce with `verbatimModuleSyntax`).
     2. **User-model relations** (User ↔ Book): inherent to an ORM. Tested: `books?: Relation<Book>` with `type Relation<T> = T` (TypeORM's approach) avoids the crash on Bun. Plain `books?: Book` crashes.
 
+- ✅ **Bun bug: a parameter that shadows its decorator drops the import.** `@dto() dto: X` on a method that also has a method decorator: Bun 1.4.4 elides `import {dto}` but still emits the `dto()` call → `ReferenceError: dto is not defined`. Renamed the params in the test controllers. Worth reporting upstream, and documenting for users.
+- ✅ Importing anything from `bun:test` disables that file's implicit test globals.
+
+### Untangling progress
+| Stage | Largest runtime import cycle |
+|---|---|
+| Start | 151 files |
+| `verbatimModuleSyntax` / type-only imports | 112 |
+| Concrete imports instead of internal barrels | 33 |
+| Helpers moved out of `index.ts` | 25 |
+
+### Test status on Bun: 68 / 105 passing (2026-11-22)
+Remaining 37 failures, grouped by first error:
+- **18 × "App was not booted yet"**: likely a cascade. Some specs (cookies, storage) never call `bootApp()` themselves. Bun runs all files in one process, while Jest isolated each file.
+- **7 × `callSite.getFileName is not a function`** in `depd` (via `fastify-raw-body` → `raw-body` → `http-errors`). Only happens on the 2nd+ boot in the same process, so something likely swaps `Error.prepareStackTrace`. To investigate. Would likely disappear with the Fastify 5 / `@fastify/*` upgrade.
+- **~8 × ObjectId / model mapping**: `ObjectId.isValid(obj)` returns true for any object with an `id` key, so `transformToObjectIds` converts whole objects. Install resolved bson 4.7.2 (mongodb pinned at 4.2.2 allows `^4.6`). Real ORM bug, not Bun-specific.
+- **9 × S3 storage**: no S3 credentials. → add a MinIO container to the test preload, or skip when `SPACES_*` is unset.
+- A few relationship/pagination assertions: not yet triaged.
+
 ## 8. Design principles (decided)
 - Envuso is "Laravel for TS": simple, elegant, easy to use, moderately fast. Ergonomics win over raw speed where they conflict.
 - **No schema-per-route.** Injection stays driven by decorators and type hints (route model binding, DTO params, `@user`, container injection).
