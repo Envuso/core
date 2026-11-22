@@ -70,10 +70,11 @@ export class Response extends RequestResponseContext implements ResponseContract
 	 *
 	 * @param {string} templatePath
 	 * @param data
+	 * @param {number} statusCode
 	 *
 	 * @returns {ResponseContract}
 	 */
-	view(templatePath: string, data?: any): ResponseContract {
+	view(templatePath: string, data?: any, statusCode: number = 200): ResponseContract {
 		const viewManager = resolve<ViewManagerContract>('ViewManager');
 
 		let html = null;
@@ -82,11 +83,13 @@ export class Response extends RequestResponseContext implements ResponseContract
 			html = viewManager.render(templatePath, data);
 		} catch (error) {
 			Log.exception('Failed to render view: ', error);
-			html = viewManager.render('Exceptions/exception', renderableExceptionData(500, error));
+			html       = viewManager.render('Exceptions/exception', renderableExceptionData(500, error));
+			// The error page used to go out as a 200
+			statusCode = 500;
 		}
 		this.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-		this.setResponse(html, 200);
+		this.setResponse(html, statusCode);
 
 		return this;
 	}
@@ -245,7 +248,7 @@ export class Response extends RequestResponseContext implements ResponseContract
 
 		return this._context.request.wantsJson()
 			? this.json(data, statusCode)
-			: this.view('Exceptions/exception', data);
+			: this.view('Exceptions/exception', data, statusCode);
 	}
 
 	/**

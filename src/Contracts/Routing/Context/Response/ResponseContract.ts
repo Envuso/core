@@ -18,7 +18,7 @@ export interface ResponseContract extends RequestResponseContextContract {
 	 *
 	 * @returns {ResponseContract}
 	 */
-	view(templatePath: string, data?: any): ResponseContract;
+	view(templatePath: string, data?: any, statusCode?: number): ResponseContract;
 
 	/**
 	 * Set the data & status code to return
