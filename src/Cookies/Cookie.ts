@@ -53,7 +53,9 @@ export class Cookie<T> implements CookieContract<T> {
 	 */
 	public setDefaultCookieSettings() {
 		for (let key in Cookie.defaultCookieSettings) {
-			if (key === 'lifetime') {
+			// lifetime is applied below; expires/maxAge are per-cookie (withExpiresAt/withMaxAge),
+			// a config value would be a fixed point in time from when the server booted
+			if (key === 'lifetime' || key === 'expires' || key === 'maxAge') {
 				continue;
 			}
 			this[key] = Cookie.defaultCookieSettings[key];
