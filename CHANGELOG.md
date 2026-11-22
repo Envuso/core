@@ -159,6 +159,11 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 - `Relation<T>` type for relation properties. (55123ec)
 
+**CSRF**
+
+- Responses with a session set an **`XSRF-TOKEN` cookie** holding the CSRF token (readable by JavaScript, unencrypted). axios, and so Inertia, sends it back as `X-XSRF-TOKEN` on same-origin requests, which `VerifyCsrfTokenMiddleware` accepts, so Inertia apps get CSRF protection with no frontend code. Rename it with `Session.xsrfCookie`, or set that to `false` to turn it off. (a532357)
+- `Cookie.withEncryption(false)` sends a single cookie unencrypted when `Session.cookie.encrypted` is on. (a532357)
+
 **Packaging**
 
 - `bun run pack` builds the framework and packs it exactly as it is published (`.pack/envuso-core.tgz`), so an app can install an unpublished build with `"@envuso/core": "file:../core/.pack/envuso-core.tgz"`. A tarball gives a deduplicated install; `bun link` would give the app its own copies of `class-validator`, `reflect-metadata` and `tsyringe`, and validation rules or DI registrations would not be shared. (c5cfae0)
