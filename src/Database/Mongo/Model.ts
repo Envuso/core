@@ -65,6 +65,11 @@ export class Model<M> implements ModelContract<M> {
 			.with(...relations)
 			.first();
 
+		// The document was deleted since this model was loaded: nothing to attach
+		if (!result) {
+			return this;
+		}
+
 		const relationAttributes = {};
 
 		for (let relation of relations) {
@@ -530,19 +535,59 @@ export class Model<M> implements ModelContract<M> {
 			return;
 		}
 
-		try {
-			const indexesToCreate = indexes.map(i => ({name : i.name, key : i.index}));
+		// Only create what is missing or changed: dropping and rebuilding every index on
+		// every boot is slow on large collections and leaves them unindexed meanwhile
+		const existing = new Map(
+			(await this.collection().listIndexes().toArray()).map(index => [index.name, index])
+		);
+		const toCreate = [];
 
-			for (let index of indexesToCreate) {
-				if (await this.collection().indexExists(index.name)) {
-					await this.collection().dropIndex(index.name);
-				}
+		for (const {name, index} of indexes) {
+			const current = existing.get(name);
+
+			if (!current) {
+				toCreate.push({name, key : index});
+				continue;
 			}
 
-			const result = await this.collection().createIndexes(indexesToCreate);
-		} catch (error) {
-			Log.exception(`Error when creating indexes for model: ${this.constructor.name}`, error);
+			if (Model.indexKeyChanged(index, current)) {
+				Log.info(`Index "${name}" on ${this.constructor.name} changed; recreating it.`);
+				await this.collection().dropIndex(name);
+				toCreate.push({name, key : index});
+			}
 		}
+
+		if (!toCreate.length) {
+			return;
+		}
+
+		try {
+			await this.collection().createIndexes(toCreate as any);
+		} catch (error) {
+			// e.g. a unique index over duplicate data: the model's declared indexes can't be
+			// honoured, so don't boot as if they were
+			throw new Error(`Failed to create indexes for model ${this.constructor.name}: ${(error as Error).message}`, {cause : error});
+		}
+	}
+
+	/**
+	 * Does the declared index spec differ from the index that exists?
+	 * Text indexes are stored as {_fts: 'text', _ftsx: 1} with the fields in `weights`.
+	 */
+	private static indexKeyChanged(spec: any, current: any): boolean {
+		if (!spec || typeof spec !== 'object' || Array.isArray(spec)) {
+			// string/array forms: can't compare reliably, keep the existing index
+			return false;
+		}
+
+		const textFields = Object.keys(spec).filter(field => spec[field] === 'text');
+		if (textFields.length) {
+			const weights = Object.keys(current.weights ?? {}).sort();
+
+			return current.key?._fts !== 'text' || JSON.stringify(weights) !== JSON.stringify(textFields.sort());
+		}
+
+		return JSON.stringify(spec) !== JSON.stringify(current.key);
 	}
 
 	getHooks(): ModelHooksMeta {

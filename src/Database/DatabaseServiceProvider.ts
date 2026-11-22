@@ -24,8 +24,13 @@ export class DatabaseServiceProvider extends ServiceProvider {
 		try {
 			connection = await client.connect();
 		} catch (error) {
-			Log.error('Cannot connect to MongoDB. Framework will exit. Please configure your connection correctly or check that your server is online/accessible.');
-			process.exit(0);
+			// Fail the boot (non-zero exit) instead of process.exit(0), which looked like success
+			// to process managers and CI, and killed test runners mid-run
+			throw new Error(
+				`Cannot connect to MongoDB (${(error as Error)?.message}). ` +
+				`Check Database.mongo.url and that the server is reachable.`,
+				{cause : error}
+			);
 		}
 
 		app.container().register(MongoClient, {useValue : connection});

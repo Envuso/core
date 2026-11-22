@@ -23,9 +23,26 @@ export class ProcessUploadedFilesHook extends PreHandlerHook {
 		if (!context)
 			return;
 
-		await context.request.setUploadedFile(
-			await request.file()
-		);
+		// Every part, in order: request.file() only returned the first file, and undefined
+		// for a multipart form without one (which then crashed)
+		const fields: Record<string, any> = {};
+
+		for await (const part of request.parts()) {
+			if (part.type !== 'file') {
+				fields[part.fieldname] = part.value;
+				continue;
+			}
+
+			// An empty <input type="file"> still sends a part, with no filename
+			if (!part.filename) {
+				part.file.resume();
+				continue;
+			}
+
+			await context.request.addUploadedFile(part);
+		}
+
+		context.request.setMultipartFields(fields);
 	}
 
 }

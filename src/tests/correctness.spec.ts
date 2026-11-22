@@ -1,3 +1,4 @@
+import {afterAll, beforeAll, describe, expect, spyOn, test} from "bun:test";
 import {Book} from "../App/Models/Book";
 import {User} from "../App/Models/User";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
@@ -128,5 +129,75 @@ describe('config repository', () => {
 		expect(config.get('session.testing.value')).toBe('from-set');
 		expect(config.get('Session.testing.value')).toBe('from-set');
 		expect(config.has('SESSION.testing.value')).toBe(true);
+	});
+});
+
+describe('multipart uploads', () => {
+	async function upload(form: FormData) {
+		// light-my-request takes a body + headers; let Response encode the multipart body
+		const encoded = new Response(form);
+		return inject({
+			method  : 'POST', url : '/testing/file/upload-summary',
+			headers : {'content-type' : encoded.headers.get('content-type'), accept : 'application/json'},
+			payload : Buffer.from(await encoded.arrayBuffer()),
+		});
+	}
+
+	test('a multipart form without a file is fine (was a 500)', async () => {
+		const form = new FormData();
+		form.append('title', 'no file here');
+
+		const res = await upload(form);
+
+		expect(res.statusCode).toBeLessThan(300);
+		expect(res.json()).toEqual({files : [], fields : {title : 'no file here', note : null}});
+	});
+
+	test('every file is kept, along with fields before and after them', async () => {
+		const form = new FormData();
+		form.append('title', 'two files');
+		form.append('a', new Blob(['first']), 'a.txt');
+		form.append('b', new Blob(['second']), 'b.txt');
+		form.append('note', 'after the files');
+
+		const res = await upload(form);
+
+		expect(res.json()).toEqual({files : ['a.txt', 'b.txt'], fields : {title : 'two files', note : 'after the files'}});
+	});
+
+	test('an empty file input is skipped', async () => {
+		const form = new FormData();
+		form.append('title', 'empty input');
+		form.append('a', new Blob([]), '');
+
+		expect((await upload(form)).json().files).toEqual([]);
+	});
+});
+
+describe('model load()', () => {
+	test('on a document deleted since it was loaded, returns the model instead of crashing', async () => {
+		const user = await User.create({name : 'load after delete'} as any);
+		await User.query().where({_id : (user as any)._id}).delete();
+
+		expect(await user.load('books' as any)).toBe(user);
+	});
+});
+
+describe('model indexes', () => {
+	test('existing, unchanged indexes are left alone on boot', async () => {
+		const model      = new User();
+		const collection = model.collection();
+		const drop       = spyOn(collection, 'dropIndex');
+		const create     = spyOn(collection, 'createIndexes');
+
+		// The app booted already, so User's "user-search" text index exists
+		await model.createIndexes();
+
+		expect(drop).not.toHaveBeenCalled();
+		expect(create).not.toHaveBeenCalled();
+		expect(await collection.indexExists('user-search')).toBe(true);
+
+		drop.mockRestore();
+		create.mockRestore();
 	});
 });

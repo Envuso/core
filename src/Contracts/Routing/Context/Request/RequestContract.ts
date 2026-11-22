@@ -96,6 +96,10 @@ export interface RequestContract extends RequestResponseContextContract {
 	 */
 	setUploadedFile(file: Multipart): Promise<void>;
 
+	addUploadedFile(file: Multipart): Promise<void>;
+
+	setMultipartFields(fields: Record<string, any>): void;
+
 	/**
 	 * Does the request contain any files?
 	 */

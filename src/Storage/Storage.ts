@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import fs from "fs";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
 import {resolve} from "../AppContainer/helpers";
@@ -209,9 +210,12 @@ export class Storage {
 	public static async saveTemporaryFile(fileName: string, stream: NodeJS.ReadableStream): Promise<string> {
 		const tempPath = resolve(ConfigRepository).get<string, any>('Paths.temp');
 
-		await Storage.disk('temp').makeDirectory(path.join('storage', 'temp'));
+		await fs.promises.mkdir(tempPath, {recursive : true});
 
-		const tempName = Str.random() + '.' + (fileName.split('.').pop());
+		// The extension comes from the client's file name: keep only [a-z0-9] so a name like
+		// "x./../../evil" can't escape the temp directory
+		const extension = path.extname(fileName ?? '').slice(1).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16);
+		const tempName  = crypto.randomUUID() + (extension ? '.' + extension : '');
 
 		await pump(stream, fs.createWriteStream(path.join(tempPath, tempName)));
 

@@ -296,6 +296,22 @@ export class Request extends RequestResponseContext implements RequestContract {
 	 * @param file
 	 */
 	async setUploadedFile(file: Multipart) {
+		await this.addUploadedFile(file);
+
+		const fields = {};
+		for (let key in file.fields) {
+			if (key !== file.fieldname) {
+				fields[key] = (file.fields[key] as any)?.value;
+			}
+		}
+
+		this.setMultipartFields(fields);
+	}
+
+	/**
+	 * Save an uploaded file part to temporary storage and add it to the request's files
+	 */
+	async addUploadedFile(file: Multipart) {
 		const tempFileName = await Storage.saveTemporaryFile(
 			file.filename, file.file
 		);
@@ -303,29 +319,23 @@ export class Request extends RequestResponseContext implements RequestContract {
 		const fileInstance = new UploadedFile(file, tempFileName);
 		await fileInstance.setAdditionalInformation();
 
-		/**
-		 * We need to assign multipart request field data
-		 * to our fastify request object.
-		 *
-		 * Otherwise, we could do request().get('field') and it won't exist.
-		 */
-		for (let key in file.fields) {
-			if (key === file.fieldname) {
-				continue;
-			}
+		this._uploadedFiles.push(fileInstance);
+	}
 
-			if (!this._request?.body) {
-				this._request.body = {};
-			}
-
-			this._request.body[key] = (file.fields[key] as any)?.value;
+	/**
+	 * Multipart text fields aren't in the body Fastify parsed; put them there
+	 * so request().get('field') and DTOs see them
+	 */
+	setMultipartFields(fields: Record<string, any>) {
+		if (!this._request.body || typeof this._request.body !== 'object') {
+			this._request.body = {};
 		}
+
+		Object.assign(this._request.body as object, fields);
 
 		if (resolve(Server).hasRegisteredServerHook(ConvertEmptyStringsToNullHook)) {
 			this.convertEmptyStringsToNull();
 		}
-
-		this._uploadedFiles.push(fileInstance);
 	}
 
 	/**

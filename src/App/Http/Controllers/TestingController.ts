@@ -192,6 +192,14 @@ export class TestingController extends Controller {
 		return dt;
 	}
 
+	@post('/file/upload-summary')
+	async testUploadSummary() {
+		return {
+			files  : request().files().map(f => f.getOriginalFileName()),
+			fields : {title : request().get('title'), note : request().get('note')},
+		};
+	}
+
 	@post('/file/upload')
 	async testUploadFile() {
 		const file = request().file('file');
