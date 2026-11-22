@@ -1,7 +1,7 @@
 import path from "path";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import Environment from "../AppContainer/Config/Environment";
-import {type DisksList, type DriversList} from "../Storage/StorageProviderContract";
+import type {DisksList, DriversList} from "../Storage/StorageProviderContract";
 import {LocalFileProvider} from "../Storage/Providers/LocalFileProvider";
 import {S3Provider} from "../Storage/Providers/S3Provider";
 import type {StorageConfiguration as StorageConfig} from './../Storage/StorageProviderContract';

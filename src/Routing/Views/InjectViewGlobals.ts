@@ -1,4 +1,4 @@
-import {resolve} from "../../AppContainer";
+import {resolve} from "../../AppContainer/helpers";
 import Environment from "../../AppContainer/Config/Environment";
 import {Url} from "../../Common/Utility/Url";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";

@@ -4,7 +4,7 @@ import {controller, get, post} from "../../../Routing/Controller/ControllerDecor
 import {Controller} from "../../../Routing/Controller/Controller";
 import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
 import {dto} from "../../../Routing/Route/RouteDecorators";
-import {back, redirect} from "../../../Routing";
+import {back, redirect} from "../../../Routing/helpers";
 import {User} from "../../Models/User";
 import {UserResource} from "../ApiResources/UserResource";
 

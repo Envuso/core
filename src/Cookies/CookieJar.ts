@@ -1,6 +1,6 @@
 import type {FastifyRequest} from "fastify";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import type {CookieJarContract} from "../Contracts/Cookies/CookieJarContract";
 import type {SessionConfiguration} from "../Contracts/Session/Types";
 import {Cookie} from "./Cookie";

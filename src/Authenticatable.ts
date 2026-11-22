@@ -2,7 +2,7 @@ import {classToPlainFromExist} from "class-transformer";
 import type {ClassTransformOptions} from "class-transformer/types/interfaces";
 import {ObjectId} from "mongodb";
 import {injectable} from "tsyringe";
-import {config, resolve} from "./AppContainer";
+import {config, resolve} from "./AppContainer/helpers";
 import {Authorization, type ModelConstructorOrInstantiatedModel} from "./Authorization/Authorization";
 import type {AuthenticationContract} from "./Contracts/Authentication/AuthenticationContract";
 import type {JwtAuthenticationProviderContract, JwtSingingOptions} from "./Contracts/Authentication/AuthenticationProviders/JwtAuthenticationProviderContract";

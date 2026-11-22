@@ -1,7 +1,7 @@
 import {TwitchOauthProvider} from "../../../OAuthProvider/Providers/OAuth2/TwitchOauthProvider";
 import {Socialite} from "../../../OAuthProvider/Socialite";
 import {controller, get} from "../../../Routing/Controller/ControllerDecorators";
-import {redirect, request} from "../../../Routing";
+import {redirect, request} from "../../../Routing/helpers";
 import {Controller} from "../../../Routing/Controller/Controller";
 
 

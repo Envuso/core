@@ -1,6 +1,6 @@
 import type {Jwt, SignOptions, VerifyOptions} from "jsonwebtoken";
 import {ConfigRepository} from "../../AppContainer/Config/ConfigRepository";
-import {config, resolve} from "../../AppContainer";
+import {config, resolve} from "../../AppContainer/helpers";
 import {Authenticatable} from "../../Authenticatable";
 import {Exception} from "../../Common/Exception/Exception";
 import {Log} from "../../Common/Logger/Log";

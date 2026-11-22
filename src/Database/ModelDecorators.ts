@@ -5,7 +5,7 @@ import {Classes} from "../Common/Utility/Classes";
 import {DecoratorHelpers} from "../Common/Decorators/DecoratorHelpers";
 import {Obj} from "../Common/Utility/Obj";
 import {Model} from "./Mongo/Model";
-import {type ClassType, type ModelDateField, type ModelObjectId, type Nested} from "./index";
+import type {ClassType, ModelDateField, ModelObjectId, Nested} from "./index";
 
 export enum ModelDecoratorMeta {
 	HAS_ONE_RELATION         = 'envuso:model:relation:has-one',

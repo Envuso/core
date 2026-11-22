@@ -2,7 +2,7 @@ import {Authorization} from "../../Authorization/Authorization";
 import type {ModelContract} from "../../Contracts/Database/Mongo/ModelContract";
 import type {ControllerContract} from "../../Contracts/Routing/Controller/ControllerContract";
 import {Model} from "../../Database/Mongo/Model";
-import {response} from "../index";
+import {response} from "../helpers";
 
 export class Controller implements ControllerContract {
 

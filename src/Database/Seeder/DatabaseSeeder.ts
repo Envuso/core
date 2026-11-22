@@ -1,4 +1,4 @@
-import {resolve} from "../../AppContainer";
+import {resolve} from "../../AppContainer/helpers";
 import type {DatabaseSeederContract} from "../../Contracts/Database/Seeder/DatabaseSeederContract";
 import type {SeederContract} from "../../Contracts/Database/Seeder/SeederContract";
 import type {SeedManagerContract} from "../../Contracts/Database/Seeder/SeedManagerContract";

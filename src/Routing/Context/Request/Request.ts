@@ -1,7 +1,7 @@
 import type {FastifyRequest, HTTPMethods} from "fastify";
 import type {Multipart} from "fastify-multipart";
 import {IncomingMessage} from "http";
-import {config, resolve} from "../../../AppContainer";
+import {config, resolve} from "../../../AppContainer/helpers";
 import {Exception} from "../../../Common/Exception/Exception";
 import {Obj} from "../../../Common/Utility/Obj";
 import {Str} from "../../../Common/Utility/Str";

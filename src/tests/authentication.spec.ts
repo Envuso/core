@@ -8,7 +8,8 @@ import {BaseUserProvider} from "../Authentication/UserProvider/BaseUserProvider"
 import {JwtAuthenticationProvider, type VerifiedTokenInterface} from "../Authentication/AuthenticationProviders/JwtAuthenticationProvider";
 import {UserProvider} from "../Authentication/UserProvider/UserProvider";
 import {Request} from "../Routing/Context/Request/Request";
-import {request, RequestContext} from "../Routing";
+import {request} from "../Routing/helpers";
+import {RequestContext} from "../Routing/Context/RequestContext";
 
 import {bootApp, unloadApp} from "./preptests";
 

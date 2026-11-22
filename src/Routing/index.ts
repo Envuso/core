@@ -1,41 +1,3 @@
-import {Url} from "../Common";
-import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
-import type {RequestContract} from "../Contracts/Routing/Context/Request/RequestContract";
-import type {RedirectResponseContract} from "../Contracts/Routing/Context/Response/RedirectResponseContract";
-import type {ResponseContract} from "../Contracts/Routing/Context/Response/ResponseContract";
-import {RequestContext} from "./Context/RequestContext";
-
-export const context  = (): RequestContextContract => RequestContext.get();
-export const response = (): ResponseContract => RequestContext.response();
-
-export const route = (controllerAndMethod: string, attributes?: any): string => Url.routeUrl(controllerAndMethod, attributes);
-
-function request(): RequestContract;
-function request<T>(key: string): T;
-function request<T>(key?: string, _default = null): T | RequestContract {
-	if (key)
-		return RequestContext.request().get<T>(key, _default);
-
-	return RequestContext.request() as RequestContract;
-}
-
-function view(templatePath: string, data?: any): ResponseContract {
-	return response().view(templatePath, data);
-}
-
-function redirect(url: string): RedirectResponseContract;
-function redirect(): RedirectResponseContract;
-function redirect(url?: string): RedirectResponseContract {
-	if (url !== undefined) {
-		return response().redirect(url);
-	}
-	return response().redirectResponse();
-}
-
-function back(): RedirectResponseContract {
-	return response().redirectResponse().back();
-}
-
 export * from './Controller/Controller';
 export * from './DataTransferObject/DataTransferObject';
 export * from './DataTransferObject/DtoValidationException';
@@ -51,5 +13,6 @@ export * from './Context/Response/Response';
 export * from './Context/Request/Request';
 export * from './ApiResource/ApiResource';
 
-export {request, view, redirect, back, RequestContext};
+export * from './helpers';
+export {RequestContext} from './Context/RequestContext';
 

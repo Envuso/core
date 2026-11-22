@@ -1,6 +1,6 @@
 import type {FastifyReply} from "fastify";
 import type {IncomingHttpHeaders} from "http";
-import {resolve} from "../../../AppContainer";
+import {resolve} from "../../../AppContainer/helpers";
 import {Log} from "../../../Common/Logger/Log";
 import {StatusCodes} from "../../../Common/Http/StatusCodes/StatusCodes";
 import {renderableExceptionData} from "../../../Common/Exception/ExceptionHelpers";

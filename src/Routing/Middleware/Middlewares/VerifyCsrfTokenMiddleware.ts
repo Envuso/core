@@ -1,4 +1,4 @@
-import {resolve} from "../../../AppContainer";
+import {resolve} from "../../../AppContainer/helpers";
 import {CsrfTokenMismatch} from "../../../AppContainer/Exceptions/CsrfTokenMismatch";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import type {CsrfContract} from "../../../Contracts/Security/CsrfContract";

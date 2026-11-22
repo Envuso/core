@@ -1,4 +1,4 @@
-import {type HookHandlerArgs} from "../ServerHooks/Hook";
+import type {HookHandlerArgs} from "../ServerHooks/Hook";
 import {OnSendHook} from "../ServerHooks/HookTypes/OnSendHook";
 
 /**

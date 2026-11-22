@@ -1,4 +1,4 @@
-import {config, resolve} from "../../AppContainer";
+import {config, resolve} from "../../AppContainer/helpers";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import type {SessionManagerContract} from "../../Contracts/Session/SessionManagerContract";
 import {Middleware} from "../../Routing/Middleware/Middleware";

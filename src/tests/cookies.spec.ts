@@ -1,5 +1,5 @@
 import "./preptests";
-import {app} from "../AppContainer";
+import {app} from "../AppContainer/helpers";
 import {Encryption} from "../Crypt/Encryption";
 import {Server} from "../Server/Server";
 

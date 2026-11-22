@@ -1,4 +1,4 @@
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import type {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import type {WebSocketConnectionContract} from "../Contracts/WebSockets/WebSocketConnectionContract";

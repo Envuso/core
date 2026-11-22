@@ -3,7 +3,7 @@ import {ObjectId} from "mongodb";
 
 import {Book} from "../../App/Models/Book";
 import {User} from "../../App/Models/User";
-import {app} from "../../AppContainer";
+import {app} from "../../AppContainer/helpers";
 import {AuthenticationServiceProvider} from "../../Authentication/AuthenticationServiceProvider";
 import {AuthorizationServiceProvider} from "../../Authorization/AuthorizationServiceProvider";
 import {EncryptionServiceProvider} from "../../Crypt/EncryptionServiceProvider";

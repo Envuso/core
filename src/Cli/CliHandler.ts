@@ -7,7 +7,7 @@ import {RouteServiceProvider} from "../Routing/RouteServiceProvider";
 import {ServerServiceProvider} from "../Server/ServerServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import Environment from './../AppContainer/Config/Environment';
-import {config, resolve} from "../AppContainer";
+import {config, resolve} from "../AppContainer/helpers";
 import {Log} from "../Common/Logger/Log";
 import {Database} from "../Database/Database";
 import {SeedManager} from "../Database/Seeder/SeedManager";

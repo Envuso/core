@@ -1,6 +1,6 @@
 import fs from "fs";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import {Str} from "../Common/Utility/Str";
 import {
 	type DiskConfiguration,
@@ -14,7 +14,7 @@ import {
 import path from "path";
 import {pipeline} from "stream";
 import * as util from 'util';
-import {config} from './../AppContainer';
+import {config} from '../AppContainer/helpers';
 
 const pump = util.promisify(pipeline);
 

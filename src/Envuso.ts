@@ -1,6 +1,6 @@
 import {App} from "./AppContainer/App";
 import {ServiceProvider} from "./AppContainer/ServiceProvider";
-import {resolve} from "./AppContainer";
+import {resolve} from "./AppContainer/helpers";
 import {Log} from "./Common/Logger/Log";
 import type {EnvusoContract} from "./Contracts/EnvusoContract";
 import type {ErrorHandlerFn} from "./Contracts/Server/ServerContract";

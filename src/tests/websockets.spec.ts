@@ -3,7 +3,7 @@ import {setDefaultTimeout} from "bun:test";
 import {UserResource} from "../App/Http/ApiResources/UserResource";
 import {UserSocketListener} from "../App/Http/Sockets/UserSocketListener";
 import {User} from "../App/Models/User";
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import {EncryptionServiceProvider} from "../Crypt/EncryptionServiceProvider";
 import {EventServiceProvider} from "../Events/EventServiceProvider";
 import {InertiaServiceProvider} from "../Packages/Inertia/InertiaServiceProvider";

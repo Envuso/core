@@ -1,5 +1,5 @@
 import {DateTime} from "@envuso/date-time-helper";
-import {config, resolve} from "../AppContainer";
+import {config, resolve} from "../AppContainer/helpers";
 import {Str} from "../Common/Utility/Str";
 import type {AuthenticatableContract} from "../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import type {CsrfContract} from "../Contracts/Security/CsrfContract";

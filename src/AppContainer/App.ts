@@ -8,7 +8,7 @@ import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/Co
 import {ConfigRepository} from "./Config/ConfigRepository";
 import ConfigurationFile from "./Config/ConfigurationFile";
 import {FailedToBindException} from "./Exceptions/FailedToBindException";
-import {config} from "./index";
+import {config} from "./helpers";
 import {ServiceProvider} from "./ServiceProvider";
 
 let instance: App | null = null;

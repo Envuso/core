@@ -1,6 +1,6 @@
 import {Collection, Db, MongoClient} from "mongodb";
 import pluralize from "pluralize";
-import {app, config, resolve} from "../AppContainer";
+import {app, config, resolve} from "../AppContainer/helpers";
 import {Classes} from "../Common/Utility/Classes";
 import {Log} from "../Common/Logger/Log";
 import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";

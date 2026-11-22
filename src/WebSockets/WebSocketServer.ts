@@ -14,7 +14,7 @@ import type {
 // Loaded lazily: uWebSockets.js is a native addon with no build for Bun's ABI,
 // so importing it eagerly would break the whole framework on Bun even without websockets.
 const uWS = () => require('uWebSockets.js') as typeof import('uWebSockets.js');
-import {app, config, resolve} from "../AppContainer";
+import {app, config, resolve} from "../AppContainer/helpers";
 import {Authenticatable} from "../Authenticatable";
 import {Authentication} from "../Authentication/Authentication";
 import {JwtAuthenticationProvider} from "../Authentication/AuthenticationProviders/JwtAuthenticationProvider";
@@ -27,7 +27,7 @@ import WebsocketsConfiguration, {type uWsBehaviour} from "../Config/WebsocketsCo
 import type {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";
 import type {WebSocketChannelListenerContract, WebSocketChannelListenerContractConstructor} from "../Contracts/WebSockets/WebSocketChannelListenerContract";
 import {Model} from "../Database/Mongo/Model";
-import {RequestContext} from "../Routing";
+import {RequestContext} from "../Routing/Context/RequestContext";
 import {RequestContextStore} from "../Routing/Context/RequestContextStore";
 import {type BaseEventPacket, type ChannelSubscribeSocketPacket, type ChannelUnsubscribeSocketPacket, SocketEvents, type UserMessageSocketPacket} from "./SocketEventTypes";
 import {WebSocketChannelListener} from "./WebSocketChannelListener";

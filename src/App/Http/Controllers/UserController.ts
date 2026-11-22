@@ -2,7 +2,7 @@ import {Allow, IsString} from "class-validator";
 import {DataTransferObject} from "../../../Routing/DataTransferObject/DataTransferObject";
 import {controller, get, destroy, patch, put} from "../../../Routing/Controller/ControllerDecorators";
 import {dto} from "../../../Routing/Route/RouteDecorators";
-import {response} from "../../../Routing";
+import {response} from "../../../Routing/helpers";
 import {Controller} from "../../../Routing/Controller/Controller";
 import {User} from "../../Models/User";
 

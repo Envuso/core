@@ -1,5 +1,5 @@
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {type HookHandlerArgs} from "../ServerHooks/Hook";
+import type {HookHandlerArgs} from "../ServerHooks/Hook";
 import {PreHandlerHook} from "../ServerHooks/HookTypes/PreHandlerHook";
 
 /**

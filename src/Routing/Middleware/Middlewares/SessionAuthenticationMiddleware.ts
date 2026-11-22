@@ -1,4 +1,4 @@
-import {resolve} from "../../../AppContainer";
+import {resolve} from "../../../AppContainer/helpers";
 import {UnauthorisedException} from "../../../AppContainer/Exceptions/UnauthorisedException";
 import {Authentication} from "../../../Authentication/Authentication";
 import {JwtAuthenticationProvider} from "../../../Authentication/AuthenticationProviders/JwtAuthenticationProvider";

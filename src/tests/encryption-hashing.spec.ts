@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {Rabbit} from "crypto-js";
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import {Encryption} from "../Crypt/Encryption";
 import {RabbitEncryption} from "../Crypt/RabbitEncryption";
 import SimpleCrypto from "../Crypt/SimpleCryptoJS";

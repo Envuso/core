@@ -10,7 +10,7 @@ import {
 	type UpdateOptions,
 	type UpdateResult, type WithId
 } from "mongodb";
-import {config, resolve} from "../../AppContainer";
+import {config, resolve} from "../../AppContainer/helpers";
 import {Classes} from "../../Common/Utility/Classes";
 import {Exception} from "../../Common/Exception/Exception";
 import {Log} from "../../Common/Logger/Log";

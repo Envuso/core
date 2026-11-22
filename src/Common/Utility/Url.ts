@@ -1,4 +1,4 @@
-import {config} from "../../AppContainer";
+import {config} from "../../AppContainer/helpers";
 import {UrlGenerator} from "../../Routing/Route/UrlGenerator";
 
 export class Url {

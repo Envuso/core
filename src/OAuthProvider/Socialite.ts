@@ -1,4 +1,4 @@
-import {config} from "../AppContainer";
+import {config} from "../AppContainer/helpers";
 import {Classes} from "../Common/Utility/Classes";
 import {BaseOAuthProvider, type OAuthProviderConfiguration} from "./BaseOAuthProvider";
 import {TwitchOauthProvider} from "./Providers/OAuth2/TwitchOauthProvider";

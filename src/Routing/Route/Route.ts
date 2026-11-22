@@ -3,7 +3,7 @@ import type {RouteOptions} from "fastify/types/route";
 import {ObjectId} from "mongodb";
 import {match} from "path-to-regexp";
 import {App} from "../../AppContainer/App";
-import {config} from "../../AppContainer";
+import {config} from "../../AppContainer/helpers";
 import {Obj} from "../../Common/Utility/Obj";
 import {Log} from "../../Common/Logger/Log";
 import {METADATA} from "../../Common/Decorators/RoutingMetaData";

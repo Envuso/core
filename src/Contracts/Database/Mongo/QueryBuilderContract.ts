@@ -12,7 +12,7 @@ import {
 } from "mongodb";
 import {ModelDecoratorMeta} from "../../../Database/ModelDecorators";
 import {type ModelRelationMeta, ModelRelationType} from "../../../Database/ModelRelationshipDecorators";
-import {type QueryOperator, type QueryResolveType} from "../../../Database/Mongo/QueryBuilder";
+import type {QueryOperator, QueryResolveType} from "../../../Database/Mongo/QueryBuilder";
 import type {PaginatedResponse} from "../../../Database/Mongo/Paginator";
 import {QueryAggregation} from "../../../Database/Mongo/QueryAggregation";
 import {QueryBuilderParts} from "../../../Database/Mongo/QueryBuilderParts";

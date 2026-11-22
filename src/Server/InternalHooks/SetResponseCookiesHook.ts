@@ -1,10 +1,10 @@
-import {config} from "../../AppContainer";
+import {config} from "../../AppContainer/helpers";
 import type {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";
 import {Cookie} from "../../Cookies/Cookie";
 import {CookieValuePrefix} from "../../Cookies/CookieValuePrefix";
 import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
-import {type HookHandlerArgs} from "../ServerHooks/Hook";
+import type {HookHandlerArgs} from "../ServerHooks/Hook";
 import {OnSendHook} from "../ServerHooks/HookTypes/OnSendHook";
 
 /**

@@ -1,4 +1,4 @@
-import {resolve} from "../../AppContainer";
+import {resolve} from "../../AppContainer/helpers";
 import type {AuthCredentialContract, AuthenticationIdentifier} from "../../Contracts/Authentication/UserProvider/AuthCredentials";
 import type {AuthenticatableContract} from "../../Contracts/Authentication/UserProvider/AuthenticatableContract";
 import type {UserProviderContract} from "../../Contracts/Authentication/UserProvider/UserProviderContract";

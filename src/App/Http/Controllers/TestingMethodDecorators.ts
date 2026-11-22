@@ -1,5 +1,5 @@
 import {headers, param} from "../../../Routing/Route/RouteDecorators";
-import {redirect, request, response, view} from "../../../Routing";
+import {redirect, request, response, view} from "../../../Routing/helpers";
 import {Controller} from "../../../Routing/Controller/Controller";
 import {controller, get, method, post} from "../../../Routing/Controller/ControllerDecorators";
 

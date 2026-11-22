@@ -1,4 +1,4 @@
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import {Encryption} from "../Crypt/Encryption";
 import {Job} from "./Jobs/Job";
 import type {Queueable} from "./Jobs/Queueable";

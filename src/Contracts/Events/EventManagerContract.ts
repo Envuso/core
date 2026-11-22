@@ -1,4 +1,4 @@
-import {type DispatchEventName, type EventListenerConstructor, type EventMap, type EventModule} from "../../Events/EventManager";
+import type {DispatchEventName, EventListenerConstructor, EventMap, EventModule} from "../../Events/EventManager";
 import {EventDispatcher} from "../../Events/EventDispatcher";
 import {EventListener} from "../../Events/EventListener";
 import type {EventDispatcherContract} from "./EventDispatcherContract";

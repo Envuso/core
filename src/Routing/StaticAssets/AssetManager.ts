@@ -3,7 +3,7 @@ import fs from "fs";
 import * as path from "path";
 import {App} from "../../AppContainer/App";
 import {ConfigRepository} from "../../AppContainer/Config/ConfigRepository";
-import {resolve} from "../../AppContainer";
+import {resolve} from "../../AppContainer/helpers";
 import Environment from "../../AppContainer/Config/Environment";
 import {FileLoader} from "../../Common/Utility/FileLoader";
 import {Log} from "../../Common/Logger/Log";

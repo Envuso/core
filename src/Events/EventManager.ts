@@ -1,4 +1,4 @@
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import {Classes} from "../Common/Utility/Classes";
 import {Log} from "../Common/Logger/Log";
 import type {EventDispatcherContract} from "../Contracts/Events/EventDispatcherContract";

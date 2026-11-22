@@ -2,7 +2,7 @@ import fastify, {type FastifyInstance, type FastifyReply, type FastifyRequest} f
 import type {FastifyError} from "fastify-error";
 import middie from "middie";
 import {ConfigRepository} from "../AppContainer/Config/ConfigRepository";
-import {config, resolve} from "../AppContainer";
+import {config, resolve} from "../AppContainer/helpers";
 import {Exception} from "../Common/Exception/Exception";
 import {Log} from "../Common/Logger/Log";
 import {StatusCodes} from "../Common/Http/StatusCodes/StatusCodes";

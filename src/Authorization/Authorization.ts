@@ -1,5 +1,5 @@
 import {injectable} from "tsyringe";
-import {resolve} from "../AppContainer";
+import {resolve} from "../AppContainer/helpers";
 import {Authentication} from "../Authentication/Authentication";
 import {Classes} from "../Common/Utility/Classes";
 import type {ModelContract} from "../Contracts/Database/Mongo/ModelContract";

@@ -5,13 +5,13 @@ import {Stats} from "fs";
 import path from "path";
 import * as readChunk from "read-chunk";
 import {ConfigRepository} from "../../../AppContainer/Config/ConfigRepository";
-import {resolve} from "../../../AppContainer";
+import {resolve} from "../../../AppContainer/helpers";
 import {Exception} from "../../../Common/Exception/Exception";
 import {Log} from "../../../Common/Logger/Log";
 import {StatusCodes} from "../../../Common/Http/StatusCodes/StatusCodes";
 import type {UploadedFileContract} from "../../../Contracts/Routing/Context/Request/UploadedFileContract";
 import {Storage} from "../../../Storage/Storage";
-import {type UploadedFileInformation} from "../../../Storage/StorageProviderContract";
+import type {UploadedFileInformation} from "../../../Storage/StorageProviderContract";
 
 export class UploadedFile implements UploadedFileContract {
 
