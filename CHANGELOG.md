@@ -110,6 +110,9 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 **Models**
 
+- **`QueryBuilder.delete()` without a `where()` throws** instead of deleting every document. Use the new `truncate()` to empty a collection. (4658082)
+- **`delete()` returns whether a document was deleted** (`deletedCount`), on both the query builder and models. It used to return `true` whenever Mongo acknowledged the call, even if nothing matched. (4658082)
+- **`getModelId()` throws on an unsaved model.** It used to generate a random id, so `refresh()`, `update()` and `delete()` on an unsaved model silently did nothing. (4658082)
 - Relation properties should be typed as `Relation<T>`. Models that import each other (for example `User` and `Book`) otherwise fail at startup under ESM with decorator-metadata errors (TDZ). (55123ec)
   ```ts
   import type {Relation} from '@envuso/core/Database';
@@ -158,6 +161,7 @@ All notable changes to Envuso are documented in this file. The format follows [K
 **Models**
 
 - `Relation<T>` type for relation properties. (55123ec)
+- `QueryBuilder.truncate()` deletes every document and returns how many. (4658082)
 
 **CSRF**
 
@@ -226,6 +230,20 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - `fs.watch(dir, {recursive: true})` replaces `chokidar`. Changes are debounced so one save triggers one reboot. (142c622)
 
 ### Fixed
+
+**Routing and errors**
+
+- `@query` parameters are converted by their declared type: `?n=0` is `0` (was a 500), `?flag=false` is `false` (was `true`), and values that can't be converted are a 400 instead of a 500. (4658082)
+- Fastify's own client errors (invalid JSON 400, 413 payload too large, 415 unsupported media type) keep their status code instead of becoming 500. Errors raised before the request context exists no longer crash the error handler. (4658082)
+- `ExceptionHandler`'s `ignoredExceptions`, `reportableExceptions` and `renderableExceptions` never matched anything (a list of classes was checked for an instance), and an exception in one ignore list was still handled. HTML error pages use the exception's status code instead of always 500. (4658082)
+
+**Models**
+
+- `Model.save()` returns the model when inserting (it returned `undefined`; updates already returned the model). (4658082)
+
+**Config**
+
+- `ConfigRepository.set()` and `has()` treat the file name case-insensitively like `get()`, so `set('Session.x', …)` is visible to `get('session.x')`. (4658082)
 
 **Sessions**
 

@@ -66,29 +66,29 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
   - `RouteUserParam.ts:106`
   - `DataTransferObjectParam.ts:98`
   - `RequestHeadersParam.ts:143`
-- ⚠️ `RouteQueryParam.bind`: `if (!param) throw` makes `?n=0` and `?flag=false` return a 500.
-- ⚠️ Exception mapping:
+- ✅ **Fixed 2026-11-22** — `RouteQueryParam.bind`: `if (!param) throw` made `?n=0` and `?flag=false` return a 500.
+- ✅ **Fixed 2026-11-22** — Exception mapping:
   - `shouldHandle` uses `||` where it should use `&&`.
   - `isReportable` can never be true.
   - View errors are hard-coded to 500.
   - Fastify's own 4xx errors (bad JSON, 413, 415) become 500, because `error.statusCode` is ignored.
-- ⚠️ `Server.errorHandler` → `RequestContext.get()` can be empty, so the error handler itself throws.
+- ✅ **Fixed 2026-11-22** — `Server.errorHandler` → `RequestContext.get()` can be empty, so the error handler itself throws.
 - ⚠️ Routing:
   - `Routing.isInitiated()` never returns true.
   - `loadControllers` never clears routes.
   - The meta check uses `&&` where it should use `||`, then crashes on `.map`.
 - ⚠️ `Route.ts:65-67` runs `match(routePath)(routePath)`, so params are the placeholder text, not real values.
-- ⚠️ `ConfigRepository.set` doesn't lowercase the top-level key but `get` does.
+- ✅ **Fixed 2026-11-22** — `ConfigRepository.set` doesn't lowercase the top-level key but `get` does.
 - ⚠️ `Server.ts:161-163` doesn't await `register`. `setErrorHandling` is stored but never used.
 - ⚠️ `ProcessUploadedFilesHook.ts:122` passes `undefined` when a multipart request has no file part, which then crashes.
 - ⚠️ `src/index.ts` never imports `reflect-metadata`. Consumers must also call `Configuration.initiate()` manually, or boot crashes.
 - ❌ ~~"Only the last Set-Cookie survives"~~ — Fastify's `reply.header` appends `set-cookie` (`fastify/lib/reply.js:242`). Not a bug.
 
 ### Database / ORM (Mongo)
-- ✅ **`Model.save()` returns `undefined` on insert** — `src/Database/Mongo/Model.ts:230`. The update branch returns `this`.
-- ⚠️ `new ObjectId(undefined)` on an unsaved model generates a random id, so delete/update/refresh silently target nothing.
-- ⚠️ Write methods return `true` based on `acknowledged`, not on matched or modified counts.
-- ⚠️ **`QueryBuilder.delete()` with no where calls `deleteMany({})`**, which wipes the collection (`QueryBuilder.ts:693`).
+- ✅ **Fixed 2026-11-22** — **`Model.save()` returns `undefined` on insert** — `src/Database/Mongo/Model.ts:230`. The update branch returns `this`.
+- ✅ **Fixed 2026-11-22** — `new ObjectId(undefined)` on an unsaved model generates a random id, so delete/update/refresh silently target nothing.
+- ⚠️ Write methods return `true` based on `acknowledged`, not on matched or modified counts. *(delete fixed 2026-11-22; update/insert remain.)*
+- ✅ **Fixed 2026-11-22** — **`QueryBuilder.delete()` with no where calls `deleteMany({})`**, which wipes the collection (`QueryBuilder.ts:693`).
 - ⚠️ `Model.load()` dereferences a null result (`Model.ts:61-69`).
 - ⚠️ `update()` makes two extra round trips and mutates the caller's object.
 - ⚠️ `ObjectId.isValid` accepts numbers and any 12-char string (query parts, decorators, route model binding).
