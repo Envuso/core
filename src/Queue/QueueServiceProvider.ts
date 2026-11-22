@@ -1,6 +1,7 @@
 import {ServiceProvider} from "../AppContainer/ServiceProvider";
 import type {AppContract} from "../Contracts/AppContainer/AppContract";
 import type {ConfigRepositoryContract} from "../Contracts/AppContainer/Config/ConfigRepositoryContract";
+import {Log} from "../Common/Logger/Log";
 import {Queue} from "./Queue";
 
 export class QueueServiceProvider extends ServiceProvider {
@@ -11,7 +12,10 @@ export class QueueServiceProvider extends ServiceProvider {
 	}
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-		// noinspection ES6MissingAwait
-		Queue.getInstance().run();
+		Queue.getInstance().run().catch(error => Log.label('Queue').exception('Queue stopped', error));
+	}
+
+	public async unload(app: AppContract, config: ConfigRepositoryContract) {
+		await Queue.shutdown();
 	}
 }

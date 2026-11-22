@@ -74,7 +74,7 @@ export class FileLoader {
 			absolute       : path.isAbsolute(cwd),
 			onlyFiles      : options.onlyFiles ?? true,
 			followSymlinks : true,
-		}));
+		}), file => this.fromGlobCwd(cwd, file));
 	}
 
 	/**
@@ -93,10 +93,16 @@ export class FileLoader {
 			onlyFiles      : options.onlyFiles ?? true,
 			followSymlinks : true,
 		})) {
-			files.push(file);
+			files.push(this.fromGlobCwd(cwd, file));
 		}
 
 		return files;
+	}
+
+	// Relative patterns: Bun.Glob returns paths relative to its cwd, glob (the package) returned
+	// them relative to the process cwd, e.g. "src/Jobs/X.ts" rather than "X.ts"
+	private static fromGlobCwd(cwd: string, file: string): string {
+		return path.isAbsolute(file) ? file : path.join(cwd, file);
 	}
 
 	// Bun.Glob matches relative to a cwd and treats backslashes as escapes, so split a

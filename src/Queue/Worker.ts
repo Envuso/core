@@ -6,7 +6,7 @@ import {FileLoader} from "../Common/Utility/FileLoader";
 import {Log} from "../Common/Logger/Log";
 import Configuration from "../Config/Configuration";
 import {Envuso} from "../Envuso";
-import {type IWorkerJob, WorkerEvent} from "./IWorkerResult";
+import {type IWorkerError, type IWorkerResult, type IWorkerTask, WorkerEvent} from "./IWorkerResult";
 import {MaxAttemptsExceededException} from "./Jobs/Exceptions/MaxAttemptsExceededException";
 import {Job} from "./Jobs/Job";
 
@@ -19,65 +19,94 @@ Environment.load(path.join(process.cwd(), ".env"));
 	await envuso.bootInWorker();
 
 	parentPort.on("message", processJob);
-	parentPort.postMessage({event : WorkerEvent.READY});
-})();
+	post({event : WorkerEvent.READY});
+})().catch(error => {
+	// Booting failed; let the pool see it as a crashed worker
+	Log.exception('Queue worker failed to boot', error);
+	process.exit(1);
+});
 
-const kJobNamespace = Symbol('kJobNamespace');
-let currentJob: Job = null;
+let busy = false;
 
 interface IJobData {
+	id: string;
 	namespace: string[];
-	attempts: number;
 	data: any;
 }
 
-async function processJob(payload: string) {
-	if (currentJob !== null) {
-		notifyMainThreadError(WorkerEvent.ERROR, new Error('Worker already has an active Job!'));
+async function processJob(task: IWorkerTask) {
+	if (busy) {
+		post({event : WorkerEvent.ERROR, error : toWorkerError(new Error('Worker already has an active Job!'))});
 		return;
 	}
 
-	// Start the timer before the log because JSON parsing actually takes time,
-	const jobStart       = Date.now();
-	const data: IJobData = JSON.parse(payload);
+	busy = true;
+
+	const jobStart = Date.now();
+	let job: Job   = null;
+	let name       = 'unknown job';
 
 	try {
-		// but we don't have the namespace until it's been parsed...
-		Log.label("QueueWorker").info(`Processing: ${data.namespace[0]}`);
+		const data: IJobData = JSON.parse(task.payload);
+		name                 = data.namespace?.[1] ?? name;
 
-		currentJob = await hydrateJob(data);
+		Log.label("QueueWorker").info(`Processing: ${name} (attempt ${task.attempts})`);
 
-		if (currentJob.attempts > currentJob.retries) {
-			throw new MaxAttemptsExceededException(data.namespace[0]);
-		}
-
-		await currentJob.handle();
-
-		Log.label("QueueWorker").info(`Processed: ${data.namespace[0]} (${Date.now() - jobStart}ms)`);
-
-		notifyMainThread(WorkerEvent.JOB_SUCCESS);
+		job          = await hydrateJob(data);
+		job.attempts = task.attempts;
 	} catch (error) {
-		if (!currentJob) {
-			// Error whilst hydrating Job
-			notifyMainThreadError(WorkerEvent.JOB_ERROR, error);
-			return;
-		}
-
-		if (error instanceof MaxAttemptsExceededException) {
-			await currentJob.failed(error);
-			notifyMainThreadError(WorkerEvent.JOB_ERROR, error);
-			return;
-		}
-
-		const result = await currentJob.handleException(error);
-
-		if (result === undefined) {
-			Log.label('QueueWorker').error(`Failed: ${data.namespace[0]} (${Date.now() - jobStart}ms)`, error);
-			notifyMainThreadError(WorkerEvent.JOB_ERROR, error);
-		}
-	} finally {
-		currentJob = null;
+		// Can't load it, so it can never run: don't retry
+		Log.label('QueueWorker').exception(`Could not load: ${name}`, error);
+		busy = false;
+		post({event : WorkerEvent.JOB_ERROR, error : toWorkerError(error)});
+		return;
 	}
+
+	try {
+		// Reached when the job kept crashing/hanging its worker and its reservation expired
+		if (job.attempts > job.maxAttempts()) {
+			throw new MaxAttemptsExceededException(name);
+		}
+
+		await job.handle();
+
+		Log.label("QueueWorker").info(`Processed: ${name} (${Date.now() - jobStart}ms)`);
+		post({event : WorkerEvent.JOB_SUCCESS});
+	} catch (error) {
+		post(await handleFailure(job, name, error, jobStart));
+	} finally {
+		busy = false;
+	}
+}
+
+async function handleFailure(job: Job, name: string, error: any, jobStart: number): Promise<IWorkerResult> {
+	if (!(error instanceof MaxAttemptsExceededException)) {
+		try {
+			if (await job.handleException(error) !== undefined) {
+				Log.label('QueueWorker').info(`Handled: ${name} (${Date.now() - jobStart}ms)`);
+				return {event : WorkerEvent.JOB_SUCCESS};
+			}
+		} catch (handlerError) {
+			error = handlerError;
+		}
+
+		if (job.attempts < job.maxAttempts()) {
+			const retryInMs = job.retryDelay(job.attempts);
+
+			Log.label('QueueWorker').warn(`Failed: ${name}, retrying in ${retryInMs}ms (attempt ${job.attempts}/${job.maxAttempts()})`);
+			return {event : WorkerEvent.JOB_RETRY, error : toWorkerError(error), retryInMs};
+		}
+	}
+
+	Log.label('QueueWorker').exception(`Failed: ${name} (${Date.now() - jobStart}ms)`, error);
+
+	try {
+		await job.failed(error);
+	} catch (failedError) {
+		Log.label('QueueWorker').exception(`${name}.failed() threw`, failedError);
+	}
+
+	return {event : WorkerEvent.JOB_ERROR, error : toWorkerError(error)};
 }
 
 async function hydrateJob(data: IJobData): Promise<Job> {
@@ -88,38 +117,19 @@ async function hydrateJob(data: IJobData): Promise<Job> {
 		throw new Error(`Could not load Job with namespace "${data.namespace[0]}:${data.namespace[1]}"`);
 	}
 
-	const job      = jobModule.instance as typeof Job;
-	const instance = job.deserialize(data.data);
+	const job = jobModule.instance as unknown as typeof Job;
 
-	instance[kJobNamespace] = data.namespace;
-	instance.attempts       = data.attempts;
-
-	return instance;
+	return job.deserialize(data.data) as Job;
 }
 
-function notifyMainThread(event: WorkerEvent) {
-	parentPort.postMessage({
-		event,
-		job : getJobNotifyData()
-	});
-}
-
-function notifyMainThreadError(event: WorkerEvent, error: Error) {
-	parentPort.postMessage({
-		event,
-		error,
-		job : getJobNotifyData()
-	});
-}
-
-function getJobNotifyData(): IWorkerJob {
-	if (!currentJob) {
-		return;
-	}
-
+function toWorkerError(error: any): IWorkerError {
 	return {
-		namespace : currentJob[kJobNamespace],
-		attempts  : currentJob.attempts,
-		retries   : currentJob.retries
+		name    : error?.name ?? 'Error',
+		message : error?.message ?? String(error),
+		stack   : error?.stack,
 	};
+}
+
+function post(result: IWorkerResult) {
+	parentPort.postMessage(result);
 }

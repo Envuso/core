@@ -1,73 +1,108 @@
+import {DateTime} from "@envuso/date-time-helper";
+import {App} from "../AppContainer/App";
+import {Log} from "../Common/Logger/Log";
+import type {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
 import type {IWorkerResult} from "./IWorkerResult";
 import {Job} from "./Jobs/Job";
-import {App} from "../AppContainer/App";
-import Redis from "../Redis/Redis";
-import {Log} from "../Common/Logger/Log";
-import {DateTime} from "@envuso/date-time-helper";
-import type {QueueConfiguration} from "../Contracts/Configuration/QueueConfigurationContracts";
-import LuaScripts from "./LuaScripts";
+import {QueueStore} from "./QueueStore";
 import {TaskWorker, WorkerPool} from "./WorkerPool";
 
 let instance: Queue = null;
 
-export class Queue {
-	private config: QueueConfiguration;
-	// Primary Queue where Jobs that are ready to process are stored
-	private static queueName         = 'queue';
-	// Queue where Jobs that have a delay are stored
-	private static delayedQueueName  = 'queue:delayed';
-	// Queue where Jobs that are currently being processed are stored
-	private static reservedQueueName = 'queue:reserved';
+const defaults: QueueConfiguration = {
+	name                : 'queue',
+	workers             : 1,
+	waitTimeMs          : 1_000,
+	visibilityTimeoutMs : 5 * 60_000,
+};
 
-	constructor(config: QueueConfiguration) {
+/**
+ * Dispatching only needs Redis: `Queue.dispatch(job)` works in any process.
+ * Processing runs in `run()`, which starts `workers` worker threads; any number
+ * of processes can run() against the same Redis, each job runs on one of them.
+ */
+export class Queue {
+	private readonly config: QueueConfiguration;
+	private readonly store: QueueStore;
+	private pool: WorkerPool  = null;
+	private running           = false;
+	private stopped: Promise<void>;
+	private wake: () => void = null;
+
+	constructor(config: Partial<QueueConfiguration> = {}) {
 		if (instance) {
 			return instance;
 		}
 
-		this.config = config;
+		this.config = {...defaults, ...config};
+		this.store  = new QueueStore(this.config.name);
 
 		instance = this;
-
-		WorkerPool.getInstance().on('worker:ready', this.onWorkerAvailable.bind(this));
-		WorkerPool.getInstance().on('worker:success', this.onWorkerSuccess.bind(this));
-		WorkerPool.getInstance().on('worker:failed', this.onWorkerFailed.bind(this));
-		WorkerPool.getInstance().on('worker:available', this.onWorkerAvailable.bind(this));
-		WorkerPool.getInstance().on('worker:error', this.onWorkerError.bind(this));
 	}
 
 	static getInstance() {
 		return instance;
 	}
 
-	public async run() {
-		const jobsRecovered = await this.recover();
+	public getStore(): QueueStore {
+		return this.store;
+	}
 
-		if (jobsRecovered > 0) {
-			Log.label('Queue').info(`Recovered ${jobsRecovered} incomplete Jobs`);
+	/**
+	 * Start processing jobs until stop() is called or the app unloads.
+	 */
+	public run(): Promise<void> {
+		if (this.running) {
+			return this.stopped;
+		}
+		if (this.config.workers <= 0) {
+			return Promise.resolve();
 		}
 
-		while (App.isBooted()) {
-			await this.migrate();
+		this.running = true;
+		this.pool    = new WorkerPool(this.config.workers);
 
-			if (WorkerPool.getCapacity() == 0) {
-				Log.label('Queue').warn('No workers available');
-				await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
-				continue;
+		this.pool.on('worker:ready', worker => this.onWorkerAvailable(worker));
+		this.pool.on('worker:available', worker => this.onWorkerAvailable(worker));
+		this.pool.on('worker:success', worker => this.settle(worker, () => this.store.ack(worker.job.id)));
+		this.pool.on('worker:retry', (worker, result: IWorkerResult) => this.settle(
+			worker, () => this.store.release(worker.job.id, Date.now() + (result.retryInMs ?? 0))
+		));
+		this.pool.on('worker:failed', (worker, result: IWorkerResult) => this.settle(
+			worker, () => this.store.fail(worker.job.id, result.error?.stack ?? result.error?.message ?? 'Unknown error')
+		));
+		this.pool.on('worker:error', (worker: TaskWorker) => {
+			// The thread crashed mid-job; the attempt counts, retry it now
+			if (worker.job) {
+				this.store.release(worker.job.id).catch(error => Log.label('Queue').exception('Could not release job', error));
 			}
+		});
 
-			const jobs = await this.getNextJob(WorkerPool.getCapacity());
+		this.stopped = this.loop();
 
-			for (const payload of jobs) {
-				const result = WorkerPool.getInstance().runTask(payload);
+		return this.stopped;
+	}
 
-				// WorkerPool is full, pop it back on the Queue
-				if (!result) {
-					await Queue.pushRaw(payload);
-				}
-			}
-
-			await new Promise(resolve => setTimeout(resolve, this.config.waitTimeMs));
+	/**
+	 * Stop taking jobs and shut the workers down. Jobs that were mid-run are
+	 * picked up again once their reservation expires.
+	 */
+	public async stop() {
+		if (!this.running) {
+			return;
 		}
+
+		this.running = false;
+		this.wake?.();
+
+		await this.stopped;
+		await this.pool?.terminate();
+		this.pool = null;
+	}
+
+	public static async shutdown() {
+		await instance?.stop();
+		instance = null;
 	}
 
 	public static async dispatch(job: Job) {
@@ -84,100 +119,92 @@ export class Queue {
 
 	/**
 	 * Push a Job onto the Queue so it can be processed.
-	 *
-	 * @param {Job} job
-	 * @returns {Promise<void>}
 	 */
 	public static push(job: Job) {
-		return this.pushRaw(job.serialize());
-	}
-
-	public static pushRaw(job: string) {
-		return Redis.pushToEnd(Queue.queueName, job);
+		return this.queueStore().push(job.id, job.serialize());
 	}
 
 	/**
-	 * Push a Job onto the Delayed Queue so it can be processed at a later time.
-	 *
-	 * @param {Job} job
-	 * @param {DateTime} delayUntil
-	 * @returns {Promise<void>}
+	 * Push a Job onto the Queue so it is processed at `delayUntil`.
 	 */
 	public static later(job: Job, delayUntil: DateTime) {
-		return this.laterRaw(job.serialize(), delayUntil);
+		return this.queueStore().push(job.id, job.serialize(), delayUntil.toTime());
 	}
 
-	public static laterRaw(job: string, delayUntil: DateTime) {
-		return Redis.zAdd(Queue.delayedQueueName, delayUntil.toTime(), job);
+	private static queueStore(): QueueStore {
+		return (instance ?? new Queue()).store;
 	}
 
-	/*
-	 Private Functions
-	 */
+	private async loop() {
+		while (this.running && App.isBooted()) {
+			try {
+				// Keep the reservations of running jobs alive
+				await this.store.extend(
+					this.pool.runningJobs().map(job => job.id),
+					Date.now() + this.config.visibilityTimeoutMs
+				);
 
-	private recover() {
-		return Redis.getInstance().eval<number>(LuaScripts.moveList().lua, [Queue.reservedQueueName, Queue.queueName]);
+				const jobs = await this.store.reserve(this.pool.getCapacity(), this.config.visibilityTimeoutMs);
+
+				for (const job of jobs) {
+					if (!this.pool.runTask(job)) {
+						await this.store.unreserve(job.id);
+					}
+				}
+			} catch (error) {
+				Log.label('Queue').exception('Queue loop error', error);
+			}
+
+			await this.sleep(this.config.waitTimeMs);
+		}
+
+		this.running = false;
 	}
 
-	/**
-	 * Migrate Jobs from the Delayed Queue onto the Primary Queue
-	 *
-	 * @returns {Promise<string[]>}
-	 * @private
-	 */
-	private migrate(): Promise<string[]> {
-		return Redis.getInstance().eval<string[]>(LuaScripts.migrateQueue().lua, [Queue.delayedQueueName, Queue.queueName], [Date.now()]);
-	}
+	private sleep(ms: number) {
+		return new Promise<void>(resolve => {
+			const timer = setTimeout(done, ms);
 
-	/**
-	 * Get the next x number of Jobs that are ready to be processed
-	 *
-	 * @param {number} capacity
-	 * @returns {Promise<string[]>}
-	 * @private
-	 */
-	private getNextJob(capacity: number = 1): Promise<string[]> {
-		return Redis.getInstance().eval<string[]>(LuaScripts.pop().lua, [Queue.queueName, Queue.reservedQueueName], [capacity]);
+			function done() {
+				clearTimeout(timer);
+				resolve();
+			}
+
+			this.wake = done;
+		});
 	}
 
 	/*
 	 Worker Events
 	 */
 
+	private async settle(worker: TaskWorker, action: () => Promise<unknown>) {
+		try {
+			await action();
+		} catch (error) {
+			Log.label('Queue').exception('Could not update job state', error);
+		}
+	}
+
 	private async onWorkerAvailable(worker: TaskWorker) {
-		const jobs = await this.getNextJob();
+		// Wait for the result of the previous job to be stored before reusing the worker
+		await new Promise(resolve => setImmediate(resolve));
 
-		if (jobs.length === 1) {
-			// Have the Worker run another Job right away.
-			worker.runImmediate(jobs[0]);
-		} else {
-			// Mark the Worker as available so the Queue can use it on its next loop.
-			worker.free();
-		}
-	}
+		try {
+			const [job] = this.running ? await this.store.reserve(1, this.config.visibilityTimeoutMs) : [];
 
-	private async onWorkerSuccess(worker: TaskWorker, result: IWorkerResult) {
-		await Redis.lRemove(Queue.reservedQueueName, 1, worker.payload);
-	}
-
-	private async onWorkerFailed(worker: TaskWorker, result: IWorkerResult) {
-		// Remove the Job from the reserved Queue because it's not being processed anymore
-		await Redis.lRemove(Queue.reservedQueueName, 1, worker.payload);
-
-		// Don't push back into queue if the next attempt will just fail anyways
-		if (result.job.attempts > result.job.retries) {
-			return;
+			if (job) {
+				// Have the Worker run another Job right away.
+				if (!worker.runImmediate(job)) {
+					await this.store.unreserve(job.id);
+				}
+				return;
+			}
+		} catch (error) {
+			Log.label('Queue').exception('Could not reserve job', error);
 		}
 
-		// FIXME: There is potential for this Job to be lost if something happens between the lRemove above and this zAdd
-		await Queue.pushRaw(worker.payload);
-	}
-
-	private async onWorkerError(worker: TaskWorker, error: Error) {
-		if (!worker.payload) {
-			return;
-		}
-
-		await Redis.lRemove(Queue.reservedQueueName, 1, worker.payload);
+		// Mark the Worker as available so the Queue can use it on its next loop.
+		worker.free();
 	}
 }

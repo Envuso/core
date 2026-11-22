@@ -101,6 +101,8 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ⚠️ `HAS_ONE` lookup has no `$limit`. Calling `load()`/`hasMany` in a loop is N+1 (`with()` is fine: it uses a single `$lookup`).
 
 ### Queue
+> **Fixed 2026-11-22**: the queue was rebuilt on Bun.redis (`QueueStore`: ZSET visibility timeout that running jobs keep extending, every state change one Lua script, retries with `backoff`/`retryDelay()`, a failed list, configurable `workers`, crashed workers released and respawned). Every item below is resolved and covered by `queue.spec.ts`.
+
 - ✅ **Jobs never run with the default `retries = 0`** — `src/Queue/Jobs/Job.ts:13`. The Lua pop increments `attempts` to 1, and `Worker.ts:49` throws when `1 > 0`. Masked because `ImplementedJob` sets `retries = 3`.
 - ⚠️ When the worker pool is full, the reserved payload is re-pushed without removal, creating duplicates.
 - ⚠️ No visibility timeout. `recover()` requeues **all** reserved jobs on boot, so multiple instances run jobs twice.
@@ -140,7 +142,7 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 ## 5. Redesign candidates (proposed)
 1. **Param injection**: keep the decorator + type-hint ergonomics (no per-route schemas — see Design principles). Compile per-route binders once at registration, indexed by position, so each request just runs a precomputed list. Isolate all `Reflect`/`design:*` reads behind one internal module so the metadata source can be swapped later without touching the user-facing API.
 2. **Crypto**: replace CryptoJS/Rabbit/SimpleCryptoJS with `node:crypto` AES-256-GCM, with HKDF-derived subkeys for encryption and signing. Require a strong `APP_KEY` at boot.
-3. **Queue**: replace with BullMQ (locking, stalled-job recovery, backoff, multi-instance), or rebuild on ZSET-based visibility timeouts.
+3. ✅ *(done: rebuilt on ZSET visibility timeouts, see Queue)* **Queue**: replace with BullMQ (locking, stalled-job recovery, backoff, multi-instance), or rebuild on ZSET-based visibility timeouts.
 4. **Fastify 5**: move to the `@fastify/*` plugins and remove the deep imports of Fastify internals.
 5. **Tests**: Vitest (or `bun test`) with Testcontainers or `mongodb-memory-server`, an isolated DB per run, and a `test` script.
 6. **Packaging**: move tooling out of runtime deps. Replace the git-sourced `uWebSockets.js` with the npm release or `ws@8` / `@fastify/websocket`.

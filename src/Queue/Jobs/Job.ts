@@ -8,10 +8,14 @@ import {Queue} from "../Queue";
 export class Job implements BaseQueueable {
 	@Exclude()
 	public delayUntil: DateTime = null;
+	/** Set by the queue: which attempt this is, starting at 1 */
 	@Exclude()
 	public attempts: number     = 0;
 	public id: string;
+	/** How many times to retry after the first failure (0 = run once) */
 	public retries: number      = 0;
+	/** Seconds to wait before a retry; see retryDelay() */
+	public backoff: number      = 0;
 
 	constructor() {
 		this.id = Str.uniqueRandom();
@@ -34,6 +38,23 @@ export class Job implements BaseQueueable {
 
 	dispatch() {
 		return Queue.dispatch(this);
+	}
+
+	/**
+	 * Total runs allowed: the first attempt plus `retries`.
+	 */
+	maxAttempts(): number {
+		return Math.max(0, this.retries ?? 0) + 1;
+	}
+
+	/**
+	 * Milliseconds to wait before retrying after `attempt` failed.
+	 * Override for e.g. exponential backoff: `return 1000 * 2 ** attempt`.
+	 *
+	 * @param {number} attempt
+	 */
+	retryDelay(attempt: number): number {
+		return Math.max(0, this.backoff ?? 0) * 1000;
 	}
 
 	/*
@@ -59,7 +80,7 @@ export class Job implements BaseQueueable {
 	}
 
 	/**
-	 * Returning a value other then `undefined` will not bubble up the Error to the Queue.
+	 * Returning a value other than `undefined` marks the Job as handled: it won't be retried or failed.
 	 *
 	 * @param {Error} error
 	 * @returns {Promise<any>}
@@ -75,6 +96,7 @@ export class Job implements BaseQueueable {
 		const {namespace} = Reflect.getMetadata("job", this.constructor);
 
 		return JSON.stringify({
+			id        : this.id,
 			namespace : [namespace, this.constructor.name],
 			attempts  : this.attempts,
 			data      : instanceToPlain(this, {enableImplicitConversion : true}),
