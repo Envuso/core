@@ -29,6 +29,15 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **App files are loaded as they are.** `FileLoader.formatPathForRunEnvironment()` no longer rewrites `src/**/*.ts` to `dist/**/*.js`; Bun runs your app's TypeScript directly, so there is no app build step. The method is deprecated. (c5cfae0)
 - **`"false"` in the environment is now `false`.** In 2.x every `"false"` value (any case) was read as `true`. Settings you had set to `false` in `.env` now actually take effect. Numbers are still returned as strings; wrap them in `Number(...)`. (832b7d4)
 
+**Security**
+
+- **`APP_KEY` is required and must be at least 32 characters.** The `'1234'` default is gone; the app refuses to boot (encryption, JWT and cookies) with a missing or short key. Generate one with `bun -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`. (5b76c3a)
+- **`VerifyCsrfTokenMiddleware` now actually checks the token.** Non-GET/HEAD/OPTIONS requests must send the session's token as a `csrf_token` or `_token` field, or an `X-CSRF-TOKEN` / `X-XSRF-TOKEN` header, or get a 403. Routes that relied on it passing everything will now reject requests. Override `except` to skip paths. (5b76c3a)
+- **CSRF tokens use SHA-256** instead of SHA-1, so tokens issued before the upgrade stop verifying. (5b76c3a)
+- **`BaseUserProvider` throws.** It is the fallback when `Auth.userProvider` is not set, and it used to accept any credentials and return a user for any id. Configure a real provider (e.g. `ModelUserProvider`). (5b76c3a)
+- **Session ids the server did not issue are replaced**, ids must be 32 hex characters, and **logging in rotates the session id and CSRF token** (the old session is destroyed). A form rendered in the same response as a login carries the old token. (5b76c3a)
+- **Cookie config: `expires` and `maxAge` are removed; use `lifetime`** (seconds, counted from when each cookie is set). The old options were fixed `DateTime`s evaluated when the config loaded, so `DateTime.now().addDays(7)` expired a week after the server booted. Per-cookie `withExpiresAt()`/`withMaxAge()` are unchanged. (5b76c3a, a205885)
+
 **Fastify 5**
 
 - Fastify is upgraded from 3 to 5, and the `fastify-*` plugins are replaced by their `@fastify/*` equivalents: `@fastify/cors`, `@fastify/helmet`, `@fastify/multipart`, `@fastify/formbody`, `@fastify/raw-body` (6). `middie` is removed. (50211bd)
@@ -213,6 +222,10 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 ### Fixed
 
+**Sessions**
+
+- Sessions are saved before the response is sent (`onSend`) instead of after (`onResponse`), so a request that follows quickly no longer reads stale session data. (5b76c3a)
+
 **Packaging and loading**
 
 - Queue workers and the CLI loaded the framework's own bundled test configuration instead of the app's. They now load the app's `Configuration.ts` (see Added); a worker can also be given `workerData.configurationPath`. (c5cfae0)
@@ -275,6 +288,11 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 ### Security
 
+- **CSRF protection was a no-op**: the middleware compared the session's secret with the session's own token and never read what the client sent. CSRF salts used `Math.random`; they now use `crypto.randomInt`. (5b76c3a)
+- **The default app key `'1234'`** let anyone forge JWTs and session cookies when `APP_KEY` was unset. (5b76c3a)
+- **An app without a configured user provider authenticated everyone** (`BaseUserProvider`). (5b76c3a)
+- **Session fixation**: client-chosen session ids were accepted and the id was not changed on login. The file session driver also used the id in a file path with only a length check. (5b76c3a)
+- **Session cookies** in the reference config are `httpOnly`, `secure` in production and last 7 days (were readable from JS, never `secure`, 5 years). (5b76c3a)
 - **TLS verification is no longer disabled.** The OAuth provider import set `https.globalAgent.options.rejectUnauthorized = false`, which turned off certificate checks for the whole process. This line is removed. (142c622)
 - **`jsonwebtoken` 9** fixes CVE-2022-23529, CVE-2022-23539, CVE-2022-23540 and CVE-2022-23541. (10d6260)
 - **`class-validator` 0.15** resolves a critical finding from the dependency audit. (10d6260)

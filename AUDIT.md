@@ -25,12 +25,12 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 ## 1. Security
 
 ### High
-- ✅ **Default app key `'1234'`** — `src/Config/AppConfiguration.ts:27`. This key signs JWTs and encrypts cookies and session ids. If `APP_KEY` is unset, JWTs and session cookies can be forged. → Refuse to boot without a strong key.
-- ✅ **CSRF check is a no-op** — `src/Routing/Middleware/Middlewares/VerifyCsrfTokenMiddleware.ts:13` verifies `session.getCsrfSecret()` against `session.getCsrfToken()`. That compares the session to itself and never reads the submitted token or header. The middleware is also not registered globally.
-- ✅ **TLS verification disabled process-wide** — `src/OAuthProvider/BaseOAuthProvider.ts:15` sets `https.globalAgent.options.rejectUnauthorized = false` at import time.
-- ✅ **`BaseUserProvider` authenticates anything** — `src/Authentication/UserProvider/BaseUserProvider.ts:14,22`. `getUser` does no lookup and `verifyLoginCredentials` does no password check. Latent: it is the fallback in `Authentication.ts:56` when no provider is configured.
-- ✅ **Session cookie flags** — `src/Config/SessionConfiguration.ts:16-17` sets `httpOnly: false, secure: false`, with a 5-year lifetime.
-- ⚠️ **Session fixation** — the session is never regenerated on login (`Authentication.ts:88-109`). Client-supplied session ids are accepted if they are 32 chars long (`Session.ts:184`).
+- ✅ **Fixed 2026-11-22** — **Default app key `'1234'`** — `src/Config/AppConfiguration.ts:27`. This key signs JWTs and encrypts cookies and session ids. If `APP_KEY` is unset, JWTs and session cookies can be forged. → Refuse to boot without a strong key.
+- ✅ **Fixed 2026-11-22** — **CSRF check is a no-op** — `src/Routing/Middleware/Middlewares/VerifyCsrfTokenMiddleware.ts:13` verifies `session.getCsrfSecret()` against `session.getCsrfToken()`. That compares the session to itself and never reads the submitted token or header. The middleware is also not registered globally.
+- ✅ **Fixed 2026-11-22** — **TLS verification disabled process-wide** — `src/OAuthProvider/BaseOAuthProvider.ts:15` sets `https.globalAgent.options.rejectUnauthorized = false` at import time.
+- ✅ **Fixed 2026-11-22** — **`BaseUserProvider` authenticates anything** — `src/Authentication/UserProvider/BaseUserProvider.ts:14,22`. `getUser` does no lookup and `verifyLoginCredentials` does no password check. Latent: it is the fallback in `Authentication.ts:56` when no provider is configured.
+- ✅ **Fixed 2026-11-22** — **Session cookie flags** — `src/Config/SessionConfiguration.ts:16-17` sets `httpOnly: false, secure: false`, with a 5-year lifetime.
+- ✅ **Fixed 2026-11-22** — **Session fixation** — the session is never regenerated on login (`Authentication.ts:88-109`). Client-supplied session ids are accepted if they are 32 chars long (`Session.ts:184`).
 
 ### Medium
 - ⚠️ Cookie encryption uses Rabbit (`src/Crypt/RabbitEncryption.ts:21`), a stream cipher with no MAC, so ciphertext is malleable. The only integrity check is a prefix match.
@@ -48,9 +48,9 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ⚠️ CORS reflects any origin with `credentials: true` (`src/Config/ServerConfiguration.ts:69-72`).
 
 ### Low
-- ⚠️ `Math.random` is used for the CSRF salt (`CsrfRandom.ts:22`) and `Str.random` (WebSocket connection ids).
-- ⚠️ CSRF token hash is plain SHA-1 rather than HMAC. `Compare.ts` uses the deprecated `pseudoRandomBytes`.
-- ⚠️ `Hash.ts:12` ignores the `rounds` argument (always 10).
+- ⚠️ `Math.random` is used for `Str.random` (WebSocket connection ids). *(CSRF salt fixed 2026-11-22.)*
+- ⚠️ CSRF token hash is plain SHA-256 (was SHA-1, fixed 2026-11-22) rather than HMAC. `Compare.ts` uses the deprecated `pseudoRandomBytes`.
+- ✅ **Fixed 2026-11-22** — `Hash.ts:12` ignored the `rounds` argument (always 10); Bun.password uses it.
 
 ---
 
