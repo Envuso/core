@@ -1,4 +1,7 @@
-import {AppOptions, CompressOptions, SHARED_COMPRESSOR} from "uWebSockets.js";
+import type {AppOptions, CompressOptions} from "uWebSockets.js";
+
+/** uWS.SHARED_COMPRESSOR (inlined so config can load without the native addon) */
+const SHARED_COMPRESSOR = 1 as CompressOptions;
 import {ServerOptions} from "ws";
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
 import {MiddlewareContract} from "../Contracts/Routing/Middleware/MiddlewareContract";

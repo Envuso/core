@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import 'jest-extended';
 import {ObjectId} from "mongodb";
 
 import {Book} from "../../App/Models/Book";

@@ -1,4 +1,5 @@
 import {ConfigurationCredentials} from "../AppContainer/Config/ConfigurationCredentials";
+import Environment from "../AppContainer/Config/Environment";
 import {
 	DatabaseConfiguration as DbConfig,
 	MongoConnectionConfiguration,
@@ -7,8 +8,8 @@ import {
 export default class DatabaseConfiguration extends ConfigurationCredentials implements DbConfig {
 
 	mongo: MongoConnectionConfiguration = {
-		name          : 'test',
-		url           : 'mongodb://127.0.0.1:27017',
+		name          : Environment.get<string>('DB_NAME', 'test'),
+		url           : Environment.get<string>('DB_URL', 'mongodb://127.0.0.1:27017'),
 		clientOptions : {
 			ssl            : false,
 			readPreference : "primaryPreferred",

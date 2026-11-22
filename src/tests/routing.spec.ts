@@ -18,7 +18,6 @@ import {
 } from "../Routing";
 import {Routing} from "../Routing/Route/Routing";
 import {Server} from "../Server/Server";
-import 'jest-extended';
 import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp());

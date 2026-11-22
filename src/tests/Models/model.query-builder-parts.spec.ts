@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import 'jest-extended';
 import {ObjectId} from "mongodb";
 import {User} from "../../App/Models/User";
 import {AuthenticationServiceProvider} from "../../Authentication";

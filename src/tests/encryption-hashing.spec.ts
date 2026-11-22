@@ -5,7 +5,6 @@ import {Encryption} from "../Crypt";
 import {RabbitEncryption} from "../Crypt/RabbitEncryption";
 import SimpleCrypto from "../Crypt/SimpleCryptoJS";
 import {bootApp, unloadApp} from "./preptests";
-import 'jest-extended';
 
 beforeAll(() => bootApp());
 afterAll(() => unloadApp());

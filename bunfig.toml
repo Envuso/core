@@ -1,0 +1,4 @@
+[test]
+# Starts Mongo + Redis containers once for the whole run
+preload = ["./src/tests/setup/containers.ts"]
+root = "./src"

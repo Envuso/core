@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import 'jest-extended';
 import {DateTime} from "@envuso/date-time-helper";
 import {UserResource} from "../../App/Http/ApiResources/UserResource";
 

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import {setDefaultTimeout} from "bun:test";
 import {UserResource} from "../App/Http/ApiResources/UserResource";
 import {UserSocketListener} from "../App/Http/Sockets/UserSocketListener";
 import {User} from "../App/Models/User";
@@ -12,7 +13,6 @@ import {RouteServiceProvider} from "../Routing/RouteServiceProvider";
 import {SecurityServiceProvider} from "../Security/SecurityServiceProvider";
 import {SessionServiceProvider} from "../Session/SessionServiceProvider";
 import {ConnectionStatus, SocketClient} from "../WebSockets/TestingClient/src";
-import 'jest-extended';
 import {StorageServiceProvider} from "../Storage";
 import {WebSocketServer} from "../WebSockets/WebSocketServer";
 import {bootApp, unloadApp} from "./preptests";
@@ -20,7 +20,7 @@ import {bootApp, unloadApp} from "./preptests";
 beforeAll(() => bootApp());
 afterAll(() => unloadApp());
 
-jest.setTimeout(10000);
+setDefaultTimeout(10000);
 
 const createSocketClient = async (jwt: string = null, host: string = 'ws://127.0.0.1:3335') => {
 	const client = new SocketClient(host);

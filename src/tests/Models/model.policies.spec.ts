@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import 'jest-extended';
 import {User} from "../../App/Models/User";
 import {UserPolicy} from "../../App/Policies/UserPolicy";
 import {App} from "../../AppContainer";

@@ -2,7 +2,7 @@ import {FastifyReply, FastifyRequest} from "fastify";
 import Reply from "fastify/lib/reply.js";
 import Request from "fastify/lib/request.js";
 import {IncomingHttpHeaders, IncomingMessage} from "http";
-import {HttpRequest} from "uWebSockets.js";
+import type {HttpRequest} from "uWebSockets.js";
 import {ObjectContainer, ObjectContainerObject} from "../../Common";
 import {CookieJarContract} from "../../Contracts/Cookies/CookieJarContract";
 import {RequestContextContract} from "../../Contracts/Routing/Context/RequestContextContract";

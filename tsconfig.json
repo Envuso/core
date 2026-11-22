@@ -1,40 +1,27 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 14",
   "compilerOptions": {
     "lib": [
       "ESNext"
     ],
-    "module": "commonjs",
+    "module": "preserve",
     "target": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "esModuleInterop": true,
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "rootDir": "./src/",
-    "baseUrl": "./src/",
     "strict": false,
     "sourceMap": true,
-    "downlevelIteration": true,
     "declaration": true,
     "types": [
-      "node",
-      "reflect-metadata",
-      "jest"
+      "bun"
     ],
-    "typeRoots": [
-      "node_modules/@types",
-      "src/**"
-    ],
-    "paths": {
-      "class-transformer": [
-        "./../node_modules/class-transformer"
-      ]
-    },
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
   "exclude": [
     "node_modules",

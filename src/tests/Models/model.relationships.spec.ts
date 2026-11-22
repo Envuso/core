@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import 'jest-extended';
 import {Book} from "../../App/Models/Book";
 import {User} from "../../App/Models/User";
 import {AuthenticationServiceProvider} from "../../Authentication";

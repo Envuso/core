@@ -2,7 +2,6 @@ import "reflect-metadata";
 import * as path from "path";
 import {ServiceProvider} from "../AppContainer";
 import Environment from '../AppContainer/Config/Environment';
-import 'jest-extended';
 
 Environment.load(path.join(__dirname, '..', '..', '.env'));
 

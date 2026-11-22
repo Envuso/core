@@ -5,7 +5,6 @@ import {
 	DataTransferObject,
 	DtoValidationException,
 } from "../Routing";
-import 'jest-extended';
 import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp(false));

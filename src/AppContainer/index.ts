@@ -26,4 +26,5 @@ export * from './Config/ConfigurationCredentials';
 export * from './Config/ConfigurationFile';
 export * from './Config/Environment';
 export * from './Exceptions/FailedToBindException';
-export {injectable, autoInjectable, singleton, scoped, inject, DependencyContainer} from 'tsyringe';
+export {injectable, autoInjectable, singleton, scoped, inject} from 'tsyringe';
+export type {DependencyContainer} from 'tsyringe';

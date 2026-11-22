@@ -2,16 +2,18 @@ import {Buffer} from "buffer";
 import {JsonWebTokenError} from "jsonwebtoken";
 import {ObjectId} from "mongodb";
 import path from "path";
-import {
-	App,
+import type {
 	HttpRequest,
 	HttpResponse,
 	TemplatedApp,
 	us_listen_socket,
-	us_listen_socket_close,
 	us_socket_context_t,
 	WebSocket
 } from 'uWebSockets.js';
+
+// Loaded lazily: uWebSockets.js is a native addon with no build for Bun's ABI,
+// so importing it eagerly would break the whole framework on Bun even without websockets.
+const uWS = () => require('uWebSockets.js') as typeof import('uWebSockets.js');
 import {app, config, resolve} from "../AppContainer";
 import {Authenticatable} from "../Authenticatable";
 import {Authentication, JwtAuthenticationProvider} from "../Authentication";
@@ -45,7 +47,7 @@ export class WebSocketServer {
 	async boot(config: WebsocketsConfiguration) {
 		this.config = config;
 
-		this.app = App(this.config.uWebsocketAppOptions);
+		this.app = uWS().App(this.config.uWebsocketAppOptions);
 
 		await this.prepareEventListeners();
 
@@ -76,7 +78,7 @@ export class WebSocketServer {
 
 	public async unload() {
 		if (this.listenSocket) {
-			us_listen_socket_close(this.listenSocket);
+			uWS().us_listen_socket_close(this.listenSocket);
 			this.listenSocket = null;
 			Log.info('WebSocket server unloaded successfully.');
 		}

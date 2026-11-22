@@ -167,7 +167,8 @@ export default class Environment {
 
 		const [canLoadEnvFile, envData] = this.loadEnvFile(envFileLocation);
 		if (canLoadEnvFile) {
-			this.environment = {...this.environment, ...this.parseEnvObject(envData)};
+			// Real environment variables take precedence over the .env file (same as dotenv/Laravel)
+			this.environment = {...this.parseEnvObject(envData), ...this.environment};
 		}
 
 		if (this.environment?.NODE_ENV === undefined) {

@@ -1,4 +1,4 @@
-import {WebSocket} from "uWebSockets.js";
+import type {WebSocket} from "uWebSockets.js";
 import {SocketEventPacket} from "../../WebSockets/SocketEventTypes";
 import {RequestContextContract} from "../Routing/Context/RequestContextContract";
 import {WebSocketChannelListenerContract} from "./WebSocketChannelListenerContract";
