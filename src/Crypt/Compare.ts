@@ -1,36 +1,24 @@
-// Implements Brad Hill's Double HMAC pattern from
-// https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/.
-// The approach is similar to the node's native implementation of timing safe buffer comparison that will be available on v6+.
-// https://github.com/nodejs/node/issues/3043
-// https://github.com/nodejs/node/pull/3073
+import crypto from "crypto";
 
-const crypto = require('crypto');
-
-const bufferEqual = (a, b) => {
-	if (a.length !== b.length) {
-		return false;
-	}
-	// `crypto.timingSafeEqual` was introduced in Node v6.6.0
-	// <https://github.com/jshttp/basic-auth/issues/39>
-	if (crypto.timingSafeEqual) {
-		return crypto.timingSafeEqual(a, b);
-	}
-	for (let i = 0; i < a.length; i++) {
-		if (a[i] !== b[i]) {
-			return false;
-		}
-	}
-	return true;
+/**
+ * Constant-time comparison of two buffers of the same length
+ */
+const bufferEqual = (a: Buffer, b: Buffer): boolean => {
+	return a.length === b.length && crypto.timingSafeEqual(a, b);
 };
 
-const timeSafeCompare = (a, b) => {
-	let sa  = String(a);
-	let sb  = String(b);
-	let key = crypto.pseudoRandomBytes(32);
-	let ah  = crypto.createHmac('sha256', key).update(sa).digest();
-	let bh  = crypto.createHmac('sha256', key).update(sb).digest();
+/**
+ * Constant-time string comparison.
+ *
+ * Both values are HMACed with a random key first (Brad Hill's double HMAC pattern),
+ * so the comparison doesn't reveal their length either.
+ */
+const timeSafeCompare = (a: unknown, b: unknown): boolean => {
+	const key = crypto.randomBytes(32);
+	const ah  = crypto.createHmac('sha256', key).update(String(a)).digest();
+	const bh  = crypto.createHmac('sha256', key).update(String(b)).digest();
 
-	return bufferEqual(ah, bh) && a === b;
+	return crypto.timingSafeEqual(ah, bh);
 };
 
 export {bufferEqual, timeSafeCompare};

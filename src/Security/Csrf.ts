@@ -43,7 +43,10 @@ export class Csrf implements CsrfContract {
 	}
 
 	public tokenize(secret: string, salt: string) {
-		return salt + '-' + this.hash(salt + '-' + secret);
+		// HMAC keyed by the session's secret (was a plain hash of salt + secret)
+		const mac = crypto.createHmac('sha256', secret).update(salt).digest('base64url');
+
+		return salt + '-' + mac;
 	}
 
 	/**

@@ -1,57 +1,29 @@
-const randomBytes = require('random-bytes');
-
-const EQUAL_END_REGEXP    = /=+$/;
-const PLUS_GLOBAL_REGEXP  = /\+/g;
-const SLASH_GLOBAL_REGEXP = /\//g;
+import crypto from "crypto";
 
 export class Uid {
 
 	/**
-	 * Create a unique ID.
+	 * Create a random, url-safe id from `length` random bytes
 	 *
 	 * @param {number} length
-	 * @return {Promise}
-	 * @public
+	 * @return {Promise<string>}
 	 */
-	public static generate(length: number): Promise<string> {
-		return new Promise((resolve, reject) => {
-			this.generateUid(length, (err, str) => {
-				if (err) {
-					return reject(err);
-				}
-				resolve(str);
-			});
-		});
+	public static async generate(length: number): Promise<string> {
+		return Uid.generateSync(length);
+	}
+
+	public static generateSync(length: number): string {
+		return crypto.randomBytes(length).toString('base64url');
 	}
 
 	/**
-	 * Generate a unique ID string.
-	 *
-	 * @param {number} length
-	 * @param {function} callback
-	 * @private
+	 * @deprecated use generate()
 	 */
-	public static generateUid(length, callback) {
-		randomBytes(length, (err, buf) => {
-			if (err) {
-				return callback(err);
-			}
-
-			callback(null, Uid.uidToString(buf));
-		});
-	}
-
-	/**
-	 * Change a Buffer into a string.
-	 *
-	 * @param {Buffer} buf
-	 * @return {string}
-	 * @private
-	 */
-	private static uidToString(buf) {
-		return buf.toString('base64')
-			.replace(EQUAL_END_REGEXP, '')
-			.replace(PLUS_GLOBAL_REGEXP, '-')
-			.replace(SLASH_GLOBAL_REGEXP, '_');
+	public static generateUid(length: number, callback: (error: Error | null, uid?: string) => void) {
+		try {
+			callback(null, Uid.generateSync(length));
+		} catch (error) {
+			callback(error as Error);
+		}
 	}
 }
