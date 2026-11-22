@@ -1,8 +1,7 @@
 import "reflect-metadata";
-import path from "path";
 import Environment from "./AppContainer/Config/Environment";
 
-Environment.load(path.join(__dirname, "..", ".env"));
+Environment.load();
 
 import Configuration from "./Config/Configuration";
 import {Envuso} from "./Envuso";

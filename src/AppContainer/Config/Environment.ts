@@ -1,13 +1,18 @@
-import {config} from 'dotenv';
-import {expand as dotenvExpand} from 'dotenv-expand';
 import path from "path";
 import {Log} from "../../Common/Logger/Log";
 import {Obj} from "../../Common/Utility/Obj";
-import * as fs from 'fs-extra';
 
+/**
+ * Bun loads `.env` files itself before any code runs, in increasing precedence:
+ * `.env`, `.env.{NODE_ENV}`, `.env.local` (skipped when NODE_ENV=test), `.env.{NODE_ENV}.local`.
+ * Real environment variables win over all of them, and `${VAR}` references are expanded.
+ * Use `bun --env-file=path/to/.env` for a different file, or `--no-env-file` to load none.
+ *
+ * This class only reads `process.env`, converting values ("" -> null, "true" -> true, "3000" -> 3000).
+ */
 export default class Environment {
 
-	private static environment: { [key: string]: any } = {};
+	private static environment: { [key: string]: any } = null;
 
 	/**
 	 * Check if we're running in development mode.
@@ -24,7 +29,7 @@ export default class Environment {
 	 * @return {boolean}
 	 */
 	public static isDev(): boolean {
-		return this.environment.NODE_ENV === 'development';
+		return this.env().NODE_ENV === 'development';
 	}
 
 	/**
@@ -42,7 +47,7 @@ export default class Environment {
 	 * @return {boolean}
 	 */
 	public static isProd(): boolean {
-		return this.environment.NODE_ENV === 'production';
+		return this.env().NODE_ENV === 'production';
 	}
 
 	/**
@@ -52,7 +57,7 @@ export default class Environment {
 	 * @return {boolean}
 	 */
 	public static is(env: string): boolean {
-		return this.environment.NODE_ENV === env;
+		return this.env().NODE_ENV === env;
 	}
 
 	/**
@@ -61,7 +66,7 @@ export default class Environment {
 	 * @return {string}
 	 */
 	public static getEnv(): string {
-		return this.environment.NODE_ENV;
+		return this.env().NODE_ENV;
 	}
 
 	/**
@@ -92,47 +97,6 @@ export default class Environment {
 		return false;
 	}
 
-	private static envPath(envFileLocation?: string) {
-		const cwd = process.cwd();
-
-		if (envFileLocation.startsWith(cwd)) {
-			return envFileLocation;
-		}
-
-		return path.join(process.cwd(), envFileLocation);
-	}
-
-	public static hasEnvFile(envFileLocation?: string) {
-		try {
-			const stat = fs.statSync(this.envPath(envFileLocation));
-
-			return !!stat?.isFile();
-		} catch (error) {
-			return false;
-		}
-	}
-
-	public static loadEnvFile(envFileLocation?: string): [boolean, any] {
-
-		if (!this.hasEnvFile(envFileLocation)) {
-			Log.label('ENVIRONMENT').warn(`No .env file can be found at ${this.envPath(envFileLocation)}`);
-			Log.label('ENVIRONMENT').warn(`Since we cannot access the .env file in this environment. We'll now parse the node.js "process.env" object.`);
-			return [false, null];
-		}
-
-		let envConfig = config({path : envFileLocation || undefined, quiet : true});
-
-		if (envConfig?.error) {
-			Log.label('ENVIRONMENT').exception(envConfig.error);
-
-			return [false, null];
-		}
-
-		const expanded = dotenvExpand(envConfig);
-
-		return [true, (expanded.parsed || {})];
-	}
-
 	private static parseEnvObject(env: any) {
 		const newEnv = JSON.parse(JSON.stringify((env || {})));
 
@@ -157,26 +121,30 @@ export default class Environment {
 	}
 
 	/**
-	 * Load the environment file
-	 * Will load from the project root by default
-	 * You can specify a different path also; path.join('..', '..', '.env') for example.
+	 * Read the environment (already populated by Bun from your .env files).
+	 * Called automatically on first use; call it again after changing process.env.
 	 *
-	 * @param {string} envFileLocation
+	 * @param {string} envFileLocation Deprecated and ignored: use `bun --env-file=<path>`
 	 */
 	public static load(envFileLocation?: string) {
-		this.environment = this.parseEnvObject(process.env);
-
-		const [canLoadEnvFile, envData] = this.loadEnvFile(envFileLocation);
-		if (canLoadEnvFile) {
-			// Real environment variables take precedence over the .env file (same as dotenv/Laravel)
-			this.environment = {...this.parseEnvObject(envData), ...this.environment};
+		if (envFileLocation && path.resolve(envFileLocation) !== path.resolve(process.cwd(), '.env')) {
+			Log.label('ENVIRONMENT').warn(
+				`Environment.load("${envFileLocation}") no longer loads files; Bun loads .env itself. ` +
+				`Use "bun --env-file=${envFileLocation} ..." to load a different file.`
+			);
 		}
 
-		if (this.environment?.NODE_ENV === undefined) {
+		this.environment = this.parseEnvObject(process.env);
+
+		if (this.environment.NODE_ENV === undefined) {
 			this.environment.NODE_ENV = 'development';
 		}
 
 		return this.environment;
+	}
+
+	private static env(): { [key: string]: any } {
+		return this.environment ?? this.load();
 	}
 
 	/**
@@ -187,7 +155,7 @@ export default class Environment {
 	 * @return {T}
 	 */
 	public static get<T>(key: string, _default: any = null): T {
-		return this.environment[key] ?? _default;
+		return this.env()[key] ?? _default;
 	}
 
 	/**
@@ -197,6 +165,6 @@ export default class Environment {
 	 * @return {boolean}
 	 */
 	public static has(key: string): boolean {
-		return (this.environment[key] ?? undefined) !== undefined;
+		return (this.env()[key] ?? undefined) !== undefined;
 	}
 }

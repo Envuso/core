@@ -1,4 +1,3 @@
-import path from "path";
 import "reflect-metadata";
 import {parentPort} from "worker_threads";
 import Environment from "../AppContainer/Config/Environment";
@@ -10,7 +9,7 @@ import {type IWorkerError, type IWorkerResult, type IWorkerTask, WorkerEvent} fr
 import {MaxAttemptsExceededException} from "./Jobs/Exceptions/MaxAttemptsExceededException";
 import {Job} from "./Jobs/Job";
 
-Environment.load(path.join(process.cwd(), ".env"));
+Environment.load();
 
 (async function () {
 	const envuso = new Envuso();
