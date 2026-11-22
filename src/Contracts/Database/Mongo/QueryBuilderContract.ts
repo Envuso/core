@@ -303,6 +303,8 @@ export interface QueryBuilderContract<T> {
 	 */
 	delete(returnMongoResponse?: boolean): Promise<boolean | DeleteResult>;
 
+	truncate(): Promise<number>;
+
 	/**
 	 * Returns the count of items, filters if one was specified with .where()
 	 * http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#estimatedDocumentCount

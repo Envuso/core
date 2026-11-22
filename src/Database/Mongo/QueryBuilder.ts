@@ -690,18 +690,39 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	}
 
 	/**
-	 * Delete any items from the collection specified in the where() clause
+	 * Delete the documents matching the where() clause.
 	 *
-	 * @returns {Promise<boolean>}
+	 * Throws when there is no where(): `deleteMany({})` would empty the collection.
+	 * Use truncate() to do that on purpose.
+	 *
+	 * @returns {Promise<boolean>} true when at least one document was deleted
 	 */
 	public async delete(returnMongoResponse: boolean = false): Promise<boolean | DeleteResult> {
-		const deleteOperation = await this._collection.deleteMany(this._filter.getQuery());
+		const filter = this._filter.getQuery();
+
+		if (!filter || Object.keys(filter).length === 0) {
+			throw new Error(
+				`delete() without a where() would delete every document in "${this._collection.collectionName}". ` +
+				`Add a where(), or use truncate() to empty the collection.`
+			);
+		}
+
+		const deleteOperation = await this._collection.deleteMany(filter);
 
 		if (returnMongoResponse) {
 			return deleteOperation;
 		}
 
-		return !!deleteOperation.acknowledged;
+		return deleteOperation.deletedCount > 0;
+	}
+
+	/**
+	 * Delete every document in the collection
+	 *
+	 * @returns {Promise<number>} how many were deleted
+	 */
+	public async truncate(): Promise<number> {
+		return (await this._collection.deleteMany({})).deletedCount;
 	}
 
 	/**

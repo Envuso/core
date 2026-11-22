@@ -41,16 +41,19 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 * @param _default
 	 */
 	public get<T extends string, R extends any>(key: T, _default: any = null): R {
-		if (key.includes('.')) {
-			const parts = key.split('.');
-			parts[0]    = parts[0].toString().toLowerCase();
+		return _.get(this._config, ConfigRepository.normaliseKey(key)) ?? _default;
+	}
 
-			key = parts.join('.') as T;
-		} else {
-			key = key.toLowerCase() as T;
-		}
+	/**
+	 * Config files are stored by lowercased name, so "Session.cookie" and "session.cookie"
+	 * are the same key. Only the file part is case-insensitive.
+	 */
+	private static normaliseKey(key: string): string {
+		const dot = key.indexOf('.');
 
-		return _.get(this._config, key) ?? _default;
+		return dot === -1
+			? key.toLowerCase()
+			: key.slice(0, dot).toLowerCase() + key.slice(dot);
 	}
 
 	/**
@@ -71,7 +74,7 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 * @param value
 	 */
 	public set(key: string, value: any) {
-		_.set(this._config, key, value);
+		_.set(this._config, ConfigRepository.normaliseKey(key), value);
 	}
 
 	/**
@@ -105,7 +108,7 @@ export class ConfigRepository implements ConfigRepositoryContract {
 	 * @param key
 	 */
 	public has(key: string): boolean {
-		return _.has(this._config, key);
+		return _.has(this._config, ConfigRepository.normaliseKey(key));
 	}
 
 	public reset() {

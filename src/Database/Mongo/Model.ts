@@ -229,7 +229,7 @@ export class Model<M> implements ModelContract<M> {
 
 			this.assignAttributes(plain as Partial<M>);
 
-			return;
+			return this;
 		}
 
 		let model = await this.callHook(ModelHook.BEFORE_SAVE, this);
@@ -253,7 +253,15 @@ export class Model<M> implements ModelContract<M> {
 	 * @returns {ObjectId}
 	 */
 	public getModelId(): ObjectId {
-		return new ObjectId((this as any)?._id);
+		const id = (this as any)?._id;
+
+		// new ObjectId(undefined) generates a random id, so refresh/update/delete on an
+		// unsaved model silently targeted nothing
+		if (id === undefined || id === null) {
+			throw new Error(`${this.constructor.name} has no _id: save() it before using it as a stored document.`);
+		}
+
+		return id instanceof ObjectId ? id : new ObjectId(id);
 	}
 
 	/**
@@ -275,7 +283,7 @@ export class Model<M> implements ModelContract<M> {
 	public async delete(): Promise<boolean> {
 		const response = await this.collection().deleteOne({_id : this.getModelId()} as Filter<M>);
 
-		return !!response.acknowledged;
+		return response.deletedCount === 1;
 	}
 
 	/**

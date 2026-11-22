@@ -1,7 +1,8 @@
 import type {FastifyReply, FastifyRequest} from "fastify";
 import {DecoratorHelpers} from "../../../Common/Decorators/DecoratorHelpers";
 import {METADATA} from "../../../Common/Decorators/RoutingMetaData";
-import {Value} from "../../../Common/Utility/Value";
+import {Exception} from "../../../Common/Exception/Exception";
+import {StatusCodes} from "../../../Common/Http/StatusCodes/StatusCodes";
 import type {RequestContextContract} from "../../../Contracts/Routing/Context/RequestContextContract";
 import {MethodParameterDecorator, type ReflectControllerMethodParamData} from "./MethodParameterDecorator";
 
@@ -47,26 +48,52 @@ export class RouteQueryParam extends MethodParameterDecorator {
 	}
 
 	bind(request: FastifyRequest, response: FastifyReply, context: RequestContextContract) {
-		const paramValue = context.request.get(this.parameterName, null);
+		const value = context.request.get(this.parameterName, null);
 
-		if (!paramValue) {
+		if (value === null || value === undefined) {
 			return null;
 		}
 
-		const typeChecks = typeof this.expectedParamType;
-		const two        = typeof paramValue;
+		return RouteQueryParam.cast(this.parameterName, value, this.expectedParamType);
+	}
 
-		// if (Value.isPrimitive(this.expectedParamType)) {
-		// 	return;
-		// }
+	/**
+	 * Convert a query string value to the parameter's declared type.
+	 * Values that can't be converted are a 400, not a server error.
+	 */
+	static cast(name: string, value: any, type: Function) {
+		// Repeated keys (?a=1&a=2) arrive as an array; a scalar parameter takes the last one
+		const scalar = Array.isArray(value) && type !== Array ? value[value.length - 1] : value;
 
-		const param = this.expectedParamType(paramValue);
-
-		if (!param) {
-			throw new Error(`Expected type of ${typeof param} for param ${this.parameterName} but ${typeof paramValue} cannot be cast to ${typeof param}`);
+		switch (type) {
+			case Number: {
+				if (typeof scalar === 'string' && scalar.trim() === '') {
+					return null;
+				}
+				const number = Number(scalar);
+				if (Number.isNaN(number)) {
+					throw new Exception(`Query parameter "${name}" must be a number.`, StatusCodes.BAD_REQUEST);
+				}
+				return number;
+			}
+			case Boolean: {
+				const normalised = String(scalar).trim().toLowerCase();
+				if (['true', '1', 'on', 'yes'].includes(normalised)) {
+					return true;
+				}
+				if (['false', '0', 'off', 'no', ''].includes(normalised)) {
+					return false;
+				}
+				throw new Exception(`Query parameter "${name}" must be true or false.`, StatusCodes.BAD_REQUEST);
+			}
+			case String:
+				return String(scalar);
+			case Array:
+				return Array.isArray(value) ? value : [value];
+			default:
+				// Object, any, or a type we don't know how to convert: pass it through
+				return value;
 		}
-
-		return param ?? null;
 	}
 
 }

@@ -6,7 +6,6 @@ import {DtoValidationException} from "../../Routing/DataTransferObject/DtoValida
 import {getReasonPhrase} from "../Http/StatusCodes/Mapper";
 import {StatusCodes} from "../Http/StatusCodes/StatusCodes";
 import Log from "../Logger/Log";
-import {Arr} from "../Utility/Arr";
 import {Exception} from "./Exception";
 
 export type ExceptionResponse = {
@@ -60,6 +59,17 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 		const exceptionHandler = new ExceptionHandler();
 
 		if (!(exception instanceof Exception)) {
+
+			// Fastify's own client errors (bad JSON 400, 413 body too large, 415 media type...)
+			// carry their status code and a message meant for the client
+			const statusCode = (exception as any)?.statusCode;
+			if (Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 500) {
+				return {
+					code    : statusCode,
+					message : exception.message || getReasonPhrase(statusCode),
+					data    : {}
+				};
+			}
 
 			Log.label('Exception Handler').exception(exception.toString(), exception);
 
@@ -127,7 +137,7 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 
 		const err = {
 			title   : 'Uh oh, something went wrong.',
-			code    : 500,
+			code    : exception.code ?? StatusCodes.INTERNAL_SERVER_ERROR,
 			message : exception.toString() ?? null,
 			error   : exception?.message ?? null,
 			stack   : exception?.stack ?? null,
@@ -147,15 +157,23 @@ export class ExceptionHandler implements ExceptionHandlerContract {
 	}
 
 	public shouldHandle(exception: Exception): boolean {
-		return (!Arr.has(this.ignoredExceptions, exception) || !Arr.has(this.internallyIgnoredExceptions, exception));
+		return !this.isInstanceOfAny(exception, this.ignoredExceptions)
+			&& !this.isInstanceOfAny(exception, this.internallyIgnoredExceptions);
 	}
 
 	public isReportable(exception: Exception): boolean {
-		return Arr.has(this.reportableExceptions, exception);
+		return this.isInstanceOfAny(exception, this.reportableExceptions);
 	}
 
 	public isRenderable(exception: Exception): boolean {
-		return Arr.has(this.renderableExceptions, exception);
+		return this.isInstanceOfAny(exception, this.renderableExceptions);
+	}
+
+	/**
+	 * The lists hold exception classes; the exception is an instance
+	 */
+	private isInstanceOfAny(exception: Exception, types: (new () => Exception)[]): boolean {
+		return types.some(type => exception instanceof type);
 	}
 
 	private handleUnauthorised(error: Error): ExceptionResponse {

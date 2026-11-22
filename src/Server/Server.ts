@@ -7,6 +7,7 @@ import {config, resolve} from "../AppContainer/helpers";
 import {Exception} from "../Common/Exception/Exception";
 import {Log} from "../Common/Logger/Log";
 import {StatusCodes} from "../Common/Http/StatusCodes/StatusCodes";
+import {getReasonPhrase} from "../Common/Http/StatusCodes/Mapper";
 import type {ExceptionResponse} from "../Common/Exception/ExceptionHandler";
 import type {ExceptionHandlerConstructorContract} from "../Contracts/Common/Exception/ExceptionHandlerContract";
 import type {RequestContextContract} from "../Contracts/Routing/Context/RequestContextContract";
@@ -179,6 +180,25 @@ export class Server implements ServerContract {
 	}
 
 	public async handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+		// Errors before the request context is bound (e.g. Fastify failing to parse the body)
+		// can't go through the handler, which needs the request; answer them directly
+		if (!context?.request) {
+			const statusCode = (error as any)?.statusCode ?? (error as any)?.code;
+			const code       = Number.isInteger(statusCode) && statusCode >= 400 && statusCode < 600
+				? statusCode
+				: StatusCodes.INTERNAL_SERVER_ERROR;
+
+			if (code >= 500) {
+				Log.exception('Unhandled error before the request context was bound:', error);
+			}
+
+			return reply.status(code).send({
+				code,
+				message : code < 500 ? error.message : getReasonPhrase(code),
+				data    : {},
+			});
+		}
+
 		const result = this._exceptionHandler.handle(context.request, error);
 
 		if (result instanceof RedirectResponse) {

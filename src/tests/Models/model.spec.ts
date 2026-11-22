@@ -124,7 +124,8 @@ describe('model', () => {
 		expect(user._id).toBeDefined();
 		expect(user._id).toEqual(foundUser._id);
 		expect(await user.delete()).toBeTruthy();
-		expect(await foundUser.delete()).toBeTruthy();
+		// Same document: already deleted
+		expect(await foundUser.delete()).toBe(false);
 
 	});
 

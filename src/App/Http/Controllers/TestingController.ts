@@ -73,6 +73,16 @@ export class TestingController extends Controller {
 		return message;
 	}
 
+	@get('/query/number')
+	async testQueryNumber(@query n: number) {
+		return {n, type : typeof n};
+	}
+
+	@get('/query/boolean')
+	async testQueryBoolean(@query flag: boolean) {
+		return {flag, type : typeof flag};
+	}
+
 	@get('/cookie/is-set')
 	async testCookieIsSet() {
 		response().cookieJar().put('hello', 'world');
