@@ -40,7 +40,6 @@ export class Queue {
 	}
 
 	public async run() {
-		await this.registerCommands();
 		const jobsRecovered = await this.recover();
 
 		if (jobsRecovered > 0) {
@@ -117,13 +116,7 @@ export class Queue {
 	 */
 
 	private recover() {
-		return Redis.getInstance().getClient().moveList(Queue.reservedQueueName, Queue.queueName);
-	}
-
-	private async registerCommands() {
-		await Redis.getInstance().getClient().defineCommand('pop', LuaScripts.pop());
-		await Redis.getInstance().getClient().defineCommand('migrateQueue', LuaScripts.migrateQueue());
-		await Redis.getInstance().getClient().defineCommand('moveList', LuaScripts.moveList());
+		return Redis.getInstance().eval<number>(LuaScripts.moveList().lua, [Queue.reservedQueueName, Queue.queueName]);
 	}
 
 	/**
@@ -133,7 +126,7 @@ export class Queue {
 	 * @private
 	 */
 	private migrate(): Promise<string[]> {
-		return Redis.getInstance().getClient().migrateQueue(Queue.delayedQueueName, Queue.queueName, Date.now());
+		return Redis.getInstance().eval<string[]>(LuaScripts.migrateQueue().lua, [Queue.delayedQueueName, Queue.queueName], [Date.now()]);
 	}
 
 	/**
@@ -144,7 +137,7 @@ export class Queue {
 	 * @private
 	 */
 	private getNextJob(capacity: number = 1): Promise<string[]> {
-		return Redis.getInstance().getClient().pop(Queue.queueName, Queue.reservedQueueName, capacity);
+		return Redis.getInstance().eval<string[]>(LuaScripts.pop().lua, [Queue.queueName, Queue.reservedQueueName], [capacity]);
 	}
 
 	/*

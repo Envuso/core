@@ -11,7 +11,7 @@ export class RedisServiceProvider extends ServiceProvider {
 	}
 
 	public async boot(app: AppContract, config: ConfigRepositoryContract): Promise<void> {
-		Redis.getInstance().connect();
+		await Redis.getInstance().connect();
 	}
 
 	public async unload(app: AppContract, config: ConfigRepositoryContract) {

@@ -1,25 +1,27 @@
 import {DateTime} from "@envuso/date-time-helper";
-import RedisClient, {type RedisOptions} from "ioredis";
-
-type IRedis = RedisClient;
+import {RedisClient} from "bun";
 import {Log} from "../Common/Logger/Log";
 import Obj from "../Common/Utility/Obj";
 
-let instance: Redis = null;
-
-interface ExtRedis extends IRedis {
-	pop(queue: string, reservedQueue: string, limit: number): Promise<string[] | null>;
-
-	migrateQueue(delayQueue: string, queue: string, time: number): Promise<string[]>;
-
-	moveList(source: string, destination: string): Promise<number>;
+export interface RedisConnectionOptions {
+	/** Full connection url, e.g. redis://:password@host:6379/0. Takes priority over host/port/password/db */
+	url?: string;
+	host?: string;
+	port?: number;
+	password?: string | null;
+	db?: number;
+	/** Prepended to every key used through this wrapper */
+	keyPrefix?: string;
+	tls?: boolean;
 }
 
-export class Redis {
-	private readonly config: RedisOptions;
-	private client: ExtRedis;
+let instance: Redis = null;
 
-	constructor(config: RedisOptions) {
+export class Redis {
+	private readonly config: RedisConnectionOptions;
+	private client: RedisClient;
+
+	constructor(config: RedisConnectionOptions) {
 		if (instance) {
 			return instance;
 		}
@@ -28,17 +30,34 @@ export class Redis {
 		instance    = this;
 	}
 
-	public connect() {
+	public static connectionUrl(config: RedisConnectionOptions): string {
+		if (config.url) {
+			return config.url;
+		}
+
+		const auth = config.password ? `:${encodeURIComponent(config.password)}@` : '';
+		const host = config.host || '127.0.0.1';
+		const port = config.port || 6379;
+
+		return `${config.tls ? 'rediss' : 'redis'}://${auth}${host}:${port}/${config.db ?? 0}`;
+	}
+
+	public async connect() {
 		if (this.client) {
 			return;
 		}
 
-		// @ts-ignore
-		this.client = new RedisClient(this.config);
-		this.client.on("error", (error) => Log.exception("Redis Error:", error));
+		this.client         = new RedisClient(Redis.connectionUrl(this.config), {tls : this.config.tls});
+		this.client.onclose = (error) => {
+			if (error) {
+				Log.exception("Redis connection closed:", error);
+			}
+		};
+
+		await this.client.connect();
 	}
 
-	public getClient() {
+	public getClient(): RedisClient {
 		return this.client;
 	}
 
@@ -47,15 +66,26 @@ export class Redis {
 	}
 
 	public static async shutdown() {
-		let didQuit = false;
+		const didQuit = !!instance?.client;
 
-		if (instance) {
-			didQuit = (await instance.client.quit()) === 'OK';
-		}
-
+		instance?.client?.close();
 		instance = null;
 
 		return didQuit;
+	}
+
+	/**
+	 * Apply the configured key prefix
+	 */
+	public key(key: string): string {
+		return (this.config.keyPrefix ?? '') + key;
+	}
+
+	/**
+	 * Run a Lua script. Keys are prefixed automatically; args are passed as-is.
+	 */
+	public eval<T = any>(lua: string, keys: string[], args: (string | number)[] = []): Promise<T> {
+		return this.client.eval(lua, keys.length, ...keys.map(k => this.key(k)), ...args);
 	}
 
 	/*
@@ -63,76 +93,38 @@ export class Redis {
 	 */
 
 	/**
-	 * Set a value using promises rather than callbacks
-	 *
-	 * We JSON.stringify the value so that hopefully you
-	 * will get the same type returned.
+	 * Set a value. The value is JSON encoded, so you get the same type back from get().
 	 *
 	 * @param {string} key
 	 * @param {any} value
-	 * @param {DateTime|undefined} ttl | A datetime instance of a date in the future when this key should expire.
-	 *
-	 * @returns {Promise<boolean>}
+	 * @param {DateTime|undefined} ttl | A datetime in the future when this key should expire.
 	 */
 	public static set(key: string, value: any, ttl?: DateTime): Promise<boolean> {
 		return this.getInstance().set(key, value, ttl);
 	}
 
-	/**
-	 * Set a value using promises rather than callbacks
-	 *
-	 * We JSON.stringify the value so that hopefully you
-	 * will get the same type returned.
-	 *
-	 * @param {string} key
-	 * @param {any} value
-	 * @param {DateTime|undefined} ttl | A datetime instance of a date in the future when this key should expire.
-	 *
-	 * @returns {Promise<boolean>}
-	 */
 	public async set(key: string, value: any, ttl?: DateTime): Promise<boolean> {
 		const redisValue = JSON.stringify({value : value});
 
-		if (ttl !== undefined) {
-			return await this.client.set(
-				key, redisValue,
-				"EX", DateTime.diffInSeconds(ttl),
-			) === "OK";
+		if (ttl !== undefined && ttl !== null) {
+			// EX must be positive; a ttl in the past expires (almost) immediately
+			const seconds = Math.max(1, Math.ceil(DateTime.diffInSeconds(ttl)));
+
+			return await this.client.set(this.key(key), redisValue, "EX", seconds) === "OK";
 		}
 
-		return await this.client.set(
-			key, redisValue,
-		) === "OK";
+		return await this.client.set(this.key(key), redisValue) === "OK";
 	}
 
 	/**
-	 * Get a value from the redis store using promises
-	 *
-	 * You can specify a default value, so that if your value doesn't exist
-	 * it can fallback to the value you specified.
-	 *
-	 * @param {string} key
-	 * @param {null} _default
-	 *
-	 * @returns {Promise<T>}
+	 * Get a value, or `_default` when it doesn't exist.
 	 */
 	public static get<T>(key: string, _default: any = null): Promise<T> {
 		return this.getInstance().get(key, _default);
 	}
 
-	/**
-	 * Get a value from the redis store using promises
-	 *
-	 * You can specify a default value, so that if your value doesn't exist
-	 * it can fallback to the value you specified.
-	 *
-	 * @param {string} key
-	 * @param {null} _default
-	 *
-	 * @returns {Promise<T>}
-	 */
 	public async get<T>(key: string, _default: any = null): Promise<T> {
-		const rawValue = await this.client.get(key);
+		const rawValue = await this.client.get(this.key(key));
 
 		if (Obj.isNullOrUndefined(rawValue)) {
 			return _default;
@@ -144,43 +136,25 @@ export class Redis {
 	}
 
 	/**
-	 * Delete an entry from redis by it's key
-	 *
-	 * @param {string} key
-	 * @returns {Promise<boolean>}
+	 * Delete an entry by its key
 	 */
 	public static remove(key: string): Promise<boolean> {
 		return this.getInstance().remove(key);
 	}
 
-	/**
-	 * Delete an entry from redis by it's key
-	 *
-	 * @param {string} key
-	 * @returns {Promise<boolean>}
-	 */
 	public async remove(key: string): Promise<boolean> {
-		return (await this.client.del(key)) === 1;
+		return (await this.client.del(this.key(key))) === 1;
 	}
 
 	/**
-	 * Check if x key is stored in redis.
-	 *
-	 * @param {string} key
-	 * @returns {Promise<boolean>}
+	 * Check if the key exists
 	 */
 	public static has(key: string): Promise<boolean> {
 		return this.getInstance().has(key);
 	}
 
-	/**
-	 * Check if x key is stored in redis.
-	 *
-	 * @param {string} key
-	 * @returns {Promise<boolean>}
-	 */
-	public async has(key: string): Promise<boolean> {
-		return await this.client.exists(key) === 1;
+	public has(key: string): Promise<boolean> {
+		return this.client.exists(this.key(key));
 	}
 
 	/*
@@ -192,7 +166,7 @@ export class Redis {
 	}
 
 	public async zAdd(key: string, score: number, value: string): Promise<boolean> {
-		return await this.client.zadd(key, score, value) === 1;
+		return await this.client.zadd(this.key(key), score, value) === 1;
 	}
 
 	/*
@@ -204,7 +178,7 @@ export class Redis {
 	}
 
 	public lRange(key: string, min: number, max: number): Promise<string[]> {
-		return this.client.lrange(key, min, max);
+		return this.client.lrange(this.key(key), min, max);
 	}
 
 	public static push(key: string, data: string): Promise<boolean> {
@@ -212,7 +186,7 @@ export class Redis {
 	}
 
 	public async push(key: string, data: string): Promise<boolean> {
-		return await this.client.lpush(key, data) === 1;
+		return await this.client.lpush(this.key(key), data) > 0;
 	}
 
 	public static pushToEnd(key: string, data: string): Promise<boolean> {
@@ -220,7 +194,7 @@ export class Redis {
 	}
 
 	public async pushToEnd(key: string, data: string): Promise<boolean> {
-		return await this.client.rpush(key, data) === 1;
+		return await this.client.rpush(this.key(key), data) > 0;
 	}
 
 	public static lRemove(key: string, count: number, member: string): Promise<boolean> {
@@ -228,7 +202,7 @@ export class Redis {
 	}
 
 	public async lRemove(key: string, count: number, member: string): Promise<boolean> {
-		return await this.client.lrem(key, count, member) === 1;
+		return await this.client.lrem(this.key(key), count, member) > 0;
 	}
 }
 

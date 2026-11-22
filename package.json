@@ -40,7 +40,6 @@
     "fastify-raw-body": "^6.0.3",
     "file-type": "^22.3.0",
     "fs-extra": "^11.4.1",
-    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "lodash": "^4.18.1",
     "mongodb": "^7.9.1",
