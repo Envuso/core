@@ -16,6 +16,8 @@ import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
 import {Server} from "../Server/Server";
 import {AssetManager} from "../Routing/StaticAssets/AssetManager";
 import {Storage} from "../Storage/Storage";
+import {Routing} from "../Routing/Route/Routing";
+import {Log} from "../Common/Logger/Log";
 import {bootApp, unloadApp} from "./preptests";
 
 beforeAll(() => bootApp());
@@ -448,5 +450,43 @@ describe('static assets', () => {
 		expect(res.statusCode).toBe(200);
 		expect(res.headers['content-type']).toBeTruthy();
 		expect(res.rawPayload.length).toBeGreaterThan(0);
+	});
+});
+
+describe('routing and errors', () => {
+	test('loading controllers again replaces the routes instead of clashing with them', () => {
+		const routing = Routing.get();
+		const before  = routing.getControllers().length;
+		const warn    = spyOn(Log, 'warn');
+
+		routing.loadControllers();
+
+		expect(routing.isInitiated()).toBe(true);
+		expect(routing.getControllers().length).toBe(before);
+		expect(warn.mock.calls.some(c => String(c[0]).includes('route clash'))).toBe(false);
+		warn.mockRestore();
+	});
+
+	test('a handler from addExceptionHandler() is used', async () => {
+		const server = app().container().resolve<Server>(Server);
+		let seen: Error = null;
+
+		server.setErrorHandling(async (error, request, reply) => {
+			seen = error;
+			return reply.status(418).send({custom : true});
+		});
+
+		try {
+			const res = await inject({method : 'GET', url : '/testing/query/number?n=abc', headers : {accept : 'application/json'}});
+
+			expect(res.statusCode).toBe(418);
+			expect(res.json()).toEqual({custom : true});
+			expect(seen).toBeInstanceOf(Error);
+		} finally {
+			server.setErrorHandling(null);
+		}
+
+		// Without one, the ExceptionHandler answers as before
+		expect((await inject({method : 'GET', url : '/testing/query/number?n=abc', headers : {accept : 'application/json'}})).statusCode).toBe(400);
 	});
 });

@@ -1,3 +1,5 @@
+// tsyringe and the decorators need the Reflect metadata polyfill before anything else loads
+import "reflect-metadata";
 export {SecurityServiceProvider} from "./Security/SecurityServiceProvider";
 export {EncryptionServiceProvider, Encryption} from "./Crypt";
 export {RouteServiceProvider} from "./Routing/RouteServiceProvider";

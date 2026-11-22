@@ -25,7 +25,8 @@ export interface ServerConfiguration {
 	responseSerialization: ClassTransformOptions;
 }
 
-export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<ResponseContract>;
+/** Return a Response, or the reply once you've sent it; return nothing to use the ExceptionHandler */
+export type ErrorHandlerFn = (exception: Error, request: FastifyRequest, reply: FastifyReply) => Promise<ResponseContract | FastifyReply | void>;
 
 export interface ServerContract {
 	_server: FastifyInstance;

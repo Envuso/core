@@ -85,7 +85,8 @@ export class Server implements ServerContract {
 	 * @private
 	 */
 	public registerRoutes() {
-		Routing.initiate();
+		// Every boot (including App.reboot()) loads the current controllers
+		Routing.get().loadControllers();
 
 		const controllers = Routing.get().getControllers();
 
@@ -180,6 +181,22 @@ export class Server implements ServerContract {
 	}
 
 	public async handleException(context: RequestContextContract, error: Error | Exception, request: FastifyRequest, reply: FastifyReply) {
+		// addExceptionHandler(): used to be stored and never called.
+		// Runs first: it only needs the error, request and reply
+		if (this._customErrorHandler) {
+			// Return a Response, or the reply after sending it yourself; return nothing to
+			// fall back to the ExceptionHandler. (reply.sent isn't set until the async onSend
+			// hooks finish, so it can't tell us the handler already answered.)
+			const custom: any = await this._customErrorHandler(error, request, reply);
+
+			if (custom === reply || reply.sent) {
+				return reply;
+			}
+			if (custom) {
+				return custom.send();
+			}
+		}
+
 		// Errors before the request context is bound (e.g. Fastify failing to parse the body)
 		// can't go through the handler, which needs the request; answer them directly
 		if (!context?.request) {
@@ -210,19 +227,6 @@ export class Server implements ServerContract {
 
 		return reply.status((result as ExceptionResponse).code).send((result as ExceptionResponse));
 
-		/*if (!this._customErrorHandler) {
-		 const response = (error instanceof Exception) ? error.response : {
-		 message : error.message,
-		 code    : 500,
-		 };
-		 const code     = (error instanceof Exception) ? error.code : 500;
-
-		 return reply.status(code).send(response);
-		 }
-
-		 const response: ResponseContract = await this._customErrorHandler(error, request, reply);
-
-		 response.send();*/
 	}
 
 	public async unload() {

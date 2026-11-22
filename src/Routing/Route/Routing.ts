@@ -103,14 +103,18 @@ export class Routing implements RoutingContract {
 	 * @private
 	 */
 	public loadControllers() {
+		// Start from scratch: on a reboot the old routes stayed, so every route "clashed"
+		// with its previous Route object and the stale one kept being served
 		this.controllersAndRoutes = [];
+		this.routes               = {};
+		this.routeNamesToPathMap  = {};
 
 		const controllers = App.getInstance().container().resolveAll<new () => ControllerContract>('Controllers');
 
 		for (let controller of controllers) {
 			const meta = this.getControllerMeta(controller);
 
-			if (!meta?.controller && !meta?.methods) {
+			if (!meta?.controller || !meta?.methods) {
 				throw Error('Controller somehow has no meta defined... ' + controller.constructor.name);
 			}
 
@@ -150,6 +154,8 @@ export class Routing implements RoutingContract {
 			}
 
 		}
+
+		this.initiated = true;
 	}
 
 	/**
