@@ -1,3 +1,4 @@
+import type {Relation} from "../../Database/Relation";
 import {Exclude, Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {Authenticatable} from "../../Authenticatable";
@@ -24,7 +25,7 @@ export class User extends Authenticatable<User> {
 	//	book?: Book;
 
 	@hasMany('Book', 'userId', '_id')
-	books?: Book;
+	books?: Relation<Book>;
 
 	someCount: number;
 
@@ -46,13 +47,13 @@ export class User extends Authenticatable<User> {
 	password: string;
 
 	@hasOne('Book', 'userId', '_id')
-	hasOneBook: Book;
+	hasOneBook: Relation<Book>;
 
 	@id
 	bookId: ObjectId;
 
 	@belongsTo('Book', 'bookId', '_id')
-	belongsToOneBook: Book;
+	belongsToOneBook: Relation<Book>;
 
 
 	@hasMany('Book', 'userId', '_id', {_id : -1})

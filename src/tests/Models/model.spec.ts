@@ -36,7 +36,7 @@ describe('model', () => {
 	afterAll(async () => {
 		await Database.dropCollection('users');
 		await Database.dropCollection('books');
-		await unloadApp(true);
+		await unloadApp();
 	});
 
 	test('model can use be initiated', async () => {
@@ -426,7 +426,7 @@ describe('model hooks', () => {
 	]));
 
 	afterAll(async () => {
-		await unloadApp(true);
+		await unloadApp();
 	});
 
 	test('model beforeCreate hook runs', async () => {

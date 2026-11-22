@@ -36,13 +36,13 @@ export class TestingFileUploadController extends Controller {
 	}
 
 	@post('/upload/image')
-	async uploadImage(@dto() dto: ImageUploadDto) {
+	async uploadImage(@dto() data: ImageUploadDto) {
 
 		return {}
 	}
 
 	@post('/upload/video')
-	async uploadVideo(@dto() dto: VideoUploadDto) {
+	async uploadVideo(@dto() data: VideoUploadDto) {
 
 	}
 

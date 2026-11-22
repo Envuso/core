@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import {setDefaultTimeout} from "bun:test";
+// Importing anything from bun:test disables the implicit test globals for this file
+import {afterAll, beforeAll, describe, expect, setDefaultTimeout, test} from "bun:test";
 import {UserResource} from "../App/Http/ApiResources/UserResource";
 import {UserSocketListener} from "../App/Http/Sockets/UserSocketListener";
 import {User} from "../App/Models/User";

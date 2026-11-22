@@ -51,8 +51,8 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@post('/auth/userdecorator')
-	public async testUserDecorator(@user user: User, @dto() dt: DTO) {
-		return {user};
+	public async testUserDecorator(@user authUser: User, @dto() dt: DTO) {
+		return {user : authUser};
 	}
 
 	@get('/redirect')
@@ -145,8 +145,8 @@ export class TestingController extends Controller {
 	}
 
 	@method(['GET', 'POST'], '/body')
-	async testBody(@body body: any) {
-		return body.value ?? body.test ?? {message : 'no body'};
+	async testBody(@body data: any) {
+		return data.value ?? data.test ?? {message : 'no body'};
 	}
 
 	@post('/')
@@ -155,8 +155,8 @@ export class TestingController extends Controller {
 	}
 
 	@post('/failed/dto')
-	async testFailingDto(@dto() dto: DTO) {
-		return dto;
+	async testFailingDto(@dto() data: DTO) {
+		return data;
 	}
 
 	@get('/failed/dto/get')
@@ -246,7 +246,7 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy')
-	async testFailingUserPolicy(@user user: User) {
+	async testFailingUserPolicy(@user authUser: User) {
 
 		const otherUser = await User.create({});
 
@@ -258,15 +258,15 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/successful')
-	async testSuccessfulUserPolicy(@user user: User) {
-		const result = await Authorization.can('deleteAccount', user);
+	async testSuccessfulUserPolicy(@user authUser: User) {
+		const result = await Authorization.can('deleteAccount', authUser);
 
 		return {result};
 	}
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller')
-	async testFailingUserPolicyOnController(@user user: User) {
+	async testFailingUserPolicyOnController(@user authUser: User) {
 
 		const otherUser = await User.create({});
 
@@ -278,19 +278,19 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller/successful')
-	async testSuccessfulUserPolicyOnController(@user user: User) {
-		const result = await this.can('deleteAccount', user);
+	async testSuccessfulUserPolicyOnController(@user authUser: User) {
+		const result = await this.can('deleteAccount', authUser);
 
 		return {result};
 	}
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller/user')
-	async testFailingUserPolicyOnUser(@user user: User) {
+	async testFailingUserPolicyOnUser(@user authUser: User) {
 
 		const otherUser = await User.create({});
 
-		const result = await user.can('deleteAccount', otherUser);
+		const result = await authUser.can('deleteAccount', otherUser);
 
 		return {result};
 
@@ -298,8 +298,8 @@ export class TestingController extends Controller {
 
 	@middleware(new JwtAuthenticationMiddleware())
 	@get('/user/policy/controller/user/successful')
-	async testSuccessfulUserPolicyOnUser(@user user: User) {
-		const result = await user.can('deleteAccount', user);
+	async testSuccessfulUserPolicyOnUser(@user authUser: User) {
+		const result = await authUser.can('deleteAccount', authUser);
 
 		return {result};
 	}

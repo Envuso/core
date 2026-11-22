@@ -6,6 +6,7 @@ export * from './Mongo/Model';
 export * from './Mongo/QueryBuilder';
 export * from './ModelDecorators';
 export * from './ModelRelationshipDecorators';
+export type {Relation} from './Relation';
 export * from "./Serialization/Serializer";
 export * from "../Redis/Redis";
 export * from './Seeder/DatabaseSeeder';

@@ -1,3 +1,4 @@
+import type {Relation} from "../../Database/Relation";
 import {Type} from "class-transformer";
 import {ObjectId} from "mongodb";
 import {belongsTo} from "../../Database/ModelRelationshipDecorators";
@@ -21,5 +22,5 @@ export class Book extends Model<Book> {
 	userId: ObjectId;
 
 	@belongsTo('User', 'userId', '_id')
-	user: User;
+	user: Relation<User>;
 }

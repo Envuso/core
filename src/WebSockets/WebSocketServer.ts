@@ -51,7 +51,13 @@ export class WebSocketServer {
 	async boot(config: WebsocketsConfiguration) {
 		this.config = config;
 
-		this.app = uWS().App(this.config.uWebsocketAppOptions);
+		try {
+			this.app = uWS().App(this.config.uWebsocketAppOptions);
+		} catch (error) {
+			// TODO: move websockets onto Bun.serve's built-in (uWS-backed) websocket support
+			Log.warn(`WebSocket server disabled: uWebSockets.js could not be loaded on this runtime (${error?.message?.split('\n')[0]})`);
+			return;
+		}
 
 		await this.prepareEventListeners();
 
@@ -436,7 +442,7 @@ export class WebSocketServer {
 	}
 
 	public sendToUserId(id: string, event: string, data: any) {
-		this.app.publish(`auth:user:${id}`, WebSocketServer.transformSocketSendData({
+		this.app?.publish(`auth:user:${id}`, WebSocketServer.transformSocketSendData({
 			event : event,
 			data  : data ?? {}
 		}));
@@ -447,7 +453,7 @@ export class WebSocketServer {
 	}
 
 	public broadcast(channel: string, event: string, data: any) {
-		this.app.publish(channel, WebSocketServer.transformSocketSendData({
+		this.app?.publish(channel, WebSocketServer.transformSocketSendData({
 			event   : event,
 			channel : channel,
 			data    : data ?? {}
