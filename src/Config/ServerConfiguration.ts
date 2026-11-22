@@ -21,7 +21,7 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	/**
 	 * The port that fastify will listen on
 	 */
-	port = Environment.get<number>("PORT", 3000);
+	port = Number(Environment.get("PORT", 3000));
 
 	/**
 	 * The address that fastify will listen on

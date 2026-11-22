@@ -1,6 +1,5 @@
 import path from "path";
 import {Log} from "../../Common/Logger/Log";
-import {Obj} from "../../Common/Utility/Obj";
 
 /**
  * Bun loads `.env` files itself before any code runs, in increasing precedence:
@@ -8,7 +7,7 @@ import {Obj} from "../../Common/Utility/Obj";
  * Real environment variables win over all of them, and `${VAR}` references are expanded.
  * Use `bun --env-file=path/to/.env` for a different file, or `--no-env-file` to load none.
  *
- * This class only reads `process.env`, converting values ("" -> null, "true" -> true, "3000" -> 3000).
+ * This class only reads `process.env`, converting "" -> null and "true"/"false" -> booleans.
  */
 export default class Environment {
 
@@ -98,26 +97,40 @@ export default class Environment {
 	}
 
 	private static parseEnvObject(env: any) {
-		const newEnv = JSON.parse(JSON.stringify((env || {})));
+		const newEnv: { [key: string]: any } = {};
 
-		for (let key in newEnv) {
-			if (newEnv[key] === '') {
-				newEnv[key] = null;
-
-				continue;
-			}
-
-			if (Obj.isBoolean(newEnv[key])) {
-				newEnv[key] = Boolean(newEnv[key]);
-			}
-
-			if (Obj.isNumber(newEnv[key])) {
-				newEnv[key] = Number(newEnv[key]);
-			}
-
+		for (const key in (env || {})) {
+			newEnv[key] = this.parseValue(env[key]);
 		}
 
 		return newEnv;
+	}
+
+	/**
+	 * "" -> null and "true"/"false" -> boolean (case-insensitive).
+	 * Numbers stay strings, like Laravel's env(): converting would silently turn
+	 * numeric secrets (APP_KEY, passwords) into numbers. Use Number(...) where needed.
+	 */
+	private static parseValue(value: any): any {
+		if (typeof value !== 'string') {
+			return value;
+		}
+
+		const trimmed = value.trim();
+
+		if (trimmed === '') {
+			return null;
+		}
+
+		const lower = trimmed.toLowerCase();
+		if (lower === 'true') {
+			return true;
+		}
+		if (lower === 'false') {
+			return false;
+		}
+
+		return value;
 	}
 
 	/**
