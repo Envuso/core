@@ -22,14 +22,13 @@ describe('s3 storage', () => {
 	test('list files', async () => {
 		const directories = await Storage.disk('s3').files('/');
 
-		expect(directories.includes('/')).toBeTruthy();
+		expect(directories.includes('app-updates/')).toBeTruthy();
 		expect(directories.length).toBeGreaterThan(0);
 	});
 
 	test('list directories', async () => {
 		const directories = await Storage.disk('s3').directories('/');
 
-		expect(directories.includes('/')).toBeTruthy();
 		expect(directories.includes('app-updates/')).toBeTruthy();
 		expect(directories.length).toBeGreaterThan(0);
 	});

@@ -1,7 +1,13 @@
+import type {ObjectCannedACL} from "@aws-sdk/client-s3";
 export type S3StorageProviderConfiguration = {
 	bucket: string;
 	url: string;
 	endpoint: string;
+	region?: string;
+	/** Required for MinIO and most self-hosted S3-compatible servers */
+	forcePathStyle?: boolean;
+	/** Canned ACL applied to uploads. Defaults to "public-read"; use null for buckets with ACLs disabled. */
+	acl?: ObjectCannedACL | null;
 	credentials: {
 		accessKeyId: string;
 		secretAccessKey: string;

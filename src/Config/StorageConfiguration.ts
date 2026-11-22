@@ -20,6 +20,8 @@ export default class StorageConfiguration extends ConfigurationCredentials imple
 			bucket      : Environment.get('SPACES_BUCKET'),
 			url         : Environment.get('SPACES_URL'),
 			endpoint    : Environment.get('SPACES_ENDPOINT'),
+			region         : Environment.get('SPACES_REGION', 'us-east-1'),
+			forcePathStyle : Environment.get<boolean>('SPACES_FORCE_PATH_STYLE', false),
 			credentials : {
 				accessKeyId     : Environment.get('SPACES_KEY'),
 				secretAccessKey : Environment.get('SPACES_SECRET'),

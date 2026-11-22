@@ -1,11 +1,22 @@
-import {S3} from "aws-sdk";
+import {
+	DeleteObjectCommand,
+	GetObjectCommand,
+	HeadObjectCommand,
+	ListObjectsV2Command,
+	type ListObjectsV2CommandInput,
+	type ListObjectsV2CommandOutput,
+	PutObjectCommand,
+	type PutObjectCommandInput,
+	S3Client,
+} from "@aws-sdk/client-s3";
+import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 import fs from "fs";
 import {Str} from "../../Common/Utility/Str";
 import {type S3StorageProviderConfiguration, StorageProviderContract, type StoragePutOptions, type UploadedFileInformation} from "../StorageProviderContract";
 
 export class S3Provider extends StorageProviderContract {
 
-	private s3: S3;
+	private s3: S3Client;
 	private _config: S3StorageProviderConfiguration = null;
 
 	constructor(config: S3StorageProviderConfiguration) {
@@ -13,7 +24,12 @@ export class S3Provider extends StorageProviderContract {
 
 		this._config = config;
 
-		this.s3 = new S3(config);
+		this.s3 = new S3Client({
+			endpoint       : config.endpoint || undefined,
+			region         : config.region || 'us-east-1',
+			forcePathStyle : config.forcePathStyle ?? false,
+			credentials    : config.credentials,
+		});
 	}
 
 	/**
@@ -22,23 +38,15 @@ export class S3Provider extends StorageProviderContract {
 	 * @param directory
 	 * @param recursive
 	 */
-	public files(directory: string, recursive: boolean = false): Promise<string[]> {
+	public async files(directory: string, recursive: boolean = false): Promise<string[]> {
 		if (!directory.endsWith('/')) {
 			directory += '/';
 		}
 
-		return new Promise((resolve, reject) => {
-			this.s3.listObjectsV2({
-				Bucket : this._config.bucket,
-				Prefix : directory
-			}, (error, data) => {
-				if (error) {
-					return reject(error);
-				}
+		// The bucket root has no prefix; "/" would only match keys that literally start with a slash
+		const pages = await this.listAll({Prefix : directory === '/' ? '' : directory});
 
-				resolve(data.Contents.map(f => f.Key));
-			});
-		});
+		return pages.flatMap(page => (page.Contents ?? []).map(f => f.Key));
 	}
 
 	/**
@@ -46,23 +54,14 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param directory
 	 */
-	public directories(directory: string): Promise<string[]> {
+	public async directories(directory: string): Promise<string[]> {
 		if (!directory.endsWith('/')) {
 			directory += '/';
 		}
 
-		return new Promise((resolve, reject) => {
-			this.s3.listObjectsV2({
-				Bucket    : this._config.bucket,
-				Delimiter : directory,
-			}, (error, data) => {
-				if (error) {
-					return reject(error);
-				}
+		const pages = await this.listAll({Delimiter : directory});
 
-				resolve(data.CommonPrefixes.map(d => d.Prefix));
-			});
-		});
+		return pages.flatMap(page => (page.CommonPrefixes ?? []).map(d => d.Prefix));
 	}
 
 	/**
@@ -70,26 +69,18 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param directory
 	 */
-	public makeDirectory(directory: string): Promise<boolean> {
-
+	public async makeDirectory(directory: string): Promise<boolean> {
 		if (!directory.endsWith('/')) {
 			directory += '/';
 		}
 
-		return new Promise((resolve, reject) => {
-			this.s3.putObject({
-				Bucket : this._config.bucket,
-				Key    : directory,
-				Body   : '',
-				ACL    : 'public-read',
-			}, (error, data) => {
-				if (error) {
-					return reject(error);
-				}
+		const result = await this.s3.send(new PutObjectCommand(this.withAcl({
+			Bucket : this._config.bucket,
+			Key    : directory,
+			Body   : '',
+		})));
 
-				resolve(!!data.ETag);
-			});
-		});
+		return !!result.ETag;
 	}
 
 	/**
@@ -97,23 +88,17 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param directory
 	 */
-	public deleteDirectory(directory: string): Promise<boolean> {
+	public async deleteDirectory(directory: string): Promise<boolean> {
 		if (!directory.endsWith('/')) {
 			directory += '/';
 		}
 
-		return new Promise((resolve, reject) => {
-			this.s3.deleteObject({
-				Bucket : this._config.bucket,
-				Key    : directory,
-			}, (error, data) => {
-				if (error) {
-					return reject(error);
-				}
+		await this.s3.send(new DeleteObjectCommand({
+			Bucket : this._config.bucket,
+			Key    : directory,
+		}));
 
-				resolve(true);
-			});
-		});
+		return true;
 	}
 
 	/**
@@ -121,19 +106,20 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param key
 	 */
-	public fileExists(key: string): Promise<boolean> {
-		return new Promise((resolve, reject) => {
-			this.s3.headObject({
+	public async fileExists(key: string): Promise<boolean> {
+		try {
+			const result = await this.s3.send(new HeadObjectCommand({
 				Bucket : this._config.bucket,
 				Key    : key,
-			}, (error, data) => {
-				if (error) {
-					return reject(error);
-				}
+			}));
 
-				resolve(!!data.ContentLength);
-			});
-		});
+			return !!result.ContentLength;
+		} catch (error) {
+			if (error?.name === 'NotFound' || error?.$metadata?.httpStatusCode === 404) {
+				return false;
+			}
+			throw error;
+		}
 	}
 
 	/**
@@ -141,19 +127,13 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param location
 	 */
-	public get(location: string): Promise<string> {
-		return new Promise((resolve, reject) => {
-			this.s3.getObject({
-				Bucket : this._config.bucket,
-				Key    : location,
-			}, (error, data) => {
-				if (error) {
-					return reject(error);
-				}
+	public async get(location: string): Promise<string> {
+		const result = await this.s3.send(new GetObjectCommand({
+			Bucket : this._config.bucket,
+			Key    : location,
+		}));
 
-				resolve(Buffer.from(data.Body as Buffer).toString());
-			});
-		});
+		return await result.Body.transformToString();
 	}
 
 	/**
@@ -163,24 +143,18 @@ export class S3Provider extends StorageProviderContract {
 	 * @param {string} contents
 	 * @return {Promise<UploadedFileInformation>}
 	 */
-	public write(location: string, contents: string): Promise<UploadedFileInformation> {
-		return new Promise((resolve, reject) => {
-			this.s3.putObject({
-				ACL    : "public-read",
-				Bucket : this._config.bucket,
-				Key    : location,
-				Body   : contents
-			}, (error) => {
-				if (error) {
-					return reject(error);
-				}
-				resolve(<UploadedFileInformation>{
-					url          : `${this._config.url}/${location}`,
-					path         : location,
-					originalName : location
-				});
-			});
-		});
+	public async write(location: string, contents: string): Promise<UploadedFileInformation> {
+		await this.s3.send(new PutObjectCommand(this.withAcl({
+			Bucket : this._config.bucket,
+			Key    : location,
+			Body   : contents
+		})));
+
+		return {
+			url          : `${this._config.url}/${location}`,
+			path         : location,
+			originalName : location
+		} as UploadedFileInformation;
 	}
 
 	/**
@@ -189,28 +163,24 @@ export class S3Provider extends StorageProviderContract {
 	 * @param location
 	 * @param file
 	 */
-	public put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation> {
-		return new Promise((resolve, reject) => {
-			const extension = file.filename.split(".").pop();
-			const newName   = Str.random() + "." + extension;
-			const fileKey   = location + "/" + (file.storeAs ? file.storeAs : newName);
+	public async put(location: string, file: StoragePutOptions): Promise<UploadedFileInformation> {
+		const extension = file.filename.split(".").pop();
+		const newName   = Str.random() + "." + extension;
+		const fileKey   = location + "/" + (file.storeAs ? file.storeAs : newName);
 
-			this.s3.putObject({
-				ACL    : "public-read",
-				Bucket : this._config.bucket,
-				Key    : fileKey,
-				Body   : fs.createReadStream(file.tempFilePath)
-			}, (error) => {
-				if (error) {
-					return reject(error);
-				}
-				resolve(<UploadedFileInformation>{
-					url          : `${this._config.url}/${fileKey}`,
-					path         : fileKey,
-					originalName : file.filename
-				});
-			});
-		});
+		await this.s3.send(new PutObjectCommand(this.withAcl({
+			Bucket        : this._config.bucket,
+			Key           : fileKey,
+			Body          : fs.createReadStream(file.tempFilePath),
+			// Streams need an explicit length for a single PutObject
+			ContentLength : (await fs.promises.stat(file.tempFilePath)).size,
+		})));
+
+		return {
+			url          : `${this._config.url}/${fileKey}`,
+			path         : fileKey,
+			originalName : file.filename
+		} as UploadedFileInformation;
 	}
 
 	/**
@@ -218,19 +188,13 @@ export class S3Provider extends StorageProviderContract {
 	 *
 	 * @param location
 	 */
-	public remove(location: string): Promise<boolean> {
-		return new Promise((resolve, reject) => {
-			this.s3.deleteObject({
-				Bucket : this._config.bucket,
-				Key    : location,
-			}, (error) => {
-				if (error) {
-					return reject(error);
-				}
+	public async remove(location: string): Promise<boolean> {
+		await this.s3.send(new DeleteObjectCommand({
+			Bucket : this._config.bucket,
+			Key    : location,
+		}));
 
-				resolve(true);
-			});
-		});
+		return true;
 	}
 
 	/**
@@ -259,10 +223,39 @@ export class S3Provider extends StorageProviderContract {
 	 * @param expiresInSeconds
 	 */
 	public temporaryUrl(location: string, expiresInSeconds: number): Promise<string> {
-		return this.s3.getSignedUrlPromise("getObject", {
-			Bucket  : this._config.bucket,
-			Key     : location,
-			Expires : expiresInSeconds
-		});
+		return getSignedUrl(this.s3, new GetObjectCommand({
+			Bucket : this._config.bucket,
+			Key    : location,
+		}), {expiresIn : expiresInSeconds});
+	}
+
+	/**
+	 * ListObjectsV2 returns at most 1000 keys per call, so follow continuation tokens.
+	 */
+	private async listAll(input: Omit<ListObjectsV2CommandInput, 'Bucket'>): Promise<ListObjectsV2CommandOutput[]> {
+		const pages: ListObjectsV2CommandOutput[] = [];
+		let token: string | undefined             = undefined;
+
+		do {
+			const page: ListObjectsV2CommandOutput = await this.s3.send(new ListObjectsV2Command({
+				...input,
+				Bucket            : this._config.bucket,
+				ContinuationToken : token,
+			}));
+			pages.push(page);
+			token = page.IsTruncated ? page.NextContinuationToken : undefined;
+		} while (token);
+
+		return pages;
+	}
+
+	/**
+	 * Apply the configured canned ACL. Defaults to "public-read" (previous behaviour);
+	 * set `acl: null` for buckets with ACLs disabled (the AWS default for new buckets).
+	 */
+	private withAcl(input: PutObjectCommandInput): PutObjectCommandInput {
+		const acl = this._config.acl === undefined ? 'public-read' : this._config.acl;
+
+		return acl ? {...input, ACL : acl} : input;
 	}
 }
