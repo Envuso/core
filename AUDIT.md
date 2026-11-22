@@ -191,6 +191,7 @@ Test file: a parameter decorator, a method decorator, and `Reflect.getMetadata("
 
 - ✅ **Bun bug: a parameter that shadows its decorator drops the import.** `@dto() dto: X` on a method that also has a method decorator: Bun 1.4.4 elides `import {dto}` but still emits the `dto()` call → `ReferenceError: dto is not defined`. Renamed the params in the test controllers. Worth reporting upstream, and documenting for users.
 - ✅ Importing anything from `bun:test` disables that file's implicit test globals.
+- ✅ **`Bun.s3` strips trailing slashes from object keys** (Bun 1.4.4), in `write`, `exists`, `delete` and even `presign`: `dir/` becomes `dir`. Folder markers can't be created or removed, so S3 storage stays on `@aws-sdk/client-s3` for now. Revisit when Bun fixes this.
 
 ### Untangling progress
 | Stage | Largest runtime import cycle |
