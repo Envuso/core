@@ -13,6 +13,7 @@ export interface CookieContract<T> {
 	secure: boolean;
 	sameSite: CookieSameSiteValue;
 	signed: boolean;
+	encrypted: boolean;
 
 	isValid(value: any): boolean;
 
@@ -70,6 +71,8 @@ export interface CookieContract<T> {
 	withExpiresAt(value: DateTime): CookieContract<T>;
 
 	getExpires(): DateTimeContract;
+
+	withEncryption(value?: boolean): CookieContract<T>;
 
 	withHttpOnly(value: boolean): CookieContract<T>;
 

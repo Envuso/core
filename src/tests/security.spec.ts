@@ -143,6 +143,39 @@ describe('session cookie', () => {
 	});
 });
 
+describe('xsrf cookie', () => {
+	const xsrf = (res: any) => res.cookies.find((c: any) => c.name === 'XSRF-TOKEN');
+
+	test('carries the session token, readable by JavaScript and unencrypted', async () => {
+		const res    = await inject({method : 'GET', url : '/testing/session/csrf'});
+		const cookie = xsrf(res);
+
+		expect(cookie).toBeDefined();
+		expect(cookie.httpOnly).not.toBe(true);
+		expect(decodeURIComponent(cookie.value)).toBe(res.json().token);
+	});
+
+	test('sent back as X-XSRF-TOKEN (what axios/Inertia do) it passes the CSRF check', async () => {
+		const first = await inject({method : 'GET', url : '/testing/session/csrf'});
+		const res   = await inject({
+			method  : 'POST', url : '/testing/session/csrf-protected',
+			cookies : {[cookieName()] : sessionCookie(first), 'XSRF-TOKEN' : xsrf(first).value},
+			headers : {'x-xsrf-token' : xsrf(first).value},
+		});
+
+		expect(res.statusCode).toBeLessThan(300);
+	});
+
+	test('after login it holds the new token', async () => {
+		const first = await inject({method : 'GET', url : '/testing/session/csrf'});
+		const login = await inject({method : 'GET', url : '/testing/session/login-as', query : {id : 'user-2'}, cookies : {[cookieName()] : sessionCookie(first)}});
+		const after = await inject({method : 'GET', url : '/testing/session/csrf', cookies : {[cookieName()] : sessionCookie(login)}});
+
+		expect(decodeURIComponent(xsrf(login).value)).not.toBe(decodeURIComponent(xsrf(first).value));
+		expect(decodeURIComponent(xsrf(login).value)).toBe(after.json().token);
+	});
+});
+
 describe('user provider fallback', () => {
 	test('BaseUserProvider refuses to authenticate', async () => {
 		const provider = new BaseUserProvider();

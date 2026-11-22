@@ -128,6 +128,8 @@ export interface SessionContract {
 	 */
 	regenerateToken(): Promise<void>;
 
+	regenerateTokenIfPending(): Promise<void>;
+
 	/**
 	 * Flush all of the session data and regenerate the session id
 	 *

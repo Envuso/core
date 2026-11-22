@@ -6,6 +6,7 @@ import {RabbitEncryption} from "../../Crypt/RabbitEncryption";
 import {RequestContext} from "../../Routing/Context/RequestContext";
 import type {HookHandlerArgs} from "../ServerHooks/Hook";
 import {PreHandlerHook} from "../ServerHooks/HookTypes/PreHandlerHook";
+import {SetResponseCookiesHook} from "./SetResponseCookiesHook";
 
 /**
  * This hook will initiate our request context
@@ -47,7 +48,14 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 
 		const cookies = context.request.cookieJar().all();
 
+		const xsrfCookie = SetResponseCookiesHook.xsrfCookieName();
+
 		for (let cookie of cookies) {
+			// Sent unencrypted (see SetResponseCookiesHook); it's re-issued on every response
+			if (cookie.name === xsrfCookie) {
+				continue;
+			}
+
 			try {
 				const value = RabbitEncryption.decrypt<string>(cookie.value);
 

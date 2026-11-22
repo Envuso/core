@@ -24,6 +24,12 @@ export type SessionCookie = {
 
 export type SessionConfiguration = {
 	cookie: CookieConfiguration;
+	/**
+	 * Name of the cookie holding the CSRF token for JavaScript clients (default "XSRF-TOKEN").
+	 * axios (and so Inertia) sends it back as an X-XSRF-TOKEN header on same-origin requests,
+	 * which VerifyCsrfTokenMiddleware accepts. Set to false to not send it.
+	 */
+	xsrfCookie?: string | false;
 	sessionCookie: SessionCookie;
 	sessionStorageDriver: new () => SessionStorageDriver | null;
 }

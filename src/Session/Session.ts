@@ -128,10 +128,7 @@ export class Session implements SessionContract {
 			this.rotatedFromId = null;
 		}
 
-		if (this.tokenNeedsRegenerating) {
-			this.tokenNeedsRegenerating = false;
-			await this.regenerateToken();
-		}
+		await this.regenerateTokenIfPending();
 
 		this.attributes.ageFlashData();
 
@@ -251,6 +248,16 @@ export class Session implements SessionContract {
 	 *
 	 * @return {Promise<void>}
 	 */
+	/**
+	 * Apply a token regeneration requested during this request (e.g. by rotateId() on login)
+	 */
+	public async regenerateTokenIfPending() {
+		if (this.tokenNeedsRegenerating) {
+			this.tokenNeedsRegenerating = false;
+			await this.regenerateToken();
+		}
+	}
+
 	public async regenerateToken() {
 		const csrfCreator = resolve<CsrfContract>('csrf');
 		const secret      = await csrfCreator.secret();

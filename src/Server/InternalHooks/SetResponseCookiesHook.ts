@@ -30,6 +30,21 @@ export class SetResponseCookiesHook extends OnSendHook {
 				context.session.getId(),
 				config().get<string, any>('Session.cookie.encrypted')
 			);
+
+			// A token rotated during this request (login) must be the one the cookie carries
+			await context.session.regenerateTokenIfPending();
+
+			const xsrfCookie = SetResponseCookiesHook.xsrfCookieName();
+			if (xsrfCookie && context.session.getCsrfToken()) {
+				// Readable by JavaScript and not encrypted: axios copies it into X-XSRF-TOKEN as-is.
+				// The token isn't secret from the page; other origins just can't read it.
+				context.response.cookieJar().put(
+					xsrfCookie,
+					Cookie.create(xsrfCookie, context.session.getCsrfToken())
+						.withHttpOnly(false)
+						.withEncryption(false)
+				);
+			}
 		}
 
 		const useCookieEncryption = config().get<string, any>('Session.cookie.encrypted');
@@ -37,13 +52,19 @@ export class SetResponseCookiesHook extends OnSendHook {
 		const cookies = context.response.cookieJar().all();
 
 		for (let cookie of cookies) {
-			if (!useCookieEncryption) {
+			if (!useCookieEncryption || cookie.encrypted === false) {
 				context.response.setHeader('set-cookie', cookie.toHeaderString());
 				continue;
 			}
 
 			this.encryptAndSet(context, cookie);
 		}
+	}
+
+	public static xsrfCookieName(): string | null {
+		const name = config().get<string, any>('Session.xsrfCookie', 'XSRF-TOKEN');
+
+		return name || null;
 	}
 
 	private encryptAndSet(context: RequestContextContract, cookie: Cookie<any>) {

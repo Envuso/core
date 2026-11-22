@@ -20,6 +20,8 @@ export class Cookie<T> implements CookieContract<T> {
 	public secure: boolean = null;
 	public sameSite: CookieSameSiteValue = null;
 	public signed: boolean = false;
+	/** false sends this cookie as-is even when Session.cookie.encrypted is on */
+	public encrypted: boolean = null;
 
 	static create<V>(name: string, value: V, signed: boolean = false): CookieContract<V> {
 		Cookie.setDefaultSettings();
@@ -309,6 +311,12 @@ export class Cookie<T> implements CookieContract<T> {
 
 	public getExpires(): DateTimeContract {
 		return this.expires;
+	}
+
+	public withEncryption(value: boolean = true): CookieContract<T> {
+		this.encrypted = value;
+
+		return this;
 	}
 
 	public withHttpOnly(value: boolean = true): CookieContract<T> {
