@@ -172,27 +172,28 @@ export class AssetManager {
 		//			handlerStream(request, reply, assetPath)
 		//		});
 
-		const handlerStream = (request: FastifyRequest, reply: FastifyReply, filePath: string) => {
-			try {
-				if (!fs.statSync(filePath)) {
-					return reply.callNotFound();
-				}
-			} catch (error) {
-				return reply.callNotFound();
-			}
+		// Bun resolves the type from the extension; unknown extensions come back as octet-stream.
+		// Worked out once here instead of per request (as was a statSync of the file)
+		const type     = Bun.file(assetPath).type;
+		const mimeType = type === 'application/octet-stream' ? null : type;
 
-			// Bun resolves the type from the extension; unknown extensions come back as octet-stream
-			const type     = Bun.file(filePath).type;
-			const mimeType = type === 'application/octet-stream' ? null : type;
+		const handlerStream = (request: FastifyRequest, reply: FastifyReply, filePath: string) => {
 			if (!mimeType) {
 				return reply.callNotFound();
 			}
 
-			reply.type(mimeType).send(fs.createReadStream(filePath));
+			// A file deleted since boot is a 404; the stream had no error handler at all
+			const stream = fs.createReadStream(filePath);
+			stream.once('error', () => {
+				if (!reply.sent) {
+					reply.callNotFound();
+				}
+			});
+			stream.once('open', () => reply.type(mimeType).send(stream));
 		};
 
+		// Fastify 5 adds the HEAD route for a GET itself; registering it too failed the boot
 		server.get(route, {prefixTrailingSlash : 'no-slash'}, (request, reply) => handlerStream(request, reply, assetPath));
-		server.head(route, {prefixTrailingSlash : 'no-slash'}, (request, reply) => handlerStream(request, reply, assetPath));
 
 		Log.info('Asset route registered @ "' + route + '"');
 	}
@@ -211,9 +212,9 @@ export class AssetManager {
 	}
 
 	private cleanAssetPath(filePath: string): string {
-		return filePath
-			.replace(this.assetPath.replace(/\\/g, '/'), '')
-			.replace(/^\//, '');
+		// Relative to the asset directory, with "/" separators. FileLoader returns OS paths,
+		// so stripping a "/"-separated prefix left Windows paths absolute
+		return path.relative(this.assetPath, path.resolve(filePath)).split(path.sep).join('/');
 	}
 
 	private prepareAssetPath(filePath: string): string {

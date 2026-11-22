@@ -14,6 +14,7 @@ import {app} from "../AppContainer/helpers";
 import {Exception} from "../Common/Exception/Exception";
 import {ExceptionHandler} from "../Common/Exception/ExceptionHandler";
 import {Server} from "../Server/Server";
+import {AssetManager} from "../Routing/StaticAssets/AssetManager";
 import {Storage} from "../Storage/Storage";
 import {bootApp, unloadApp} from "./preptests";
 
@@ -434,5 +435,18 @@ describe('Cache.remember', () => {
 
 		expect(calls).toBe(1);
 		await Cache.remove(key);
+	});
+});
+
+describe('static assets', () => {
+	test('a registered asset is served with its type', async () => {
+		const assetPath = AssetManager.getAssetPaths().find(p => p.endsWith('.css') || p.endsWith('.js') || p.endsWith('.svg') || p.endsWith('.png'));
+		expect(assetPath).toBeDefined();
+
+		const res = await inject({method : 'GET', url : assetPath});
+
+		expect(res.statusCode).toBe(200);
+		expect(res.headers['content-type']).toBeTruthy();
+		expect(res.rawPayload.length).toBeGreaterThan(0);
 	});
 });
