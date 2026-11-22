@@ -1,5 +1,6 @@
 import {
 	DeleteObjectCommand,
+	DeleteObjectsCommand,
 	GetObjectCommand,
 	HeadObjectCommand,
 	ListObjectsV2Command,
@@ -93,10 +94,26 @@ export class S3Provider extends StorageProviderContract {
 			directory += '/';
 		}
 
-		await this.s3.send(new DeleteObjectCommand({
-			Bucket : this._config.bucket,
-			Key    : directory,
-		}));
+		if (directory === '/') {
+			throw new Error('S3: refusing to delete the whole bucket (deleteDirectory("/")).');
+		}
+
+		// A "directory" is a key prefix: delete everything under it, not only the "dir/"
+		// marker object (files inside used to survive)
+		const pages = await this.listAll({Prefix : directory});
+		const keys  = pages.flatMap(page => (page.Contents ?? []).map(object => object.Key));
+
+		// DeleteObjects takes up to 1000 keys per request
+		for (let i = 0; i < keys.length; i += 1000) {
+			const result = await this.s3.send(new DeleteObjectsCommand({
+				Bucket : this._config.bucket,
+				Delete : {Objects : keys.slice(i, i + 1000).map(Key => ({Key})), Quiet : true},
+			}));
+
+			if (result.Errors?.length) {
+				throw new Error(`S3: failed to delete ${result.Errors.length} object(s) under "${directory}": ${result.Errors[0].Message}`);
+			}
+		}
 
 		return true;
 	}
