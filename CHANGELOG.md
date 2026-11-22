@@ -345,6 +345,11 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - `@job` no longer requires the file name to match the class name. (efdf449)
 - The OAuth provider no longer disables TLS certificate verification process-wide (see Security). (142c622)
 
+- **Routes after `App.reboot()`** (e.g. the asset watcher): the old routes were never cleared, so every route logged a clash and the stale route kept being served. (e360856)
+- **`Envuso.addExceptionHandler()` was ignored.** The handler is now called first: return a `Response`, or the `reply` once you've sent it, or nothing to fall back to the `ExceptionHandler`. (e360856)
+- **`reflect-metadata` is imported by the package entry**, so apps no longer have to import it first. (e360856)
+- **The queue only waits between polls when nothing was picked up.** It slept `waitTimeMs` after every pass, capping short jobs at about one per worker per second.
+
 ### Security
 
 - **CSRF protection was a no-op**: the middleware compared the session's secret with the session's own token and never read what the client sent. CSRF salts used `Math.random`; they now use `crypto.randomInt`. (5b76c3a)

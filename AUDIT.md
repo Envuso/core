@@ -16,7 +16,7 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ✅ `aws-sdk` v2 is end-of-life. Needs `@aws-sdk/client-s3` plus `@aws-sdk/s3-request-presigner`.
 - ✅ *(fixed: removed, websockets run on `Bun.serve`)* `uWebSockets.js` is fetched from GitHub over git+ssh (`#v19.3.0`), not from the npm registry.
 - ✅ Frontend/build tooling sits in runtime `dependencies`: `laravel-mix`, `ts-node`, `ts-node-dev`, several `@types/*`. Vue/babel/webpack are devDeps of a backend core.
-- ⚠️ Tests: ~160 tests across 17 specs. No `test` script in package.json. They need live MongoDB + Redis + an uncommitted `.env`. `model.spec.ts` drops `users`/`books` in whatever DB `.env` points at. `unloadApp(true)` calls `process.exit`. jest `testRegex` also matches helper files. Queue, Events and the Redis queue have **zero** tests.
+- ✅ **Fixed 2026-11-22** — *(`bun test` script, Testcontainers Mongo + Redis started once per run, no `.env` needed; 253 tests across 22 specs including queue and events)* Tests: ~160 tests across 17 specs. No `test` script in package.json. They need live MongoDB + Redis + an uncommitted `.env`. `model.spec.ts` drops `users`/`books` in whatever DB `.env` points at. `unloadApp(true)` calls `process.exit`. jest `testRegex` also matches helper files. Queue, Events and the Redis queue have **zero** tests.
 - ✅ No custom TS transformers are used. Parameter names are recovered by parsing `Function.prototype.toString()` (`src/Common/Decorators/DecoratorHelpers.ts:65`), which breaks under minification and with default values that contain commas.
 - ⚠️ `tsconfig` has `strict: false`, ~130 `any` casts, several `@ts-ignore`.
 
@@ -73,15 +73,15 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
   - View errors are hard-coded to 500.
   - Fastify's own 4xx errors (bad JSON, 413, 415) become 500, because `error.statusCode` is ignored.
 - ✅ **Fixed 2026-11-22** — `Server.errorHandler` → `RequestContext.get()` can be empty, so the error handler itself throws.
-- ⚠️ Routing:
+- ✅ **Fixed 2026-11-22** — *(e360856; a reboot served the stale routes)* Routing:
   - `Routing.isInitiated()` never returns true.
   - `loadControllers` never clears routes.
   - The meta check uses `&&` where it should use `||`, then crashes on `.map`.
-- ⚠️ `Route.ts:65-67` runs `match(routePath)(routePath)`, so params are the placeholder text, not real values.
+- ✅ **Fixed 2026-11-22** — *(path-to-regexp removed; `getPathParameters()` is the `{name: ':name'}` template map by design, request values come from Fastify)* `Route.ts:65-67` runs `match(routePath)(routePath)`, so params are the placeholder text, not real values.
 - ✅ **Fixed 2026-11-22** — `ConfigRepository.set` doesn't lowercase the top-level key but `get` does.
-- ⚠️ `Server.ts:161-163` doesn't await `register`. `setErrorHandling` is stored but never used.
+- ❌ ~~`register` isn't awaited~~ — Fastify queues plugins and loads them on `ready`/`listen`/`inject`; not a bug. ✅ **Fixed 2026-11-22** (e360856) — `setErrorHandling` is stored but never used.
 - ✅ **Fixed 2026-11-22** — `ProcessUploadedFilesHook.ts:122` passes `undefined` when a multipart request has no file part, which then crashes.
-- ⚠️ `src/index.ts` never imports `reflect-metadata`. Consumers must also call `Configuration.initiate()` manually, or boot crashes.
+- ✅ **Fixed 2026-11-22** — *(e360856)* `src/index.ts` never imports `reflect-metadata`. *(`Configuration.initiate()` stays: it loads the app's own config files, so it belongs in the app's entry.)*
 - ❌ ~~"Only the last Set-Cookie survives"~~ — Fastify's `reply.header` appends `set-cookie` (`fastify/lib/reply.js:242`). Not a bug.
 
 ### Database / ORM (Mongo)
@@ -104,11 +104,11 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 > **Fixed 2026-11-22**: the queue was rebuilt on Bun.redis (`QueueStore`: ZSET visibility timeout that running jobs keep extending, every state change one Lua script, retries with `backoff`/`retryDelay()`, a failed list, configurable `workers`, crashed workers released and respawned). Every item below is resolved and covered by `queue.spec.ts`.
 
 - ✅ **Jobs never run with the default `retries = 0`** — `src/Queue/Jobs/Job.ts:13`. The Lua pop increments `attempts` to 1, and `Worker.ts:49` throws when `1 > 0`. Masked because `ImplementedJob` sets `retries = 3`.
-- ⚠️ When the worker pool is full, the reserved payload is re-pushed without removal, creating duplicates.
-- ⚠️ No visibility timeout. `recover()` requeues **all** reserved jobs on boot, so multiple instances run jobs twice.
-- ⚠️ Run loop has no try/catch: one Redis error stops the queue.
-- ⚠️ Worker: `JSON.parse` is outside the try block, the async IIFE has no catch, and a crashed worker isn't removed from `freeWorkers` (and the wrong element is spliced).
-- ⚠️ Non-atomic `lRem` + `rpush`. No backoff. Requires Redis 6.2+.
+- ✅ *(resolved by the queue rebuild, efdf449)* When the worker pool is full, the reserved payload is re-pushed without removal, creating duplicates.
+- ✅ *(resolved by the queue rebuild, efdf449)* No visibility timeout. `recover()` requeues **all** reserved jobs on boot, so multiple instances run jobs twice.
+- ✅ *(resolved by the queue rebuild, efdf449)* Run loop has no try/catch: one Redis error stops the queue.
+- ✅ *(resolved by the queue rebuild, efdf449)* Worker: `JSON.parse` is outside the try block, the async IIFE has no catch, and a crashed worker isn't removed from `freeWorkers` (and the wrong element is spliced).
+- ✅ *(resolved by the queue rebuild, efdf449)* Non-atomic `lRem` + `rpush`. No backoff. Requires Redis 6.2+.
 
 ### Events / Cache / Redis / Storage
 - ✅ **Fixed 2026-11-22** — `dispatch` is async but typed `void`, so callers can't await it. Events are keyed by class name, so same-named classes collide.
@@ -124,7 +124,7 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 - ⚠️ The controller is resolved and its method re-bound per request. A child container and an `InertiaRequest` are created per request.
 - ⚠️ Every cookie is decrypted on every request. *(Still eager, but AES-GCM is cheap and unchanged cookies are no longer re-encrypted and re-sent.)*
 - ✅ **Fixed 2026-11-22** — *(e2fa404; asset routes also failed to boot on Fastify 5 and were absolute paths on Windows)* `AssetManager` calls `statSync` per request. `createReadStream` has no error listener.
-- ⚠️ Queue loop sleeps 1s every iteration. Worker pool is hard-coded to 1 worker.
+- ✅ **Fixed 2026-11-22** — *(`workers` is configurable since efdf449; the loop only waits when nothing was reserved)* Queue loop sleeps 1s every iteration. Worker pool is hard-coded to 1 worker.
 
 ---
 
@@ -140,17 +140,17 @@ Legend: ✅ = verified directly against source · ⚠️ = reported by a subagen
 ---
 
 ## 5. Redesign candidates (proposed)
-1. **Param injection**: keep the decorator + type-hint ergonomics (no per-route schemas — see Design principles). Compile per-route binders once at registration, indexed by position, so each request just runs a precomputed list. Isolate all `Reflect`/`design:*` reads behind one internal module so the metadata source can be swapped later without touching the user-facing API.
+1. ✅ *(binders compiled per route, 50219ae)* **Param injection**: keep the decorator + type-hint ergonomics (no per-route schemas — see Design principles). Compile per-route binders once at registration, indexed by position, so each request just runs a precomputed list. Isolate all `Reflect`/`design:*` reads behind one internal module so the metadata source can be swapped later without touching the user-facing API.
 2. ✅ *(done)* **Crypto**: replace CryptoJS/Rabbit/SimpleCryptoJS with `node:crypto` AES-256-GCM, with HKDF-derived subkeys for encryption and signing. Require a strong `APP_KEY` at boot.
 3. ✅ *(done: rebuilt on ZSET visibility timeouts, see Queue)* **Queue**: replace with BullMQ (locking, stalled-job recovery, backoff, multi-instance), or rebuild on ZSET-based visibility timeouts.
-4. **Fastify 5**: move to the `@fastify/*` plugins and remove the deep imports of Fastify internals.
-5. **Tests**: Vitest (or `bun test`) with Testcontainers or `mongodb-memory-server`, an isolated DB per run, and a `test` script.
-6. **Packaging**: move tooling out of runtime deps. Replace the git-sourced `uWebSockets.js` with the npm release or `ws@8` / `@fastify/websocket`.
+4. ✅ *(Fastify 5 and `@fastify/*`; deep imports still open, see Architecture)* **Fastify 5**: move to the `@fastify/*` plugins and remove the deep imports of Fastify internals.
+5. ✅ *(`bun test` + Testcontainers)* **Tests**: Vitest (or `bun test`) with Testcontainers or `mongodb-memory-server`, an isolated DB per run, and a `test` script.
+6. ✅ *(done)* **Packaging**: move tooling out of runtime deps. Replace the git-sourced `uWebSockets.js` with the npm release or `ws@8` / `@fastify/websocket`.
 
 ## 6. Suggested order
-1. Baseline: modern TS, fixed tsconfig, tests that run hermetically.
-2. Small security and correctness fixes, each with a test.
-3. Dependency upgrades.
+1. ✅ Baseline: modern TS, fixed tsconfig, tests that run hermetically.
+2. ✅ Small security and correctness fixes, each with a test.
+3. ✅ Dependency upgrades.
 4. Redesigns.
 
 ## 7. Bun + latest TS — findings (tested 2026-11-22)

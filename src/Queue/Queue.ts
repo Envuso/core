@@ -137,6 +137,10 @@ export class Queue {
 
 	private async loop() {
 		while (this.running && App.isBooted()) {
+			// Only wait when there was nothing to pick up; sleeping after every pass capped
+			// short jobs at about one per worker per second
+			let reserved = 0;
+
 			try {
 				// Keep the reservations of running jobs alive
 				await this.store.extend(
@@ -144,7 +148,9 @@ export class Queue {
 					Date.now() + this.config.visibilityTimeoutMs
 				);
 
-				const jobs = await this.store.reserve(this.pool.getCapacity(), this.config.visibilityTimeoutMs);
+				const capacity = this.pool.getCapacity();
+				const jobs     = capacity > 0 ? await this.store.reserve(capacity, this.config.visibilityTimeoutMs) : [];
+				reserved       = jobs.length;
 
 				for (const job of jobs) {
 					if (!this.pool.runTask(job)) {
@@ -155,7 +161,9 @@ export class Queue {
 				Log.label('Queue').exception('Queue loop error', error);
 			}
 
-			await this.sleep(this.config.waitTimeMs);
+			if (reserved === 0) {
+				await this.sleep(this.config.waitTimeMs);
+			}
 		}
 
 		this.running = false;
