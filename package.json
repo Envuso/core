@@ -13,7 +13,8 @@
     "devo": "bun src/run-dev.ts",
     "test": "bun test --timeout 30000",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "pack": "bun scripts/pack.ts"
+    "pack": "bun scripts/pack.ts",
+    "release": "bun scripts/release.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",
