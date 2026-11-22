@@ -19,6 +19,18 @@ import {StorageServiceProvider} from "../Storage/StorageServiceProvider";
 import {WebSocketServer} from "../WebSockets/WebSocketServer";
 import {bootApp, unloadApp} from "./preptests";
 
+// The websocket server needs the uWebSockets.js native addon, which has no build for Bun.
+// Without it the server disables itself and every test here would just sit out its timeout.
+// TODO: remove once websockets run on Bun.serve
+const uwsAvailable = (() => {
+	try {
+		require('uWebSockets.js');
+		return true;
+	} catch {
+		return false;
+	}
+})();
+
 beforeAll(() => bootApp());
 afterAll(() => unloadApp());
 
@@ -43,7 +55,7 @@ const createUserAndToken = async () => {
 };
 
 
-describe('websocket connections', () => {
+describe.skipIf(!uwsAvailable)('websocket connections', () => {
 	test('connecting without a jwt', async () => {
 		const {user, token} = await createUserAndToken();
 		const client        = await createSocketClient();
@@ -89,7 +101,7 @@ describe('websocket connections', () => {
 
 });
 
-describe('websocket channels', () => {
+describe.skipIf(!uwsAvailable)('websocket channels', () => {
 
 	test('Connecting to a wildcard channel without access', async () => {
 		const {user, token} = await createUserAndToken();
