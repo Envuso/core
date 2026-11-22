@@ -20,6 +20,7 @@ let instance: Redis = null;
 export class Redis {
 	private readonly config: RedisConnectionOptions;
 	private client: RedisClient;
+	private closing = false;
 
 	constructor(config: RedisConnectionOptions) {
 		if (instance) {
@@ -49,7 +50,8 @@ export class Redis {
 
 		this.client         = new RedisClient(Redis.connectionUrl(this.config), {tls : this.config.tls});
 		this.client.onclose = (error) => {
-			if (error) {
+			// close() during shutdown also reports "Connection closed"
+			if (error && !this.closing) {
 				Log.exception("Redis connection closed:", error);
 			}
 		};
@@ -68,6 +70,9 @@ export class Redis {
 	public static async shutdown() {
 		const didQuit = !!instance?.client;
 
+		if (instance) {
+			instance.closing = true;
+		}
 		instance?.client?.close();
 		instance = null;
 

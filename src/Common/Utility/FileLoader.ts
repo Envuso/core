@@ -1,3 +1,4 @@
+import fs from 'fs';
 import path from 'path';
 import {Log} from "../Logger/Log";
 import {Classes} from "./Classes";
@@ -69,6 +70,11 @@ export class FileLoader {
 	static filesInPath(pattern: string, options: FilesInPathOptions = {}): string[] {
 		const {cwd, glob} = this.splitGlobPattern(pattern);
 
+		// Bun.Glob throws for a missing directory; an app without e.g. App/Events just has no files
+		if (!fs.existsSync(cwd)) {
+			return [];
+		}
+
 		return Array.from(new Bun.Glob(glob).scanSync({
 			cwd,
 			absolute       : path.isAbsolute(cwd),
@@ -86,6 +92,10 @@ export class FileLoader {
 	static async filesInPathAsync(pattern: string, options: FilesInPathOptions = {}): Promise<string[]> {
 		const {cwd, glob} = this.splitGlobPattern(pattern);
 		const files       = [];
+
+		if (!fs.existsSync(cwd)) {
+			return files;
+		}
 
 		for await (const file of new Bun.Glob(glob).scan({
 			cwd,

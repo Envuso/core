@@ -175,17 +175,20 @@ export class Route implements RouteContract {
 			const routeMethod   = controller[this.methodMeta.key].bind(controller);
 			const routeResponse = await routeMethod(...parameters);
 
+			// An async Fastify handler that sends the reply itself must return it; resolving with
+			// undefined makes Fastify try to send again (ERR_HTTP_HEADERS_SENT)
 			if (this.responseIsRedirect(response) && response?.sent) {
-				return;
+				return response;
 			}
 
 			if (response?.sent) {
 				console.warn('Response is already sent... something is offf.');
-				return;
+				return response;
 			}
 
-
 			await Route.getResponseResult(routeResponse);
+
+			return response;
 		};
 	}
 

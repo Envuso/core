@@ -1,6 +1,6 @@
 import {
 	AggregationCursor,
-	BulkWriteResult,
+	type BulkWriteResult,
 	Collection,
 	type DeleteResult, type Filter,
 	FindCursor,

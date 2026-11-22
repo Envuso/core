@@ -23,8 +23,21 @@ const out  = path.join(root, '.pack');
 
 fs.rmSync(dist, {recursive : true, force : true});
 
-console.log('› Building dist/');
-await $`bunx tsc -p tsconfig-dist.json`.cwd(root);
+// JavaScript is built with Bun's transpiler, the same one the test suite runs the source with.
+// tsc would keep imports of classes that are only used as types, which become real runtime
+// imports in the output and can form import cycles (TDZ errors) that never happen from source.
+const sources = Array.from(new Bun.Glob('**/*.ts').scanSync({cwd : path.join(root, 'src')}))
+	.filter(file => !/^(tests|App|Config)[\/]/.test(file) && file !== 'run-dev.ts' && !file.endsWith('.d.ts'))
+	.map(file => path.join('src', file));
+
+console.log(`› Building dist/ (${sources.length} files)`);
+await $`bun build ${sources} --no-bundle --root src --outdir dist --target bun`.cwd(root).quiet();
+
+console.log('› Emitting type declarations');
+await $`bunx tsc -p tsconfig-dist.json --emitDeclarationOnly --declaration --sourceMap false`.cwd(root);
+
+console.log('› Checking dist imports');
+await $`bun scripts/check-dist-imports.ts`.cwd(root);
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 
