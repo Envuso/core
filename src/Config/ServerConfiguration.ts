@@ -67,9 +67,11 @@ export default class ServerConfiguration extends ConfigurationCredentials implem
 	cors = {
 		enabled : true,
 		options : {
-			origin      : (origin: string, callback) => {
-				callback(null, true);
-			},
+			// Origins allowed to make credentialed cross-origin requests: CORS_ORIGINS
+			// (comma separated), else APP_URL. Same-origin requests don't need CORS.
+			// (Every origin was allowed, with credentials, so any site could call the API as the user.)
+			origin      : String(Environment.get('CORS_ORIGINS', null) ?? Environment.get('APP_URL', null) ?? '')
+				.split(',').map(origin => origin.trim().replace(/\/$/, '')).filter(Boolean),
 			credentials : true,
 		} as FastifyCorsOptions
 	};

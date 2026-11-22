@@ -176,6 +176,39 @@ describe('xsrf cookie', () => {
 	});
 });
 
+describe('cors', () => {
+	const preflight = (origin: string) => inject({
+		method  : 'OPTIONS', url : '/testing/session/csrf',
+		headers : {origin, 'access-control-request-method' : 'GET'},
+	});
+
+	test('an unlisted origin is not allowed (any origin was, with credentials)', async () => {
+		const res = await preflight('https://evil.example');
+
+		expect(res.headers['access-control-allow-origin']).toBeUndefined();
+	});
+
+	test('APP_URL is allowed by default', async () => {
+		const appUrl = process.env.APP_URL.replace(/\/$/, '');
+		const res    = await preflight(appUrl);
+
+		expect(res.headers['access-control-allow-origin']).toBe(appUrl);
+		expect(res.headers['access-control-allow-credentials']).toBe('true');
+	});
+});
+
+describe('disableCookieEncryption', () => {
+	test('listed cookies are sent as-is', async () => {
+		app().config().set('Server.disableCookieEncryption', ['hello']);
+
+		const res    = await inject({method : 'GET', url : '/testing/cookie/is-set'});
+		const cookie = res.cookies.find((c: any) => c.name === 'hello');
+
+		expect(cookie.value).toBe('world');
+		app().config().set('Server.disableCookieEncryption', []);
+	});
+});
+
 describe('user provider fallback', () => {
 	test('BaseUserProvider refuses to authenticate', async () => {
 		const provider = new BaseUserProvider();

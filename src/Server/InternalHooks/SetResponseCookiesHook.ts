@@ -52,13 +52,24 @@ export class SetResponseCookiesHook extends OnSendHook {
 		const cookies = context.response.cookieJar().all();
 
 		for (let cookie of cookies) {
-			if (!useCookieEncryption || cookie.encrypted === false) {
+			if (!useCookieEncryption || cookie.encrypted === false || SetResponseCookiesHook.unencryptedCookieNames().includes(cookie.name)) {
 				context.response.setHeader('set-cookie', cookie.toHeaderString());
 				continue;
 			}
 
 			this.encryptAndSet(context, cookie);
 		}
+	}
+
+	/**
+	 * Cookies sent and read as-is even when Session.cookie.encrypted is on:
+	 * Server.disableCookieEncryption (it was never read) and the XSRF cookie
+	 */
+	public static unencryptedCookieNames(): string[] {
+		return [
+			...(config().get<string, any>('Server.disableCookieEncryption', []) ?? []),
+			SetResponseCookiesHook.xsrfCookieName(),
+		].filter(Boolean);
 	}
 
 	public static xsrfCookieName(): string | null {

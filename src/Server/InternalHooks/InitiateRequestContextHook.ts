@@ -48,11 +48,11 @@ export class InitiateRequestContextHook extends PreHandlerHook {
 
 		const cookies = context.request.cookieJar().all();
 
-		const xsrfCookie = SetResponseCookiesHook.xsrfCookieName();
+		const unencrypted = SetResponseCookiesHook.unencryptedCookieNames();
 
 		for (let cookie of cookies) {
-			// Sent unencrypted (see SetResponseCookiesHook); it's re-issued on every response
-			if (cookie.name === xsrfCookie) {
+			// Sent unencrypted (see SetResponseCookiesHook)
+			if (unencrypted.includes(cookie.name)) {
 				continue;
 			}
 
