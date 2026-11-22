@@ -14,6 +14,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
 	await unloadApp(false);
+
+	fs.rmSync('./testfile.txt', {force : true});
+	fs.rmSync('./testfiletwo.txt', {force : true});
 });
 
 
