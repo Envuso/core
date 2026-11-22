@@ -356,7 +356,7 @@ export interface QueryBuilderContract<T> {
 	 * @template T
 	 * @returns {Promise<T>}
 	 */
-	first(options?: FindOptions<T>): Promise<T>;
+	first(options?: FindOptions): Promise<T>;
 
 	/**
 	 * Get all items from the collection that match the query
@@ -364,7 +364,7 @@ export interface QueryBuilderContract<T> {
 	 * @template T
 	 * @returns {Promise<T[]>}
 	 */
-	get(options?: FindOptions<T>): Promise<T[]>;
+	get(options?: FindOptions): Promise<T[]>;
 
 	/**
 	 * Get an instance of the underlying mongo cursor
@@ -382,7 +382,7 @@ export interface QueryBuilderContract<T> {
 	 *
 	 * @private
 	 */
-	resolveCursor(options: FindOptions<T>, queryResolveType: QueryResolveType): FindCursor<T> | AggregationCursor<T>;
+	resolveCursor(options: FindOptions, queryResolveType: QueryResolveType): FindCursor<T> | AggregationCursor<T>;
 
 	/**
 	 * Just makes the implementing code more consistent/shorter

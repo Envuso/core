@@ -1,7 +1,7 @@
 import {instanceToPlain, classToPlainFromExist, plainToInstance} from "class-transformer";
 import type {ClassTransformOptions} from "class-transformer/types/interfaces";
 import _ from 'lodash';
-import {Collection, type Filter, type FindOptions, ObjectId, type OptionalId, type UpdateOptions, type UpdateResult,} from "mongodb";
+import {Collection, type Filter, type FindOptions, ObjectId, type OptionalId, type OptionalUnlessRequiredId, type UpdateOptions, type UpdateResult,} from "mongodb";
 import pluralize from 'pluralize';
 import {config, resolve} from "../../AppContainer/helpers";
 import {Log} from "../../Common/Logger/Log";
@@ -108,7 +108,7 @@ export class Model<M> implements ModelContract<M> {
 	static async get<T extends Model<any>>(
 		this: new() => T,
 		query?: ModelAttributesFilter<T | { _id: any }>,
-		options?: FindOptions<T>
+		options?: FindOptions
 	): Promise<T[]> {
 		return await QueryBuilder.fromContainer<T>(this).where(query).get(options);
 	}
@@ -222,7 +222,7 @@ export class Model<M> implements ModelContract<M> {
 
 			const plain = model.dehydrateForQuery();
 
-			const res = await this.collection().insertOne(plain);
+			const res = await this.collection().insertOne(plain as OptionalUnlessRequiredId<M>);
 
 			(this as any)._id  = res.insertedId;
 			(plain as any)._id = res.insertedId;
@@ -273,7 +273,7 @@ export class Model<M> implements ModelContract<M> {
 	 * Delete the current model instance from the collection
 	 */
 	public async delete(): Promise<boolean> {
-		const response = await this.collection().deleteOne({_id : this.getModelId()});
+		const response = await this.collection().deleteOne({_id : this.getModelId()} as Filter<M>);
 
 		return !!response.acknowledged;
 	}

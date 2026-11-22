@@ -13,10 +13,10 @@ export class QueryAggregation<T> {
 	/**
 	 * Attempt to apply all possible FindOptions to this aggregation query
 	 *
-	 * @param {FindOptions<T>} options
+	 * @param {FindOptions} options
 	 * @returns {this<T>}
 	 */
-	public addQueryOptions(options: FindOptions<T>): QueryAggregation<T> {
+	public addQueryOptions(options: FindOptions): QueryAggregation<T> {
 		if (options?.limit) {
 			this.aggregations.push({$limit : options.limit});
 		}

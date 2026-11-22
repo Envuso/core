@@ -29,7 +29,7 @@ export interface ModelContractConstructor<M> {
 
 	findOne<T extends Model<any>>(this: new() => T, query: Filter<T | { _id: any }>): Promise<T | null>;
 
-	get<T extends Model<any>>(this: new() => T, query?: ModelAttributesFilter<T | { _id: any }>, options?: FindOptions<T>): Promise<T[]>;
+	get<T extends Model<any>>(this: new() => T, query?: ModelAttributesFilter<T | { _id: any }>, options?: FindOptions): Promise<T[]>;
 
 	count(): Promise<number>;
 

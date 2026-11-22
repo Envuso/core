@@ -59,7 +59,7 @@
     "laravel-mix": "^6.0.29",
     "lodash": "^4.17.21",
     "mime": "^3.0.0",
-    "mongodb": "4.2.2",
+    "mongodb": "^7.9.1",
     "node-fetch": "^2.6.1",
     "path-to-regexp": "^6.2.0",
     "pluralize": "^8.0.0",

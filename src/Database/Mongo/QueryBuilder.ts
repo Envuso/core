@@ -792,7 +792,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @template T
 	 * @returns {Promise<T>}
 	 */
-	public async first(options: FindOptions<T> = {}): Promise<T> {
+	public async first(options: FindOptions = {}): Promise<T> {
 		await this.resolveCursor(options, 'first');
 
 		let result = await this._builderResult.limit(1).next();
@@ -821,7 +821,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 * @template T
 	 * @returns {Promise<T[]>}
 	 */
-	public async get(options: FindOptions<T> = {}): Promise<T[]> {
+	public async get(options: FindOptions = {}): Promise<T[]> {
 		const cursor = await this.resolveCursor(options, 'get');
 
 		const results = (await cursor.toArray()).map(
@@ -856,7 +856,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 	 *
 	 * @private
 	 */
-	public resolveCursor(options: FindOptions<T> = {}, queryResolveType: QueryResolveType): FindCursor<T> | AggregationCursor<T> {
+	public resolveCursor(options: FindOptions = {}, queryResolveType: QueryResolveType): FindCursor<T> | AggregationCursor<T> {
 		/**
 		 * if queryResolveType === 'first', we're doing a single item resolve.
 		 * We should ignore/remove any "limit" options
@@ -874,8 +874,7 @@ export class QueryBuilder<T> implements QueryBuilderContract<T> {
 		 * We'll only apply the order if we used {@see orderByAsc()} or {@see orderByDesc()} to apply one
 		 */
 		if (this._collectionOrder && this._collectionOrder?.direction && !options?.sort) {
-			options.sort                            = {};
-			options.sort[this._collectionOrder.key] = this._collectionOrder.direction;
+			options.sort = {[this._collectionOrder.key] : this._collectionOrder.direction};
 		}
 
 		/**
