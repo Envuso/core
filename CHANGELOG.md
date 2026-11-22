@@ -117,7 +117,7 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **`LocalFileProvider.makeDirectory(dir)` creates `dir` itself**; it used to create its parent. Paths that resolve outside a disk's root throw. (5ca3b98)
 - A failed MongoDB connection at boot throws instead of calling `process.exit(0)`, and failing to create a model's indexes stops the boot instead of being logged. (aa6e3ea)
 - **`QueryBuilder.update()` returns whether anything matched** (it returned `acknowledged`). (ed36da5)
-- **Strings are only treated as ObjectIds when they are 24 hex characters.** `ObjectId.isValid()` also accepted any 12-character string and numbers, so values like `"hello world!"` in id fields were converted. Use `isObjectId()` from `@envuso/core/Database/isObjectId`. (ed36da5)
+- **Strings are only treated as ObjectIds when they are 24 hex characters.** `ObjectId.isValid()` also accepted any 12-character string and numbers, so values like `"hello world!"` in id fields were converted. Use `isObjectId()` from `@envuso/core/Database`. (ed36da5)
 - **`EventDispatcher.dispatch()` and `EventManager.dispatch()` return a promise** you can await. Dispatcher classes are keyed by the class, so two dispatchers with the same name no longer share listeners. (9209174)
 - **`getModelId()` throws on an unsaved model.** It used to generate a random id, so `refresh()`, `update()` and `delete()` on an unsaved model silently did nothing. (4658082)
 - Relation properties should be typed as `Relation<T>`. Models that import each other (for example `User` and `Book`) otherwise fail at startup under ESM with decorator-metadata errors (TDZ). (55123ec)

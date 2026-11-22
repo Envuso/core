@@ -38,3 +38,4 @@ export type ModelDateField = {
 	toClass: (value: any) => any,
 	toPlain: (value: any) => any,
 }
+export * from './isObjectId';
