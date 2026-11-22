@@ -14,7 +14,16 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **TypeScript 7.** Update `typescript` to `7` and review your `tsconfig.json` against these changes (4421992, 33b70de):
   - `baseUrl`, `node10` module resolution and `downlevelIteration` are removed. Use `"moduleResolution": "bundler"`.
   - The framework's own tsconfig enables `isolatedModules` and `verbatimModuleSyntax`. Apps don't have to, but using `import type` for type-only imports is recommended: under Bun's ESM loading, a value import that is only used as a type can create an import cycle and break decorator metadata (see **Models** below).
-- **Environment variables override `.env`.** Real environment variables now take precedence over values in `.env` (standard dotenv behaviour). If your deployment relies on `.env` overriding the shell environment, that changes. (4421992)
+- **`.env` files are loaded by Bun, not Envuso.** Bun reads them before any code runs, in increasing precedence: `.env`, `.env.{NODE_ENV}`, `.env.local` (skipped when `NODE_ENV=test`), `.env.{NODE_ENV}.local`. `${VAR}` references are expanded. `dotenv` and `dotenv-expand` are removed. (9ea4f00)
+  - `Environment.load(path)` no longer loads a file. The argument is ignored and logs a warning (unless it is the project-root `.env`). Load another file with Bun's flag instead:
+    ```sh
+    # before: Environment.load('config/.env.staging')
+    bun --env-file=config/.env.staging src/index.ts
+    ```
+  - `Environment.hasEnvFile()` and `Environment.loadEnvFile()` are removed.
+  - The `.env` is resolved from the directory Bun is started in (the project root), not from the file that called `Environment.load()`.
+  - To load no `.env` at all (e.g. production relying on real env vars), use `bun --no-env-file` or `env = false` in `bunfig.toml`.
+- **Environment variables override `.env`.** Real environment variables take precedence over `.env` values. In 2.x the `.env` file won. If your deployment relies on `.env` overriding the shell environment, that changes. (4421992, 9ea4f00)
 
 **Fastify 5**
 
@@ -144,10 +153,13 @@ All notable changes to Envuso are documented in this file. The format follows [K
 **Dependencies (major versions)**
 
 - Fastify 3 to 5 (50211bd), MongoDB driver 4.2 to 7.9 (646379c), tslog 3 to 5 (50211bd), `aws-sdk` v2 to AWS SDK v3 (a7c1bb2).
-- `jsonwebtoken` 9, `class-validator` 0.15, `reflect-metadata` 0.2, `dotenv` 18, `chalk` 6, `winston` with `winston-daily-rotate-file` 5, `fs-extra` 11, `tsyringe` 4.10 (10d6260).
+- `jsonwebtoken` 9, `class-validator` 0.15, `reflect-metadata` 0.2, `chalk` 6, `winston` with `winston-daily-rotate-file` 5, `fs-extra` 11, `tsyringe` 4.10 (10d6260).
 - `file-type` 16 to 22 (142c622).
-- `dotenv-expand` is pinned to `^12.0.3`. Versions 1000.0.0 and later run shell command substitution (`$(...)`) during `.env` expansion (10d6260).
 - `laravel-mix` is now a devDependency; it only builds the Inertia/Vue test app (4eec103).
+
+**Environment**
+
+- `Environment.get()`, `has()` and the `is*()` helpers load the environment on first use, so config classes no longer depend on `Environment.load()` having been called first. (9ea4f00)
 
 **Hashing**
 
@@ -228,7 +240,7 @@ All notable changes to Envuso are documented in this file. The format follows [K
 - **TLS verification is no longer disabled.** The OAuth provider import set `https.globalAgent.options.rejectUnauthorized = false`, which turned off certificate checks for the whole process. This line is removed. (142c622)
 - **`jsonwebtoken` 9** fixes CVE-2022-23529, CVE-2022-23539, CVE-2022-23540 and CVE-2022-23541. (10d6260)
 - **`class-validator` 0.15** resolves a critical finding from the dependency audit. (10d6260)
-- **`dotenv-expand` is pinned to `^12.0.3`.** Newer versions run shell command substitution during `.env` loading. (10d6260)
+- **`dotenv-expand` is removed.** Its newer versions (1000.0.0+) run shell command substitution (`$(...)`) while expanding `.env` values; Bun's own expansion does not. (9ea4f00)
 
 ### Removed
 
@@ -236,7 +248,7 @@ All notable changes to Envuso are documented in this file. The format follows [K
 
 Apps that imported any of these directly, or relied on them transitively, need to add them to their own `package.json` or migrate:
 
-- Runtime: `uWebSockets.js` (git dependency), `ioredis` and its types, `aws-sdk` (v2), `axios` (use `fetch`), `chokidar`, `glob`, `path-to-regexp`, `read-chunk`, `is-image`, `is-video`, `mime` (use `Bun.file(path).type`), `ws`, `@types/ws`, `middie`, `cookies`, `dayjs`, `node-fetch`, `qs`, `bufferutil`, `utf-8-validate`.
+- Runtime: `uWebSockets.js` (git dependency), `ioredis` and its types, `aws-sdk` (v2), `axios` (use `fetch`), `chokidar`, `glob`, `path-to-regexp`, `read-chunk`, `is-image`, `is-video`, `mime` (use `Bun.file(path).type`), `ws`, `@types/ws`, `dotenv` and `dotenv-expand` (Bun loads `.env`), `middie`, `cookies`, `dayjs`, `node-fetch`, `qs`, `bufferutil`, `utf-8-validate`.
 - Dev: `ts-node-dev`, Jest, the `@babel/*` set and `babel-loader`, and stale `@types/*` packages (`node`, `chokidar`, `busboy`, `connect`, `dotenv`, `glob`, `mime`, `ioredis`, `redis`).
 
 **Behaviour**
